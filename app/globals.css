@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: 'Rajdhani', sans-serif;
+  --font-body: 'Work Sans', sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background: #F5F3EE;
+  color: #0D1B2A;
+}
+
+@layer components {
+  .eyebrow {
+    @apply font-display text-xs font-semibold uppercase text-blue flex items-center gap-2.5;
+    letter-spacing: 0.18em;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 24px;
+    height: 2px;
+    @apply bg-blue;
+  }
+  .btn {
+    @apply inline-block font-display text-sm font-semibold uppercase px-7 py-3 cursor-pointer text-center;
+    letter-spacing: 0.08em;
+    transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+
+  .btn-blue {
+    @apply bg-blue text-navy-deep;
+    box-shadow: 0 4px 0 0 #2F63C4;
+  }
+  .btn-blue:hover { transform: translateY(-2px); box-shadow: 0 6px 0 0 #2F63C4; }
+  .btn-blue:active { transform: translateY(3px); box-shadow: 0 1px 0 0 #2F63C4; }
+
+  .btn-outline {
+    @apply bg-transparent text-offwhite border border-white/25;
+    box-shadow: 0 3px 0 0 rgba(255, 255, 255, 0.15);
+  }
+  .btn-outline:hover {
+    @apply border-blue text-blue;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0 0 rgba(76, 141, 255, 0.35);
+  }
+  .btn-outline:active { transform: translateY(2px); box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.15); }
+
+  .btn-outline-dark {
+    @apply bg-transparent text-navy border border-navy;
+    box-shadow: 0 3px 0 0 rgba(13, 27, 42, 0.3);
+  }
+  .btn-outline-dark:hover {
+    @apply bg-navy text-offwhite;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0 0 rgba(13, 27, 42, 0.4);
+  }
+  .btn-outline-dark:active { transform: translateY(2px); box-shadow: 0 1px 0 0 rgba(13, 27, 42, 0.3); }
+  .hexagon { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+
+  .pattern-diagonal {
+    background-image: repeating-linear-gradient(-45deg, transparent, transparent 28px, rgba(76,141,255,0.05) 28px, rgba(76,141,255,0.05) 30px);
+  }
+
+  .focus-ring:focus-visible { outline: 2px solid #4C8DFF; outline-offset: 2px; }
+  .btn:focus-visible { outline: 2px solid #4C8DFF; outline-offset: 2px; }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 88s linear infinite;
+}
