@@ -3,6 +3,7 @@ import { turmas } from "@/lib/data";
 import Breadcrumb from "@/components/Breadcrumb";
 import SpecsGrid from "@/components/SpecsGrid";
 import BuyBox from "@/components/BuyBox";
+import { idDoItem } from "@/lib/itens";
 import CheckList from "@/components/CheckList";
 import Gallery from "@/components/Gallery";
 
@@ -41,6 +42,14 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
               precoSufixo={turma.precoSufixo}
               nota="Material didático incluso · Sem taxa de matrícula · Parcele em até 3x no cartão"
               cta="Garantir minha vaga"
+              item={{
+                id: idDoItem("turma", turma.slug),
+                tipo: "turma",
+                nome: turma.nome,
+                tag: turma.tag,
+                preco: turma.preco,
+                precoSufixo: turma.precoSufixo,
+              }}
               vagas={{ total: d.vagasTotal, ocupadas: d.vagasOcupadas }}
             />
           </div>

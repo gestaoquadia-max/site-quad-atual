@@ -1,7 +1,9 @@
+import EstadoLista from "@/components/EstadoLista";
+
 export const metadata = { title: "Compras — Área do Aluno" };
 
 const compras = [
-  { nome: "Mensalidade — Turma CFP 2025.2", data: "04/07/2025", valor: "R$ 497,00", status: "Pago" },
+  { nome: "Turma CFP 2025.2 — 3 meses", data: "04/07/2025", valor: "R$ 997,00", status: "Pago" },
   { nome: "Kit Completo CFP", data: "04/06/2025", valor: "R$ 149,90", status: "Pago" },
   { nome: "Direito Constitucional", data: "28/06/2025", valor: "R$ 49,90", status: "Pago" },
   { nome: "Raciocínio Lógico", data: "15/06/2025", valor: "R$ 34,90", status: "Pago" },
@@ -11,8 +13,14 @@ export default function ComprasPage() {
   return (
     <>
       <h2 className="font-display text-[28px] font-bold uppercase">Compras</h2>
-      <p className="mb-8 text-sm text-steel">Histórico de mensalidades e materiais adquiridos.</p>
+      <p className="mb-8 text-sm text-steel">Histórico de turmas, materiais e eventos adquiridos.</p>
 
+      <EstadoLista
+        vazio={compras.length === 0}
+        vazioTitulo="Nenhuma compra ainda"
+        vazioTexto="Suas turmas, materiais e inscrições pagas aparecem aqui."
+        vazioAcao={{ href: "/turmas", label: "Ver turmas" }}
+      >
       <div className="border border-light bg-white">
         {compras.map((c, i) => (
           <div
@@ -34,6 +42,7 @@ export default function ComprasPage() {
           </div>
         ))}
       </div>
+      </EstadoLista>
     </>
   );
 }

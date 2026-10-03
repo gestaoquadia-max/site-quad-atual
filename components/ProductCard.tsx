@@ -5,6 +5,7 @@ import Link from "next/link";
 import StatusBadge from "./StatusBadge";
 import Kicker from "./Kicker";
 import { useCart } from "@/lib/cart";
+import { idDoItem } from "@/lib/itens";
 
 const acaoPorTipo = {
   produto: "Adicionar ao carrinho",
@@ -13,6 +14,7 @@ const acaoPorTipo = {
 };
 
 export default function ProductCard({
+  slug,
   href,
   tag,
   nome,
@@ -24,6 +26,7 @@ export default function ProductCard({
   dark = false,
   tipo = "produto",
 }: {
+  slug: string;
   href?: string;
   tag: string;
   nome: string;
@@ -40,7 +43,7 @@ export default function ProductCard({
   const mostrarAcao = !status || status === "aberta";
 
   function handleAdicionar() {
-    addItem({ id: nome, tipo, nome, tag, preco, precoSufixo });
+    addItem({ id: idDoItem(tipo, slug), tipo, nome, tag, preco, precoSufixo });
     setAdicionado(true);
     setTimeout(() => setAdicionado(false), 1500);
   }

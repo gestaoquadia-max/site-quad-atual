@@ -1,0 +1,567 @@
+% ---------------------------------------------------------------------------
+% Documentação técnica do quad-site.
+%
+% Documento autocontido: compila com pdflatex sem pacotes fora do TeX Live
+% básico. Para embutir em um relatório maior, remova o preâmbulo e o
+% \begin{document}/\end{document}, mantendo apenas as seções.
+% ---------------------------------------------------------------------------
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+
+\makeatletter
+\newcommand{\cd@us}{\textunderscore\discretionary{}{}{}}
+\newcommand{\cd}[1]{{\ttfamily\hyphenchar\font\m@ne\let\_\cd@us #1}}
+\makeatother
+
+\definecolor{codebg}{gray}{0.96}
+\definecolor{codecomment}{rgb}{0.35,0.45,0.35}
+\definecolor{codekey}{rgb}{0.20,0.20,0.60}
+
+\lstdefinestyle{base}{
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=fullflexible,
+  keepspaces=true,
+  frame=single,
+  framerule=0pt,
+  xleftmargin=6pt,
+  xrightmargin=6pt,
+  aboveskip=8pt,
+  belowskip=8pt,
+  showstringspaces=false,
+  commentstyle=\color{codecomment},
+  keywordstyle=\color{codekey}\bfseries,
+  extendedchars=true,
+  inputencoding=utf8,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {à}{{\`a}}1 {À}{{\`A}}1
+    {â}{{\^a}}1 {ê}{{\^e}}1 {ô}{{\^o}}1
+    {Â}{{\^A}}1 {Ê}{{\^E}}1 {Ô}{{\^O}}1
+    {ã}{{\~a}}1 {õ}{{\~o}}1 {Ã}{{\~A}}1 {Õ}{{\~O}}1
+    {ç}{{\c c}}1 {Ç}{{\c C}}1
+    {ü}{{\"u}}1 {Ü}{{\"U}}1,
+}
+\lstdefinestyle{tsx}{style=base,language=}
+\lstdefinestyle{shell}{style=base,language=bash}
+\lstdefinestyle{plain}{style=base,language=}
+
+\title{Documentação técnica do \cd{quad-site}\\
+       \large Quad Concursos --- site institucional}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+\newpage
+
+% ===========================================================================
+\section{Objetivo e escopo}
+
+Este documento descreve o estado atual do \cd{quad-site}, o site institucional
+da Quad Concursos (Feira de Santana, Bahia): sua arquitetura, o sistema de
+design que rege a interface, as convenções de componentes e dados, a forma
+como mudanças são verificadas neste projeto, e um guia de como formular
+solicitações a um agente de IA para obter resultados consistentes com o que já
+existe.
+
+O objetivo é permitir que qualquer pessoa --- humana ou agente --- retome o
+trabalho neste código sem precisar redescobrir por tentativa e erro decisões já
+tomadas: por que as cores são as que são, por que não há testes automatizados,
+por que o checkout não está ligado ao carrinho, e o que fazer quando uma
+mudança visual precisa ser verificada sem acesso a um navegador.
+
+A seção \ref{sec:limitacoes} lista de forma explícita o que \textbf{não} existe
+neste projeto, para que o leitor não presuma infraestrutura (testes, CI,
+backend) que nunca foi construída.
+
+% ===========================================================================
+\section{Visão geral do projeto}
+\label{sec:visao-geral}
+
+\subsection{Stack}
+
+\begin{longtable}{@{}p{4.0cm}p{10.5cm}@{}}
+\toprule
+\textbf{Camada} & \textbf{Tecnologia} \\
+\midrule
+\endhead
+Framework & Next.js 16 (App Router), React 19 \\
+Linguagem & TypeScript \\
+Estilo & Tailwind CSS v3, sem biblioteca de componentes \\
+Fontes & Rajdhani (\cd{--font-display}) e Work Sans (\cd{--font-body}), via
+\cd{next/font/google} ou \cd{<link>} no \cd{layout.tsx} \\
+Estado do carrinho & Contexto React (\cd{lib/cart.tsx}) persistido em
+\cd{localStorage} \\
+Backend & Nenhum \\
+Hospedagem prevista & Não definida no repositório \\
+\bottomrule
+\end{longtable}
+
+\subsection{Decisão deliberada: sem backend por enquanto}
+
+Todo o conteúdo do site --- turmas, produtos, eventos, professores, aprovados,
+posts do blog --- vem de arrays tipados estáticos em \cd{lib/data.ts}. Esta é
+uma decisão de sequenciamento, não uma limitação técnica: o frontend é
+finalizado primeiro; a persistência real (banco de dados, upload de imagens em
+bucket) entra depois, sem que a modelagem de dados precise mudar --- os campos
+opcionais como \cd{fotoUrl} já existem nos tipos, prontos para receber uma URL
+real quando a infraestrutura existir.
+
+Consequência prática para quem for integrar um backend futuramente: trocar a
+origem dos arrays de \cd{lib/data.ts} por chamadas a uma API mantém os
+componentes que os consomem inalterados, pois eles já operam sobre os tipos
+exportados (\cd{Turma}, \cd{Produto}, \cd{Evento} etc.), não sobre os arrays em
+si.
+
+% ===========================================================================
+\section{Arquitetura}
+
+\subsection{Estrutura de pastas}
+
+\begin{longtable}{@{}p{3.2cm}p{11.3cm}@{}}
+\toprule
+\textbf{Pasta} & \textbf{Conteúdo} \\
+\midrule
+\endhead
+\cd{app/} & Rotas do App Router. Cada \cd{page.tsx} é uma rota; pastas entre
+colchetes (\cd{[slug]}) são rotas dinâmicas. \\
+\cd{components/} & Componentes de UI compartilhados entre rotas. Sem
+subpastas: a convenção é um arquivo por componente, nome em PascalCase igual
+ao componente exportado. \\
+\cd{lib/} & \cd{data.ts} (dados mockados e seus tipos), \cd{cart.tsx}
+(contexto do carrinho), \cd{format.ts} (utilitários de formatação
+compartilhados). \\
+\cd{public/images/} & Ativos estáticos servidos na raiz (\cd{/images/...}):
+logo em SVG, fotos de professores em WebP/PNG. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Rotas existentes}
+
+\begin{longtable}{@{}p{5.4cm}p{9.1cm}@{}}
+\toprule
+\textbf{Rota} & \textbf{Conteúdo} \\
+\midrule
+\endhead
+\cd{/} & Home: hero, turmas, PDFs, eventos, carrossel de professores,
+aprovados, blog \\
+\cd{/turmas}, \cd{/produtos}, \cd{/eventos} & Listagens \\
+\cd{/turmas/[slug]}, \cd{/produtos/[slug]}, \cd{/eventos/[slug]} & Detalhe de
+item, com \cd{BuyBox} \\
+\cd{/professores/[slug]} & Banner em modo paisagem com foto do professor,
+credenciais \\
+\cd{/aprovados} & Cards de aprovados e depoimentos em vídeo \\
+\cd{/blog}, \cd{/blog/[slug]} & Listagem e post \\
+\cd{/cursos} & Cursos online (redireciona para a Tutory) \\
+\cd{/carrinho}, \cd{/checkout}, \cd{/checkout/confirmacao} & Fluxo de compra \\
+\cd{/entrar}, \cd{/cadastro} & Login (mockado) e cadastro em duas etapas \\
+\cd{/aluno} e subrotas & Área do aluno: painel, materiais, turmas, eventos,
+compras, perfil \\
+\bottomrule
+\end{longtable}
+
+\subsection{Modelo de dados}
+
+\cd{lib/data.ts} exporta um tipo e um array por entidade: \cd{Turma},
+\cd{Produto}, \cd{Evento}, \cd{Aprovado}, \cd{Professor}, \cd{Post},
+\cd{HistoriaVideo}. Cada tipo carrega apenas os campos que a interface
+efetivamente usa hoje --- não há campos especulativos para uma versão futura.
+
+\begin{lstlisting}[style=tsx]
+export type Professor = {
+  slug: string;
+  nome: string;
+  materia: string;
+  bio: string;
+  bioCompleta: string;
+  formacao: string[];
+  fotoUrl?: string; // opcional: sem foto real, cai no fallback de iniciais
+};
+\end{lstlisting}
+
+O padrão \cd{fotoUrl?: string} se repete em \cd{Professor} e \cd{Aprovado}: o
+componente que consome o campo sempre trata a ausência de foto renderizando um
+monograma com as iniciais (\cd{lib/format.ts}, função \cd{getIniciais}) sobre
+um gradiente, em vez de quebrar ou deixar um espaço vazio.
+
+\subsection{Estado do carrinho}
+
+O carrinho é um \cd{CartProvider} (Contexto React) que envolve toda a árvore em
+\cd{layout.tsx}, com persistência em \cd{localStorage} sob a chave
+\cd{quad-carrinho}. Ele é agnóstico ao tipo de item --- produtos, turmas e
+eventos compartilham a mesma estrutura \cd{CartItem}, com uma regra de negócio
+única: apenas itens do tipo \cd{"produto"} incrementam quantidade ao serem
+adicionados de novo; turmas e eventos são de item único.
+
+\begin{lstlisting}[style=tsx]
+function addItem(item: Omit<CartItem, "quantidade">) {
+  setItems((prev) => {
+    const existente = prev.find((i) => i.id === item.id);
+    if (existente) {
+      if (item.tipo !== "produto") return prev; // turma/evento: item único
+      return prev.map((i) => (i.id === item.id ? { ...i, quantidade: i.quantidade + 1 } : i));
+    }
+    return [...prev, { ...item, quantidade: 1 }];
+  });
+}
+\end{lstlisting}
+
+O checkout, deliberadamente, \textbf{não} lê esse contexto: o resumo do pedido
+em \cd{/checkout} é hardcoded. Ver seção \ref{sec:limitacoes}.
+
+% ===========================================================================
+\section{Sistema de design}
+\label{sec:design}
+
+Esta é a base de conhecimento do projeto: em vez de regras em Markdown, ela vive
+como tokens no \cd{tailwind.config.ts} e classes utilitárias em
+\cd{globals.css}. Editar um token aqui propaga a mudança para todo lugar que o
+usa --- é o mesmo princípio de fonte única de verdade de uma base de regras
+versionada, só que expresso em configuração de build em vez de texto.
+
+\subsection{Paleta de cores}
+
+\begin{longtable}{@{}p{3.4cm}p{3.0cm}p{7.7cm}@{}}
+\toprule
+\textbf{Token} & \textbf{Valor} & \textbf{Uso} \\
+\midrule
+\endhead
+\cd{navy} / \cd{navy-deep} / \cd{navy-mid} &
+\#0D1B2A / \#091320 / \#14263A & Fundos escuros, do mais claro ao mais escuro \\
+\cd{blue} / \cd{blue-dark} & \#4C8DFF / \#2F63C4 & Cor de destaque (CTAs,
+links, badges) \\
+\cd{offwhite} & \#F5F3EE & Fundo padrão do corpo da página \\
+\cd{steel} / \cd{steel-light} & \#8B95A3 / \#B8C0CC & Texto secundário, em
+fundo claro e escuro respectivamente \\
+\cd{border-light} / \cd{border-dark} & \#E2DFD6 / \cd{rgba(255,255,255,.1)} &
+Bordas em fundo claro e escuro \\
+\bottomrule
+\end{longtable}
+
+Esta paleta é considerada estável: várias rodadas de ajuste visual nesta sessão
+mantiveram essas cores intactas por instrução explícita do responsável pelo
+produto.
+
+\subsection{Escalas de espaçamento, tipografia e elevação}
+
+\begin{longtable}{@{}p{3.0cm}p{4.0cm}p{7.1cm}@{}}
+\toprule
+\textbf{Escala} & \textbf{Tokens} & \textbf{Papel} \\
+\midrule
+\endhead
+Espaçamento vertical & \cd{py-header} (56px), \cd{py-section} (72px) &
+Substituem valores soltos (\cd{py-12}, \cd{py-16}, \cd{py-[72px]}) que
+existiam antes da padronização \\
+Largura de container & \cd{max-w-site} (1120px), \cd{max-w-narrow} (760px),
+\cd{max-w-form} (920px) & Largura padrão, leitura de texto corrido (posts,
+corpo de turma/produto), formulários transacionais (checkout) \\
+Tipografia de título & \cd{text-display}, \cd{text-h1}, \cd{text-h1-sm},
+\cd{text-h2} & Hero da home, heróis de entidade, páginas utilitárias,
+\cd{SectionHead} \\
+Elevação & \cd{shadow-sm}, \cd{shadow} (padrão), \cd{shadow-md} & Aplicadas
+apenas a superfícies que sobrepõem conteúdo (mega menu, \cd{BuyBox} fixo,
+overlay de hover); cards estáticos permanecem sem sombra, só com borda \\
+\bottomrule
+\end{longtable}
+
+\subsection{Classes utilitárias em \cd{globals.css}}
+
+\begin{longtable}{@{}p{3.2cm}p{11.3cm}@{}}
+\toprule
+\textbf{Classe} & \textbf{Comportamento} \\
+\midrule
+\endhead
+\cd{.btn-blue} / \cd{.btn-outline} / \cd{.btn-outline-dark} &
+Botão com efeito de profundidade física: sombra deslocada que recua ao clicar
+(\cd{box-shadow} + \cd{translateY} no \cd{:hover}/\cd{:active}). É a
+assinatura de interação do site; não deve ser redesenhada sem pedido
+explícito. \\
+\cd{.eyebrow} & Rótulo azul, maiúsculo, com um tracinho antes do texto.
+Reutilizado tanto como categoria de página quanto como cabeçalho de
+subseção dentro de uma mesma página (ex.\ a página de professor usa
+\cd{.eyebrow} duas vezes: matéria do professor e ``Formação e experiência''). \\
+\cd{.hexagon} & \cd{clip-path} hexagonal, usado em avatares, marcadores de
+lista (\cd{CheckList}) e no ícone de confirmação do checkout. \\
+\cd{.focus-ring} & \cd{outline} azul em \cd{:focus-visible}, para todo
+elemento interativo que não seja \cd{.btn} (que já tem a própria regra de
+foco). \\
+\cd{.pattern-diagonal} & Textura de listras diagonais sutis, usada no hero da
+home e nos placeholders da \cd{Gallery}. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Convenções de componente}
+
+\begin{itemize}
+  \item \textbf{Prop \cd{dark}}: vários componentes (\cd{AccentCard},
+        \cd{ProductCard}, \cd{SectionHead}, \cd{CheckList}) aceitam uma prop
+        booleana \cd{dark} que alterna a paleta de texto/borda para uso sobre
+        fundo \cd{navy}. É o mecanismo padrão de reuso entre seções claras e
+        escuras --- criar uma variante nova do componente em vez de estender
+        essa prop é considerado duplicação.
+  \item \textbf{\cd{Reveal}} (\cd{components/Reveal.tsx}): wrapper de entrada
+        suave via \cd{IntersectionObserver}, respeitando
+        \cd{prefers-reduced-motion}. Aplicado a cards abaixo da dobra, nunca a
+        conteúdo acima da dobra, sticky, ou páginas transacionais
+        (\cd{/carrinho}, \cd{/checkout}, \cd{/entrar}, \cd{/cadastro}).
+  \item \textbf{Máscaras de campo}: não há biblioteca de máscara de input.
+        CPF, telefone e CEP (\cd{app/cadastro/page.tsx}) usam funções puras
+        que limpam não-dígitos e reconstroem a pontuação a cada tecla,
+        aplicadas via uma prop \cd{mask?: (v: string) => string} no
+        componente \cd{Field} local dessa página.
+  \item \textbf{Nomenclatura}: identificadores de domínio (variáveis, props,
+        dados) são em português (\cd{nome}, \cd{preco}, \cd{tipo},
+        \cd{criarConta}); nomes de componentes e conceitos técnicos
+        genéricos são em inglês (\cd{Field}, \cd{Reveal}, \cd{dark}). Essa
+        mistura é intencional e consistente em todo o código existente.
+\end{itemize}
+
+% ===========================================================================
+\section{Verificação}
+\label{sec:verificacao}
+
+Este projeto \textbf{não possui} suíte de testes automatizados, pipeline de
+CI, nem hooks de Git ou de agente configurados. A verificação de uma mudança é
+inteiramente manual, e se apoia em três mecanismos:
+
+\begin{enumerate}
+  \item \textbf{Checagem de tipos}: \cd{npx tsc --noEmit}. É o único portão
+        automatizado real do projeto --- captura classes Tailwind referenciando
+        props inexistentes, imports quebrados e incompatibilidades de tipo.
+        Deve ser executado depois de qualquer edição em arquivo \cd{.tsx}.
+  \item \textbf{Checagem de rota}: com o servidor de desenvolvimento
+        (\cd{npm run dev}) já em execução, \cd{curl} contra cada rota tocada,
+        conferindo código \cd{200} e, quando relevante, que um trecho de texto
+        esperado apareça no HTML renderizado no servidor.
+  \item \textbf{Inspeção do CSS compilado}: quando uma classe Tailwind nova é
+        introduzida via token (\cd{padding}, \cd{maxWidth}, \cd{fontSize},
+        \cd{boxShadow} customizados), buscar a regra correspondente no arquivo
+        CSS servido em \cd{/\_next/static/chunks/...css} confirma que o
+        Tailwind realmente gerou a classe, em vez de presumir que o nome do
+        token está correto.
+\end{enumerate}
+
+\begin{lstlisting}[style=shell]
+npx tsc --noEmit
+curl -s -o /dev/null -w "%{http_code} /rota\n" http://localhost:3000/rota
+\end{lstlisting}
+
+\subsection{\cd{next lint} está quebrado neste ambiente}
+
+O script \cd{npm run lint} (\cd{next lint}) falha com
+\texttt{"Invalid project directory provided, no such directory: ...\textbackslash lint"}
+neste ambiente Windows, independentemente do código --- é um problema de
+parsing de argumento do CLI do Next.js com o caminho do projeto contendo
+espaços, não algo introduzido por uma mudança específica. Na ausência de lint
+funcional, \cd{tsc --noEmit} é o único checador estático disponível.
+
+\subsection{Sem automação de navegador}
+
+Não há Playwright, Puppeteer, nem qualquer ferramenta de captura de tela neste
+fluxo de trabalho. Mudanças puramente visuais (posição de elemento, corte de
+imagem, animação, hover) não podem ser verificadas de forma independente ---
+apenas o HTML/CSS servido pode ser inspecionado via \cd{curl}, o que confirma
+que uma classe foi aplicada, mas não como ela renderiza. A verificação visual
+final depende de captura de tela fornecida por quem está pedindo a mudança.
+
+% ===========================================================================
+\section{Fluxo de trabalho}
+
+Diferente de um pipeline com portões automatizados, o ciclo de trabalho neste
+projeto é conversacional e iterativo:
+
+\begin{longtable}{@{}p{4.6cm}p{10.0cm}@{}}
+\toprule
+\textbf{Momento} & \textbf{Comportamento observado} \\
+\midrule
+\endhead
+Pedido inicial & Frequentemente descreve o resultado desejado, não a
+implementação. Ajustes finos de posicionamento/corte costumam vir em rodadas
+subsequentes, guiados por captura de tela. \\
+\addlinespace
+Edição concorrente & Quem pede a mudança pode editar o mesmo arquivo
+diretamente no editor enquanto o agente trabalha. O agente deve reler o
+arquivo antes de cada edição em vez de assumir que seu último estado
+conhecido ainda é válido. \\
+\addlinespace
+Após cada edição relevante & \cd{tsc --noEmit} e, quando aplicável,
+\cd{curl} na rota afetada (seção \ref{sec:verificacao}). \\
+\addlinespace
+Ajuste visual fino & Quando um ajuste de pixel específico (posição, corte de
+imagem, zoom) não converge em uma ou duas tentativas, vale expor o mecanismo
+subjacente (ex.\ largura da caixa controla zoom via \cd{object-cover}) para
+que a calibração final possa ser feita ao vivo no DevTools do navegador, sem
+depender de rodadas adicionais. \\
+\bottomrule
+\end{longtable}
+
+Não há \cd{commit} automático: alterações ficam no diretório de trabalho até
+serem revisadas e commitadas explicitamente.
+
+% ===========================================================================
+\section{Guia de formulação de solicitações}
+\label{sec:prompts}
+
+\subsection{Princípio}
+
+Assim como em qualquer projeto com convenções já estabelecidas, reenunciar o
+sistema de design a cada pedido (``use a cor azul de destaque'', ``siga o
+padrão de card com borda esquerda'') é redundante --- essas decisões já estão
+no código existente e serão seguidas por consistência com o que já existe. O
+que vale a pena declarar é o que \textbf{não} pode ser inferido do código: o
+conteúdo específico, a hierarquia da informação, e --- principalmente neste
+projeto, que não tem testes --- o critério de ``pronto'' para algo visual.
+
+\subsection{Nova entidade de conteúdo (seguindo o padrão \cd{lib/data.ts})}
+
+\begin{lstlisting}[style=plain]
+Adicione um novo tipo Depoimento em lib/data.ts, seguindo o mesmo padrão
+de Aprovado (tipo exportado + array exportado).
+
+Campos: nome, cargo, texto (até 280 caracteres), fotoUrl opcional.
+
+Crie um componente DepoimentoCard reaproveitando o padrão de fallback de
+iniciais já usado em AprovadoCard/ProfessoresCarousel (getIniciais de
+lib/format.ts) quando fotoUrl não existir.
+
+Adicione uma seção "Depoimentos" na home, entre Aprovados e Blog, com o
+mesmo ritmo de espaçamento (py-section) das seções vizinhas.
+\end{lstlisting}
+
+Note o que o pedido \emph{não} especifica: cor, borda, sombra, ou onde a
+seção deve ficar no arquivo \cd{tailwind.config.ts} --- isso já está
+resolvido pelo sistema de design existente. O que ele especifica é o que é
+específico do domínio: os campos, o limite de caracteres, e a posição na
+página.
+
+\subsection{Ajuste visual fino}
+
+Pedidos de posicionamento/recorte de imagem se beneficiam de declarar o
+resultado desejado e, quando possível, anexar uma captura de tela --- dado que
+não há automação de navegador (seção \ref{sec:verificacao}), a captura é o
+único canal de verificação visual real.
+
+\begin{lstlisting}[style=plain]
+[captura de tela anexada]
+
+A cabeça do professor está cortada no topo do banner. Quero ver o rosto
+inteiro, mesmo que isso corte mais do ombro/peito na base.
+\end{lstlisting}
+
+\subsection{Mudança de comportamento existente}
+
+Ao alterar um fluxo já implementado, enunciar o estado atual reduz ambiguidade
+--- sobretudo porque não há teste automatizado que documente o comportamento
+anterior:
+
+\begin{lstlisting}[style=plain]
+Hoje, ao adicionar um produto já presente no carrinho, a quantidade é
+incrementada; para turma/evento, adicionar de novo não faz nada (item
+único). Mantenha esse comportamento, mas mostre um aviso rápido
+("Já está no carrinho") quando o clique em turma/evento for ignorado.
+\end{lstlisting}
+
+\subsection{Formulações a evitar}
+
+\begin{longtable}{@{}p{6.6cm}p{7.9cm}@{}}
+\toprule
+\textbf{Formulação} & \textbf{Problema} \\
+\midrule
+\endhead
+``Deixe essa página mais bonita'' &
+Sem critério verificável. Nenhum teste captura ``bonita''; o pedido deveria
+nomear o elemento específico e o resultado esperado. \\
+\addlinespace
+``Adicione testes para isso'' &
+Não há framework de teste configurado neste projeto (Jest, Vitest, Playwright
+--- nenhum instalado). O pedido precisa primeiro decidir se vale introduzir
+essa infraestrutura, o que é uma mudança de escopo maior, não um ajuste
+pontual. \\
+\addlinespace
+``Conecte isso a um banco de dados'' &
+Contraria a decisão deliberada de manter o frontend mockado até estar
+completo (seção \ref{sec:visao-geral}). Requer confirmação explícita antes de
+proceder. \\
+\addlinespace
+``Use uma biblioteca de máscara de input para o telefone'' &
+O padrão do projeto é função pura sem dependência (seção
+\ref{sec:design}); uma biblioteca nova deve ser uma decisão deliberada, não
+um atalho de conveniência. \\
+\bottomrule
+\end{longtable}
+
+% ===========================================================================
+\section{Limitações conhecidas}
+\label{sec:limitacoes}
+
+\begin{itemize}
+  \item \textbf{Sem backend nem banco de dados.} Todo conteúdo é mockado em
+        \cd{lib/data.ts}. Decisão deliberada, não pendência esquecida (ver
+        seção \ref{sec:visao-geral}).
+  \item \textbf{Sem armazenamento de imagens em bucket.} Fotos de professores
+        ficam em \cd{public/images/}, versionadas junto ao código. Migração
+        futura recomendada para um bucket (Vercel Blob ou Cloudinary, dado o
+        deploy provável em Vercel) mantendo apenas a URL no dado, não o
+        arquivo em si.
+  \item \textbf{Sem suíte de testes automatizados.} Nenhum framework de teste
+        instalado. Toda verificação é manual (seção \ref{sec:verificacao}).
+  \item \textbf{Sem CI, sem hooks de Git, sem hooks de agente.} Não existe
+        portão que bloqueie um commit ou um push por violação de padrão --- a
+        consistência depende inteiramente de quem edita o código seguir as
+        convenções documentadas aqui.
+  \item \textbf{\cd{next lint} não funciona neste ambiente} (seção
+        \ref{sec:verificacao}), então nenhuma checagem de estilo ESLint roda
+        atualmente, automatizada ou manual.
+  \item \textbf{Checkout não lê o carrinho real.} O resumo em \cd{/checkout}
+        é hardcoded; decisão explícita para manter o escopo do carrinho
+        contido até uma integração de pagamento real ser definida.
+  \item \textbf{Sem automação de navegador.} Nenhuma mudança puramente visual
+        pode ser verificada de forma independente; depende de captura de tela
+        de quem solicita.
+\end{itemize}
+
+% ===========================================================================
+\section{Estado atual}
+
+Levantamento no momento da escrita deste documento:
+
+\begin{longtable}{@{}p{5.0cm}p{9.5cm}@{}}
+\toprule
+\textbf{Métrica} & \textbf{Valor} \\
+\midrule
+\endhead
+Rotas & 23 arquivos \cd{page.tsx}, incluindo 5 rotas dinâmicas
+(\cd{[slug]}) \\
+Componentes compartilhados & 21, em \cd{components/} \\
+Tipos de entidade & 7 (\cd{Turma}, \cd{Produto}, \cd{Evento}, \cd{Aprovado},
+\cd{HistoriaVideo}, \cd{Professor}, \cd{Post}) \\
+Dependências de produção & 3: \cd{next}, \cd{react}, \cd{react-dom} ---
+nenhuma biblioteca de UI, formulário, máscara ou requisição HTTP além do
+\cd{fetch} nativo \\
+Integrações externas & ViaCEP (busca de endereço por CEP em
+\cd{/cadastro}), sem chave de API \\
+\bottomrule
+\end{longtable}
+
+Este levantamento não substitui a leitura do código: é um retrato do momento
+da escrita, sujeito a ficar desatualizado conforme o projeto evolui. Antes de
+confiar em qualquer número acima para uma decisão, confirme contra o estado
+atual do repositório.
+
+\end{document}

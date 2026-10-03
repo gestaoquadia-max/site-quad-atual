@@ -19,6 +19,7 @@ export default function ProdutosPage() {
             {produtos.map((p, i) => (
               <Reveal key={p.slug} className="h-full" delay={Math.min(i, 5) * 70}>
                 <ProductCard
+                  slug={p.slug}
                   href={`/produtos/${p.slug}`}
                   tag={p.tag}
                   nome={p.nome}

@@ -1,18 +1,33 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCart, type CartItem } from "@/lib/cart";
 
 export default function BuyBox({
   preco,
   precoSufixo,
   nota,
   cta,
+  ctaHref = "/checkout",
   vagas,
+  vagasLabel = "Ocupação da turma",
+  desabilitado = false,
+  item,
 }: {
   preco: string;
   precoSufixo?: string;
   nota: string;
   cta: string;
+  ctaHref?: string;
   vagas?: { total: number; ocupadas: number };
+  vagasLabel?: string;
+  desabilitado?: boolean;
+  // Quando informado, o botão coloca o item no carrinho antes de seguir para o checkout.
+  item?: Omit<CartItem, "quantidade">;
 }) {
+  const router = useRouter();
+  const { addItem } = useCart();
   const pct = vagas ? Math.round((vagas.ocupadas / vagas.total) * 100) : 0;
 
   return (
@@ -25,7 +40,7 @@ export default function BuyBox({
       {vagas && (
         <div className="mb-5">
           <div className="mb-2 flex justify-between text-xs uppercase tracking-wide text-steel-light">
-            <span>Ocupação da turma</span>
+            <span>{vagasLabel}</span>
             <strong className="text-blue">
               {vagas.ocupadas} de {vagas.total} vagas preenchidas
             </strong>
@@ -35,9 +50,26 @@ export default function BuyBox({
           </div>
         </div>
       )}
-      <Link href="/checkout" className="btn btn-blue block w-full">
-        {cta}
-      </Link>
+      {desabilitado ? (
+        <span className="btn block w-full cursor-default border border-dark bg-white/5 text-steel-light">
+          {cta}
+        </span>
+      ) : item ? (
+        <button
+          type="button"
+          onClick={() => {
+            addItem(item);
+            router.push(ctaHref);
+          }}
+          className="btn btn-blue block w-full"
+        >
+          {cta}
+        </button>
+      ) : (
+        <Link href={ctaHref} className="btn btn-blue block w-full">
+          {cta}
+        </Link>
+      )}
       <div className="mt-3.5 flex items-center justify-center gap-2 text-xs text-steel">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
           <rect x="2" y="5" width="8" height="6" rx="1" stroke="currentColor" />

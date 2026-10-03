@@ -56,6 +56,7 @@ export default function Home() {
             {turmas.slice(0, 3).map((t, i) => (
               <Reveal key={t.slug} className="h-full" delay={Math.min(i, 5) * 70}>
                 <ProductCard
+                  slug={t.slug}
                   href={t.detalhe ? `/turmas/${t.slug}` : undefined}
                   tag={t.tag}
                   nome={t.nome}
@@ -85,6 +86,7 @@ export default function Home() {
             {produtos.slice(0, 4).map((p, i) => (
               <Reveal key={p.slug} className="h-full" delay={Math.min(i, 5) * 70}>
                 <ProductCard
+                  slug={p.slug}
                   href={`/produtos/${p.slug}`}
                   tag={p.tag}
                   nome={p.nome}
@@ -105,8 +107,10 @@ export default function Home() {
           <SectionHead eyebrow="Agenda" title="Próximos eventos" />
           <div className="grid gap-5 md:grid-cols-3">
             {eventos.map((e, i) => (
-              <Reveal key={e.nome} className="h-full" delay={Math.min(i, 5) * 70}>
+              <Reveal key={e.slug} className="h-full" delay={Math.min(i, 5) * 70}>
                 <ProductCard
+                  slug={e.slug}
+                  href={e.detalhe ? `/eventos/${e.slug}` : undefined}
                   tag={e.tag}
                   nome={e.nome}
                   desc={e.desc}

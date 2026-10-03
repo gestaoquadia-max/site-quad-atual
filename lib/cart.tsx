@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
 export type CartItem = {
   id: string;
@@ -21,13 +21,15 @@ type CartContextValue = {
   totalCount: number;
   totalValor: number;
   temItemSobConsulta: boolean;
+  // false até ler o carrinho salvo no navegador; evita mostrar "vazio" por um instante
+  carregado: boolean;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
 
 const STORAGE_KEY = "quad-carrinho";
 
-function parsePreco(preco: string): number | null {
+export function parsePreco(preco: string): number | null {
   const normalizado = preco.trim().toLowerCase();
   if (normalizado === "gratuito") return 0;
   if (normalizado === "consulte" || normalizado === "—") return null;
@@ -43,6 +45,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
+      // Hidratação: o carrinho só existe no navegador, então é lido depois da montagem.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (raw) setItems(JSON.parse(raw));
     } catch {
       // ignora storage indisponível/corrompido
@@ -75,9 +79,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, quantidade } : i)));
   }
 
-  function clear() {
-    setItems([]);
-  }
+  const clear = useCallback(() => setItems([]), []);
 
   const totalCount = items.reduce((soma, i) => soma + i.quantidade, 0);
   const totalValor = items.reduce((soma, i) => {
@@ -88,7 +90,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantidade, clear, totalCount, totalValor, temItemSobConsulta }}
+      value={{ items, addItem, removeItem, updateQuantidade, clear, totalCount, totalValor, temItemSobConsulta, carregado }}
     >
       {children}
     </CartContext.Provider>

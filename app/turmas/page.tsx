@@ -19,6 +19,7 @@ export default function TurmasPage() {
             {turmas.map((t, i) => (
               <Reveal key={t.slug} className="h-full" delay={Math.min(i, 5) * 70}>
                 <ProductCard
+                  slug={t.slug}
                   href={t.detalhe ? `/turmas/${t.slug}` : undefined}
                   tag={t.tag}
                   nome={t.nome}

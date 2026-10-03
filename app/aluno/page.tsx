@@ -1,4 +1,8 @@
+"use client";
+
 import AccentCard from "@/components/AccentCard";
+import EstadoLista from "@/components/EstadoLista";
+import { useCarregandoUsuario, useUsuarioAtual } from "@/lib/usuario";
 
 const materiais = [
   { titulo: "Direito Constitucional — Aula 12", sub: "Turma CFP 2025.2 · Publicado hoje" },
@@ -7,10 +11,20 @@ const materiais = [
 ];
 
 export default function AlunoPage() {
+  const usuario = useUsuarioAtual();
+  const carregandoUsuario = useCarregandoUsuario();
+  const primeiroNome = usuario?.nome?.split(" ")[0];
+
   return (
     <>
       <h2 className="font-display text-[28px] font-bold uppercase">Painel</h2>
-      <p className="mb-8 text-sm text-steel">Bem-vindo de volta, João. Missão do dia: constância.</p>
+      <p className="mb-8 text-sm text-steel">
+        {carregandoUsuario ? (
+          <span className="inline-block h-3.5 w-64 animate-pulse bg-[#E2DFD6] align-middle" aria-label="Carregando" />
+        ) : (
+          <>Bem-vindo de volta{primeiroNome ? `, ${primeiroNome}` : ""}. Missão do dia: constância.</>
+        )}
+      </p>
 
       <div className="mb-10 grid gap-4 sm:grid-cols-3">
         {[
@@ -26,6 +40,12 @@ export default function AlunoPage() {
       </div>
 
       <h2 className="font-display mb-4 text-xl font-bold uppercase">Materiais recentes</h2>
+      <EstadoLista
+        vazio={materiais.length === 0}
+        vazioTitulo="Nenhum material publicado ainda"
+        vazioTexto="Os materiais mais recentes das suas turmas e compras aparecem aqui."
+        vazioAcao={{ href: "/aluno/materiais", label: "Ver meus materiais" }}
+      >
       {materiais.map((m) => (
         <div
           key={m.titulo}
@@ -45,6 +65,7 @@ export default function AlunoPage() {
           </button>
         </div>
       ))}
+      </EstadoLista>
     </>
   );
 }

@@ -3,6 +3,7 @@ import { produtos } from "@/lib/data";
 import Breadcrumb from "@/components/Breadcrumb";
 import SpecsGrid from "@/components/SpecsGrid";
 import BuyBox from "@/components/BuyBox";
+import { idDoItem } from "@/lib/itens";
 import CheckList from "@/components/CheckList";
 import Gallery from "@/components/Gallery";
 
@@ -40,6 +41,7 @@ export default async function ProdutoDetalhe({ params }: { params: Promise<{ slu
               preco={produto.preco}
               nota="Acesso imediato após o pagamento · Disponível para sempre na sua área do aluno"
               cta="Comprar agora"
+              item={{ id: idDoItem("produto", produto.slug), tipo: "produto", nome: produto.nome, tag: produto.tag, preco: produto.preco }}
             />
           </div>
         </div>

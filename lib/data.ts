@@ -31,12 +31,24 @@ export type Produto = {
 };
 
 export type Evento = {
+  slug: string;
   tag: string;
   nome: string;
   desc: string;
   preco: string;
   status: "aberta" | "breve";
   statusLabel: string;
+  detalhe?: {
+    lead: string;
+    sobre: string[];
+    specs: { label: string; valor: string; destaque?: boolean }[];
+    programacao: { horario: string; titulo: string; desc: string }[];
+    incluso: string[];
+    local: { nome: string; endereco: string; obs?: string };
+    vagasTotal?: number;
+    vagasOcupadas?: number;
+    professores?: { iniciais: string; nome: string; papel: string }[];
+  };
 };
 
 export const turmas: Turma[] = [
@@ -44,9 +56,9 @@ export const turmas: Turma[] = [
     slug: "cfp-2025-2",
     tag: "CFP · Soldado PM-BA",
     nome: "Turma CFP 2025.2",
-    desc: "Seg a sex, 18h30–22h · Início 04/08 · Material incluso · 40 vagas",
-    preco: "R$ 497",
-    precoSufixo: "/mês",
+    desc: "Seg a sex, 18h30–22h · Início 04/08 · 3 meses · Material incluso · 40 vagas",
+    preco: "R$ 997",
+    precoSufixo: " / 3 meses",
     status: "aberta",
     statusLabel: "28 vagas restantes",
     detalhe: {
@@ -55,7 +67,7 @@ export const turmas: Turma[] = [
         { label: "Início", valor: "04 AGO" },
         { label: "Horário", valor: "18h30–22h" },
         { label: "Frequência", valor: "Seg a Sex" },
-        { label: "Duração", valor: "6 meses" },
+        { label: "Duração", valor: "3 meses" },
         { label: "Modalidade", valor: "Presencial" },
         { label: "Vagas restantes", valor: "28 de 40", destaque: true },
       ],
@@ -83,7 +95,7 @@ export const turmas: Turma[] = [
     nome: "Turma CFO Intensiva",
     desc: "Sábados, 8h–17h · Início 09/08 · Foco em discursiva · 30 vagas",
     preco: "R$ 597",
-    precoSufixo: "/mês",
+    precoSufixo: " / 5 meses",
     status: "aberta",
     statusLabel: "12 vagas restantes",
     detalhe: {
@@ -118,7 +130,6 @@ export const turmas: Turma[] = [
     nome: "Turma PRF 2026",
     desc: "Aguardando publicação do edital · Lista de espera com desconto garantido",
     preco: "R$ 547",
-    precoSufixo: "/mês",
     status: "breve",
     statusLabel: "Lista de espera",
   },
@@ -283,28 +294,156 @@ export const produtos: Produto[] = [
 
 export const eventos: Evento[] = [
   {
+    slug: "simulado-aberto-cfp",
     tag: "26 JUL · Presencial · SIC/SIQ",
     nome: "Simulado Aberto CFP",
     desc: "Simulado completo nos moldes da banca + correção comentada ao vivo com os professores.",
     preco: "Gratuito",
     status: "aberta",
     statusLabel: "Inscrições abertas",
+    detalhe: {
+      lead: "Prova completa nos moldes da banca, aplicada presencialmente com tempo cronometrado e folha de respostas oficial. Ao final, correção comentada ao vivo com os professores do Quad. Aberto para alunos e não alunos.",
+      sobre: [
+        "O simulado aberto é a coisa mais próxima que existe de viver o dia da prova antes do dia da prova. São 80 questões nos moldes exatos da banca, aplicadas no mesmo tempo e na mesma ordem do edital do CFP Soldado PM-BA.",
+        "Depois do intervalo, os professores corrigem a prova questão por questão ao vivo — explicando não só a resposta certa, mas o raciocínio que a banca espera e as pegadinhas que mais derrubam candidato em cada disciplina.",
+        "Todo participante recebe o gabarito comentado em PDF e o ranking geral por e-mail em até 48 horas após a aplicação.",
+      ],
+      specs: [
+        { label: "Data", valor: "26 JUL" },
+        { label: "Horário", valor: "8h–14h30" },
+        { label: "Questões", valor: "80" },
+        { label: "Formato", valor: "Presencial" },
+        { label: "Local", valor: "SIC/SIQ" },
+        { label: "Inscrição", valor: "Gratuita", destaque: true },
+      ],
+      programacao: [
+        { horario: "07h30", titulo: "Credenciamento", desc: "Entrada, conferência da inscrição e acomodação na sala." },
+        { horario: "08h00", titulo: "Aplicação do simulado", desc: "80 questões objetivas em 4 horas, no formato e na ordem da banca." },
+        { horario: "12h00", titulo: "Intervalo", desc: "30 minutos para descanso e lanche." },
+        { horario: "12h30", titulo: "Correção comentada ao vivo", desc: "Resolução questão por questão com o professor de cada disciplina." },
+        { horario: "14h30", titulo: "Encerramento", desc: "Orientações para a reta final e entrega do gabarito." },
+      ],
+      incluso: [
+        "Caderno de questões impresso e folha de respostas oficial",
+        "Aplicação presencial com tempo cronometrado, igual ao dia da prova",
+        "Correção comentada ao vivo com o professor de cada disciplina",
+        "Gabarito comentado em PDF enviado por e-mail",
+        "Ranking geral com sua posição entre todos os participantes",
+        "Relatório de desempenho por disciplina",
+      ],
+      local: {
+        nome: "SIC/SIQ — Feira de Santana",
+        endereco: "Feira de Santana — BA · Endereço completo enviado por e-mail após a inscrição",
+        obs: "Chegue com 30 minutos de antecedência para o credenciamento. Traga documento com foto e caneta esferográfica preta.",
+      },
+      vagasTotal: 200,
+      vagasOcupadas: 143,
+      professores: [
+        { iniciais: "DM", nome: "Danilo Moura", papel: "Direito Administrativo · Fundador do Quad" },
+        { iniciais: "FR", nome: "Fernanda Ribeiro", papel: "Direito Constitucional" },
+        { iniciais: "JP", nome: "Juliana Prado", papel: "Língua Portuguesa" },
+      ],
+    },
   },
   {
+    slug: "aulao-de-vespera",
     tag: "09 AGO · Presencial · SIC/SIQ",
     nome: "Aulão de Véspera",
     desc: "Revisão final intensiva. Últimos ajustes antes da prova com o time completo do Quad.",
     preco: "R$ 29,90",
     status: "aberta",
     statusLabel: "Inscrições abertas",
+    detalhe: {
+      lead: "Cinco horas de revisão final com o time completo do Quad. Só o que tem maior probabilidade de cair, mais os últimos ajustes de estratégia antes do dia da prova.",
+      sobre: [
+        "O aulão de véspera não é aula nova: é o filtro final. Cada professor traz os pontos de maior incidência histórica na banca, os erros que mais derrubam candidatos e o que ainda vale revisar nas últimas 48 horas.",
+        "A parte final do encontro é dedicada à estratégia de prova — ordem das disciplinas, gestão de tempo, critério de chute e o que fazer quando a ansiedade aparece no meio do caderno.",
+        "Quem participa sai com o mapa de revisão da reta final impresso, para usar nos dias que antecedem a prova.",
+      ],
+      specs: [
+        { label: "Data", valor: "09 AGO" },
+        { label: "Horário", valor: "14h–19h" },
+        { label: "Duração", valor: "5 horas" },
+        { label: "Formato", valor: "Presencial" },
+        { label: "Local", valor: "SIC/SIQ" },
+        { label: "Vagas restantes", valor: "52 de 150", destaque: true },
+      ],
+      programacao: [
+        { horario: "13h30", titulo: "Credenciamento", desc: "Entrada e entrega do mapa de revisão impresso." },
+        { horario: "14h00", titulo: "Constitucional e Administrativo", desc: "Pontos de maior incidência nas últimas provas da banca." },
+        { horario: "15h45", titulo: "Português e Raciocínio Lógico", desc: "Método de resolução rápida e as pegadinhas recorrentes." },
+        { horario: "17h15", titulo: "Intervalo", desc: "15 minutos." },
+        { horario: "17h30", titulo: "Legislação PM-BA", desc: "Estatuto e regulamento disciplinar: o recorte que mais cai." },
+        { horario: "18h15", titulo: "Estratégia de prova", desc: "Gestão de tempo, ordem das disciplinas e controle de ansiedade." },
+        { horario: "19h00", titulo: "Encerramento", desc: "Espaço aberto para dúvidas finais." },
+      ],
+      incluso: [
+        "5 horas de revisão presencial com o time completo do Quad",
+        "Mapa de revisão da reta final impresso",
+        "Lista das questões de maior probabilidade, comentadas",
+        "Sessão de estratégia de prova e gestão de tempo",
+        "Espaço aberto para dúvidas ao final de cada bloco",
+        "Gravação do aulão na área do aluno por 30 dias",
+      ],
+      local: {
+        nome: "SIC/SIQ — Feira de Santana",
+        endereco: "Feira de Santana — BA · Endereço completo enviado por e-mail após a inscrição",
+        obs: "Chegue com 30 minutos de antecedência para o credenciamento.",
+      },
+      vagasTotal: 150,
+      vagasOcupadas: 98,
+      professores: [
+        { iniciais: "DM", nome: "Danilo Moura", papel: "Direito Administrativo · Fundador do Quad" },
+        { iniciais: "FR", nome: "Fernanda Ribeiro", papel: "Direito Constitucional" },
+        { iniciais: "JP", nome: "Juliana Prado", papel: "Língua Portuguesa" },
+        { iniciais: "CD", nome: "Camila Duarte", papel: "Raciocínio Lógico" },
+      ],
+    },
   },
   {
+    slug: "aniversario-quad-12-anos",
     tag: "24 AGO · Híbrido · Teatro FSA",
     nome: "Aniversário Quad — 12 Anos",
     desc: "Celebração presencial com transmissão ao vivo, histórias de aprovados e condições especiais.",
     preco: "Gratuito",
     status: "breve",
     statusLabel: "Em breve",
+    detalhe: {
+      lead: "Doze anos de Quad celebrados com a comunidade: histórias de aprovados no palco, homenagem ao time e condições especiais anunciadas ao vivo. Presencial no Teatro FSA e transmitido para quem estiver de fora.",
+      sobre: [
+        "Desde 2013 o Quad forma aprovados em Feira de Santana. O encontro de 12 anos reúne no mesmo palco alunos aprovados, professores e famílias para contar como cada aprovação aconteceu — inclusive as que levaram mais de uma tentativa.",
+        "Além das histórias, a noite tem homenagem aos aprovados do último ciclo e o anúncio ao vivo das condições especiais das turmas do próximo semestre.",
+        "As inscrições abrem em breve, com prioridade para alunos e ex-alunos. Acompanhe a agenda para ser avisado assim que a lista for liberada.",
+      ],
+      specs: [
+        { label: "Data", valor: "24 AGO" },
+        { label: "Horário", valor: "18h–22h" },
+        { label: "Formato", valor: "Híbrido" },
+        { label: "Local", valor: "Teatro FSA" },
+        { label: "Transmissão", valor: "Ao vivo" },
+        { label: "Inscrições", valor: "Em breve", destaque: true },
+      ],
+      programacao: [
+        { horario: "18h00", titulo: "Abertura da casa", desc: "Credenciamento e acomodação no teatro." },
+        { horario: "18h30", titulo: "Abertura oficial", desc: "12 anos de Quad contados por quem começou tudo." },
+        { horario: "19h00", titulo: "Painel com aprovados", desc: "A preparação do início ao fim, sem filtro." },
+        { horario: "20h15", titulo: "Homenagem aos aprovados", desc: "Reconhecimento aos aprovados do último ciclo." },
+        { horario: "21h00", titulo: "Condições especiais", desc: "Anúncio ao vivo das turmas do próximo semestre." },
+        { horario: "21h30", titulo: "Encerramento", desc: "Confraternização com professores e alunos." },
+      ],
+      incluso: [
+        "Entrada gratuita, presencial no Teatro FSA",
+        "Transmissão ao vivo para quem não puder estar em Feira de Santana",
+        "Painel com aprovados contando a preparação do início ao fim",
+        "Homenagem aos aprovados do último ciclo",
+        "Condições especiais das turmas anunciadas ao vivo",
+      ],
+      local: {
+        nome: "Teatro FSA — Feira de Santana",
+        endereco: "Feira de Santana — BA · Endereço completo divulgado na abertura das inscrições",
+        obs: "Alunos e ex-alunos do Quad têm prioridade na liberação das vagas presenciais.",
+      },
+    },
   },
 ];
 

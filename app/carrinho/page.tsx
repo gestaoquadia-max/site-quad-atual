@@ -95,7 +95,7 @@ export default function CarrinhoPage() {
                 </div>
                 {temItemSobConsulta && (
                   <p className="mb-5 text-xs text-steel">
-                    Um ou mais itens têm valor "sob consulta" e não entram nesse total.
+                    Um ou mais itens têm valor “sob consulta” e não entram nesse total.
                   </p>
                 )}
                 <Link href="/checkout" className="btn btn-blue block w-full text-center">

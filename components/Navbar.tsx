@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { turmas, produtos, eventos, cursosOnline } from "@/lib/data";
 import { useCart } from "@/lib/cart";
+import { useUsuarioAtual } from "@/lib/usuario";
+import { logout } from "@/lib/auth";
+import { rotaComDestino } from "@/lib/redirecionamento";
+import Avatar from "./Avatar";
 import NavMegaMenu, { type MegaMenuFeatured, type MegaMenuItem } from "./NavMegaMenu";
 
 function CartIcon({ count }: { count: number }) {
@@ -83,7 +87,7 @@ const links: {
     label: "Eventos",
     menu: {
       items: eventos.map((e) => ({
-        href: "/eventos",
+        href: e.detalhe ? `/eventos/${e.slug}` : "/eventos",
         nome: e.nome,
         meta: e.tag,
         status: e.status,
@@ -93,8 +97,8 @@ const links: {
         title: eventoDestaque.nome,
         desc: eventoDestaque.desc,
         meta: eventoDestaque.tag,
-        ctaLabel: "Ver todos os eventos",
-        ctaHref: "/eventos",
+        ctaLabel: "Ver evento completo",
+        ctaHref: eventoDestaque.detalhe ? `/eventos/${eventoDestaque.slug}` : "/eventos",
       },
       viewAllHref: "/eventos",
       viewAllLabel: "Ver agenda completa",
@@ -197,16 +201,93 @@ function MobileAccordionRow({
   );
 }
 
+function PerfilMenu({ labelDeslogado = "Área do Aluno" }: { labelDeslogado?: string }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const usuario = useUsuarioAtual();
+  const [aberto, setAberto] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const [pathnameAnterior, setPathnameAnterior] = useState(pathname);
+  if (pathname !== pathnameAnterior) {
+    setPathnameAnterior(pathname);
+    setAberto(false);
+  }
+
+  useEffect(() => {
+    function handleClickFora(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setAberto(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickFora);
+    return () => document.removeEventListener("mousedown", handleClickFora);
+  }, []);
+
+  if (!usuario) {
+    // No carrinho e no checkout, volta para a compra depois de entrar.
+    const voltarPara = pathname === "/carrinho" || pathname === "/checkout" ? pathname : null;
+    return (
+      <Link
+        href={rotaComDestino("/entrar", voltarPara)}
+        className="focus-ring bg-blue hover:bg-blue-dark text-navy-deep font-display font-semibold text-[13px] uppercase tracking-wide px-4 py-2 transition-colors"
+      >
+        {labelDeslogado}
+      </Link>
+    );
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setAberto((v) => !v)}
+        aria-label="Menu da conta"
+        aria-expanded={aberto}
+        className="focus-ring block"
+      >
+        <Avatar nome={usuario.nome} size="h-9 w-9 text-xs" />
+      </button>
+      {aberto && (
+        <div className="absolute right-0 top-[calc(100%+10px)] w-56 border border-dark bg-navy-mid shadow-md">
+          <div className="border-b border-dark px-4 py-3">
+            <div className="text-sm font-semibold text-offwhite">{usuario.nome}</div>
+            {usuario.email && <div className="text-xs text-steel-light">{usuario.email}</div>}
+          </div>
+          <Link
+            href="/aluno/perfil"
+            className="focus-ring block px-4 py-2.5 text-sm text-steel-light transition-colors hover:bg-white/5 hover:text-offwhite"
+          >
+            Editar conta
+          </Link>
+          <button
+            type="button"
+            onClick={() => {
+              logout();
+              router.push("/");
+            }}
+            className="focus-ring block w-full px-4 py-2.5 text-left text-sm text-steel-light transition-colors hover:bg-white/5 hover:text-offwhite"
+          >
+            Sair
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Navbar() {
   const pathname = usePathname();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { totalCount } = useCart();
 
-  useEffect(() => {
+  const [pathnameAnterior, setPathnameAnterior] = useState(pathname);
+  if (pathname !== pathnameAnterior) {
+    setPathnameAnterior(pathname);
     setOpenMenu(null);
     setMobileOpen(false);
-  }, [pathname]);
+  }
 
   return (
     <nav className="sticky top-0 z-50 bg-navy-deep border-b border-dark">
@@ -252,24 +333,14 @@ export default function Navbar() {
             </Link>
           </li>
           <li>
-            <Link
-              href="/entrar"
-              className="focus-ring bg-blue hover:bg-blue-dark text-navy-deep font-display font-semibold text-[13px] uppercase tracking-wide px-4 py-2 transition-colors"
-            >
-              Área do Aluno
-            </Link>
+            <PerfilMenu />
           </li>
         </ul>
         <div className="flex items-center gap-4 md:hidden">
           <Link href="/carrinho" aria-label="Carrinho" className="focus-ring text-steel-light">
             <CartIcon count={totalCount} />
           </Link>
-          <Link
-            href="/entrar"
-            className="focus-ring bg-blue text-navy-deep font-display font-semibold text-xs uppercase px-3 py-2"
-          >
-            Entrar
-          </Link>
+          <PerfilMenu labelDeslogado="Entrar" />
           <button
             type="button"
             aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}

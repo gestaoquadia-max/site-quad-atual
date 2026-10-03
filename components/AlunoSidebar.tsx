@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Avatar from "./Avatar";
-
-const usuario = { nome: "João Silva", email: "aluno@quad.com", fotoUrl: undefined as string | undefined };
+import { logout } from "@/lib/auth";
+import { useCarregandoUsuario, useUsuarioAtual } from "@/lib/usuario";
 
 const menu = [
   { href: "/aluno", label: "Painel" },
@@ -17,13 +17,17 @@ const menu = [
 
 export default function AlunoSidebar() {
   const pathname = usePathname();
+  const usuario = useUsuarioAtual();
+  const carregando = useCarregandoUsuario();
 
   return (
     <aside className="border-b border-dark bg-navy-deep md:border-b-0 md:border-r md:py-8">
       <div className="hidden border-b border-dark px-6 pb-6 md:block">
-        <Avatar nome={usuario.nome} fotoUrl={usuario.fotoUrl} size="h-12 w-12 text-lg mb-3" />
-        <div className="text-[15px] font-semibold text-offwhite">{usuario.nome}</div>
-        <div className="text-xs text-steel">{usuario.email}</div>
+        <Avatar nome={usuario?.nome ?? ""} fotoUrl={undefined} size="h-12 w-12 text-lg mb-3" />
+        <div className="truncate text-[15px] font-semibold text-offwhite" title={usuario?.nome}>{usuario?.nome ?? (carregando ? "Carregando..." : "Aluno")}</div>
+        <div className="truncate text-xs text-steel" title={usuario?.email ?? undefined}>
+          {usuario?.email ?? ""}
+        </div>
       </div>
       <ul className="flex overflow-x-auto md:mt-4 md:block">
         {menu.map((m) => {
@@ -44,12 +48,13 @@ export default function AlunoSidebar() {
           );
         })}
         <li>
-          <Link
-            href="/"
-            className="focus-ring block whitespace-nowrap border-transparent px-6 py-3 text-sm text-steel-light transition-colors hover:text-offwhite md:border-l-[3px]"
+          <button
+            type="button"
+            onClick={logout}
+            className="focus-ring block w-full whitespace-nowrap border-transparent px-6 py-3 text-left text-sm text-steel-light transition-colors hover:text-offwhite md:border-l-[3px]"
           >
             Sair
-          </Link>
+          </button>
         </li>
       </ul>
     </aside>

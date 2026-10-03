@@ -1,9 +1,23 @@
 import type { Metadata } from "next";
+import { Rajdhani, Work_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import NewsTicker from "@/components/NewsTicker";
 import { CartProvider } from "@/lib/cart";
+import { UsuarioProvider } from "@/lib/usuario";
+
+const fonteDisplay = Rajdhani({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-display",
+});
+
+const fonteCorpo = Work_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+});
 
 export const metadata: Metadata = {
   title: "Quad Concursos — Preparação para concursos militares",
@@ -15,21 +29,15 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="pt-BR" className={`${fonteDisplay.variable} ${fonteCorpo.variable}`} suppressHydrationWarning>
       <body>
         <CartProvider>
-          <NewsTicker />
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
+          <UsuarioProvider>
+            <NewsTicker />
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+          </UsuarioProvider>
         </CartProvider>
       </body>
     </html>

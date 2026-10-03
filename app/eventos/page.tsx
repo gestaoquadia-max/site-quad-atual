@@ -17,8 +17,10 @@ export default function EventosPage() {
         <div className="mx-auto max-w-site px-6">
           <div className="grid gap-5 md:grid-cols-3">
             {eventos.map((e, i) => (
-              <Reveal key={e.nome} className="h-full" delay={Math.min(i, 5) * 70}>
+              <Reveal key={e.slug} className="h-full" delay={Math.min(i, 5) * 70}>
                 <ProductCard
+                  slug={e.slug}
+                  href={e.detalhe ? `/eventos/${e.slug}` : undefined}
                   tag={e.tag}
                   nome={e.nome}
                   desc={e.desc}
