@@ -650,10 +650,10 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Tarefa | Status |
 |---|---|
 | Cores, fontes e largura do novo visual | EM ANDAMENTO |
-| Menu do topo novo (desktop e celular) | PENDENTE |
-| Rodapé novo | PENDENTE |
-| Botão flutuante do WhatsApp | PENDENTE |
-| Home nova com carrossel de destaques | PENDENTE |
+| Menu do topo novo (desktop e celular) | EM ANDAMENTO |
+| Rodapé novo | EM ANDAMENTO |
+| Botão flutuante do WhatsApp | EM ANDAMENTO |
+| Home nova com carrossel de destaques | EM ANDAMENTO |
 
 **Campos adicionais**
 - **Prioridade:** Alta
