@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import type { Professor } from "@/lib/data";
@@ -48,8 +49,13 @@ export default function ProfessoresCarousel({ professores }: { professores: Prof
           >
             <div className="relative flex aspect-[3/4] items-center justify-center overflow-hidden bg-gradient-to-br from-navy to-navy-mid">
               {p.fotoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.fotoUrl} alt={p.nome} className="absolute inset-0 h-full w-full object-cover" />
+                <Image
+                  src={p.fotoUrl}
+                  alt={p.nome}
+                  fill
+                  sizes="(min-width: 1024px) 300px, (min-width: 640px) 50vw, 100vw"
+                  className="object-cover"
+                />
               ) : (
                 <span className="font-display text-5xl font-bold text-white/10">{getIniciais(p.nome)}</span>
               )}
@@ -59,7 +65,7 @@ export default function ProfessoresCarousel({ professores }: { professores: Prof
             </div>
             <div className="p-4">
               <p className="mb-3 text-xs leading-relaxed text-steel-light">{p.bio}</p>
-              <span className="inline-block rounded-full bg-blue/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-blue">
+              <span className="inline-block rounded-full bg-blue/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#8FB8FF]">
                 {p.materia}
               </span>
             </div>

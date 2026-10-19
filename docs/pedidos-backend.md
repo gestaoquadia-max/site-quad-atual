@@ -7,27 +7,53 @@
 
 | # | Pedido | Tipo | Prioridade |
 |---|---|---|---|
-**| 1.1 | Aluno lê e **altera** o endereço de outro aluno | ✅ **Resolvido** (conferido em 03/10/2026: agora responde 403) | — |**
-| 1.2 | `PATCH /api/usuarios/{id}` permite trocar telefone sem verificação | Corrigir regra | **Crítica** |
-| 1.3 | Confirmar que listas (matrículas, inscrições, compras) só trazem dados do próprio aluno | Confirmar | **Crítica** |
-**| 1.4 | Cadastro aceita CPF que já pertence a outra conta | ✅ **Resolvido** (conferido em 03/10/2026: 409 `CPF_JA_CADASTRADO`) | — |**
-**| 2.1 | Ler o próprio cadastro | ✅ **Resolvido** via `GET /api/alunos/eu` (CPF desde 03/10/2026). Falta só `emailVerificado`/`telefoneVerificado` (item 2.6) | — |**
-| 2.2 | `PATCH /api/usuarios/eu` (só nome) | Criar | Alta |
-| 2.3 | `GET`/`PATCH /api/enderecos/eu` | Opcional (a falha do item 1.1 já foi corrigida) | Baixa |
-| 2.4 | Esqueci minha senha | Criar | Alta |
+>| 1.1 | Aluno lê e **altera** o endereço de outro aluno | ✅ **Resolvido** (conferido em 03/10/2026: agora responde 403) | — |**`
+
+> | 1.2 | Telefone trocado sem verificação | ✅ **Resolvido** (conferido em 13/10/2026: `PATCH /api/alunos/eu` recusa telefone com 400) | — |
+
+>| 1.3 | Confirmar que listas (matrículas, inscrições, compras) só trazem dados do próprio aluno | ✅ **Resolvido** (comprovado com dados em 05/10/2026: matrículas, inscrições e compras) | — |
+
+> | 1.4 | Cadastro aceita CPF que já pertence a outra conta | ✅ **Resolvido** (conferido em 03/10/2026: 409 `CPF_JA_CADASTRADO`) | — |**``
+
+>| 2.1 | Ler o próprio cadastro | ✅ **Resolvido** via `GET /api/alunos/eu` (CPF desde 03/10/2026). Falta só `emailVerificado`/`telefoneVerificado` (item 2.6) | — |**
+
+> | 2.2 | Editar o próprio nome | ✅ **Resolvido** via `PATCH /api/alunos/eu` (conferido em 07/10/2026; o site já usa, só com o nome). O telefone não passa mais por ela (item 1.2 resolvido) | — |
+
+> | 2.3 | `GET`/`PATCH /api/enderecos/eu` | Opcional (a falha do item 1.1 já foi corrigida) | Baixa |
+
+> | 2.4 | Esqueci minha senha | ✅ **Resolvido** (conferido em 14/10/2026, local e produção; o site já usa). Falta conferir o link num e-mail real | — |
+
 | 2.5 | Verificação de telefone por código (perfil) | Criar | Alta |
+
 | 2.6 | Verificação no cadastro: celular obrigatório, e-mail por link depois | Criar | Alta |
-| 2.7 | Registrar o aceite dos termos no cadastro | Criar | Alta |
-| 3 | Catálogo público (turmas, eventos, materiais, professores) sem login | Criar / ampliar | Alta |
-| 4 | Rotas "minhas" da área do aluno | Confirmar / criar | Alta |
-| 5.1 | Compra com vários itens num único pagamento | Decidir e criar | Alta |
-| 5.2 | Cupons de desconto | Criar | Alta |
-| 5.3–5.7 | Detalhes da compra (valores em reais, parcelas, chave pública, situação, inscrição gratuita) | Confirmar | Alta |
-| 6.1 | CORS com o domínio do site | Configurar | Alta (antes do lançamento) |
-| 6.2 | Swagger anunciando `https` | Configurar | Média |
-| 6.3 | Limite de tentativas no login e no cadastro | Criar | Média |
-**| 2.9 | Consultar se e-mail, CPF e telefone já estão cadastrados (antes do endereço) | ✅ **Resolvido** via `POST /api/usuarios/disponibilidade` (o site já usa). Falta o limite de tentativas (item 6.3) | — |
+
+> | 2.7 | Registrar o aceite dos termos no cadastro | ✅ **Resolvido na API local** (conferido em 13/10/2026). Falta publicar em produção. ⚠️ Conferir o cadastro do app (ver 2.7) | Alta |
+
+> | 2.9 | Consultar se e-mail, CPF e telefone já estão cadastrados (antes do endereço) | ✅ **Resolvido** via `POST /api/usuarios/disponibilidade` (o site já usa). Falta o limite de tentativas (item 6.3) | — |
+
+| 2.10 | Login em cookie protegido (o token sai do navegador) | Criar | Alta |
+
 | 2.8 | Foto de perfil | Criar | Baixa |
+
+| 3 | Catálogo público (turmas, eventos, materiais, professores) sem login | Criar / ampliar | Alta |
+
+| 4 | Rotas "minhas" da área do aluno | ✅ Quase tudo resolvido (09/10/2026). Falta: armazenamento de arquivos para testar o download e confirmar os "materiais diários" | Média |
+
+| 5.1 | Compra com vários itens num único pagamento | ✅ Decidido e criado (carrinho no servidor, 07/10/2026). Faltam 3 respostas (ver 5.1) | Alta |
+
+| 5.2 | Cupons de desconto | Criar | Alta |
+
+| 5.3–5.7 | Detalhes da compra (valores em reais, parcelas, chave pública, situação, inscrição gratuita) | Parcial (09/10/2026): parcelas e chave pública já vêm da API; preços em reais inteiros não comportam centavos (5.3) | Alta |
+
+| 6.1 | CORS com o domínio do site | Configurar | Alta (antes do lançamento) |
+
+| 6.2 | Swagger anunciando `https` | Configurar | Média |
+
+| 6.3 | Limite de tentativas no login e no cadastro | Criar | Média |
+
+
+
+> **Banco compartilhado:** a API e o banco também atendem o **app Viver o Quad**. Toda mudança pedida aqui precisa considerar o impacto no app; os itens em que isso pesa estão marcados com ⚠️.
 
 **Padrões que valem para tudo:**
 - Manter o formato de erro atual (`status`, `title`, `detail`, `codigo`, `erros[]`). O site já lê esse formato.
@@ -60,6 +86,19 @@
 `PATCH /api/usuarios/{id}` aceita `telefone`. A regra do negócio é que **cada troca de telefone exige confirmação por código** (item 2.5). Se o aluno puder chamar essa rota, ele troca o telefone direto pela API, sem passar pela verificação.
 
 **Esperado:** para o papel `ALUNO`, recusar (400) qualquer tentativa de alterar `telefone`, `email` ou `cpf` por essa rota ou pela `/eu`. Telefone só muda pelo fluxo de verificação.
+
+**Atualização (07/10/2026):** a rota nova `PATCH /api/alunos/eu` aceita `{ "telefone": "..." }` e troca o número na hora, sem código. O site não manda o telefone por ela, mas qualquer aluno logado consegue chamar a rota direto.
+
+✅ **Resolvido (conferido em 13/10/2026):** a rota agora aceita só `nome` e `nomeDeGuerra` (este é do app). Qualquer outro campo, telefone inclusive, responde 400. Teste com a conta A: o pedido de troca recebeu 400 e o telefone continuou `75999990000`.
+
+**Comprovado na API local em 09/10/2026** (conta de teste A, número restaurado depois):
+
+| Passo | Resultado |
+|---|---|
+| 1. `GET /api/alunos/eu` | telefone `75999990000` |
+| 2. `PATCH /api/alunos/eu` com `{ "telefone": "75900001111" }`, sem nenhum código | **200**, telefone `75900001111` |
+| 3. `GET /api/alunos/eu` de novo | telefone `75900001111`: **trocou sem verificação** |
+| 4. `PATCH` com o número original | 200, voltou para `75999990000` | **Pedido:** tirar `telefone` dessa rota (ou recusar com 400) e deixar a troca só pelo fluxo do item 2.5, em que o número novo só vale depois de confirmado o código.
 
 ### 1.3 Confirmar que as listas só devolvem os dados do próprio aluno
 
@@ -98,6 +137,8 @@ O site já está preparado para esse código: volta o aluno ao passo 1 com a men
 
 ### 2.2 `PATCH /api/usuarios/eu` — editar o próprio cadastro
 
+✅ **Resolvido em 07/10/2026** com `PATCH /api/alunos/eu`, que responde o corpo de `GET /api/alunos/eu` atualizado. O telefone não passa por ela (item 1.2 resolvido em 13/10/2026).
+
 - **Corpo:** `{ "nome": "..." }`. **Só o nome.**
 - **Recusar:** `telefone` (vai pelo item 2.5), `email` e `cpf` (não editáveis pelo aluno).
 - **Resposta:** `UsuarioResponse` atualizado.
@@ -121,6 +162,15 @@ Mesmo formato das rotas atuais (`EnderecoResponse` e `AtualizarEnderecoRequest`)
    - Depois de redefinir, encerrar as sessões abertas dessa conta.
 
 **A combinar:** domínio do link e remetente do e-mail.
+
+✅ **Resolvido em 14/10/2026** com nomes diferentes dos propostos, e o site já foi ajustado:
+- `POST /auth/senha/recuperacao` → 202 com `{ validadeEmMinutos: 30, reenvioEmSegundos: 60 }`;
+- `POST /auth/senha/recuperacao/verificacao` → 204, ou 422 `TOKEN_INVALIDO` (link vencido, usado ou adulterado);
+- `POST /auth/senha/recuperacao/redefinicao` → 204.
+
+Testado na API local: o link vale uma vez só, e a redefinição encerra as sessões abertas (a renovação antiga passou a dar 401).
+
+**Falta confirmar:** que o link do e-mail é `https://<domínio do site>/redefinir-senha?token=...` (o caminho e o nome do parâmetro que o site lê). Em desenvolvimento, `http://localhost:3000/redefinir-senha?token=...`.
 
 ### 2.5 Verificação de telefone (perfil)
 
@@ -178,6 +228,8 @@ Mesmo formato das rotas atuais (`EnderecoResponse` e `AtualizarEnderecoRequest`)
 - **Conta não verificada bloqueada:** enquanto `telefoneVerificado = false`, o login funciona (para o aluno conseguir verificar), mas as demais rotas do aluno respondem **403** com `codigo: "CELULAR_NAO_VERIFICADO"`. As únicas liberadas são as de verificação e o `GET /api/usuarios/eu`. Assim o site sabe que deve levar o aluno de volta à tela de verificação.
 - **Dado no cadastro do usuário:** incluir `telefoneVerificado` no `UsuarioResponse` (item 2.1).
 
+> **⚠️ Atenção — o banco é compartilhado com o app Viver o Quad:** o bloqueio `CELULAR_NAO_VERIFICADO` não pode atingir as contas que já existem (hoje nenhuma tem o celular verificado), senão todos os alunos do app ficam bloqueados. Sugestão: ao criar o campo, marcar `telefoneVerificado = true` para as contas existentes (ou aplicar o bloqueio só a contas criadas depois da mudança). Definir também se o app passa a pedir a verificação.
+
 > **Provisório no site:** enquanto essas rotas responderem 404, o passo 3 deixa o aluno continuar sem verificar. Quando o backend existir, isso é removido.
 
 **b) E-mail — confirmado depois, por link**
@@ -209,6 +261,12 @@ Hoje a API ignora esses campos.
 - **Gravar** a data e hora do aceite e a `versaoDosTermos`, para saber qual texto cada aluno aceitou.
 - Quando os termos mudarem, o site troca a versão; o backend não precisa saber o conteúdo dos termos.
 
+✅ **Resolvido na API local (migração 105, conferido em 13/10/2026).** `aceiteTermos` e `versaoDosTermos` são obrigatórios no `POST /api/alunos`, e o aceite vai para a tabela `aceites_dos_termos` (usuário, versão e data). Testado criando uma conta pelo cadastro do site: o aceite foi gravado com a versão `2026-10-06`. Sem os campos, com `aceiteTermos: false` ou sem a versão, a API responde 400.
+
+**Pendências:**
+- **Publicar em produção.** Em 13/10/2026 a API de produção ainda não tinha os campos.
+- ⚠️ **App Viver o Quad:** os dois campos agora são obrigatórios. Se o app também cria alunos por `POST /api/alunos`, o cadastro dele passa a dar 400 até ele enviar o aceite. Confirmar antes de publicar.
+
 ### 2.9 Consultar duplicidade antes de pedir o endereço
 
 **Situação:** a API só confere se e-mail, CPF e telefone já existem quando a conta é criada, no fim do passo 2 do cadastro. O aluno preenche o endereço inteiro e só então descobre que o e-mail já tem conta.
@@ -220,6 +278,56 @@ Hoje a API ignora esses campos.
 - **Resposta 200:** `{ "emailEmUso": false, "cpfEmUso": false, "telefoneEmUso": true }`.
 - **Não cria nada.** A checagem continua valendo no `POST /api/alunos`, porque a pessoa pode demorar entre um passo e outro.
 - **Segurança:** a rota revela se um e-mail ou CPF tem conta. O próprio cadastro já revela isso hoje (409), mas uma rota de consulta facilita testes em massa. Por isso ela precisa de **limite de tentativas por IP** (item 6.3) e não pode devolver nenhum outro dado da conta.
+
+### 2.10 Login em cookie protegido
+
+**Decisão (05/10/2026):** o login do aluno deixa de ficar no navegador (`localStorage`) e passa para **cookies protegidos**, que nenhum script da página consegue ler. Motivo: hoje um script malicioso consegue copiar o token de renovação e ficar com a conta do aluno por 7 dias (`docs/seguranca.md`, item S5). Com os cookies, o site também consegue bloquear `/aluno` e `/checkout` no servidor.
+
+**Cookies que o backend grava**
+
+| Cookie | Conteúdo | Atributos | Validade |
+|---|---|---|---|
+| `quad_acesso` | Token de acesso | `HttpOnly; Secure; SameSite=Lax; Path=/` | A do token (~15 min) |
+| `quad_renovacao` | Token de renovação | `HttpOnly; Secure; SameSite=Strict; Path=/auth` (só vai para as rotas de autenticação) | 7 dias |
+| `quad_sessao` | Só o valor `1`, sem nenhum segredo | `Secure; SameSite=Lax; Path=/` (**sem** `HttpOnly`) | 7 dias, igual ao de renovação |
+
+- **Domínio:** em produção, `Domain=.quadconcursos.com.br`, para valer no site (`quadconcursos.com.br`) e na API (`api.quadconcursos.com.br`). Em desenvolvimento (`localhost`), sem `Domain`; cookie não depende da porta, então vale para `localhost:3000` e `localhost:8080`.
+- **`Secure` em desenvolvimento:** navegadores aceitam cookie `Secure` em `http://localhost`. Se der problema, pode ficar sem `Secure` só no perfil de desenvolvimento.
+- **Para que serve o `quad_sessao`:** só indica que existe uma sessão. O site o usa para saber, sem chamar a API, se mostra "Entrar" ou o avatar, e para o bloqueio de `/aluno` no servidor. Ele não dá acesso a nada; quem dá acesso é o `quad_acesso`.
+
+**Mudanças nas rotas**
+
+1. **`POST /auth/login`** ⚠️ (o app também usa esta rota):
+   - **quando a requisição vem do site** (cabeçalho `X-Quad-Cliente: site`): grava os três cookies e devolve no corpo só `acessoExpiraEm` e `renovacaoExpiraEm`, **sem os tokens**;
+   - **quando vem do app** (sem esse cabeçalho): continua exatamente como hoje, com os tokens no corpo, sem cookies.
+   - Motivo: se o corpo trouxesse os tokens também para o site, um script malicioso poderia pedir uma renovação e ler os tokens novos, anulando a proteção do cookie.
+2. **`POST /auth/refresh`** ⚠️:
+   - **site:** lê o token de renovação **do cookie `quad_renovacao`**, troca os tokens e grava os cookies de novo, **sem** os tokens no corpo;
+   - **app:** continua como hoje (token de renovação no corpo e tokens novos na resposta).
+3. **`POST /auth/logout`:** revoga a sessão e **apaga os três cookies** (`Max-Age=0`).
+4. **Autenticação das demais rotas:** aceitar o token **do cookie `quad_acesso` ou do cabeçalho `Authorization`**. O cabeçalho continua valendo para o Swagger e para o **app Viver o Quad**, que compartilha esta API: **o app não deve ser afetado** por esta mudança (o login dele continua recebendo os tokens como hoje, se ele não usar os cookies).
+
+**CORS**
+- `allowCredentials(true)`.
+- Origens **exatas**: `http://localhost:3000`, `https://quadconcursos.com.br` e `https://www.quadconcursos.com.br`. Com credenciais, a origem `*` não é permitida.
+- Liberar o cabeçalho `X-Quad-Cliente` (abaixo).
+
+**Proteção contra requisições forjadas (CSRF)**
+- O `SameSite` já impede a maior parte.
+- Além disso, para requisições que **alteram dados** (POST, PUT, PATCH, DELETE) autenticadas **pelo cookie**, exigir o cabeçalho `X-Quad-Cliente: site`. Outro site não consegue enviar esse cabeçalho sem passar pelo CORS, que vai recusá-lo. Requisições autenticadas pelo cabeçalho `Authorization` não precisam dele.
+
+**O que muda no site** (feito depois desta entrega)
+- Deixa de guardar tokens no navegador.
+- Envia `credentials: "include"` e `X-Quad-Cliente: site` nas chamadas.
+- Descobre o usuário por `GET /api/alunos/eu`, sem ler o token.
+- Bloqueia `/aluno` e `/checkout` no servidor quando não houver o cookie `quad_sessao`.
+
+**Como testar a entrega**
+1. Login pelo Swagger com `credentials`: a resposta traz os três `Set-Cookie`.
+2. `GET /api/alunos/eu` **sem** cabeçalho `Authorization`, só com os cookies: 200.
+3. `POST /auth/refresh` sem corpo, só com o cookie: novos cookies gravados.
+4. `POST /auth/logout`: os cookies são apagados, e o token de renovação antigo passa a dar 401.
+5. Um PATCH só com cookie e **sem** `X-Quad-Cliente`: recusado (403).
 
 ### 2.8 Foto de perfil (prioridade baixa)
 
@@ -233,7 +341,7 @@ Hoje a API ignora esses campos.
 
 **Situação hoje:**
 - `GET /api/turmas`, `GET /api/eventos` e `GET /api/professores` respondem **401** sem login. As páginas públicas do site (home, lista e detalhe de turma, evento e professor) são abertas a qualquer visitante, então não conseguem usar essas rotas.
-- `GET /api/loja/vitrine/atividades?tipo=TURMA|EVENTO|SIMULADO` é pública, mas devolve só `id`, `nome`, `imagemUrl` e os preços. Faltam os dados que as páginas exibem.
+- `GET /api/loja/vitrine/atividades?tipo=TURMA|EVENTO|SIMULADO` e o detalhe `.../{tipo}/{id}` são públicos. Desde 10/10/2026 trazem também datas, turno ou horário, modalidade, descrição (turma) e vagas em tempo real. Ainda faltam os textos de venda, o local com endereço, os professores e o `slug`. O comparativo campo a campo está em [mapa-api-conteudo.md](mapa-api-conteudo.md), e o **formato exato pedido** (JSON de cada conteúdo, em ordem de prioridade) está em [contrato-api-conteudo.md](contrato-api-conteudo.md).
 
 **Pedido:** rotas públicas, sem login, só com dados que podem ser vistos por qualquer pessoa, nunca dados de alunos. Pode ser ampliando a vitrine ou criando rotas próprias.
 
@@ -269,11 +377,11 @@ Hoje a API ignora esses campos.
 
 | O site precisa | O que existe | Pedido |
 |---|---|---|
-| Minhas turmas (com progresso) | `GET /api/matriculas` | Confirmar que, para aluno, traz só as matrículas dele (item 1.3) e incluir dados da turma e progresso (aulas concluídas e total). Ou criar `GET /api/matriculas/eu` |
-| Meus materiais | `GET /api/materiais/eu` e `GET /api/materiais/{id}/arquivo` | Confirmar que o download funciona para o aluno e bloqueia material de turma em que ele não está |
-| Materiais diários por turma | — | Aguardando a documentação da estrutura atual |
-| Meus eventos | `GET /api/inscricoes` | Confirmar o filtro por aluno (item 1.3) ou criar `GET /api/inscricoes/eu` |
-| Minhas compras | `GET /api/loja/compras` | Confirmar o filtro por aluno (item 1.3) |
+| Minhas turmas (com progresso) | `GET /api/matriculas`, `GET /api/turmas/{id}` e `GET /api/turmas/{id}/agenda` | ✅ Resolvido: o filtro por aluno foi comprovado (item 1.3) e o site calcula o progresso pela agenda |
+| Meus materiais | `GET /api/materiais/eu` e `GET /api/materiais/{id}/arquivo` | ✅ Bloqueio comprovado (403 para material de outra turma). **Falta:** um ambiente com armazenamento configurado para testar o download — o backend local responde 503 "nenhum bucket foi configurado". Sugestão: um bucket de teste (ou MinIO) no ambiente local |
+| Materiais diários por turma | `/api/materiais` (por turma, matéria e tópico)? | **Confirmar** se os "materiais diários" são esses materiais. Obs.: matéria e tópico só vêm preenchidos quando a turma está ligada ao concurso do tópico |
+| Meus eventos | `GET /api/alunos/eu/atividades` | ✅ Resolvido (o site já usa) |
+| Minhas compras | `GET /api/loja/compras` | ✅ Resolvido: filtro por aluno comprovado (item 1.3) |
 
 ---
 
@@ -293,6 +401,18 @@ Hoje a API ignora esses campos.
 - **(a) Recomendada:** criar um pedido com N itens e **uma** cobrança.
 - **(b)** O site cria uma compra por item. Isso gera várias cobranças: vários PIX, várias faturas de cartão. Experiência ruim.
 
+**Atualização (07/10/2026):** o backend seguiu a opção (a), com um carrinho no servidor:
+- `GET`/`DELETE /api/loja/carrinho/eu`;
+- `PUT /api/loja/carrinho/eu/linhas` (reserva a vaga por 30 minutos) e `DELETE .../linhas/{linhaId}`;
+- `POST /api/loja/carrinho/eu/renovacao` (mais 30 minutos);
+- `POST /api/loja/carrinho/eu/fechamento` (uma cobrança só, tudo ou nada, com `Idempotency-Key`);
+- `GET /api/loja/fechamentos/{id}`, mais `.../conciliacao` ("já paguei") e `.../cancelamento`.
+
+O site vai usar quando o catálogo vier da API (Etapa 5): hoje os itens do site ainda são de exemplo e não têm o `itemId` da API. Dúvidas para o backend:
+- O carrinho do servidor exige login. O visitante monta o carrinho sem conta; o site manda os itens para o servidor só depois do login. Está certo assim?
+- `CarrinhoResponse.totalEmReais` e `precoUnitarioEmReais` são inteiros, mas `FechamentoResponse.totalEmCentavos` está em centavos. Os campos "EmReais" estão em reais inteiros? Um material de R$ 49,90 não caberia (ver item 5.3).
+- Itens agora têm `variacoes` (ex.: tamanhos). Quais itens do site vão ter variação?
+
 ### 5.2 Cupons de desconto
 
 **Situação:** hoje os cupons estão fixos no código do site, só para teste.
@@ -301,18 +421,25 @@ Hoje a API ignora esses campos.
 - **Validar:** `GET /api/cupons/{codigo}` (ou uma rota de cálculo) devolve o desconto e as regras (validade, itens, uso único).
 - **Aplicar:** a compra recebe `cupom` e calcula o desconto **no servidor**. O site nunca define o preço final.
 
+**Atualização (16/10/2026):** as regras completas (os três tipos de desconto do WooCommerce, restrições e limites de uso) e os prompts para o backend estão em [prompts/cupons/](prompts/cupons/README.md), arquivos 00, 01, 02 e 05.
+
 ### 5.3 Valores em reais
 
 - **Unidade de `precoEmReais`:** a vitrine traz esse campo como inteiro. É em centavos?
+  - **Resposta (conferido em produção, 09/10/2026):** é em **reais inteiros** (turma "Patamo I" = 997, "Camisa Quad" = 40). **Problema:** um preço com centavos, como os materiais de R$ 49,90, não cabe. O mesmo vale para o carrinho (`precoUnitarioEmReais`, `totalEmReais`). **Pedido:** passar a usar centavos (`precoEmCentavos`), como já fazem o fechamento e o pagamento, ou confirmar que nenhum item terá centavos.
 - **Total em reais na compra:** `CompraResponse.total` usa `ValorResponse`, cuja moeda é só `QUAD_COINS` ou `DIAMANTES`. Para compras em reais, confirmar onde o site lê o total. Seria `pagamento.valorEmCentavos`?
 
 ### 5.4 Parcelas
 
 Qual o máximo de parcelas, se há juros e se depende do valor ou do item. O site precisa dessa informação para montar a lista de parcelas. Hoje o site usa até 3x sem juros.
 
+**Atualização (09/10/2026):** `GET /api/loja/pagamentos/configuracao` (exige login) traz `disponivel`, `chavePublica`, `parcelasMaximas`, `cartoesMaximos` e `valorMinimoPorCartaoEmCentavos`. Isso responde o máximo de parcelas e a chave pública (5.5). **Falta responder:** há juros? A partir de quantas parcelas? Quem paga (aluno ou Quad)? E `cartoesMaximos` quer dizer que o aluno pode dividir a compra em mais de um cartão?
+
 ### 5.5 Chave pública do Pagar.me
 
 O site precisa da **chave pública** (de teste e de produção) para tokenizar o cartão no navegador. A chave secreta fica **só no backend**.
+
+✅ **Resolvido (09/10/2026):** vem em `chavePublica` de `GET /api/loja/pagamentos/configuracao`.
 
 ### 5.6 Situação do pagamento
 
@@ -332,10 +459,10 @@ Compra confirmada, boleto gerado e acesso liberado. Confirmar se já existem ou 
 ## 6. Infraestrutura
 
 ### 6.1 CORS
-Hoje só `http://localhost:3000` é aceito. `https://quadconcursos.com.br` e `https://www.quadconcursos.com.br` recebem **403**. **Liberar o domínio final do site antes do lançamento**, sem liberar qualquer origem.
+Hoje só `http://localhost:3000` é aceito. `https://quadconcursos.com.br` e `https://www.quadconcursos.com.br` recebem **403** (conferido de novo em 09/10/2026). **Liberar o domínio final do site antes do lançamento**, sem liberar qualquer origem.
 
 ### 6.2 Swagger anunciando `http`
-A spec publicada declara o servidor como `http://api.quadconcursos.com.br`. O botão de testar rotas do Swagger falha, porque a página abre em HTTPS. Sugestão: `server.forward-headers-strategy=framework` no Spring.
+A spec publicada declara o servidor como `http://api.quadconcursos.com.br` (ainda assim em 09/10/2026). O botão de testar rotas do Swagger falha, porque a página abre em HTTPS. Sugestão: `server.forward-headers-strategy=framework` no Spring.
 
 ### 6.3 Limite de tentativas
 Limitar tentativas de login, de cadastro e de envio de código (itens 2.4 a 2.6) por IP e por conta, contra força bruta e robôs.
@@ -348,4 +475,11 @@ Criadas durante os testes do site; podem ser apagadas:
 - `teste.claude.1790858155@exemplo.com` · senha `senha12345`
 - `teste.claude.b.1790949238109@exemplo.com` · senha `senha12345`
 - `teste.claude.c.1790962937953@exemplo.com` · senha `senha12345`
+- Matrículas de teste (05/10/2026): conta B na turma C.O.R.E. e conta A na turma Regular Tarde, ambas com origem SECRETARIA
+- Evento de teste "Evento de teste (Claude)" (gratuito, online, 20/11/2026, professor Danilo Moura), com a inscrição da conta B
+- Materiais de teste (05/10/2026): concurso "TESTE-CLAUDE" com o tópico "Atos administrativos"; na Regular Tarde, um vídeo e um resumo em PDF (sem arquivo); na C.O.R.E., uma lista em PDF (sem arquivo)
+- Compras em reais da conta A (05/10/2026): turma Regular Tarde no cartão (paga, R$ 997, 3x, Visa final 4242) e "Apostila de teste (Claude)" no PIX (aguardando pagamento, R$ 49,90), com as cobranças correspondentes
+- Conta B: 20 Quad Coins creditados (lançamento de teste), personagem escolhido e a compra da "Boina exclusiva" (paga com as moedas)
 - Conta "Teste Dup" (`dup.<número>@exemplo.com` · senha `senha12345`), criada ao reproduzir o item 1.4. Ela tem o mesmo CPF da conta C
+- Seed de desenvolvimento do backend aplicado em 19/10/2026 (`seeds/seed.sh`, no projeto da API). Ele criou o administrador `admin@quad.local`, professores, salas, matérias e alunos `@quad.local`, todos com a senha `Quad@2026`
+- "Turma de teste (site)" (19/10/2026): regular, de 03/11/2026 a 26/02/2027, seg a sex das 18h30 às 22h, no Auditório, **à venda por R$ 997 com 40 vagas**. Existe para a vitrine local ter uma turma: a C.O.R.E. e a Regular Tarde já terminaram e por isso não aparecem

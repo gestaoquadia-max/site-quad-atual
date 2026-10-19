@@ -5,3 +5,14 @@ out
 
 # gerado pelo TypeScript
 *.tsbuildinfo
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# Configurações locais do Claude Code
+/.claude/settings.local.json
+
+# Ligação deste projeto com a demanda no Painel Quad (usada pelo robô do Claude Code)
+/.painel-quad.json

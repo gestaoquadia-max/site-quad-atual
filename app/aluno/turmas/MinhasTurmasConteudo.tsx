@@ -10,6 +10,7 @@ import {
   type Matricula,
   type TurmaDoAluno,
 } from "@/lib/api";
+import { formatarData, formatarHora } from "@/lib/format";
 import { useCarregar } from "@/lib/useCarregar";
 import { useCarregandoUsuario, useUsuarioAtual } from "@/lib/usuario";
 
@@ -51,18 +52,6 @@ const diasAbreviados: Record<string, string> = {
   SABADO: "Sáb",
   DOMINGO: "Dom",
 };
-
-function formatarData(iso: string) {
-  const [ano, mes, dia] = iso.slice(0, 10).split("-");
-  return `${dia}/${mes}/${ano}`;
-}
-
-// "14:00:00" -> "14h", "15:30:00" -> "15h30"
-function formatarHora(hora: string | null) {
-  if (!hora) return "";
-  const [h, m] = hora.split(":");
-  return m && m !== "00" ? `${Number(h)}h${m}` : `${Number(h)}h`;
-}
 
 function descreverHorario(turma: TurmaDoAluno) {
   const sequencia = ["SEGUNDA", "TERCA", "QUARTA", "QUINTA", "SEXTA"];

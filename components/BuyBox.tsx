@@ -70,7 +70,7 @@ export default function BuyBox({
           {cta}
         </Link>
       )}
-      <div className="mt-3.5 flex items-center justify-center gap-2 text-xs text-steel">
+      <div className="mt-3.5 flex items-center justify-center gap-2 text-xs text-steel-dim">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
           <rect x="2" y="5" width="8" height="6" rx="1" stroke="currentColor" />
           <path d="M4 5V3.5C4 2.4 4.9 1.5 6 1.5s2 .9 2 2V5" stroke="currentColor" />

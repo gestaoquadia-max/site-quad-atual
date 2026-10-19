@@ -28,7 +28,7 @@ export async function criarAluno(dados: {
   estado: string;
   pais: string;
   complemento?: string;
-  // Aceite dos termos (docs/pedidos-backend.md, item 2.7). A API ainda ignora esses campos.
+  // Aceite dos termos (docs/pedidos-backend.md, item 2.7). Obrigatórios na API: sem eles, o cadastro dá 400.
   aceiteTermos: boolean;
   versaoDosTermos: string;
 }): Promise<Aluno> {
@@ -90,7 +90,24 @@ export async function buscarAlunoAtual(): Promise<MeuPerfil> {
   return res.json();
 }
 
-// Responde 403 para conta de aluno enquanto o backend não liberar a edição do próprio cadastro.
+// Aluno corrige o próprio nome. Responde o mesmo corpo de GET /api/alunos/eu, já atualizado.
+// A rota recusa telefone (400): trocar o telefone exige verificação por código no número novo. Ela também aceita
+// nomeDeGuerra, que é do app Viver o Quad e o site não usa.
+export async function atualizarMeuNome(nome: string): Promise<MeuPerfil> {
+  const res = await fetchAutenticado("/api/alunos/eu", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nome }),
+  });
+
+  if (!res.ok) {
+    throw await lerErro(res, "Não foi possível salvar seus dados.");
+  }
+
+  return res.json();
+}
+
+// Contas sem cadastro de aluno (professor, administrador). Para aluno responde 403: use atualizarMeuNome.
 export async function atualizarCadastro(id: string, dados: { nome: string; telefone: string }): Promise<Usuario> {
   const res = await fetchAutenticado(`/api/usuarios/${id}`, {
     method: "PATCH",
@@ -310,4 +327,74 @@ export async function conferirDisponibilidade(dados: { email: string; telefone: 
   }
 
   return res.json();
+}
+
+// ── Compras ─────────────────────────────────────────────────────────────────
+
+export type FormaDePagamento = "QUAD_COINS" | "DIAMANTES" | "CARTAO" | "PIX" | "BOLETO";
+
+export type Compra = {
+  id: string;
+  item: { id: string; nome: string; tipo: string };
+  quantidade: number;
+  formaDePagamento: FormaDePagamento;
+  situacao: "CRIADA" | "AGUARDANDO_PAGAMENTO" | "PAGA" | "RECUSADA" | "EXPIRADA" | "CANCELADA" | "ESTORNADA";
+  criadaEm: string;
+  pagaEm: string | null;
+  pagamento: {
+    valorEmCentavos: number | null;
+    pix: { codigo: string | null; expiraEm: string | null } | null;
+    boleto: { url: string | null; pdf: string | null; venceEm: string | null } | null;
+    cartao: { bandeira: string | null; ultimosDigitos: string | null; parcelas: number | null } | null;
+  } | null;
+};
+
+// Formas de pagamento em reais. Quad Coins e diamantes são moedas do app Viver o Quad, que compartilha a API.
+export const FORMAS_EM_REAIS: FormaDePagamento[] = ["CARTAO", "PIX", "BOLETO"];
+
+// Para aluno, a API já devolve só as compras dele (comprovado em 05/10/2026). O site mostra só as feitas em reais.
+export async function listarMinhasComprasEmReais(): Promise<Compra[]> {
+  const pagina = await lerJson<Pagina<Compra>>("/api/loja/compras?tamanho=100", "Não foi possível carregar suas compras.");
+  return pagina.conteudo
+    .filter((c) => FORMAS_EM_REAIS.includes(c.formaDePagamento))
+    .sort((a, b) => b.criadaEm.localeCompare(a.criadaEm));
+}
+
+// ── Eventos e simulados do aluno ────────────────────────────────────────────
+
+export type AtividadeDoAluno = {
+  tipo: "EVENTO" | "SIMULADO";
+  id: string;
+  nome: string;
+  imagemUrl: string | null;
+  presencial: boolean;
+  quando: { data: string; inicio: string; fim: string }[];
+  situacao: "INSCRITO" | "ABERTA" | "A_VENDA";
+  // Só nas que já terminaram: CONCLUIDA com presença confirmada, AUSENTE sem.
+  desfecho: "CONCLUIDA" | "AUSENTE" | null;
+};
+
+function dataIso(d: Date) {
+  return d.toISOString().slice(0, 10);
+}
+
+// A API aceita no máximo 366 dias por consulta: busca os próximos 12 meses e, à parte, os 12 meses anteriores.
+export async function listarMinhasInscricoes(): Promise<AtividadeDoAluno[]> {
+  const hoje = new Date();
+  const umAnoAtras = new Date(hoje);
+  umAnoAtras.setDate(hoje.getDate() - 365);
+  const ontem = new Date(hoje);
+  ontem.setDate(hoje.getDate() - 1);
+
+  const [proximas, anteriores] = await Promise.all([
+    lerJson<Pagina<AtividadeDoAluno>>("/api/alunos/eu/atividades?situacao=INSCRITO&tamanho=100", "Não foi possível carregar seus eventos."),
+    lerJson<Pagina<AtividadeDoAluno>>(
+      `/api/alunos/eu/atividades?situacao=INSCRITO&encerradas=true&inicio=${dataIso(umAnoAtras)}&fim=${dataIso(ontem)}&tamanho=100`,
+      "Não foi possível carregar seus eventos.",
+    ),
+  ]);
+
+  const porId = new Map<string, AtividadeDoAluno>();
+  for (const a of [...anteriores.conteudo, ...proximas.conteudo]) porId.set(`${a.tipo}:${a.id}`, a);
+  return [...porId.values()];
 }

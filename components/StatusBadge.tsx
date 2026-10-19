@@ -1,5 +1,5 @@
 const styles: Record<string, string> = {
-  aberta: "bg-[#E4EFE5] text-[#3E7A44]",
+  aberta: "bg-[#E4EFE5] text-[#33693A]",
   breve: "bg-[#DCE8FE] text-blue-dark",
   encerrada: "bg-[#F0E4E4] text-[#9B3535]",
 };

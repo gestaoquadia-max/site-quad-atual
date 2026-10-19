@@ -228,9 +228,9 @@ export default function CadastroPage() {
     <div className="flex min-h-[calc(100vh-68px)] items-center justify-center bg-navy-deep px-6 py-12">
       <div className="w-full max-w-[560px] border border-t-[3px] border-dark border-t-blue bg-navy-mid px-10 py-11">
         <div className="mb-1.5 flex items-start justify-between gap-3">
-          <h2 className="font-display text-[26px] font-bold uppercase text-offwhite">
+          <h1 className="font-display text-[26px] font-bold uppercase text-offwhite">
             Criar conta
-          </h2>
+          </h1>
           <span className="font-display mt-1.5 whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.1em] text-steel-light">
             Passo {passo} de 3
           </span>
@@ -243,7 +243,7 @@ export default function CadastroPage() {
 
         {passo === 1 && (
         <div>
-          <span className="eyebrow">Dados pessoais</span>
+          <span className="eyebrow text-blue">Dados pessoais</span>
           <div className="mt-4 grid grid-cols-2 gap-3.5">
             <Field required label="Nome" placeholder="Seu nome" value={nome} onChange={setNome} />
             <Field required label="Sobrenome" placeholder="Seu sobrenome" value={sobrenome} onChange={setSobrenome} />
@@ -299,7 +299,7 @@ export default function CadastroPage() {
 
         {passo === 2 && (
         <div>
-          <span className="eyebrow">Endereço</span>
+          <span className="eyebrow text-blue">Endereço</span>
 
           <div className="mb-4 mt-4">
             <label className="font-display mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-steel-light">

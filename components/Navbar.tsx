@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { turmas, produtos, eventos, cursosOnline } from "@/lib/data";
+import { produtos, cursosOnline, type Evento, type Turma } from "@/lib/data";
 import { useCart } from "@/lib/cart";
 import { useUsuarioAtual } from "@/lib/usuario";
 import { logout } from "@/lib/auth";
@@ -28,112 +28,134 @@ function CartIcon({ count }: { count: number }) {
   );
 }
 
-const turmaDestaque = turmas[0];
 const kitCompleto = produtos.find((p) => p.slug === "kit-completo-cfp")!;
-const eventoDestaque = eventos.find((e) => e.status === "breve") ?? eventos[0];
 const cursoDestaque = cursosOnline[0];
 
-const links: {
+type LinkDoMenu = {
   href: string;
   label: string;
   menu?: { items: MegaMenuItem[]; featured: MegaMenuFeatured; viewAllHref: string; viewAllLabel: string };
-}[] = [
-  { href: "/", label: "Início" },
-  {
-    href: "/turmas",
-    label: "Turmas",
-    menu: {
-      items: turmas.map((t) => ({
-        href: t.detalhe ? `/turmas/${t.slug}` : "/turmas",
-        nome: t.nome,
-        meta: t.statusLabel,
-        status: t.status,
-      })),
-      featured: {
-        eyebrow: "Turma em destaque",
-        title: turmaDestaque.nome,
-        desc: turmaDestaque.detalhe!.lead.split(". ")[0] + ".",
-        meta: turmaDestaque.statusLabel,
-        ctaLabel: "Ver turma completa",
-        ctaHref: `/turmas/${turmaDestaque.slug}`,
+};
+
+// Turmas e eventos vêm da vitrine da API (lido no servidor, em app/layout.tsx). Sem nenhum aberto, o destaque
+// vira um convite para a página da lista.
+function montarLinks(turmas: Turma[], eventos: Evento[]): LinkDoMenu[] {
+  const turmaDestaque = turmas.find((t) => t.status === "aberta") ?? turmas[0];
+  const eventoDestaque = eventos.find((e) => e.status === "aberta") ?? eventos[0];
+  return [
+    { href: "/", label: "Início" },
+    {
+      href: "/turmas",
+      label: "Turmas",
+      menu: {
+        items: turmas.map((t) => ({
+          href: `/turmas/${t.slug}`,
+          nome: t.nome,
+          meta: t.statusLabel,
+          status: t.status,
+        })),
+        featured: turmaDestaque
+          ? {
+              eyebrow: "Turma em destaque",
+              title: turmaDestaque.nome,
+              desc: turmaDestaque.desc,
+              meta: turmaDestaque.statusLabel,
+              ctaLabel: "Ver turma completa",
+              ctaHref: `/turmas/${turmaDestaque.slug}`,
+            }
+          : {
+              eyebrow: "Turmas presenciais",
+              title: "Novas turmas em breve",
+              desc: "As próximas turmas aparecem aqui assim que as matrículas abrirem.",
+              ctaLabel: "Ver turmas",
+              ctaHref: "/turmas",
+            },
+        viewAllHref: "/turmas",
+        viewAllLabel: "Ver todas as turmas",
       },
-      viewAllHref: "/turmas",
-      viewAllLabel: "Ver todas as turmas",
     },
-  },
-  {
-    href: "/produtos",
-    label: "Materiais",
-    menu: {
-      items: produtos.map((p) => ({
-        href: `/produtos/${p.slug}`,
-        nome: p.nome,
-        meta: p.tag,
-      })),
-      featured: {
-        eyebrow: "Combo em destaque",
-        title: kitCompleto.nome,
-        desc: kitCompleto.detalhe!.lead.split(". ")[0] + ".",
-        meta: kitCompleto.preco,
-        ctaLabel: "Ver kit completo",
-        ctaHref: `/produtos/${kitCompleto.slug}`,
+    {
+      href: "/produtos",
+      label: "Materiais",
+      menu: {
+        items: produtos.map((p) => ({
+          href: `/produtos/${p.slug}`,
+          nome: p.nome,
+          meta: p.tag,
+        })),
+        featured: {
+          eyebrow: "Combo em destaque",
+          title: kitCompleto.nome,
+          desc: kitCompleto.detalhe!.lead.split(". ")[0] + ".",
+          meta: kitCompleto.preco,
+          ctaLabel: "Ver kit completo",
+          ctaHref: `/produtos/${kitCompleto.slug}`,
+        },
+        viewAllHref: "/produtos",
+        viewAllLabel: "Ver todos os materiais",
       },
-      viewAllHref: "/produtos",
-      viewAllLabel: "Ver todos os materiais",
     },
-  },
-  {
-    href: "/eventos",
-    label: "Eventos",
-    menu: {
-      items: eventos.map((e) => ({
-        href: e.detalhe ? `/eventos/${e.slug}` : "/eventos",
-        nome: e.nome,
-        meta: e.tag,
-        status: e.status,
-      })),
-      featured: {
-        eyebrow: "Próximo evento",
-        title: eventoDestaque.nome,
-        desc: eventoDestaque.desc,
-        meta: eventoDestaque.tag,
-        ctaLabel: "Ver evento completo",
-        ctaHref: eventoDestaque.detalhe ? `/eventos/${eventoDestaque.slug}` : "/eventos",
+    {
+      href: "/eventos",
+      label: "Eventos",
+      menu: {
+        items: eventos.map((e) => ({
+          href: `/eventos/${e.slug}`,
+          nome: e.nome,
+          meta: e.tag,
+          status: e.status,
+        })),
+        featured: eventoDestaque
+          ? {
+              eyebrow: "Próximo evento",
+              title: eventoDestaque.nome,
+              desc: eventoDestaque.desc,
+              meta: eventoDestaque.tag,
+              ctaLabel: "Ver evento completo",
+              ctaHref: `/eventos/${eventoDestaque.slug}`,
+            }
+          : {
+              eyebrow: "Agenda Quad",
+              title: "Novos eventos em breve",
+              desc: "Simulados, aulões e palestras aparecem aqui assim que as inscrições abrirem.",
+              ctaLabel: "Ver agenda",
+              ctaHref: "/eventos",
+            },
+        viewAllHref: "/eventos",
+        viewAllLabel: "Ver agenda completa",
       },
-      viewAllHref: "/eventos",
-      viewAllLabel: "Ver agenda completa",
     },
-  },
-  {
-    href: "/cursos",
-    label: "Cursos Online",
-    menu: {
-      items: cursosOnline.map((c) => ({
-        href: "/cursos",
-        nome: c.nome,
-        meta: c.tag,
-      })),
-      featured: {
-        eyebrow: "Curso em destaque",
-        title: cursoDestaque.nome,
-        desc: cursoDestaque.desc,
-        meta: cursoDestaque.preco + (cursoDestaque.precoSufixo ?? ""),
-        ctaLabel: "Ver cursos online",
-        ctaHref: "/cursos",
+    {
+      href: "/cursos",
+      label: "Cursos Online",
+      menu: {
+        items: cursosOnline.map((c) => ({
+          href: "/cursos",
+          nome: c.nome,
+          meta: c.tag,
+        })),
+        featured: {
+          eyebrow: "Curso em destaque",
+          title: cursoDestaque.nome,
+          desc: cursoDestaque.desc,
+          meta: cursoDestaque.preco + (cursoDestaque.precoSufixo ?? ""),
+          ctaLabel: "Ver cursos online",
+          ctaHref: "/cursos",
+        },
+        viewAllHref: "/cursos",
+        viewAllLabel: "Ver todos os cursos",
       },
-      viewAllHref: "/cursos",
-      viewAllLabel: "Ver todos os cursos",
     },
-  },
-  { href: "/blog", label: "Blog" },
-];
+    { href: "/blog", label: "Blog" },
+  ];
+}
 
 function MobileAccordionRow({
   link,
   isOpen,
   onToggle,
 }: {
-  link: (typeof links)[number];
+  link: LinkDoMenu;
   isOpen: boolean;
   onToggle: () => void;
 }) {
@@ -276,9 +298,12 @@ function PerfilMenu({ labelDeslogado = "Área do Aluno" }: { labelDeslogado?: st
   );
 }
 
-export default function Navbar() {
+export default function Navbar({ turmas, eventos }: { turmas: Turma[]; eventos: Evento[] }) {
+  const links = montarLinks(turmas, eventos);
   const pathname = usePathname();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  // Depois do Esc o foco volta ao link do menu; esse foco não deve reabrir o menu.
+  const ignorarProximoFoco = useRef(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { totalCount } = useCart();
 
@@ -294,7 +319,7 @@ export default function Navbar() {
       <div className="max-w-site mx-auto px-6 h-[68px] flex items-center justify-between">
         <Link href="/" className="flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo.svg" alt="Quad Concursos" className="h-12 w-auto" />
+          <img src="/images/logo.svg" alt="Quad Concursos" width={130} height={48} className="h-12 w-auto" />
         </Link>
         <ul className="hidden md:flex gap-7 items-center">
           {links.map((l) => (
@@ -303,9 +328,25 @@ export default function Navbar() {
               className="relative"
               onMouseEnter={() => l.menu && setOpenMenu(l.href)}
               onMouseLeave={() => l.menu && setOpenMenu(null)}
+              // Teclado: abre ao receber o foco, fecha quando o foco sai do item ou com Esc.
+              onFocus={() => {
+                if (ignorarProximoFoco.current) ignorarProximoFoco.current = false;
+                else if (l.menu) setOpenMenu(l.href);
+              }}
+              onBlur={(e) => {
+                if (l.menu && !e.currentTarget.contains(e.relatedTarget as Node | null)) setOpenMenu(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Escape" && openMenu) {
+                  setOpenMenu(null);
+                  ignorarProximoFoco.current = true;
+                  (e.currentTarget.querySelector("a") as HTMLElement | null)?.focus();
+                }
+              }}
             >
               <Link
                 href={l.href}
+                aria-expanded={l.menu ? openMenu === l.href : undefined}
                 className={`focus-ring flex items-center gap-1 text-sm font-medium transition-colors ${
                   pathname === l.href ? "text-blue" : "text-steel-light hover:text-blue"
                 }`}

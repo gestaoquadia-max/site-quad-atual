@@ -1,0 +1,37 @@
+# Confere o projeto a cada envio ao GitHub: tipos, padrões de código e build de produção.
+# Os testes de ponta a ponta (npm run test:e2e) não rodam aqui porque precisam da API e do banco de teste;
+# rode-os na máquina, com a API local ligada.
+name: Verificação
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Checar tipos
+        run: npx tsc --noEmit
+
+      - name: Checar padrões de código
+        run: npm run lint
+
+      - name: Build de produção
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.quadconcursos.com.br
+
+      - name: Vulnerabilidades graves nas dependências do site
+        run: npm audit --omit=dev --audit-level=high

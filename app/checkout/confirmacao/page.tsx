@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import LimparCarrinho from "./LimparCarrinho";
+import { NOME_DO_SITE, resumir } from "@/lib/seo";
 
 type Status = "aprovado" | "pendente" | "recusado" | "inscricao";
 
@@ -50,8 +51,13 @@ function lerStatus(valor: string | string[] | undefined): Status {
 type Props = { searchParams: Promise<{ status?: string | string[]; metodo?: string | string[] }> };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const { status } = await searchParams;
-  return { title: `${telas[lerStatus(status)].titulo} — Quad Concursos` };
+  const { status, metodo } = await searchParams;
+  const tela = telas[lerStatus(status)];
+  // absolute: o título simples do layout do checkout corta o modelo " — Quad Concursos" do layout raiz.
+  return {
+    title: { absolute: `${tela.titulo} — ${NOME_DO_SITE}` },
+    description: resumir(tela.texto(typeof metodo === "string" ? metodo : undefined)),
+  };
 }
 
 export default async function ConfirmacaoPage({ searchParams }: Props) {

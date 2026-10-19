@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { turmas, produtos, eventos, aprovados, professores, posts } from "@/lib/data";
+import { produtos, aprovados, professores, posts } from "@/lib/data";
 import ProductCard from "@/components/ProductCard";
 import SectionHead from "@/components/SectionHead";
 import ProfessoresCarousel from "@/components/ProfessoresCarousel";
@@ -7,16 +7,29 @@ import AprovadoCard from "@/components/AprovadoCard";
 import AccentCard from "@/components/AccentCard";
 import Kicker from "@/components/Kicker";
 import Reveal from "@/components/Reveal";
+import { ListaErro, ListaVazia } from "@/components/EstadoLista";
+import DadosEstruturados from "@/components/DadosEstruturados";
+import { dadosDaOrganizacao } from "@/lib/dados-estruturados";
+import { listarEventos, listarTurmas } from "@/lib/vitrine";
 
-export default function Home() {
+// Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts): turmas e eventos vêm da API.
+export const revalidate = 60;
+
+// Título e descrição vêm do padrão do layout; aqui só o endereço canônico.
+export const metadata = { alternates: { canonical: "/" } };
+
+export default async function Home() {
+  const [turmas, eventos] = await Promise.all([listarTurmas(), listarEventos()]);
+
   return (
     <>
+      <DadosEstruturados dados={dadosDaOrganizacao()} />
       {/* HERO */}
       <section className="relative overflow-hidden bg-navy-deep text-offwhite pt-[88px] pb-[72px]">
         <div className="hexagon pattern-diagonal pointer-events-none absolute -right-32 -top-10 h-[480px] w-[480px]" />
         <div className="relative z-10 mx-auto max-w-site px-6">
           <div className="max-w-[640px]">
-            <span className="eyebrow">Feira de Santana · Bahia · Desde 2013</span>
+            <span className="eyebrow text-blue">Feira de Santana · Bahia · Desde 2013</span>
             <h1 className="font-display mt-5 mb-4 text-display font-bold uppercase leading-[1.08]">
               Sua aprovação começa com a <em className="not-italic text-blue">preparação certa</em>
             </h1>
@@ -36,7 +49,7 @@ export default function Home() {
               ].map((s) => (
                 <div key={s.lbl}>
                   <div className="font-display text-[34px] font-bold leading-none text-blue">{s.num}</div>
-                  <div className="mt-1.5 text-xs uppercase tracking-[0.1em] text-steel">{s.lbl}</div>
+                  <div className="mt-1.5 text-xs uppercase tracking-[0.1em] text-steel-dim">{s.lbl}</div>
                 </div>
               ))}
             </div>
@@ -44,32 +57,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* TURMAS */}
+      {/* TURMAS: a seção fica sempre na home. Sem turma aberta (ou sem resposta da API), mostra um aviso no lugar dos cartões. */}
       <section className="py-section">
         <div className="mx-auto max-w-site px-6">
           <SectionHead
             eyebrow="Turmas presenciais"
-            title="Matrículas abertas"
+            title={turmas && turmas.length > 0 ? "Matrículas abertas" : "Próximas turmas"}
             desc="Preparação presencial com professores especialistas e rotina de treinamento estruturada."
           />
-          <div className="grid gap-5 md:grid-cols-3">
-            {turmas.slice(0, 3).map((t, i) => (
-              <Reveal key={t.slug} className="h-full" delay={Math.min(i, 5) * 70}>
-                <ProductCard
-                  slug={t.slug}
-                  href={t.detalhe ? `/turmas/${t.slug}` : undefined}
-                  tag={t.tag}
-                  nome={t.nome}
-                  desc={t.desc}
-                  preco={t.preco}
-                  precoSufixo={t.precoSufixo}
-                  status={t.status}
-                  statusLabel={t.statusLabel}
-                  tipo="turma"
-                />
-              </Reveal>
-            ))}
-          </div>
+          {turmas === null ? (
+            <ListaErro mensagem="Não foi possível carregar as turmas agora. Tente novamente em instantes." />
+          ) : turmas.length === 0 ? (
+            <ListaVazia
+              titulo="Nenhuma turma com matrícula aberta"
+              texto="As próximas turmas aparecem aqui assim que as matrículas abrirem."
+              acao={{ href: "/contato", label: "Fale com a gente" }}
+            />
+          ) : (
+            <div className="grid gap-5 md:grid-cols-3">
+              {turmas.slice(0, 3).map((t, i) => (
+                <Reveal key={t.slug} className="h-full" delay={Math.min(i, 5) * 70}>
+                  <ProductCard
+                    slug={t.slug}
+                    href={`/turmas/${t.slug}`}
+                    tag={t.tag}
+                    nome={t.nome}
+                    desc={t.desc}
+                    preco={t.preco}
+                    precoSufixo={t.precoSufixo}
+                    status={t.status}
+                    statusLabel={t.statusLabel}
+                    tipo="turma"
+                  />
+                </Reveal>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -101,29 +124,31 @@ export default function Home() {
         </div>
       </section>
 
-      {/* EVENTOS */}
-      <section className="py-section">
-        <div className="mx-auto max-w-site px-6">
-          <SectionHead eyebrow="Agenda" title="Próximos eventos" />
-          <div className="grid gap-5 md:grid-cols-3">
-            {eventos.map((e, i) => (
-              <Reveal key={e.slug} className="h-full" delay={Math.min(i, 5) * 70}>
-                <ProductCard
-                  slug={e.slug}
-                  href={e.detalhe ? `/eventos/${e.slug}` : undefined}
-                  tag={e.tag}
-                  nome={e.nome}
-                  desc={e.desc}
-                  preco={e.preco}
-                  status={e.status}
-                  statusLabel={e.statusLabel}
-                  tipo="evento"
-                />
-              </Reveal>
-            ))}
+      {/* EVENTOS: some quando não há evento aberto ou a API não respondeu. */}
+      {eventos && eventos.length > 0 && (
+        <section className="py-section">
+          <div className="mx-auto max-w-site px-6">
+            <SectionHead eyebrow="Agenda" title="Próximos eventos" />
+            <div className="grid gap-5 md:grid-cols-3">
+              {eventos.slice(0, 3).map((e, i) => (
+                <Reveal key={e.slug} className="h-full" delay={Math.min(i, 5) * 70}>
+                  <ProductCard
+                    slug={e.slug}
+                    href={`/eventos/${e.slug}`}
+                    tag={e.tag}
+                    nome={e.nome}
+                    desc={e.desc}
+                    preco={e.preco}
+                    status={e.status}
+                    statusLabel={e.statusLabel}
+                    tipo="evento"
+                  />
+                </Reveal>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* PROFESSORES */}
       <section id="professores" className="bg-navy py-section text-offwhite">
@@ -175,7 +200,7 @@ export default function Home() {
               <Reveal key={p.slug} className="h-full" delay={Math.min(i, 5) * 70}>
                 <Link href={`/blog/${p.slug}`} className="focus-ring block h-full">
                   <AccentCard dark className="h-full p-6">
-                    <Kicker>{p.categoria}</Kicker>
+                    <Kicker color="text-blue">{p.categoria}</Kicker>
                     <h3 className="font-display mt-2 mb-1.5 text-lg font-bold uppercase leading-tight text-offwhite">
                       {p.titulo}
                     </h3>

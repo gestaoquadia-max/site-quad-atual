@@ -25,6 +25,7 @@ export default function ProductCard({
   statusLabel,
   dark = false,
   tipo = "produto",
+  nivelDoTitulo = "h3",
 }: {
   slug: string;
   href?: string;
@@ -37,7 +38,10 @@ export default function ProductCard({
   statusLabel?: string;
   dark?: boolean;
   tipo?: "produto" | "turma" | "evento";
+  // h2 quando o cartão vem logo abaixo do título da página (h1); h3 dentro de uma seção com h2.
+  nivelDoTitulo?: "h2" | "h3";
 }) {
+  const Titulo = nivelDoTitulo;
   const { addItem } = useCart();
   const [adicionado, setAdicionado] = useState(false);
   const mostrarAcao = !status || status === "aberta";
@@ -54,10 +58,10 @@ export default function ProductCard({
         dark ? "bg-navy-mid border-dark border-l-blue" : "bg-white border-light border-l-blue"
       }`}
     >
-      <Kicker>{tag}</Kicker>
-      <h3 className={`font-display text-[21px] font-bold uppercase mt-2 mb-1.5 leading-tight ${dark ? "text-offwhite" : ""}`}>
+      <Kicker color={dark ? "text-blue" : "text-blue-dark"}>{tag}</Kicker>
+      <Titulo className={`font-display text-[21px] font-bold uppercase mt-2 mb-1.5 leading-tight ${dark ? "text-offwhite" : ""}`}>
         {nome}
-      </h3>
+      </Titulo>
       <p className={`text-sm mb-4 flex-1 ${dark ? "text-steel-light" : "text-[#5A6472]"}`}>{desc}</p>
       <div className={`flex justify-between items-center pt-3.5 border-t ${dark ? "border-dark" : "border-light"}`}>
         <span className={`font-display text-xl font-bold ${dark ? "text-blue" : "text-navy"}`}>

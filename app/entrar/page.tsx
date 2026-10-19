@@ -32,10 +32,10 @@ export default function EntrarPage() {
   return (
     <div className="flex min-h-[calc(100vh-68px)] items-center justify-center bg-navy-deep px-6 py-12">
       <div className="w-full max-w-[420px] border border-t-[3px] border-dark border-t-blue bg-navy-mid px-10 py-11">
-        <span className="eyebrow">Área do aluno</span>
-        <h2 className="font-display mb-1.5 mt-3.5 text-[26px] font-bold uppercase text-offwhite">
+        <span className="eyebrow text-blue">Área do aluno</span>
+        <h1 className="font-display mb-1.5 mt-3.5 text-[26px] font-bold uppercase text-offwhite">
           Identifique-se
-        </h2>
+        </h1>
         <p className="mb-6 text-sm text-steel-light">Acesse seus materiais, turmas e eventos.</p>
 
         <label className="font-display mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-steel-light">

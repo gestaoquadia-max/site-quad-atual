@@ -6,6 +6,7 @@ import {
   alterarSenha,
   atualizarCadastro,
   atualizarEndereco,
+  atualizarMeuNome,
   buscarEnderecoDoUsuario,
   reenviarConfirmacaoDeEmail,
   type Endereco,
@@ -45,8 +46,8 @@ export default function PerfilConteudo() {
 
   return (
     <div className="grid max-w-[1000px] items-start gap-6 lg:grid-cols-2">
-      {/* A key recria o formulário com os valores novos depois de salvar. */}
-      <DadosPessoais key={usuario.nome} usuario={usuario} onSalvo={recarregar} />
+      {/* Chaveado pelo id (e não pelo nome) para o aviso de "salvo" não sumir quando os dados recarregam. */}
+      <DadosPessoais key={usuario.id} usuario={usuario} onSalvo={recarregar} />
       <EnderecoDoAluno usuarioId={usuario.id} />
       <TrocarSenha usuarioId={usuario.id} />
     </div>
@@ -78,7 +79,7 @@ function CartaoCarregando() {
 
 function Aviso({ tipo, children }: { tipo: "sucesso" | "erro" | "info"; children: React.ReactNode }) {
   const cores = {
-    sucesso: "border-[#3E7A44]/30 bg-[#E4EFE5] text-[#3E7A44]",
+    sucesso: "border-[#3E7A44]/30 bg-[#E4EFE5] text-[#33693A]",
     erro: "border-[#9B3535]/40 bg-[#9B3535]/10 text-[#9B3535]",
     info: "border-light bg-offwhite text-[#4A5462]",
   };
@@ -93,7 +94,7 @@ function Cartao({ eyebrow, titulo, children }: { eyebrow: string; titulo: string
   return (
     <div className="border border-light bg-white p-7">
       <span className="eyebrow">{eyebrow}</span>
-      <h3 className="font-display mb-5 mt-2 text-xl font-bold uppercase">{titulo}</h3>
+      <h2 className="font-display mb-5 mt-2 text-xl font-bold uppercase">{titulo}</h2>
       {children}
     </div>
   );
@@ -113,8 +114,9 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
     setErro("");
     setSalvando(true);
     try {
-      // O telefone vai sem alteração: trocar o telefone exige verificação por código.
-      await atualizarCadastro(usuario.id, { nome: nome.trim(), telefone: usuario.telefone ?? "" });
+      // Só o nome: trocar o telefone exige verificação por código.
+      if (usuario.aluno) await atualizarMeuNome(nome.trim());
+      else await atualizarCadastro(usuario.id, { nome: nome.trim(), telefone: usuario.telefone ?? "" });
       setSalvo(true);
       onSalvo();
     } catch (e) {
@@ -128,11 +130,10 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
     <Cartao eyebrow="Cadastro" titulo="Seus dados">
       {!usuario.dadosDaContaDisponiveis ? (
         <Aviso tipo="info">
-          A consulta e a edição dos seus dados ainda não estão disponíveis. Por enquanto, mostramos o seu nome de
-          guerra.
+          Não foi possível carregar todos os seus dados agora. Tente novamente em alguns minutos.
         </Aviso>
       ) : (
-        bloqueado && <Aviso tipo="info">A edição do nome ainda não está disponível.</Aviso>
+        bloqueado && <Aviso tipo="info">A edição do nome não está disponível agora.</Aviso>
       )}
 
       <label className={classeLabel} htmlFor="perfil-nome">
@@ -226,7 +227,7 @@ function AlertaEmailNaoVerificado() {
         {enviando ? "Enviando..." : "Reenviar e-mail de confirmação"}
       </button>
       {resultado && (
-        <p className={`mt-2 ${resultado.tipo === "erro" ? "text-[#9B3535]" : "text-[#3E7A44]"}`}>{resultado.texto}</p>
+        <p className={`mt-2 ${resultado.tipo === "erro" ? "text-[#9B3535]" : "text-[#33693A]"}`}>{resultado.texto}</p>
       )}
     </div>
   );

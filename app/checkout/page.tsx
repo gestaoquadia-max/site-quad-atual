@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatarValor } from "@/lib/format";
-import { parsePreco, useCart } from "@/lib/cart";
+import { useCart } from "@/lib/cart";
+import { parsePreco } from "@/lib/format";
 import AccentCard from "@/components/AccentCard";
 
 const metodos = ["Cartão", "PIX"] as const;
@@ -69,7 +70,7 @@ export default function CheckoutPage() {
   const cabecalho = (
     <div className="bg-navy-deep py-header">
       <div className="mx-auto max-w-site px-6">
-        <span className="eyebrow">{gratuito ? "Inscrição" : "Pagamento seguro"}</span>
+        <span className="eyebrow text-blue">{gratuito ? "Inscrição" : "Pagamento seguro"}</span>
         <h1 className="font-display mt-2.5 text-h1-sm font-bold uppercase text-offwhite">
           {gratuito ? "Confirmar inscrição" : temTurma ? "Finalizar matrícula" : "Finalizar compra"}
         </h1>
@@ -77,8 +78,16 @@ export default function CheckoutPage() {
     </div>
   );
 
-  // Ainda lendo o carrinho salvo no navegador.
-  if (!carregado) return cabecalho;
+  // Ainda lendo o carrinho salvo no navegador. A área reservada evita que o rodapé suba e depois desça
+  // quando o conteúdo aparece (mudança de layout, que o Google mede como CLS).
+  if (!carregado) {
+    return (
+      <>
+        {cabecalho}
+        <div role="status" aria-label="Carregando" className="min-h-[70vh]" />
+      </>
+    );
+  }
 
   if (items.length === 0) {
     return (

@@ -3,8 +3,14 @@ import PageHeader from "@/components/PageHeader";
 import AccentCard from "@/components/AccentCard";
 import Kicker from "@/components/Kicker";
 import Reveal from "@/components/Reveal";
+import { metadadosDaPagina } from "@/lib/seo";
 
-export const metadata = { title: "Cursos Online — Quad Concursos" };
+export const metadata = metadadosDaPagina({
+  titulo: "Cursos online",
+  descricao:
+    "Cursos online do Quad Concursos para carreiras policiais e militares: videoaulas, PDFs, simulados e mentoria para estudar de onde estiver.",
+  caminho: "/cursos",
+});
 
 export default function CursosPage() {
   return (
@@ -21,9 +27,9 @@ export default function CursosPage() {
               <Reveal key={c.nome} className="h-full" delay={Math.min(i, 5) * 70}>
                 <AccentCard className="h-full p-6">
                   <Kicker>{c.tag}</Kicker>
-                  <h3 className="font-display mt-2 mb-1.5 text-[21px] font-bold uppercase leading-tight">
+                  <h2 className="font-display mt-2 mb-1.5 text-[21px] font-bold uppercase leading-tight">
                     {c.nome}
-                  </h3>
+                  </h2>
                   <p className="mb-4 text-sm text-[#5A6472]">{c.desc}</p>
                   <div className="flex items-center justify-between border-t border-light pt-3.5">
                     <span className="font-display text-xl font-bold text-navy">

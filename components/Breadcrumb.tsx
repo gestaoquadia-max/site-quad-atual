@@ -6,7 +6,7 @@ export default function Breadcrumb({
   items: { href?: string; label: string }[];
 }) {
   return (
-    <div className="mb-5 text-[13px] text-steel">
+    <div className="mb-5 text-[13px] text-steel-dim">
       {items.map((item, i) => (
         <span key={item.label}>
           {i > 0 && " / "}

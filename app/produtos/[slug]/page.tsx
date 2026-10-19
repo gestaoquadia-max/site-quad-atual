@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { produtos } from "@/lib/data";
 import Breadcrumb from "@/components/Breadcrumb";
@@ -6,9 +7,17 @@ import BuyBox from "@/components/BuyBox";
 import { idDoItem } from "@/lib/itens";
 import CheckList from "@/components/CheckList";
 import Gallery from "@/components/Gallery";
+import { metadadosDaPagina } from "@/lib/seo";
 
 export function generateStaticParams() {
   return produtos.map((p) => ({ slug: p.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const produto = produtos.find((p) => p.slug === slug);
+  if (!produto) return {};
+  return metadadosDaPagina({ titulo: `${produto.nome} em PDF`, descricao: produto.detalhe?.lead ?? produto.desc, caminho: `/produtos/${produto.slug}` });
 }
 
 export default async function ProdutoDetalhe({ params }: { params: Promise<{ slug: string }> }) {
@@ -30,7 +39,7 @@ export default async function ProdutoDetalhe({ params }: { params: Promise<{ slu
           />
           <div className="grid items-start gap-12 lg:grid-cols-[1fr_380px]">
             <div>
-              <span className="eyebrow">{produto.tag}</span>
+              <span className="eyebrow text-blue">{produto.tag}</span>
               <h1 className="font-display my-4 text-h1 font-bold uppercase leading-[1.1]">
                 {produto.nome}
               </h1>

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getIniciais } from "@/lib/format";
 
 export default function Avatar({
@@ -15,10 +16,9 @@ export default function Avatar({
 }) {
   return (
     <div
-      className={`hexagon flex items-center justify-center overflow-hidden font-display font-bold ${size} ${bg} ${text}`}
+      className={`hexagon relative flex items-center justify-center overflow-hidden font-display font-bold ${size} ${bg} ${text}`}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      {fotoUrl ? <img src={fotoUrl} alt={nome} className="h-full w-full object-cover" /> : getIniciais(nome)}
+      {fotoUrl ? <Image src={fotoUrl} alt={nome} fill sizes="48px" className="object-cover" /> : getIniciais(nome)}
     </div>
   );
 }

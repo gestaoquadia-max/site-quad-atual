@@ -30,16 +30,16 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 | Etapa | Título | Blocos | Tarefas | Feitas |
 |---|---|---|---|---|
-| 1 | Cadastro e login | 4 | 27 | 15 |
-| 2 | Páginas públicas | 3 | 17 | 9 |
-| 3 | Área do aluno | 4 | 17 | 9 |
-| 4 | Qualidade de código | 3 | 11 | 8 |
-| 5 | Conteúdo via API | 4 | 11 | 0 |
+| 1 | Cadastro e login | 4 | 28 | 21 |
+| 2 | Páginas públicas | 3 | 17 | 10 |
+| 3 | Área do aluno | 4 | 17 | 13 |
+| 4 | Qualidade de código | 3 | 11 | 10 |
+| 5 | Conteúdo via API | 4 | 11 | 3 |
 | 6 | Painel administrativo | 3 | 6 | 0 |
 | 7 | Carrinho | 1 | 7 | 3 |
 | 8 | Checkout e pagamento | 4 | 15 | 4 |
-| 9 | SEO e performance | 2 | 8 | 1 |
-| 10 | Segurança e LGPD | 2 | 6 | 0 |
+| 9 | SEO e performance | 2 | 8 | 8 |
+| 10 | Segurança e LGPD | 2 | 6 | 1 |
 | 11 | Analytics e marketing | 1 | 4 | 0 |
 | 12 | Deploy e operação | 3 | 7 | 0 |
 
@@ -73,7 +73,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Validação de CPF, e-mail, senha (8 a 72), telefone com DDD e UF | FEITO |
 | Mensagens de erro de cada campo vindas da API | FEITO |
 | Caixa de aceite dos Termos de uso e da Política de privacidade | FEITO |
-| Registro do aceite dos termos na API | EM ANDAMENTO |
+| Registro do aceite dos termos na API | FEITO |
 | Passo 3 do cadastro: tela de verificação do e-mail e do celular | EM ANDAMENTO |
 | Envio e conferência do código de verificação por e-mail | EM ANDAMENTO |
 | Envio e conferência do código de verificação por SMS ou WhatsApp | EM ANDAMENTO |
@@ -96,7 +96,8 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Encerrar a sessão e voltar ao login quando não der para renovar | FEITO |
 | Menu de perfil na navbar (avatar, editar conta, sair) | FEITO |
 | Navbar atualizando na hora ao entrar e sair, inclusive em outras abas | FEITO |
-| Definir onde guardar o token (navegador ou cookie protegido) | PENDENTE |
+| Definir onde guardar o token (navegador ou cookie protegido) | FEITO |
+| Migrar o login para cookie protegido | PENDENTE |
 | Proteção da área do aluno também no servidor | PENDENTE |
 | Voltar para a página anterior depois do login | FEITO |
 | Login com Google (melhoria futura) | PENDENTE |
@@ -104,23 +105,23 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 **Campos adicionais**
 - **Descrição:** Manter o aluno logado com segurança e encerrar a sessão quando necessário. Testado no navegador: login normal, token vencido e renovação inválida
 - **Prioridade:** Alta
-- **Depende de:** Decisão (armazenamento do token)
+- **Depende de:** Backend (login em cookie protegido, docs/pedidos-backend.md item 2.10) · Atualização do Next.js (docs/seguranca.md, item S1)
 
 ### Bloco 4 — RECUPERAÇÃO E DADOS DA CONTA
 
-**Status:** EM ANDAMENTO
+**Status:** CONCLUÍDA · **Término:** 14/10/2026
 
 | Tarefa | Status |
 |---|---|
-| Endpoint de "esqueci minha senha" no backend | PENDENTE |
-| Tela de pedido de nova senha | EM ANDAMENTO |
-| Tela de redefinição de senha | EM ANDAMENTO |
-| Rota para o aluno ler e editar o próprio cadastro (`/api/usuarios/eu`) | EM ANDAMENTO |
+| Endpoint de "esqueci minha senha" no backend | FEITO |
+| Tela de pedido de nova senha | FEITO |
+| Tela de redefinição de senha | FEITO |
+| Rota para o aluno ler e editar o próprio cadastro (`/api/usuarios/eu`) | FEITO |
 
 **Campos adicionais**
-- **Descrição:** Hoje a API não tem "esqueci minha senha", e a conta de aluno recebe "sem permissão" (403) ao ler ou editar o próprio cadastro. Por isso o site mostra o nome de guerra em vez do nome completo, e não mostra o e-mail
+- **Descrição:** Recuperação de senha pronta em 14/10/2026: o site usa `POST /auth/senha/recuperacao` (pedir o link; vale 30 minutos e só pode ser pedido de novo depois de 60 s), `/recuperacao/verificacao` (confere o link ao abrir a página) e `/recuperacao/redefinicao` (grava a senha nova). Testado de ponta a ponta na API local: link válido, senha nova, login com ela, link recusado na segunda vez e sessões antigas encerradas. A rota do próprio cadastro ficou em `/api/alunos/eu` (e não `/api/usuarios/eu`): `GET` lê nome completo, e-mail, CPF e telefone, e `PATCH` salva o nome. Falta conferir num e-mail real se o link aponta para `/redefinir-senha?token=` no domínio do site
 - **Prioridade:** Alta
-- **Depende de:** Backend
+- **Depende de:** —
 
 ---
 
@@ -149,17 +150,17 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 2 — PÁGINAS INSTITUCIONAIS
 
-**Status:** PENDENTE
+**Status:** EM ANDAMENTO
 
 | Tarefa | Status |
 |---|---|
-| Sobre o Quad | PENDENTE |
-| Contato | PENDENTE |
-| Termos de uso (com revisão jurídica) | PENDENTE |
-| Política de privacidade (com revisão jurídica) | PENDENTE |
+| Sobre o Quad | FEITO |
+| Contato | EM ANDAMENTO |
+| Termos de uso (com revisão jurídica) | EM ANDAMENTO |
+| Política de privacidade (com revisão jurídica) | EM ANDAMENTO |
 
 **Campos adicionais**
-- **Descrição:** Hoje são links sem destino no rodapé. Os termos e a privacidade já são exigidos pela caixa de aceite do cadastro
+- **Descrição:** As quatro páginas existem e estão ligadas ao rodapé (`/sobre`, `/contato`, `/termos`, `/privacidade`). Sobre usa o conteúdo da base institucional. Contato, Termos e Privacidade leem os dados da empresa de `lib/institucional.ts` (CNPJ, endereço, WhatsApp, e-mails, foro), que ainda precisam ser preenchidos; termos e privacidade são minutas que precisam de revisão jurídica
 - **Prioridade:** Alta
 - **Depende de:** Conteúdo
 
@@ -207,15 +208,15 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 |---|---|
 | Mostrar os dados reais do aluno | FEITO |
 | Mensagens de carregando e erro na tela de perfil | FEITO |
-| Salvar nome e telefone | EM ANDAMENTO |
+| Salvar nome e telefone | FEITO |
 | Trocar senha | FEITO |
 | Exibir e editar o endereço | FEITO |
 | CPF e e-mail apenas para leitura | FEITO |
-| Alterar telefone com verificação por código | PENDENTE |
+| Alterar telefone pede nova verificação | EM ANDAMENTO |
 | Foto de perfil (melhoria futura) | PENDENTE |
 
 **Campos adicionais**
-- **Descrição:** O aluno vê todos os seus dados, incluindo o endereço. CPF e e-mail são só para leitura; nome e endereço são editáveis; o telefone segue a ordem: o aluno digita o número novo no site, o código é enviado para esse número novo e a troca só vale depois que ele digita o código (até lá, o número atual continua cadastrado). Endereço e troca de senha já funcionam pela API. Nome completo, e-mail, CPF e telefone vêm de `GET /api/alunos/eu` (CPF desde 03/10/2026); falta o backend criar a edição do nome. A foto depende de uma rota de envio que ainda não existe
+- **Descrição:** O aluno vê todos os seus dados, incluindo o endereço. CPF e e-mail são só para leitura; nome e endereço são editáveis; o telefone segue a ordem: o aluno digita o número novo no site, o código é enviado para esse número novo e a troca só vale depois que ele digita o código (até lá, o número atual continua cadastrado). Endereço e troca de senha já funcionam pela API. Nome completo, e-mail, CPF e telefone vêm de `GET /api/alunos/eu` (CPF desde 03/10/2026). O nome é salvo por `PATCH /api/alunos/eu` desde 07/10/2026; o telefone não vai por essa rota, só pela tarefa "Alterar telefone pede nova verificação" (tela pronta no site; falta o backend criar o envio e a conferência do código). A foto depende de uma rota de envio que ainda não existe
 - **Prioridade:** Alta
 - **Depende de:** Etapa 1, Bloco 4 · Backend (envio e conferência do código de verificação do telefone)
 
@@ -225,28 +226,28 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 | Tarefa | Status |
 |---|---|
-| Minhas turmas com as matrículas reais | EM ANDAMENTO |
+| Minhas turmas com as matrículas reais | FEITO |
 | Meus materiais com download do arquivo | EM ANDAMENTO |
 | Materiais diários por turma | EM ANDAMENTO |
 
 **Campos adicionais**
-- **Descrição:** As telas já usam a API: Minhas turmas lê `/api/matriculas` + `/api/turmas/{id}` e calcula o progresso pelas aulas realizadas na agenda da turma; Meus materiais lê `/api/materiais/eu` (por turma, matéria e tópico, com download e marcação de visto). Testadas só sem dados (conta de teste sem matrícula). Os PDFs vendidos avulsos ainda não existem na API
+- **Descrição:** As telas já usam a API: Minhas turmas lê `/api/matriculas` + `/api/turmas/{id}` e calcula o progresso pelas aulas realizadas na agenda da turma; Meus materiais lê `/api/materiais/eu` (por turma, matéria e tópico, com download e marcação de visto). Minhas turmas testada com matrículas reais em 05/10/2026 (cada aluno vê só as suas). Meus materiais testada em 05/10/2026 com materiais de teste: lista por turma, filtro, "Novo"/visto e vídeo funcionando; o download do arquivo não pôde ser testado porque o backend local não tem armazenamento de arquivos configurado (responde 503) Os PDFs vendidos avulsos ainda não existem na API
 - **Prioridade:** Alta
 - **Depende de:** Backend
 
 ### Bloco 4 — COMPRAS E EVENTOS
 
-**Status:** PENDENTE
+**Status:** CONCLUÍDA
 
 | Tarefa | Status |
 |---|---|
-| Histórico de compras real | PENDENTE |
-| Meus eventos com as inscrições reais | PENDENTE |
+| Histórico de compras real | FEITO |
+| Meus eventos com as inscrições reais | FEITO |
 
 **Campos adicionais**
-- **Descrição:** Hoje as listas são fixas no código
+- **Descrição:** Compras lê `/api/loja/compras` e mostra só as compras em reais (cartão, PIX e boleto) — as pagas com Quad Coins ou diamantes são do app Viver o Quad e ficam de fora; para PIX pendente, permite copiar o código. Meus eventos lê `/api/alunos/eu/atividades` (próximos 12 meses e histórico dos últimos 12, com "participou"/"não compareceu"). Testadas em 05/10/2026 com dados reais do banco local
 - **Prioridade:** Alta
-- **Depende de:** Backend · Etapa 8 (pedidos)
+- **Depende de:** —
 
 ---
 
@@ -286,18 +287,18 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 3 — TESTES E VERIFICAÇÃO AUTOMÁTICA
 
-**Status:** PENDENTE
+**Status:** EM ANDAMENTO
 
 | Tarefa | Status |
 |---|---|
-| Escolher a ferramenta de testes | PENDENTE |
-| Testes de login, cadastro e checkout | PENDENTE |
-| Verificação automática a cada envio ao GitHub | PENDENTE |
+| Escolher a ferramenta de testes | FEITO |
+| Testes de login, cadastro e checkout | FEITO |
+| Verificação automática a cada envio ao GitHub | EM ANDAMENTO |
 
 **Campos adicionais**
-- **Descrição:** Evitar que uma mudança quebre os fluxos principais sem ninguém perceber
+- **Descrição:** Evitar que uma mudança quebre os fluxos principais sem ninguém perceber. Ferramenta: Playwright (`npm run test:e2e`), com 16 testes em `tests/e2e/` (páginas públicas, login, cadastro, área do aluno e checkout), usando o Chrome do computador e a API local com os dados de teste. Verificação no GitHub em `.github/workflows/verificacao.yml` (tipos, lint, build e vulnerabilidades), ainda não executada porque o código não foi enviado ao GitHub
 - **Prioridade:** Média
-- **Depende de:** Decisão
+- **Depende de:** Enviar o código ao GitHub (commit e push)
 
 ---
 
@@ -305,27 +306,27 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 1 — CONTRATO DA API DE CONTEÚDO
 
-**Status:** PENDENTE
+**Status:** CONCLUÍDA · **Início:** 10/10/2026 · **Término:** 13/10/2026
 
 | Tarefa | Status |
 |---|---|
-| Mapear as rotas que já existem de turmas, eventos e materiais | PENDENTE |
-| Definir o formato de cada conteúdo do site | PENDENTE |
+| Mapear as rotas que já existem de turmas, eventos e materiais | FEITO |
+| Definir o formato de cada conteúdo do site | FEITO |
 
 **Campos adicionais**
-- **Descrição:** Hoje o conteúdo vem de dados de exemplo em `lib/data.ts`. A troca é só da fonte de dados; as telas não precisam mudar
+- **Descrição:** Hoje o conteúdo vem de dados de exemplo em `lib/data.ts`. A troca é só da fonte de dados; as telas não precisam mudar. O mapa campo a campo está em `docs/mapa-api-conteudo.md` (10/10/2026): a vitrine pública já entrega nome, imagem, preço, datas, turno/horário, modalidade, descrição da turma e vagas em tempo real de turmas, eventos e simulados; faltam slug, textos de venda, local com endereço, professores públicos e os materiais em PDF. O formato exato que o site espera de cada conteúdo, com a ordem de prioridade para o backend, está em `docs/contrato-api-conteudo.md` (13/10/2026)
 - **Prioridade:** Alta
-- **Depende de:** Backend
+- **Depende de:** —
 
 ### Bloco 2 — CONTEÚDO DE VENDA
 
-**Status:** PENDENTE
+**Status:** EM ANDAMENTO
 
 | Tarefa | Status |
 |---|---|
-| Turmas pela API (com vagas ocupadas em tempo real) | PENDENTE |
+| Turmas pela API (com vagas ocupadas em tempo real) | FEITO |
 | Materiais PDF pela API (com preço) | PENDENTE |
-| Eventos pela API (com vagas) | PENDENTE |
+| Eventos pela API (com vagas) | EM ANDAMENTO |
 
 **Campos adicionais**
 - **Descrição:** O que o aluno compra no site
@@ -358,7 +359,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Imagens guardadas em nuvem, fora do código | PENDENTE |
 
 **Campos adicionais**
-- **Descrição:** Manter o site rápido depois que o conteúdo vier da API
+- **Descrição:** Manter o site rápido depois que o conteúdo vier da API. Ao trazer imagens da API (bucket S3), autorizar o domínio em `images.remotePatterns` no `next.config.mjs`: as fotos usam `next/image` desde 13/10/2026 e recusam domínios não listados
 - **Prioridade:** Média
 - **Depende de:** Decisão (serviço de imagens)
 
@@ -419,8 +420,8 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Tarefa | Status |
 |---|---|
 | Carrinho salvo no navegador, com quantidade, remover e total | FEITO |
-| Identificar os itens pelo id, não pelo nome | FEITO |
-| Definir o fluxo do botão comprar (hoje pula o carrinho) | FEITO |
+| Identificar os itens pelo tipo e slug, não pelo nome | FEITO |
+| Botão de compra da página de detalhe coloca o item no carrinho antes do checkout | FEITO |
 | Inscrição em evento gratuito sem passar pelo checkout | EM ANDAMENTO |
 | Registrar a inscrição gratuita na API | PENDENTE |
 | Conferir preço e vagas no servidor antes de pagar | PENDENTE |
@@ -504,33 +505,33 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 1 — SEO BÁSICO
 
-**Status:** PENDENTE
+**Status:** CONCLUÍDA · **Início:** 13/10/2026 · **Término:** 13/10/2026
 
 | Tarefa | Status |
 |---|---|
-| Título e descrição próprios em cada página | PENDENTE |
-| Imagem de compartilhamento e ícone do site | PENDENTE |
-| Sitemap e robots (sem `/aluno` e `/checkout` nos buscadores) | PENDENTE |
-| Dados estruturados de empresa, cursos e eventos para o Google | PENDENTE |
+| Título e descrição próprios em cada página | FEITO |
+| Imagem de compartilhamento e ícone do site | FEITO |
+| Sitemap e robots (sem `/aluno` e `/checkout` nos buscadores) | FEITO |
+| Dados estruturados de empresa, cursos e eventos para o Google | FEITO |
 
 **Campos adicionais**
-- **Descrição:** O site ser encontrado e bem exibido no Google e nas redes
+- **Descrição:** O site ser encontrado e bem exibido no Google e nas redes. Feito em 13/10/2026: título e descrição próprios em todas as páginas (`lib/seo.ts`, modelo " — Quad Concursos" no layout); ícone do site (símbolo "Q" do logo, `app/icon.svg` e `app/apple-icon.tsx`) e imagem de compartilhamento provisória (`app/opengraph-image.tsx`, trocar pela arte oficial quando houver); `robots.txt` e `sitemap.xml` (área do aluno, carrinho, checkout e links de senha/e-mail fora dos buscadores e com noindex); dados estruturados de empresa, turmas e eventos (`lib/dados-estruturados.ts`). Endereço do site em `NEXT_PUBLIC_SITE_URL`
 - **Prioridade:** Alta
-- **Depende de:** Conteúdo (imagem e ícone)
+- **Depende de:** —
 
 ### Bloco 2 — PERFORMANCE E ACESSIBILIDADE
 
-**Status:** EM ANDAMENTO
+**Status:** CONCLUÍDA · **Término:** 13/10/2026
 
 | Tarefa | Status |
 |---|---|
 | Fontes otimizadas | FEITO |
-| Imagens otimizadas | PENDENTE |
-| Acessibilidade: contraste, teclado e rótulos | PENDENTE |
-| Medição de desempenho no celular | PENDENTE |
+| Imagens otimizadas | FEITO |
+| Acessibilidade: contraste, teclado e rótulos | FEITO |
+| Medição de desempenho no celular | FEITO |
 
 **Campos adicionais**
-- **Descrição:** Site rápido e acessível para todos
+- **Descrição:** Site rápido e acessível para todos. Feito em 13/10/2026: fotos com `next/image` (442 KB → 12–29 KB); acessibilidade WCAG 2.1 AA sem falhas no axe (contraste corrigido, atalho "Pular para o conteúdo", menu pelo teclado, barra de avisos com pausa, títulos em ordem), com testes em `tests/e2e/acessibilidade.spec.ts`; Lighthouse no celular com 96–97 de desempenho e 100 em acessibilidade, boas práticas e SEO; LCP real de 1,7–2,0 s e checkout sem "pulo" (CLS 0,355 → 0,024). Detalhes em `docs/desempenho.md`
 - **Prioridade:** Média
 - **Depende de:** —
 
@@ -555,12 +556,12 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 2 — SEGURANÇA
 
-**Status:** PENDENTE
+**Status:** EM ANDAMENTO
 
 | Tarefa | Status |
 |---|---|
 | API aceitando chamadas só do domínio do site, com HTTPS | PENDENTE |
-| Cabeçalhos de segurança no site | PENDENTE |
+| Cabeçalhos de segurança no site | FEITO |
 | Limite de tentativas no login e no cadastro | PENDENTE |
 
 **Campos adicionais**

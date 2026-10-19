@@ -4,8 +4,14 @@ import AprovadoCard from "@/components/AprovadoCard";
 import HistoriaVideoCard from "@/components/HistoriaVideoCard";
 import SectionHead from "@/components/SectionHead";
 import Reveal from "@/components/Reveal";
+import { metadadosDaPagina } from "@/lib/seo";
 
-export const metadata = { title: "Aprovados — Quad Concursos" };
+export const metadata = metadadosDaPagina({
+  titulo: "Aprovados",
+  descricao:
+    "Histórias de alunos do Quad Concursos aprovados na PM-BA, no CFO e em outras forças de segurança. Mais de 800 aprovados desde 2013.",
+  caminho: "/aprovados",
+});
 
 export default function AprovadosPage() {
   return (

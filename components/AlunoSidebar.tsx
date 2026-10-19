@@ -25,7 +25,7 @@ export default function AlunoSidebar() {
       <div className="hidden border-b border-dark px-6 pb-6 md:block">
         <Avatar nome={usuario?.nome ?? ""} fotoUrl={undefined} size="h-12 w-12 text-lg mb-3" />
         <div className="truncate text-[15px] font-semibold text-offwhite" title={usuario?.nome}>{usuario?.nome ?? (carregando ? "Carregando..." : "Aluno")}</div>
-        <div className="truncate text-xs text-steel" title={usuario?.email ?? undefined}>
+        <div className="truncate text-xs text-steel-dim" title={usuario?.email ?? undefined}>
           {usuario?.email ?? ""}
         </div>
       </div>

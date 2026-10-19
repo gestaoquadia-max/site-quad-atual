@@ -4,8 +4,14 @@ import PageHeader from "@/components/PageHeader";
 import AccentCard from "@/components/AccentCard";
 import Kicker from "@/components/Kicker";
 import Reveal from "@/components/Reveal";
+import { metadadosDaPagina } from "@/lib/seo";
 
-export const metadata = { title: "Blog — Quad Concursos" };
+export const metadata = metadadosDaPagina({
+  titulo: "Blog",
+  descricao:
+    "Editais, método de estudo, preparação física e bastidores dos concursos militares, direto de quem está na banca todos os dias.",
+  caminho: "/blog",
+});
 
 export default function BlogPage() {
   return (
@@ -23,9 +29,9 @@ export default function BlogPage() {
                 <Link href={`/blog/${p.slug}`} className="focus-ring block h-full">
                   <AccentCard className="h-full p-6">
                     <Kicker>{p.categoria}</Kicker>
-                    <h3 className="font-display mt-2 mb-1.5 text-lg font-bold uppercase leading-tight">
+                    <h2 className="font-display mt-2 mb-1.5 text-lg font-bold uppercase leading-tight">
                       {p.titulo}
-                    </h3>
+                    </h2>
                     <p className="mb-4 text-sm text-[#5A6472]">{p.resumo}</p>
                     <div className="flex items-center justify-between border-t border-light pt-3.5 text-xs text-steel">
                       <span>{p.autor}</span>

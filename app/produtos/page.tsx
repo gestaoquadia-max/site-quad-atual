@@ -2,8 +2,14 @@ import { produtos } from "@/lib/data";
 import ProductCard from "@/components/ProductCard";
 import PageHeader from "@/components/PageHeader";
 import Reveal from "@/components/Reveal";
+import { metadadosDaPagina } from "@/lib/seo";
 
-export const metadata = { title: "Materiais — Quad Concursos" };
+export const metadata = metadadosDaPagina({
+  titulo: "Materiais em PDF",
+  descricao:
+    "Apostilas em PDF com teoria direto ao ponto e questões comentadas da banca para PM-BA e outros concursos militares. Acesso imediato.",
+  caminho: "/produtos",
+});
 
 export default function ProdutosPage() {
   return (
@@ -19,6 +25,7 @@ export default function ProdutosPage() {
             {produtos.map((p, i) => (
               <Reveal key={p.slug} className="h-full" delay={Math.min(i, 5) * 70}>
                 <ProductCard
+                  nivelDoTitulo="h2"
                   slug={p.slug}
                   href={`/produtos/${p.slug}`}
                   tag={p.tag}

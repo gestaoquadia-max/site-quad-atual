@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "Página não encontrada — Quad Concursos" };
+export const metadata = { title: "Página não encontrada", description: "A página que você procurou não existe ou mudou de endereço." };
 
 export default function NotFound() {
   return (

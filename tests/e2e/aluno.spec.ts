@@ -1,0 +1,56 @@
+import { expect, test } from "@playwright/test";
+import { CONTA_A, CONTA_B, entrar } from "./contas";
+
+test.describe("área do aluno (conta A)", () => {
+  test.beforeEach(async ({ page }) => {
+    await entrar(page, CONTA_A);
+  });
+
+  test("perfil mostra os dados reais, com CPF e e-mail só para leitura", async ({ page }) => {
+    await page.goto("/aluno/perfil");
+    await expect(page.locator("#perfil-nome")).toHaveValue(CONTA_A.nome);
+    await expect(page.locator("#perfil-email")).toHaveValue(CONTA_A.email);
+    await expect(page.locator("#perfil-cpf")).toHaveValue(CONTA_A.cpfFormatado);
+    await expect(page.locator("#perfil-cpf")).toBeDisabled();
+    await expect(page.locator("#perfil-email")).toBeDisabled();
+  });
+
+  test("aluno troca o próprio nome e o nome novo continua depois de recarregar", async ({ page }) => {
+    await page.goto("/aluno/perfil");
+    const nome = page.locator("#perfil-nome");
+    const salvar = page.getByRole("button", { name: "Salvar alterações" });
+    try {
+      await nome.fill(`${CONTA_A.nome} Editado`);
+      await salvar.click();
+      await expect(page.getByText("Dados atualizados.")).toBeVisible();
+      await page.reload();
+      await expect(nome).toHaveValue(`${CONTA_A.nome} Editado`);
+    } finally {
+      // Volta o nome original para não afetar os outros testes.
+      await nome.fill(CONTA_A.nome);
+      await salvar.click();
+      await expect(page.getByText("Dados atualizados.")).toBeVisible();
+    }
+  });
+
+  test("minhas turmas mostra só a turma do aluno", async ({ page }) => {
+    await page.goto("/aluno/turmas");
+    await expect(page.getByText("Regular Tarde")).toBeVisible();
+    await expect(page.getByText("C.O.R.E.")).toHaveCount(0);
+  });
+
+  test("compras mostram só as feitas em reais, com valor e situação", async ({ page }) => {
+    await page.goto("/aluno/compras");
+    await expect(page.getByText("R$ 997,00")).toBeVisible();
+    await expect(page.getByText("Pago", { exact: true })).toBeVisible();
+    await expect(page.getByText("Aguardando pagamento")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Copiar código PIX" })).toBeVisible();
+  });
+});
+
+test("meus eventos mostra a inscrição do aluno (conta B)", async ({ page }) => {
+  await entrar(page, CONTA_B);
+  await page.goto("/aluno/eventos");
+  await expect(page.getByText("Evento de teste (Claude)")).toBeVisible();
+  await expect(page.getByText("Inscrito")).toBeVisible();
+});

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Aprovado } from "@/lib/data";
 import { getIniciais } from "@/lib/format";
 
@@ -8,8 +9,7 @@ export default function AprovadoCard({ aprovado }: { aprovado: Aprovado }) {
     <div className="flex h-full min-h-[260px] overflow-hidden bg-white">
       <div className="relative w-2/5 flex-shrink-0 overflow-hidden bg-gradient-to-br from-navy to-navy-mid">
         {aprovado.fotoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={aprovado.fotoUrl} alt={aprovado.nome} className="absolute inset-0 h-full w-full object-cover" />
+          <Image src={aprovado.fotoUrl} alt={aprovado.nome} fill sizes="(min-width: 768px) 240px, 40vw" className="object-cover" />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="font-display text-6xl font-bold text-white/10">{getIniciais(aprovado.nome)}</span>
@@ -21,7 +21,7 @@ export default function AprovadoCard({ aprovado }: { aprovado: Aprovado }) {
           Quad Aprovado
         </span>
         <p className="font-display text-2xl font-bold uppercase leading-tight text-navy">
-          {principal} {destaque && <span className="text-blue">{destaque}</span>}
+          {principal} {destaque && <span className="text-blue-dark">{destaque}</span>}
         </p>
         <p className="mt-3 text-sm text-steel">
           {aprovado.nome} · {aprovado.turma}

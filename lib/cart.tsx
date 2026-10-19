@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { parsePreco } from "./format";
 
 export type CartItem = {
   id: string;
@@ -28,15 +29,6 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null);
 
 const STORAGE_KEY = "quad-carrinho";
-
-export function parsePreco(preco: string): number | null {
-  const normalizado = preco.trim().toLowerCase();
-  if (normalizado === "gratuito") return 0;
-  if (normalizado === "consulte" || normalizado === "—") return null;
-  const numerico = preco.replace(/[^\d,]/g, "").replace(",", ".");
-  const valor = parseFloat(numerico);
-  return isNaN(valor) ? null : valor;
-}
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);

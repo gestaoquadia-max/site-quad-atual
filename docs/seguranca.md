@@ -18,7 +18,7 @@ Lista de todos os riscos de segurança levantados até agora no site e na API, c
 
 | # | Problema | Prioridade | Quem faz | Status |
 |---|---|---|---|---|
-| S1 | Dependências do site com falhas conhecidas (Next.js crítica) | **Crítica** | Site | ⏳ |
+| S1 | Dependências do site com falhas conhecidas (Next.js crítica) | **Crítica** | Site | ✅ |
 | S2 | Um aluno acessar dados de outro trocando o id na URL | **Crítica** | Backend | 🟡 |
 | S3 | Descobrir quem tem conta no Quad (enumeração) | Alta | Backend · Site · Decisão | ⏳ |
 | S4 | Adivinhar senha no login (força bruta) | Alta | Backend | ⏳ |
@@ -48,6 +48,12 @@ Lista de todos os riscos de segurança levantados até agora no site e na API, c
 
 **Risco:** o servidor onde o site roda pode ser invadido.
 
+**Status (06/10/2026):**
+- ✅ Next.js atualizado para **16.3.8** (e `eslint-config-next` junto): a falha crítica e as de desvio do middleware estão corrigidas. Build de produção e os 16 testes de ponta a ponta passaram.
+- ✅ As dependências que vão para o site publicado têm **0 vulnerabilidades** (`npm audit --omit=dev`).
+- 🟡 Restam 9 avisos (7 altos, 2 moderados) só em **ferramentas de desenvolvimento** (verificador de código e Tailwind 3), que não vão para o site publicado. Corrigi-los exige migrar para o Tailwind 4 — fica para uma atualização planejada.
+- ✅ A verificação automática do GitHub (`.github/workflows/verificacao.yml`) barra vulnerabilidades graves nas dependências do site.
+
 **Medidas principais:**
 1. Atualizar o **Next.js para 16.3.8 ou superior** e, junto, `eslint-config-next`, `tailwindcss` e `postcss`.
 2. Rodar `npm audit` a cada atualização e incluí-lo na verificação automática do GitHub (backlog, Etapa 4, Bloco 3).
@@ -65,8 +71,9 @@ Lista de todos os riscos de segurança levantados até agora no site e na API, c
 **Status:**
 - ✅ **Endereço:** corrigido. Um aluno tentando ler ou alterar o endereço de outro recebe 403 (conferido em 03/10/2026).
 - ✅ **Cadastro do usuário** (`/api/usuarios/{id}`): aluno recebe 403. Ele lê os próprios dados por `/api/alunos/eu`.
-- ⏳ **Listas a confirmar:** `GET /api/matriculas`, `/api/inscricoes` e `/api/loja/compras` respondem para aluno. Falta confirmar que trazem **só os registros dele**.
-- ⏳ **Download de materiais:** confirmar que o aluno não baixa material de turma em que não está matriculado.
+- ✅ **Matrículas:** comprovado com dados (05/10/2026). O aluno A só recebe as próprias matrículas, mesmo pedindo as do aluno B ou filtrando pela turma de B.
+- ✅ **Inscrições e compras:** comprovado com dados (05/10/2026). O aluno A não vê, por nenhum filtro, a inscrição nem a compra do aluno B; abrir a compra de B pelo id dá 403, e cancelar a inscrição de B dá 404.
+- ✅ **Download de materiais:** comprovado com dados (05/10/2026). O aluno A não vê nem baixa o material da turma de B (e vice-versa): 403 "Só quem tem matrícula ativa na turma do material o alcança".
 
 **Medidas principais:**
 1. Regra geral no backend: para o papel `ALUNO`, **toda** rota com id confere o dono e responde 403 se não for dele.
@@ -125,7 +132,7 @@ Lista de todos os riscos de segurança levantados até agora no site e na API, c
 3. **Controlar scripts de terceiros** (S15).
 4. Manter o token de acesso curto (✅ cerca de 15 minutos).
 
-**Decisão pendente:** cookie protegido (recomendado) ou manter no navegador. Isso também decide o S12.
+**Decisão (05/10/2026):** cookie protegido. Pedido detalhado ao backend em `docs/pedidos-backend.md`, item 2.10; o site é adaptado depois da entrega.
 
 **Requisito:** o site precisa ficar no mesmo domínio principal da API (`quadconcursos.com.br`).
 
@@ -196,7 +203,7 @@ Lista de todos os riscos de segurança levantados até agora no site e na API, c
 **Problema:** PDFs e materiais pagos não podem ser baixados por quem não comprou nem copiados por um link permanente.
 
 **Medidas principais:**
-1. Download **só com matrícula ativa** na turma. A API diz que já funciona assim, mas falta testar com duas contas (S2).
+1. ✅ Download **só com matrícula ativa** na turma: comprovado com duas contas (S2).
 2. Arquivos num armazenamento **privado** (S3 da AWS sem acesso público), entregues pela API ou por links temporários.
 3. **Foto de perfil** (futuro): aceitar só JPG e PNG, até 2 MB, e guardar em local privado.
 
@@ -209,7 +216,8 @@ Lista de todos os riscos de segurança levantados até agora no site e na API, c
 - ✅ A API já envia `X-Frame-Options: DENY` e `X-Content-Type-Options: nosniff`.
 - ⏳ A API **não envia HSTS** (cabeçalho que obriga o navegador a sempre usar HTTPS).
 - ⏳ O Swagger anuncia o servidor como `http://` e está público em produção.
-- ⏳ O site ainda não envia cabeçalhos de segurança.
+- ✅ O site envia cabeçalhos de segurança (`next.config.mjs`, 19/10/2026): CSP, `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`, `Permissions-Policy` e HSTS (2 anos, sem `includeSubDomains` até confirmar o https de todos os subdomínios). Também não anuncia mais o Next.js (`X-Powered-By`).
+- ⚠️ A CSP **não usa nonce**. Os scripts em linha do Next continuam liberados (`'unsafe-inline'`), mas nenhum script de outro domínio carrega. O nonce obrigaria a gerar cada página a cada visita e acabaria com o cache. Analytics e Pixel (S15) vão exigir acrescentar os domínios deles na CSP.
 
 **Medidas principais:**
 1. **HSTS** na API e no site.

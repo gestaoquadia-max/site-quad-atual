@@ -1,32 +1,9 @@
-"use client";
+import AreaDoAluno from "./AreaDoAluno";
+import { NAO_INDEXAR } from "@/lib/seo";
 
-import { useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import AlunoSidebar from "@/components/AlunoSidebar";
-import { useTokenDeAcesso } from "@/lib/usuario";
-import { rotaComDestino } from "@/lib/redirecionamento";
+// A área do aluno é um componente de cliente (confere o login no navegador); os metadados ficam aqui.
+export const metadata = { robots: NAO_INDEXAR };
 
 export default function AlunoLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const token = useTokenDeAcesso();
-
-  useEffect(() => {
-    if (token === null) router.replace(rotaComDestino("/entrar", pathname));
-  }, [token, router, pathname]);
-
-  if (!token) {
-    return (
-      <div className="flex min-h-[calc(100vh-68px)] items-center justify-center bg-offwhite text-sm text-steel" role="status">
-        Carregando...
-      </div>
-    );
-  }
-
-  return (
-    <div className="grid min-h-[calc(100vh-68px)] md:grid-cols-[240px_1fr]">
-      <AlunoSidebar />
-      <main className="bg-offwhite p-10">{children}</main>
-    </div>
-  );
+  return <AreaDoAluno>{children}</AreaDoAluno>;
 }

@@ -156,32 +156,43 @@ export function getUsuarioIdDoToken(token: string): string | null {
   return decodeTokenPayload(token)?.sub ?? null;
 }
 
-// Enquanto a rota não existe no backend, a API responde 401 (rota pública desconhecida) ou 404.
-const INDISPONIVEL_SENHA = "A recuperação de senha ainda não está disponível. Fale com o nosso atendimento.";
-
-// Recuperação de senha (rotas públicas). Formato proposto ao backend em docs/pedidos-backend.md, item 2.4.
+// Recuperação de senha (rotas públicas). O e-mail traz o link /redefinir-senha?token=...
 // Responde 202 mesmo quando o e-mail não existe, para não revelar quais e-mails têm conta.
-export async function solicitarRedefinicaoDeSenha(email: string): Promise<void> {
-  const res = await fetch(`${API_URL}/auth/senha/esqueci`, {
+export type RecuperacaoSolicitada = { validadeEmMinutos: number; reenvioEmSegundos: number };
+
+export async function solicitarRedefinicaoDeSenha(email: string): Promise<RecuperacaoSolicitada> {
+  const res = await fetch(`${API_URL}/auth/senha/recuperacao`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
   });
 
-  if ([401, 404, 405].includes(res.status)) throw new ErroDaApi(res.status, INDISPONIVEL_SENHA, "INDISPONIVEL");
   if (!res.ok) {
     throw await lerErro(res, "Não foi possível enviar o link agora. Tente novamente em alguns minutos.");
+  }
+  return res.json();
+}
+
+// Confere o link antes de pedir a senha nova. Link vencido, já usado ou adulterado: 422 TOKEN_INVALIDO.
+export async function verificarLinkDeRedefinicao(token: string): Promise<void> {
+  const res = await fetch(`${API_URL}/auth/senha/recuperacao/verificacao`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
+  });
+
+  if (!res.ok) {
+    throw await lerErro(res, "Não foi possível conferir o link.");
   }
 }
 
 export async function redefinirSenha(token: string, novaSenha: string): Promise<void> {
-  const res = await fetch(`${API_URL}/auth/senha/redefinir`, {
+  const res = await fetch(`${API_URL}/auth/senha/recuperacao/redefinicao`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token, novaSenha }),
   });
 
-  if ([401, 404, 405].includes(res.status)) throw new ErroDaApi(res.status, INDISPONIVEL_SENHA, "INDISPONIVEL");
   if (!res.ok) {
     throw await lerErro(res, "Não foi possível redefinir a senha.");
   }

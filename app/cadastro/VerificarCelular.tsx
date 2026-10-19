@@ -73,7 +73,7 @@ export default function VerificarCelular({ telefoneInicial, onConcluir }: { tele
   if (indisponivel) {
     return (
       <div>
-        <span className="eyebrow">Confirme seu celular</span>
+        <span className="eyebrow text-blue">Confirme seu celular</span>
         <p className="mb-6 mt-4 border border-blue/35 bg-blue/10 px-3.5 py-3 text-[13px] leading-relaxed text-steel-light" role="status">
           Sua conta foi criada. A confirmação do celular por código ainda não está disponível; por enquanto, você pode
           continuar e confirmar depois.
@@ -87,7 +87,7 @@ export default function VerificarCelular({ telefoneInicial, onConcluir }: { tele
 
   return (
     <div>
-      <span className="eyebrow">Confirme seu celular</span>
+      <span className="eyebrow text-blue">Confirme seu celular</span>
       <p className="mb-5 mt-4 text-sm leading-relaxed text-steel-light">
         {codigoEnviadoPara ? (
           <>

@@ -37,7 +37,10 @@ export default function NavMegaMenu({
   return (
     <div className="absolute left-0 top-[calc(100%+1px)] w-[640px] border border-dark bg-navy-mid shadow-md">
       <div className="grid grid-cols-[1fr_260px]">
-        <div className="grid grid-cols-2 gap-1 p-5">
+        <div className="grid grid-cols-2 content-start gap-1 p-5">
+          {items.length === 0 && (
+            <p className="col-span-2 px-3 py-2.5 text-sm text-steel-light">Nada aberto no momento.</p>
+          )}
           {items.map((it) => (
             <Link
               key={it.href + it.nome}

@@ -18,8 +18,11 @@ const config: Config = {
           dark: "#2F63C4",
         },
         offwhite: "#F5F3EE",
+        // Contraste mínimo de 4,5 (WCAG AA): steel é o cinza de texto secundário em fundo claro;
+        // em fundo escuro use steel-dim (ou steel-light).
         steel: {
-          DEFAULT: "#8B95A3",
+          DEFAULT: "#5A6472",
+          dim: "#8B95A3",
           light: "#B8C0CC",
         },
       },

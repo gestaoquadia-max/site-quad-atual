@@ -1,9 +1,18 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { posts } from "@/lib/data";
 import Breadcrumb from "@/components/Breadcrumb";
+import { metadadosDaPagina } from "@/lib/seo";
 
 export function generateStaticParams() {
   return posts.map((p) => ({ slug: p.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const post = posts.find((p) => p.slug === slug);
+  if (!post) return {};
+  return metadadosDaPagina({ titulo: post.titulo, descricao: post.resumo, caminho: `/blog/${post.slug}` });
 }
 
 export default async function PostDetalhe({ params }: { params: Promise<{ slug: string }> }) {
@@ -22,7 +31,7 @@ export default async function PostDetalhe({ params }: { params: Promise<{ slug: 
               { label: post.titulo },
             ]}
           />
-          <span className="eyebrow">{post.categoria}</span>
+          <span className="eyebrow text-blue">{post.categoria}</span>
           <h1 className="font-display my-4 text-h1-sm font-bold uppercase leading-[1.15]">
             {post.titulo}
           </h1>

@@ -27,7 +27,7 @@ export default function CarrinhoPage() {
         <div className="mx-auto max-w-site px-6">
           {items.length === 0 ? (
             <div className="border border-light bg-white p-12 text-center">
-              <p className="mb-5 text-steel">Seu carrinho está vazio.</p>
+              <p className="mb-5 text-steel">  Seu carrinho está vazio.</p>
               <Link href="/produtos" className="btn btn-blue">Ver materiais</Link>
             </div>
           ) : (

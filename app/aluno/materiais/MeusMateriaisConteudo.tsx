@@ -9,6 +9,7 @@ import {
   type MaterialDaTurma,
 } from "@/lib/api";
 import { ErroDaApi } from "@/lib/http";
+import { formatarData } from "@/lib/format";
 import { useCarregar } from "@/lib/useCarregar";
 import { useCarregandoUsuario, useUsuarioAtual } from "@/lib/usuario";
 
@@ -23,11 +24,6 @@ const rotuloDoTipo: Record<MaterialDaTurma["tipo"], string> = {
 
 // A lista não depende de nenhum parâmetro: a chave só indica que já dá para carregar.
 const carregarMateriais = () => listarMeusMateriais();
-
-function formatarData(iso: string) {
-  const [ano, mes, dia] = iso.slice(0, 10).split("-");
-  return `${dia}/${mes}/${ano}`;
-}
 
 function formatarTamanho(bytes: number | null) {
   if (!bytes) return "";
