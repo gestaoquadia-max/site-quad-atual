@@ -8,6 +8,45 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Novo visual (entrega da designer, out/2026). As cores antigas abaixo seguem até todas as páginas migrarem.
+        marinho: {
+          950: "#071426",
+          900: "#0B1C33",
+          800: "#102641",
+          700: "#14304F",
+          600: "#1B3A63",
+        },
+        azul: {
+          DEFAULT: "#006BFF",
+          forte: "#144AFF",
+          vivo: "#2F86FF",
+          ceu: "#6FAEFF",
+          palido: "#E8F1FF",
+          gelo: "#F2F7FF",
+        },
+        tinta: "#101B2D",
+        nevoa: "#F4F7FB",
+        linha: {
+          DEFAULT: "#DFE6EF",
+          forte: "#CFD8E3",
+        },
+        // Textos secundários: "ardosia" em fundo claro, "prata" em fundo escuro (contraste AA nos dois).
+        ardosia: {
+          DEFAULT: "#5A6B82",
+          escura: "#2B3647",
+        },
+        prata: {
+          DEFAULT: "#A9B6C8",
+          clara: "#C9D5E5",
+          escura: "#8696AC",
+        },
+        vinho: {
+          DEFAULT: "#8E1B2E",
+          forte: "#A51E36",
+          rosa: "#F3A3B1",
+          950: "#1E070D",
+        },
+        sucesso: { DEFAULT: "#13774A", fundo: "#E3F3EA" },
         navy: {
           DEFAULT: "#0D1B2A",
           deep: "#091320",
@@ -39,6 +78,7 @@ const config: Config = {
         section: "72px",
       },
       maxWidth: {
+        tela: "1440px",
         site: "1120px",
         narrow: "760px",
         form: "920px",

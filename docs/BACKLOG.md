@@ -42,6 +42,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | 10 | Segurança e LGPD | 2 | 6 | 1 |
 | 11 | Analytics e marketing | 1 | 4 | 0 |
 | 12 | Deploy e operação | 3 | 7 | 0 |
+| 13 | Redesenho do site | 9 | 28 | 0 |
 
 ---
 
@@ -635,6 +636,139 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 - **Descrição:** Manter o site estável depois do lançamento
 - **Prioridade:** Média
 - **Depende de:** Decisão · Backend
+
+---
+
+## Etapa 13 — REDESENHO DO SITE
+
+> Novo visual entregue pela designer em 19/10/2026 (pasta `entrega-programador`). Feito na branch `redesign`, uma fase por bloco, com aprovação a cada fase.
+
+### Bloco 1 — BASE VISUAL E HOME
+
+**Status:** EM ANDAMENTO
+
+| Tarefa | Status |
+|---|---|
+| Cores, fontes e largura do novo visual | EM ANDAMENTO |
+| Menu do topo novo (desktop e celular) | PENDENTE |
+| Rodapé novo | PENDENTE |
+| Botão flutuante do WhatsApp | PENDENTE |
+| Home nova com carrossel de destaques | PENDENTE |
+
+**Campos adicionais**
+- **Prioridade:** Alta
+- **Depende de:** —
+
+### Bloco 2 — TURMAS PRESENCIAIS
+
+**Status:** PENDENTE
+
+| Tarefa | Status |
+|---|---|
+| Turmas por modalidade (RONDESP, PATAMO e BOPE) com filtros | PENDENTE |
+| Página da turma no novo visual | PENDENTE |
+| Lista de interessados (tela pronta, aguardando backend) | PENDENTE |
+
+**Campos adicionais**
+- **Prioridade:** Alta
+- **Depende de:** Etapa 13, Bloco 1
+
+### Bloco 3 — MATERIAIS E SIMULADOS
+
+**Status:** PENDENTE
+
+| Tarefa | Status |
+|---|---|
+| Materiais com busca e filtro | PENDENTE |
+| Página do material no novo visual | PENDENTE |
+| Central de Simulados (presenciais, individuais e combos) | PENDENTE |
+
+**Campos adicionais**
+- **Prioridade:** Alta
+- **Depende de:** Etapa 13, Bloco 1
+
+### Bloco 4 — EVENTOS
+
+**Status:** PENDENTE
+
+| Tarefa | Status |
+|---|---|
+| Agenda de eventos no novo visual | PENDENTE |
+| Página do evento no novo visual | PENDENTE |
+
+**Campos adicionais**
+- **Prioridade:** Alta
+- **Depende de:** Etapa 13, Bloco 1
+
+### Bloco 5 — BLOG E PROFESSORES
+
+**Status:** PENDENTE
+
+| Tarefa | Status |
+|---|---|
+| Blog com busca e categorias | PENDENTE |
+| Página do artigo no novo visual | PENDENTE |
+| Página do professor no novo visual | PENDENTE |
+
+**Campos adicionais**
+- **Prioridade:** Alta
+- **Depende de:** Etapa 13, Bloco 1
+
+### Bloco 6 — LOGIN E ÁREA DO ALUNO
+
+**Status:** PENDENTE
+
+| Tarefa | Status |
+|---|---|
+| Entrar e cadastro em abas, com layout próprio | PENDENTE |
+| Recuperação de senha e confirmação de e-mail no novo visual | PENDENTE |
+| Área do aluno com layout próprio | PENDENTE |
+
+**Campos adicionais**
+- **Prioridade:** Alta
+- **Depende de:** Etapa 13, Bloco 1
+
+### Bloco 7 — CARRINHO E CHECKOUT
+
+**Status:** PENDENTE
+
+| Tarefa | Status |
+|---|---|
+| Carrinho no novo visual | PENDENTE |
+| Checkout no novo visual | PENDENTE |
+| Telas de confirmação do pagamento no novo visual | PENDENTE |
+
+**Campos adicionais**
+- **Prioridade:** Alta
+- **Depende de:** Etapa 13, Bloco 1
+
+### Bloco 8 — LOJA E MENTORIAS
+
+**Status:** PENDENTE
+
+| Tarefa | Status |
+|---|---|
+| Loja com produtos e variações | PENDENTE |
+| Produto da loja com retirada ou frete por CEP (demonstrativo) | PENDENTE |
+| Mentorias do Quad no lugar de Cursos online | PENDENTE |
+
+**Campos adicionais**
+- **Prioridade:** Alta
+- **Depende de:** Etapa 13, Bloco 1
+
+### Bloco 9 — PÁGINAS INSTITUCIONAIS NO NOVO VISUAL
+
+**Status:** PENDENTE
+
+| Tarefa | Status |
+|---|---|
+| Sobre, contato e aprovados | PENDENTE |
+| Termos de uso e política de privacidade | PENDENTE |
+| Páginas de não encontrada e de erro | PENDENTE |
+
+**Campos adicionais**
+- **Prioridade:** Alta
+- **Depende de:** Etapa 13, Bloco 1
 
 ---
 

@@ -8,8 +8,8 @@ export const institucional = {
   cidade: "Feira de Santana — BA",
   // Endereço completo da sede, ex.: "Rua X, 123 — Centro, Feira de Santana — BA, 44000-000"
   endereco: "",
-  // Só dígitos com DDD, ex.: "75999990000"
-  whatsapp: "",
+  // Só dígitos com DDD, ex.: "75999990000". Número do atendimento informado na entrega do novo visual (out/2026).
+  whatsapp: "75991884598",
   telefone: "",
   emailAtendimento: "",
   // E-mail do encarregado de dados (LGPD), para pedidos de acesso, correção ou exclusão de dados

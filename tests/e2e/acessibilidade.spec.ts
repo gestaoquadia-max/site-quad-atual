@@ -51,13 +51,13 @@ test("o primeiro Tab mostra o atalho para pular direto ao conteúdo", async ({ p
 test("o menu suspenso abre pelo teclado e fecha com Esc", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/sobre");
-  const turmas = page.locator("nav").getByRole("link", { name: "Turmas", exact: true });
+  const turmas = page.getByRole("navigation", { name: "Principal" }).getByRole("link", { name: "Turmas Presenciais", exact: true });
   await turmas.focus();
   await expect(turmas).toHaveAttribute("aria-expanded", "true");
   // O primeiro item do menu suspenso é alcançável com Tab.
   await page.keyboard.press("Tab");
   const focado = await page.evaluate(() => document.activeElement?.closest("li")?.querySelector("a")?.textContent?.trim());
-  expect(focado).toBe("Turmas");
+  expect(focado).toBe("Turmas Presenciais");
   await page.keyboard.press("Escape");
   await expect(turmas).toBeFocused();
   await expect(turmas).toHaveAttribute("aria-expanded", "false");

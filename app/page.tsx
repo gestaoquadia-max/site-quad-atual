@@ -1,220 +1,158 @@
 import Link from "next/link";
-import { produtos, aprovados, professores, posts } from "@/lib/data";
-import ProductCard from "@/components/ProductCard";
-import SectionHead from "@/components/SectionHead";
-import ProfessoresCarousel from "@/components/ProfessoresCarousel";
-import AprovadoCard from "@/components/AprovadoCard";
-import AccentCard from "@/components/AccentCard";
-import Kicker from "@/components/Kicker";
-import Reveal from "@/components/Reveal";
-import { ListaErro, ListaVazia } from "@/components/EstadoLista";
-import DadosEstruturados from "@/components/DadosEstruturados";
+import { aprovados, posts, produtos, professores, type Evento } from "@/lib/data";
+import { bannersPublicados, mentorias, modalidades, produtosDaLoja } from "@/lib/conteudo";
+import { listarEventos } from "@/lib/vitrine";
+import { parsePreco } from "@/lib/format";
+import { idDoItem } from "@/lib/itens";
 import { dadosDaOrganizacao } from "@/lib/dados-estruturados";
-import { listarEventos, listarTurmas } from "@/lib/vitrine";
+import DadosEstruturados from "@/components/DadosEstruturados";
+import Reveal from "@/components/Reveal";
+import Trilho, { SetaDoLink } from "@/components/Trilho";
+import CarrosselDeDestaques from "@/components/home/CarrosselDeDestaques";
+import CartaoMaterial from "@/components/home/CartaoMaterial";
+import CartaoEvento, { type DadosDoCartaoEvento } from "@/components/home/CartaoEvento";
+import {
+  CartaoAprovado,
+  CartaoArtigo,
+  CartaoMentoria,
+  CartaoModalidade,
+  CartaoProdutoDaLoja,
+  CartaoProfessor,
+} from "@/components/home/Cartoes";
 
-// Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts): turmas e eventos vêm da API.
+// Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts): os eventos vêm da API.
 export const revalidate = 60;
 
 // Título e descrição vêm do padrão do layout; aqui só o endereço canônico.
 export const metadata = { alternates: { canonical: "/" } };
 
+const MESES = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
+
+// O primeiro cartão da agenda é sempre a Central de Simulados; depois, os eventos abertos na vitrine da API.
+const CARTAO_DOS_SIMULADOS: DadosDoCartaoEvento = {
+  id: "simulados",
+  titulo: "Simulados do Quad",
+  href: "/simulados",
+  descricao: "Escolha sua carreira e encontre simulados presenciais, digitais, impressos e combos para sua preparação.",
+  selo: { texto: "Presenciais, individuais e combos", tom: "breve" },
+};
+
+function paraCartao(e: Evento): DadosDoCartaoEvento {
+  const inicio = e.detalhe?.inicio;
+  const vendavel = e.status === "aberta" && parsePreco(e.preco) !== null;
+  return {
+    id: e.slug,
+    titulo: e.nome,
+    href: `/eventos/${e.slug}`,
+    descricao: e.desc,
+    selo:
+      e.status === "encerrada"
+        ? { texto: "Esgotado", tom: "esgotado" }
+        : e.status === "breve"
+          ? { texto: "Em breve", tom: "breve" }
+          : { texto: e.statusLabel, tom: "aberta" },
+    data: inicio
+      ? { dia: inicio.slice(8, 10), mes: MESES[Number(inicio.slice(5, 7)) - 1], local: e.tag.split(" · ").slice(1).join(" · ") }
+      : undefined,
+    preco: e.preco,
+    item: vendavel ? { id: idDoItem("evento", e.slug), tipo: "evento", nome: e.nome, tag: e.tag, preco: e.preco } : undefined,
+  };
+}
+
+// `brilho`: camada decorativa de fundo, atrás do conteúdo.
+function Secao({ className = "", id, brilho, children }: { className?: string; id?: string; brilho?: string; children: React.ReactNode }) {
+  return (
+    <section id={id} className={`secao relative overflow-hidden ${className}`}>
+      {brilho && <div aria-hidden="true" className={`pointer-events-none absolute inset-0 ${brilho}`} />}
+      <div className="conteiner relative">{children}</div>
+    </section>
+  );
+}
+
 export default async function Home() {
-  const [turmas, eventos] = await Promise.all([listarTurmas(), listarEventos()]);
+  const eventos = await listarEventos();
+  const cartoesDeEvento = [CARTAO_DOS_SIMULADOS, ...(eventos ?? []).map(paraCartao)];
 
   return (
     <>
       <DadosEstruturados dados={dadosDaOrganizacao()} />
-      {/* HERO */}
-      <section className="relative overflow-hidden bg-navy-deep text-offwhite pt-[88px] pb-[72px]">
-        <div className="hexagon pattern-diagonal pointer-events-none absolute -right-32 -top-10 h-[480px] w-[480px]" />
-        <div className="relative z-10 mx-auto max-w-site px-6">
-          <div className="max-w-[640px]">
-            <span className="eyebrow text-blue">Feira de Santana · Bahia · Desde 2013</span>
-            <h1 className="font-display mt-5 mb-4 text-display font-bold uppercase leading-[1.08]">
-              Sua aprovação começa com a <em className="not-italic text-blue">preparação certa</em>
-            </h1>
-            <p className="mb-8 max-w-[480px] text-[17px] text-steel-light">
-              Cursos presenciais, materiais e treinamento direto ao ponto para quem quer entrar nas
-              forças de segurança.
-            </p>
-            <div className="flex flex-wrap gap-3.5">
-              <Link href="/turmas" className="btn btn-blue">Ver turmas abertas</Link>
-              <Link href="/eventos" className="btn btn-outline">Próximos eventos</Link>
-            </div>
-            <div className="mt-14 flex gap-12 border-t border-dark pt-8">
-              {[
-                { num: "+800", lbl: "Aprovados" },
-                { num: "12", lbl: "Anos de missão" },
-                { num: "15+", lbl: "Concursos ativos" },
-              ].map((s) => (
-                <div key={s.lbl}>
-                  <div className="font-display text-[34px] font-bold leading-none text-blue">{s.num}</div>
-                  <div className="mt-1.5 text-xs uppercase tracking-[0.1em] text-steel-dim">{s.lbl}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <CarrosselDeDestaques banners={bannersPublicados()} />
 
-      {/* TURMAS: a seção fica sempre na home. Sem turma aberta (ou sem resposta da API), mostra um aviso no lugar dos cartões. */}
-      <section className="py-section">
-        <div className="mx-auto max-w-site px-6">
-          <SectionHead
-            eyebrow="Turmas presenciais"
-            title={turmas && turmas.length > 0 ? "Matrículas abertas" : "Próximas turmas"}
-            desc="Preparação presencial com professores especialistas e rotina de treinamento estruturada."
-          />
-          {turmas === null ? (
-            <ListaErro mensagem="Não foi possível carregar as turmas agora. Tente novamente em instantes." />
-          ) : turmas.length === 0 ? (
-            <ListaVazia
-              titulo="Nenhuma turma com matrícula aberta"
-              texto="As próximas turmas aparecem aqui assim que as matrículas abrirem."
-              acao={{ href: "/contato", label: "Fale com a gente" }}
-            />
-          ) : (
-            <div className="grid gap-5 md:grid-cols-3">
-              {turmas.slice(0, 3).map((t, i) => (
-                <Reveal key={t.slug} className="h-full" delay={Math.min(i, 5) * 70}>
-                  <ProductCard
-                    slug={t.slug}
-                    href={`/turmas/${t.slug}`}
-                    tag={t.tag}
-                    nome={t.nome}
-                    desc={t.desc}
-                    preco={t.preco}
-                    precoSufixo={t.precoSufixo}
-                    status={t.status}
-                    statusLabel={t.statusLabel}
-                    tipo="turma"
-                  />
-                </Reveal>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+      <Secao className="bg-nevoa">
+        <Trilho titulo="Turmas presenciais" link={{ href: "/turmas", label: "Ver todas as turmas" }} rotulo="Modalidades das turmas presenciais">
+          {modalidades.map((m) => (
+            <CartaoModalidade key={m.id} modalidade={m} />
+          ))}
+        </Trilho>
+      </Secao>
 
-      {/* PDFS */}
-      <section className="bg-navy py-section text-offwhite">
-        <div className="mx-auto max-w-site px-6">
-          <SectionHead
-            eyebrow="Materiais digitais"
-            title="PDFs e apostilas"
-            desc="Material objetivo, atualizado e direto ao que cai na prova. Compre e acesse na hora."
-            dark
-          />
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {produtos.slice(0, 4).map((p, i) => (
-              <Reveal key={p.slug} className="h-full" delay={Math.min(i, 5) * 70}>
-                <ProductCard
-                  slug={p.slug}
-                  href={`/produtos/${p.slug}`}
-                  tag={p.tag}
-                  nome={p.nome}
-                  desc={p.desc}
-                  preco={p.preco}
-                  dark
-                  tipo="produto"
-                />
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Secao className="bg-[linear-gradient(160deg,#3A0E1A_0%,#22080F_45%,#0E0306_100%)] text-white" brilho="bg-[radial-gradient(45%_70%_at_85%_20%,rgba(176,38,62,0.32),transparent_70%)]">
+        <Trilho titulo="Mentorias do Quad" link={{ href: "/mentorias", label: "Ver todas as mentorias" }} rotulo="Planos das Mentorias do Quad" tema="vinho">
+          {mentorias.map((m) => (
+            <CartaoMentoria key={m.nome} {...{ nome: m.nome, duracao: m.duracao, descricao: m.descricao, destaque: m.destaque }} />
+          ))}
+        </Trilho>
+      </Secao>
 
-      {/* EVENTOS: some quando não há evento aberto ou a API não respondeu. */}
-      {eventos && eventos.length > 0 && (
-        <section className="py-section">
-          <div className="mx-auto max-w-site px-6">
-            <SectionHead eyebrow="Agenda" title="Próximos eventos" />
-            <div className="grid gap-5 md:grid-cols-3">
-              {eventos.slice(0, 3).map((e, i) => (
-                <Reveal key={e.slug} className="h-full" delay={Math.min(i, 5) * 70}>
-                  <ProductCard
-                    slug={e.slug}
-                    href={`/eventos/${e.slug}`}
-                    tag={e.tag}
-                    nome={e.nome}
-                    desc={e.desc}
-                    preco={e.preco}
-                    status={e.status}
-                    statusLabel={e.statusLabel}
-                    tipo="evento"
-                  />
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      <Secao className="bg-marinho-900 text-white" brilho="bg-[radial-gradient(50%_60%_at_100%_0%,rgba(0,107,255,0.16),transparent_70%),radial-gradient(40%_50%_at_0%_100%,rgba(0,107,255,0.08),transparent_70%)]">
+        <Trilho titulo="Materiais de estudo" link={{ href: "/produtos", label: "Ver todos os materiais" }} rotulo="Materiais de estudo" tema="escuro" colunas={4}>
+          {produtos.slice(0, 4).map((p, i) => (
+            <CartaoMaterial key={p.slug} produto={p} indice={i} />
+          ))}
+        </Trilho>
+        <p className="mt-5 text-[12.5px] text-[#7F90A8]">O impresso é retirado no Quad, sem custo. O envio pelo correio, com frete calculado pelo CEP, chega em breve.</p>
+      </Secao>
 
-      {/* PROFESSORES */}
-      <section id="professores" className="bg-navy py-section text-offwhite">
-        <div className="mx-auto max-w-site px-6">
-          <SectionHead
-            eyebrow="Nosso time"
-            title="Professores"
-            desc="Especialistas na banca, com rotina de treinamento direto ao que cai na prova."
-            dark
-          />
-          <Reveal>
-            <ProfessoresCarousel professores={professores} />
-          </Reveal>
-        </div>
-      </section>
+      <Secao className="bg-white">
+        <Trilho titulo="Loja Quad" link={{ href: "/loja", label: "Ver todos os produtos" }} rotulo="Produtos da Loja Quad" colunas={4}>
+          {produtosDaLoja.map((p) => (
+            <CartaoProdutoDaLoja key={p.id} produto={p} />
+          ))}
+        </Trilho>
+      </Secao>
 
-      {/* APROVADOS */}
-      <section className="py-section">
-        <div className="mx-auto max-w-site px-6">
-          <SectionHead
-            eyebrow="Histórias reais"
-            title="Aprovados"
-            desc="Mais de 800 alunos aprovados desde 2013. Conheça quem já vestiu a farda com o método Quad."
-          />
-          <div className="grid gap-5 lg:grid-cols-2">
-            {aprovados.slice(0, 4).map((a, i) => (
-              <Reveal key={a.nome} delay={Math.min(i, 5) * 70}>
-                <AprovadoCard aprovado={a} />
-              </Reveal>
-            ))}
-          </div>
-          <div className="mt-8 text-center">
-            <Link href="/aprovados" className="btn btn-outline-dark">Ver todos os aprovados</Link>
-          </div>
-        </div>
-      </section>
+      <Secao className="bg-nevoa">
+        <Trilho titulo="Próximos eventos" link={{ href: "/eventos", label: "Ver todos os eventos" }} rotulo="Próximos eventos">
+          {cartoesDeEvento.map((e) => (
+            <CartaoEvento key={e.id} evento={e} />
+          ))}
+        </Trilho>
+      </Secao>
 
-      {/* BLOG */}
-      <section className="bg-navy py-section text-offwhite">
-        <div className="mx-auto max-w-site px-6">
-          <SectionHead
-            eyebrow="Conteúdo Quad"
-            title="Do nosso blog"
-            desc="Editais, método de estudo e bastidores da preparação — direto de quem está na banca todos os dias."
-            dark
-          />
-          <div className="grid gap-5 md:grid-cols-3">
-            {posts.slice(0, 3).map((p, i) => (
-              <Reveal key={p.slug} className="h-full" delay={Math.min(i, 5) * 70}>
-                <Link href={`/blog/${p.slug}`} className="focus-ring block h-full">
-                  <AccentCard dark className="h-full p-6">
-                    <Kicker color="text-blue">{p.categoria}</Kicker>
-                    <h3 className="font-display mt-2 mb-1.5 text-lg font-bold uppercase leading-tight text-offwhite">
-                      {p.titulo}
-                    </h3>
-                    <p className="text-sm text-steel-light">{p.resumo}</p>
-                  </AccentCard>
-                </Link>
-              </Reveal>
-            ))}
-          </div>
-          <div className="mt-8 text-center">
-            <Link href="/blog" className="btn btn-outline">Ver todos os posts</Link>
-          </div>
+      <Secao id="professores" className="bg-marinho-950 text-white" brilho="bg-[radial-gradient(45%_55%_at_0%_0%,rgba(0,107,255,0.16),transparent_70%)]">
+        <Trilho titulo="Conheça nossos professores" rotulo="Professores" tema="escuro" colunas={4}>
+          {professores.map((p) => (
+            <CartaoProfessor key={p.slug} professor={p} />
+          ))}
+        </Trilho>
+      </Secao>
+
+      <Secao className="bg-nevoa">
+        <Reveal className="mb-[clamp(32px,4vw,48px)]">
+          <h2 className="titulo-secao">Aprovados</h2>
+        </Reveal>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,460px),1fr))] gap-5">
+          {aprovados.slice(0, 4).map((a, i) => (
+            <Reveal key={a.nome} className="h-full" delay={Math.min(i, 5) * 60}>
+              <CartaoAprovado aprovado={a} />
+            </Reveal>
+          ))}
         </div>
-      </section>
+        <div className="mt-9 flex justify-center">
+          <Link href="/aprovados" className="btn-q btn-q-contorno h-[50px] gap-2.5 px-6 text-[15px] hover:-translate-y-px">
+            Ver todos os aprovados
+            <SetaDoLink />
+          </Link>
+        </div>
+      </Secao>
+
+      <Secao className="bg-marinho-900 text-white">
+        <Trilho titulo="Do nosso blog" link={{ href: "/blog", label: "Ver todos os artigos" }} rotulo="Artigos do blog" tema="escuro">
+          {posts.slice(0, 3).map((p) => (
+            <CartaoArtigo key={p.slug} post={p} />
+          ))}
+        </Trilho>
+      </Secao>
     </>
   );
 }

@@ -1,25 +1,20 @@
 import type { Metadata } from "next";
-import { Rajdhani, Work_Sans } from "next/font/google";
+import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import NewsTicker from "@/components/NewsTicker";
+import AvisoDoCarrinho from "@/components/AvisoDoCarrinho";
+import { OuvinteDoBrilho } from "@/components/Brilho";
 import { CartProvider } from "@/lib/cart";
 import { UsuarioProvider } from "@/lib/usuario";
 import { DESCRICAO_DO_SITE, NOME_DO_SITE, URL_DO_SITE } from "@/lib/seo";
 import { listarEventos, listarTurmas } from "@/lib/vitrine";
 
-const fonteDisplay = Rajdhani({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-display",
-});
+// Títulos em Manrope e textos em Inter (novo visual). As classes font-display e font-body apontam para elas.
+// As duas são fontes variáveis: um arquivo só cobre todos os pesos, então não se lista "weight".
+const fonteDisplay = Manrope({ subsets: ["latin"], variable: "--font-display" });
 
-const fonteCorpo = Work_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-body",
-});
+const fonteCorpo = Inter({ subsets: ["latin"], variable: "--font-body" });
 
 const TITULO_PADRAO = "Quad Concursos — Preparação para concursos militares";
 
@@ -54,16 +49,17 @@ export default async function RootLayout({
             {/* Primeiro item do Tab: pula avisos e menu (aparece só quando recebe o foco). */}
             <a
               href="#conteudo"
-              className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-blue focus:px-4 focus:py-2 focus:font-display focus:text-sm focus:font-semibold focus:uppercase focus:text-navy-deep"
+              className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-azul focus:px-4 focus:py-2 focus:font-display focus:text-sm focus:font-bold focus:text-white"
             >
               Pular para o conteúdo
             </a>
-            <NewsTicker turmas={turmas ?? []} eventos={eventos ?? []} />
             <Navbar turmas={turmas ?? []} eventos={eventos ?? []} />
             <main id="conteudo" tabIndex={-1} className="outline-none">
               {children}
             </main>
             <Footer />
+            <AvisoDoCarrinho />
+            <OuvinteDoBrilho />
           </UsuarioProvider>
         </CartProvider>
       </body>

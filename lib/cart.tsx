@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { parsePreco } from "./format";
 
 export type CartItem = {
@@ -10,6 +10,8 @@ export type CartItem = {
   tag?: string;
   preco: string;
   precoSufixo?: string;
+  // Materiais: digital ou impresso (o impresso é retirado no Quad; o envio pelo correio depende do frete).
+  formato?: "digital" | "impresso";
   quantidade: number;
 };
 
@@ -24,6 +26,9 @@ type CartContextValue = {
   temItemSobConsulta: boolean;
   // false até ler o carrinho salvo no navegador; evita mostrar "vazio" por um instante
   carregado: boolean;
+  // Nome do último item adicionado, para o aviso "adicionado ao carrinho" (some sozinho).
+  aviso: string | null;
+  fecharAviso: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -33,6 +38,8 @@ const STORAGE_KEY = "quad-carrinho";
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [carregado, setCarregado] = useState(false);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const temporizadorDoAviso = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     try {
@@ -52,6 +59,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items, carregado]);
 
   function addItem(item: Omit<CartItem, "quantidade">) {
+    clearTimeout(temporizadorDoAviso.current);
+    setAviso(item.nome);
+    temporizadorDoAviso.current = setTimeout(() => setAviso(null), 3200);
     setItems((prev) => {
       const existente = prev.find((i) => i.id === item.id);
       if (existente) {
@@ -72,6 +82,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }
 
   const clear = useCallback(() => setItems([]), []);
+  const fecharAviso = useCallback(() => setAviso(null), []);
 
   const totalCount = items.reduce((soma, i) => soma + i.quantidade, 0);
   const totalValor = items.reduce((soma, i) => {
@@ -82,7 +93,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantidade, clear, totalCount, totalValor, temItemSobConsulta, carregado }}
+      value={{ items, addItem, removeItem, updateQuantidade, clear, totalCount, totalValor, temItemSobConsulta, carregado, aviso, fecharAviso }}
     >
       {children}
     </CartContext.Provider>

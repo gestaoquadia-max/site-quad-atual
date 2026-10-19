@@ -1,35 +1,40 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { produtos, cursosOnline, type Evento, type Turma } from "@/lib/data";
+import { usePathname } from "next/navigation";
+import { useRef, useState } from "react";
+import { produtos, type Evento, type Turma } from "@/lib/data";
+import { LINK_DAS_MENTORIAS } from "@/lib/conteudo";
 import { useCart } from "@/lib/cart";
 import { useUsuarioAtual } from "@/lib/usuario";
-import { logout } from "@/lib/auth";
-import { rotaComDestino } from "@/lib/redirecionamento";
-import Avatar from "./Avatar";
+import NewsTicker from "./NewsTicker";
 import NavMegaMenu, { type MegaMenuFeatured, type MegaMenuItem } from "./NavMegaMenu";
 
-function CartIcon({ count }: { count: number }) {
+function IconeCarrinho({ quantidade }: { quantidade: number }) {
   return (
-    <span className="relative flex items-center">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <>
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <circle cx="9" cy="21" r="1" />
         <circle cx="20" cy="21" r="1" />
         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
       </svg>
-      {count > 0 && (
-        <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-blue text-[10px] font-bold text-navy-deep">
-          {count}
+      {quantidade > 0 && (
+        <span className="absolute right-1 top-[5px] grid h-[17px] min-w-[17px] place-items-center rounded-full bg-azul px-1 text-[10.5px] font-bold text-white shadow-[0_0_0_2px_#071426]">
+          {quantidade}
         </span>
       )}
-    </span>
+    </>
   );
 }
 
-const kitCompleto = produtos.find((p) => p.slug === "kit-completo-cfp")!;
-const cursoDestaque = cursosOnline[0];
+function Seta({ aberta = false, className = "" }: { aberta?: boolean; className?: string }) {
+  return (
+    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true" className={`transition-transform duration-200 ${aberta ? "rotate-180" : ""} ${className}`}>
+      <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
 
 type LinkDoMenu = {
   href: string;
@@ -37,23 +42,19 @@ type LinkDoMenu = {
   menu?: { items: MegaMenuItem[]; featured: MegaMenuFeatured; viewAllHref: string; viewAllLabel: string };
 };
 
-// Turmas e eventos vêm da vitrine da API (lido no servidor, em app/layout.tsx). Sem nenhum aberto, o destaque
+const kitCompleto = produtos.find((p) => p.slug === "kit-completo-cfp");
+
+// Turmas e eventos vêm da vitrine da API (lida no servidor, em app/layout.tsx). Sem nenhum aberto, o destaque
 // vira um convite para a página da lista.
 function montarLinks(turmas: Turma[], eventos: Evento[]): LinkDoMenu[] {
   const turmaDestaque = turmas.find((t) => t.status === "aberta") ?? turmas[0];
-  const eventoDestaque = eventos.find((e) => e.status === "aberta") ?? eventos[0];
   return [
     { href: "/", label: "Início" },
     {
       href: "/turmas",
-      label: "Turmas",
+      label: "Turmas Presenciais",
       menu: {
-        items: turmas.map((t) => ({
-          href: `/turmas/${t.slug}`,
-          nome: t.nome,
-          meta: t.statusLabel,
-          status: t.status,
-        })),
+        items: turmas.map((t) => ({ href: `/turmas/${t.slug}`, nome: t.nome, meta: t.statusLabel, status: t.status })),
         featured: turmaDestaque
           ? {
               eyebrow: "Turma em destaque",
@@ -75,357 +76,237 @@ function montarLinks(turmas: Turma[], eventos: Evento[]): LinkDoMenu[] {
       },
     },
     {
+      href: "/mentorias",
+      label: "Mentorias do Quad",
+      menu: {
+        items: [
+          { href: `${LINK_DAS_MENTORIAS}#mentoria`, nome: "Mentoria", meta: "12 meses de acesso" },
+          { href: `${LINK_DAS_MENTORIAS}#plus`, nome: "Mentoria+", meta: "3 meses de acesso", status: "aberta" },
+          { href: `${LINK_DAS_MENTORIAS}#comparativo`, nome: "Combo Mentoria + Mentoria Plus", meta: "12 meses + 3 meses Plus" },
+        ],
+        featured: {
+          eyebrow: "Mentorias do Quad",
+          title: "Você estuda. O Quad direciona.",
+          desc: "Estratégia, cronograma personalizado e análise de desempenho para uma preparação direcionada ao seu concurso.",
+          ctaLabel: "Saiba mais sobre a mentoria",
+          ctaHref: LINK_DAS_MENTORIAS,
+        },
+        viewAllHref: "/mentorias",
+        viewAllLabel: "Ver Mentorias do Quad",
+      },
+    },
+    {
       href: "/produtos",
       label: "Materiais",
       menu: {
         items: produtos.map((p) => ({
           href: `/produtos/${p.slug}`,
           nome: p.nome,
-          meta: p.tag,
+          meta: p.tag.startsWith("Combo") ? "Kit" : "Apostila",
+          status: p.tag.startsWith("Combo") ? "aberta" : undefined,
         })),
         featured: {
-          eyebrow: "Combo em destaque",
-          title: kitCompleto.nome,
-          desc: kitCompleto.detalhe!.lead.split(". ")[0] + ".",
-          meta: kitCompleto.preco,
-          ctaLabel: "Ver kit completo",
-          ctaHref: `/produtos/${kitCompleto.slug}`,
+          eyebrow: "Material em destaque",
+          title: kitCompleto?.nome ?? "Materiais de estudo",
+          desc: "Os materiais de estudo do CFP reunidos em um só kit.",
+          ctaLabel: "Ver material",
+          ctaHref: kitCompleto ? `/produtos/${kitCompleto.slug}` : "/produtos",
         },
         viewAllHref: "/produtos",
         viewAllLabel: "Ver todos os materiais",
       },
     },
+    { href: "/loja", label: "Loja" },
     {
       href: "/eventos",
       label: "Eventos",
       menu: {
-        items: eventos.map((e) => ({
-          href: `/eventos/${e.slug}`,
-          nome: e.nome,
-          meta: e.tag,
-          status: e.status,
-        })),
-        featured: eventoDestaque
-          ? {
-              eyebrow: "Próximo evento",
-              title: eventoDestaque.nome,
-              desc: eventoDestaque.desc,
-              meta: eventoDestaque.tag,
-              ctaLabel: "Ver evento completo",
-              ctaHref: `/eventos/${eventoDestaque.slug}`,
-            }
-          : {
-              eyebrow: "Agenda Quad",
-              title: "Novos eventos em breve",
-              desc: "Simulados, aulões e palestras aparecem aqui assim que as inscrições abrirem.",
-              ctaLabel: "Ver agenda",
-              ctaHref: "/eventos",
-            },
+        items: [
+          { href: "/simulados", nome: "Simulados do Quad", meta: "Presenciais, individuais e combos", status: "aberta" },
+          ...eventos.map((e) => ({ href: `/eventos/${e.slug}`, nome: e.nome, meta: e.tag, status: e.status })),
+        ],
+        featured: {
+          eyebrow: "Simulados do Quad",
+          title: "Presenciais, individuais e combos",
+          desc: "Escolha sua carreira e encontre a melhor forma de testar seus conhecimentos.",
+          ctaLabel: "Ver simulados",
+          ctaHref: "/simulados",
+        },
         viewAllHref: "/eventos",
         viewAllLabel: "Ver agenda completa",
-      },
-    },
-    {
-      href: "/cursos",
-      label: "Cursos Online",
-      menu: {
-        items: cursosOnline.map((c) => ({
-          href: "/cursos",
-          nome: c.nome,
-          meta: c.tag,
-        })),
-        featured: {
-          eyebrow: "Curso em destaque",
-          title: cursoDestaque.nome,
-          desc: cursoDestaque.desc,
-          meta: cursoDestaque.preco + (cursoDestaque.precoSufixo ?? ""),
-          ctaLabel: "Ver cursos online",
-          ctaHref: "/cursos",
-        },
-        viewAllHref: "/cursos",
-        viewAllLabel: "Ver todos os cursos",
       },
     },
     { href: "/blog", label: "Blog" },
   ];
 }
 
-function MobileAccordionRow({
-  link,
-  isOpen,
-  onToggle,
-}: {
-  link: LinkDoMenu;
-  isOpen: boolean;
-  onToggle: () => void;
-}) {
+function estaAtivo(pathname: string, href: string) {
+  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function ItemSanfona({ link, aberto, onAlternar }: { link: LinkDoMenu; aberto: boolean; onAlternar: () => void }) {
   if (!link.menu) {
     return (
-      <li>
-        <Link
-          href={link.href}
-          className="focus-ring block py-3.5 font-display text-sm font-semibold uppercase tracking-wide text-steel-light transition-colors hover:text-blue"
-        >
+      <li className="border-b border-white/[0.08]">
+        <Link href={link.href} className="flex min-h-[52px] items-center font-display text-base font-bold text-[#DCE4EF]">
           {link.label}
         </Link>
       </li>
     );
   }
-
   return (
-    <li>
+    <li className="border-b border-white/[0.08]">
       <button
         type="button"
-        onClick={onToggle}
-        aria-expanded={isOpen}
-        className="focus-ring flex w-full items-center justify-between py-3.5 font-display text-sm font-semibold uppercase tracking-wide text-steel-light"
+        onClick={onAlternar}
+        aria-expanded={aberto}
+        className="flex min-h-[52px] w-full items-center justify-between text-left font-display text-base font-bold text-[#DCE4EF]"
       >
         {link.label}
-        <svg
-          width="10"
-          height="6"
-          viewBox="0 0 10 6"
-          fill="none"
-          className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-        >
-          <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
+        <Seta aberta={aberto} />
       </button>
-      <div
-        className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${
-          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-        }`}
-      >
-        <div className="overflow-hidden">
-          <ul className="pb-3 pl-3">
-            {link.menu.items.map((it) => (
-              <li key={it.href + it.nome}>
-                <Link
-                  href={it.href}
-                  className="focus-ring block py-2 text-sm text-steel-light transition-colors hover:text-blue"
-                >
-                  {it.nome}
-                </Link>
-              </li>
-            ))}
-            <li>
-              <Link
-                href={link.menu.viewAllHref}
-                className="focus-ring block py-2 text-xs font-semibold uppercase tracking-wide text-blue"
-              >
-                {link.menu.viewAllLabel} →
-              </Link>
+      {aberto && (
+        <ul className="mb-3 border-l-2 border-azul pb-1 pl-3.5">
+          {link.menu.items.map((it) => (
+            <li key={it.href + it.nome}>
+              <a href={it.href} className="flex min-h-[44px] items-center text-[15px] text-[#DCE4EF] hover:text-white">
+                {it.nome}
+              </a>
             </li>
-          </ul>
-        </div>
-      </div>
+          ))}
+          <li>
+            <Link href={link.menu.viewAllHref} className="flex min-h-[44px] items-center text-xs font-semibold uppercase tracking-[0.08em] text-azul-ceu">
+              {link.menu.viewAllLabel} →
+            </Link>
+          </li>
+        </ul>
+      )}
     </li>
   );
 }
 
-function PerfilMenu({ labelDeslogado = "Área do Aluno" }: { labelDeslogado?: string }) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const usuario = useUsuarioAtual();
-  const [aberto, setAberto] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  const [pathnameAnterior, setPathnameAnterior] = useState(pathname);
-  if (pathname !== pathnameAnterior) {
-    setPathnameAnterior(pathname);
-    setAberto(false);
-  }
-
-  useEffect(() => {
-    function handleClickFora(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setAberto(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickFora);
-    return () => document.removeEventListener("mousedown", handleClickFora);
-  }, []);
-
-  if (!usuario) {
-    // No carrinho e no checkout, volta para a compra depois de entrar.
-    const voltarPara = pathname === "/carrinho" || pathname === "/checkout" ? pathname : null;
-    return (
-      <Link
-        href={rotaComDestino("/entrar", voltarPara)}
-        className="focus-ring bg-blue hover:bg-blue-dark text-navy-deep font-display font-semibold text-[13px] uppercase tracking-wide px-4 py-2 transition-colors"
-      >
-        {labelDeslogado}
-      </Link>
-    );
-  }
-
-  return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setAberto((v) => !v)}
-        aria-label="Menu da conta"
-        aria-expanded={aberto}
-        className="focus-ring block"
-      >
-        <Avatar nome={usuario.nome} size="h-9 w-9 text-xs" />
-      </button>
-      {aberto && (
-        <div className="absolute right-0 top-[calc(100%+10px)] w-56 border border-dark bg-navy-mid shadow-md">
-          <div className="border-b border-dark px-4 py-3">
-            <div className="text-sm font-semibold text-offwhite">{usuario.nome}</div>
-            {usuario.email && <div className="text-xs text-steel-light">{usuario.email}</div>}
-          </div>
-          <Link
-            href="/aluno/perfil"
-            className="focus-ring block px-4 py-2.5 text-sm text-steel-light transition-colors hover:bg-white/5 hover:text-offwhite"
-          >
-            Editar conta
-          </Link>
-          <button
-            type="button"
-            onClick={() => {
-              logout();
-              router.push("/");
-            }}
-            className="focus-ring block w-full px-4 py-2.5 text-left text-sm text-steel-light transition-colors hover:bg-white/5 hover:text-offwhite"
-          >
-            Sair
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
+// Cabeçalho fixo no topo: faixa de avisos + navegação. Abaixo de 1220px de largura vira o menu do celular.
 export default function Navbar({ turmas, eventos }: { turmas: Turma[]; eventos: Evento[] }) {
   const links = montarLinks(turmas, eventos);
   const pathname = usePathname();
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
-  // Depois do Esc o foco volta ao link do menu; esse foco não deve reabrir o menu.
-  const ignorarProximoFoco = useRef(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const { totalCount } = useCart();
+  const usuario = useUsuarioAtual();
+  const [suspenso, setSuspenso] = useState<string | null>(null);
+  const [menuCelular, setMenuCelular] = useState(false);
+  const [sanfona, setSanfona] = useState<string | null>(null);
+  // Depois do Esc o foco volta ao link do menu; esse foco não deve reabrir o submenu.
+  const ignorarProximoFoco = useRef(false);
 
   const [pathnameAnterior, setPathnameAnterior] = useState(pathname);
   if (pathname !== pathnameAnterior) {
     setPathnameAnterior(pathname);
-    setOpenMenu(null);
-    setMobileOpen(false);
+    setSuspenso(null);
+    setMenuCelular(false);
+    setSanfona(null);
   }
 
-  return (
-    <nav className="sticky top-0 z-50 bg-navy-deep border-b border-dark">
-      <div className="max-w-site mx-auto px-6 h-[68px] flex items-center justify-between">
-        <Link href="/" className="flex items-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo.svg" alt="Quad Concursos" width={130} height={48} className="h-12 w-auto" />
-        </Link>
-        <ul className="hidden md:flex gap-7 items-center">
-          {links.map((l) => (
-            <li
-              key={l.href}
-              className="relative"
-              onMouseEnter={() => l.menu && setOpenMenu(l.href)}
-              onMouseLeave={() => l.menu && setOpenMenu(null)}
-              // Teclado: abre ao receber o foco, fecha quando o foco sai do item ou com Esc.
-              onFocus={() => {
-                if (ignorarProximoFoco.current) ignorarProximoFoco.current = false;
-                else if (l.menu) setOpenMenu(l.href);
-              }}
-              onBlur={(e) => {
-                if (l.menu && !e.currentTarget.contains(e.relatedTarget as Node | null)) setOpenMenu(null);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Escape" && openMenu) {
-                  setOpenMenu(null);
-                  ignorarProximoFoco.current = true;
-                  (e.currentTarget.querySelector("a") as HTMLElement | null)?.focus();
-                }
-              }}
-            >
-              <Link
-                href={l.href}
-                aria-expanded={l.menu ? openMenu === l.href : undefined}
-                className={`focus-ring flex items-center gap-1 text-sm font-medium transition-colors ${
-                  pathname === l.href ? "text-blue" : "text-steel-light hover:text-blue"
-                }`}
-              >
-                {l.label}
-                {l.menu && (
-                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className="mt-px">
-                    <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                )}
-              </Link>
-              {l.menu && openMenu === l.href && (
-                <NavMegaMenu
-                  items={l.menu.items}
-                  featured={l.menu.featured}
-                  viewAllHref={l.menu.viewAllHref}
-                  viewAllLabel={l.menu.viewAllLabel}
-                />
-              )}
-            </li>
-          ))}
-          <li>
-            <Link href="/carrinho" aria-label="Carrinho" className="focus-ring text-steel-light transition-colors hover:text-blue">
-              <CartIcon count={totalCount} />
-            </Link>
-          </li>
-          <li>
-            <PerfilMenu />
-          </li>
-        </ul>
-        <div className="flex items-center gap-4 md:hidden">
-          <Link href="/carrinho" aria-label="Carrinho" className="focus-ring text-steel-light">
-            <CartIcon count={totalCount} />
-          </Link>
-          <PerfilMenu labelDeslogado="Entrar" />
-          <button
-            type="button"
-            aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}
-            aria-expanded={mobileOpen}
-            onClick={() => setMobileOpen((v) => !v)}
-            className="focus-ring flex h-8 w-8 flex-col items-center justify-center gap-[5px]"
-          >
-            <span
-              className={`block h-[2px] w-5 bg-steel-light transition-transform duration-200 ${
-                mobileOpen ? "translate-y-[7px] rotate-45" : ""
-              }`}
-            />
-            <span
-              className={`block h-[2px] w-5 bg-steel-light transition-opacity duration-200 ${
-                mobileOpen ? "opacity-0" : ""
-              }`}
-            />
-            <span
-              className={`block h-[2px] w-5 bg-steel-light transition-transform duration-200 ${
-                mobileOpen ? "-translate-y-[7px] -rotate-45" : ""
-              }`}
-            />
-          </button>
-        </div>
-      </div>
+  const acesso = usuario ? { href: "/aluno", label: "Área do Aluno" } : { href: "/entrar", label: "Entrar" };
+  const rotuloDoCarrinho = totalCount > 0 ? `Carrinho, ${totalCount} ${totalCount === 1 ? "item" : "itens"}` : "Carrinho";
 
-      <div
-        className={`grid md:hidden transition-[grid-template-rows] duration-300 ease-in-out ${
-          mobileOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-        }`}
-      >
-        <div className="overflow-hidden">
-          <ul className="divide-y divide-dark border-t border-dark bg-navy-deep px-6 shadow-md">
-            {links.map((l) => (
-              <MobileAccordionRow
-                key={l.href}
-                link={l}
-                isOpen={openMenu === l.href}
-                onToggle={() => setOpenMenu(openMenu === l.href ? null : l.href)}
-              />
-            ))}
+  return (
+    <div className="sticky top-0 z-[60]">
+      <NewsTicker turmas={turmas} eventos={eventos} />
+      <nav aria-label="Principal" onMouseLeave={() => setSuspenso(null)} className="relative border-b border-white/[0.06] bg-[rgba(7,20,38,0.97)]">
+        <div className="conteiner flex h-[72px] items-center justify-between gap-6">
+          <Link href="/" aria-label="Quad Concursos — início" className="flex flex-none items-center rounded-lg transition-opacity hover:opacity-85">
+            <Image src="/images/quad-logo-branco.png" alt="Quad Concursos" width={118} height={44} priority className="h-11 w-auto" />
+          </Link>
+
+          <ul className="hidden items-center gap-0.5 min-[1220px]:flex">
+            {links.map((l) => {
+              const ativo = estaAtivo(pathname, l.href);
+              const aberto = !!l.menu && suspenso === l.href;
+              return (
+                <li
+                  key={l.href}
+                  onMouseEnter={() => setSuspenso(l.menu ? l.href : null)}
+                  // Teclado: abre ao receber o foco, fecha quando o foco sai do item ou com Esc.
+                  onFocus={() => {
+                    if (ignorarProximoFoco.current) ignorarProximoFoco.current = false;
+                    else setSuspenso(l.menu ? l.href : null);
+                  }}
+                  onBlur={(e) => {
+                    if (l.menu && !e.currentTarget.contains(e.relatedTarget as Node | null)) setSuspenso(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape" && suspenso) {
+                      setSuspenso(null);
+                      ignorarProximoFoco.current = true;
+                      (e.currentTarget.querySelector("a") as HTMLElement | null)?.focus();
+                    }
+                  }}
+                >
+                  <Link
+                    href={l.href}
+                    aria-current={ativo ? "page" : undefined}
+                    aria-expanded={l.menu ? aberto : undefined}
+                    className={`flex h-[72px] items-center gap-1.5 whitespace-nowrap px-[clamp(8px,0.9vw,12px)] text-sm transition-colors ${
+                      ativo ? "font-semibold shadow-[inset_0_-2px_0_#2F86FF]" : "font-medium"
+                    } ${ativo || aberto ? "text-white" : "text-prata hover:text-white"}`}
+                  >
+                    {l.label}
+                    {l.menu && <Seta className="opacity-70" />}
+                  </Link>
+                  {/* O <li> não é posicionado: o submenu se alinha ao centro da barra inteira. */}
+                  {l.menu && aberto && <NavMegaMenu {...l.menu} />}
+                </li>
+              );
+            })}
+            <li className="ml-2">
+              <Link
+                href="/carrinho"
+                aria-label={rotuloDoCarrinho}
+                className="relative grid h-11 w-11 place-items-center rounded-[10px] text-prata transition-colors hover:bg-white/[0.06] hover:text-white"
+              >
+                <IconeCarrinho quantidade={totalCount} />
+              </Link>
+            </li>
+            <li className="ml-1.5">
+              <Link
+                href={acesso.href}
+                className="btn-q btn-q-azul h-[42px] rounded-lg px-[18px] text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_8px_20px_-10px_rgba(0,107,255,0.8)] hover:-translate-y-px"
+              >
+                {acesso.label}
+              </Link>
+            </li>
           </ul>
+
+          <div className="flex items-center gap-1 min-[1220px]:hidden">
+            <Link href="/carrinho" aria-label={rotuloDoCarrinho} className="relative grid h-11 w-11 place-items-center text-prata">
+              <IconeCarrinho quantidade={totalCount} />
+            </Link>
+            <Link href={acesso.href} className="btn-q btn-q-azul h-10 rounded-lg px-3.5 text-sm">
+              {acesso.label}
+            </Link>
+            <button
+              type="button"
+              aria-label={menuCelular ? "Fechar menu" : "Abrir menu"}
+              aria-expanded={menuCelular}
+              onClick={() => setMenuCelular((v) => !v)}
+              className="flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-[10px]"
+            >
+              <span className={`block h-0.5 w-5 rounded bg-[#DCE4EF] transition-transform duration-200 ${menuCelular ? "translate-y-[7px] rotate-45" : ""}`} />
+              <span className={`block h-0.5 w-5 rounded bg-[#DCE4EF] transition-opacity duration-200 ${menuCelular ? "opacity-0" : ""}`} />
+              <span className={`block h-0.5 w-5 rounded bg-[#DCE4EF] transition-transform duration-200 ${menuCelular ? "-translate-y-[7px] -rotate-45" : ""}`} />
+            </button>
+          </div>
         </div>
-      </div>
-    </nav>
+
+        {menuCelular && (
+          <div className="max-h-[calc(100vh-110px)] overflow-y-auto border-t border-white/[0.08] bg-marinho-950 px-[clamp(20px,4vw,32px)] pb-5 pt-1.5 min-[1220px]:hidden">
+            <ul>
+              {links.map((l) => (
+                <ItemSanfona key={l.href} link={l} aberto={sanfona === l.href} onAlternar={() => setSanfona(sanfona === l.href ? null : l.href)} />
+              ))}
+            </ul>
+          </div>
+        )}
+      </nav>
+    </div>
   );
 }
