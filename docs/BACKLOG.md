@@ -42,7 +42,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | 10 | Segurança e LGPD | 2 | 6 | 1 |
 | 11 | Analytics e marketing | 1 | 4 | 0 |
 | 12 | Deploy e operação | 3 | 7 | 0 |
-| 13 | Redesenho do site | 9 | 28 | 16 |
+| 13 | Redesenho do site | 9 | 28 | 19 |
 
 ---
 
@@ -730,13 +730,13 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 7 — CARRINHO E CHECKOUT
 
-**Status:** PENDENTE
+**Status:** CONCLUÍDA
 
 | Tarefa | Status |
 |---|---|
-| Carrinho no novo visual | PENDENTE |
-| Checkout no novo visual | PENDENTE |
-| Telas de confirmação do pagamento no novo visual | PENDENTE |
+| Carrinho no novo visual | FEITO |
+| Checkout no novo visual | FEITO |
+| Telas de confirmação do pagamento no novo visual | FEITO |
 
 **Campos adicionais**
 - **Prioridade:** Alta
