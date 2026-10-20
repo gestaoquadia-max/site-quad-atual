@@ -25,7 +25,7 @@ async function primeiroDaLoja(page: Page) {
 
 // Regras WCAG 2.1 níveis A e AA (contraste, rótulos, teclado). A área do aluno exige login: tem um teste próprio no fim.
 // "turma:", "material:", "evento:" e "loja:" = o primeiro de cada um na vitrine da API (o endereço leva o id de cada um).
-const PAGINAS = ["/", "/turmas", "turma:", "/produtos", "material:", "/simulados", "/eventos", "evento:", "/loja", "loja:", "/mentorias", "/aprovados", "/esqueci-senha", "/redefinir-senha?token=x", "/blog", "/blog/taf-cfp-soldado-pm-ba-como-funciona", "/professores/danilo-moura", "/sobre", "/contato", "/entrar", "/cadastro", "/carrinho", "/checkout", "/checkout/confirmacao?status=pendente"];
+const PAGINAS = ["/", "/turmas", "turma:", "/produtos", "material:", "/simulados", "/eventos", "evento:", "/loja", "loja:", "/mentorias", "/aprovados", "/esqueci-senha", "/redefinir-senha?token=x", "/blog", "/blog/taf-cfp-soldado-pm-ba-como-funciona", "/professores/danilo-moura", "/sobre", "/contato", "/termos", "/privacidade", "/pagina-que-nao-existe", "/entrar", "/cadastro", "/carrinho", "/checkout", "/checkout/confirmacao?status=pendente"];
 
 for (const caminho of PAGINAS) {
   test(`sem problemas de acessibilidade WCAG A/AA em ${caminho}`, async ({ page }) => {

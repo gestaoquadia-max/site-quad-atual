@@ -127,21 +127,6 @@ export const aprovados: Aprovado[] = [
   },
 ];
 
-export type HistoriaVideo = {
-  nome: string;
-  concurso: string;
-  duracao: string;
-};
-
-export const historiasVideo: HistoriaVideo[] = [
-  { nome: "Larissa Nunes", concurso: "Soldado PM-BA — 8º lugar geral", duracao: "2:14" },
-  { nome: "Rafael Andrade", concurso: "Soldado PM-BA — Aprovado", duracao: "1:48" },
-  { nome: "Camila Torres", concurso: "Oficial PM-BA — 3º lugar geral", duracao: "3:02" },
-  { nome: "Diego Farias", concurso: "PRF — Aprovado", duracao: "2:31" },
-  { nome: "Beatriz Souza", concurso: "Soldado PM-BA — Aprovada", duracao: "2:05" },
-  { nome: "Thiago Almeida", concurso: "Soldado PM-BA — 15º lugar geral", duracao: "2:47" },
-];
-
 export type Professor = {
   slug: string;
   nome: string;

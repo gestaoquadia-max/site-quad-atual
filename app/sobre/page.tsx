@@ -1,5 +1,4 @@
 import Link from "next/link";
-import AccentCard from "@/components/AccentCard";
 import PageHeader from "@/components/PageHeader";
 import { metadadosDaPagina } from "@/lib/seo";
 
@@ -22,69 +21,65 @@ const valores = [
 export default function SobrePage() {
   return (
     <>
-      <PageHeader
-        eyebrow="Quem somos"
-        title="Sobre o Quad"
-        desc="Preparação séria para quem quer vestir a farda. Feira de Santana, Bahia — desde 2013."
-      />
+      <PageHeader eyebrow="Quem somos" title="Sobre o Quad" desc="Preparação séria para quem quer vestir a farda. Feira de Santana, Bahia — desde 2013." />
 
-      <section className="py-section">
-        <div className="mx-auto max-w-narrow px-6">
-          <span className="eyebrow">Nossa história</span>
-          <h2 className="font-display my-4 text-2xl font-bold uppercase">De uma banca de reforço a uma missão</h2>
-          <div className="space-y-3 text-[15px] leading-relaxed text-[#4A5462]">
+      <section className="bg-white py-[clamp(56px,7vw,104px)]">
+        <div className="conteiner grid gap-[clamp(28px,5vw,80px)] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-forte">Nossa história</span>
+            <h2 className="titulo-secao mt-2.5">De uma banca de reforço a uma missão</h2>
+          </div>
+          <div className="space-y-4 text-[17px] leading-[1.75] text-ardosia-escura">
             <p>
-              O Quad nasceu como uma banca de reforço em física, química e matemática, fundada por Danilo Moura. Anos
-              depois, Danilo se tornou policial — e trouxe consigo a missão de preparar outras pessoas para conquistas
-              como a dele.
+              O Quad nasceu como uma banca de reforço em física, química e matemática, fundada por Danilo Moura. Anos depois, Danilo se tornou
+              policial — e trouxe consigo a missão de preparar outras pessoas para conquistas como a dele.
             </p>
+            <p>O que começou como apoio escolar se revelou algo maior: um espaço onde o conhecimento anda lado a lado com o cuidado.</p>
             <p>
-              O que começou como apoio escolar se revelou algo maior: um espaço onde o conhecimento anda lado a lado com
-              o cuidado.
-            </p>
-            <p>
-              O aluno Quad carrega uma história difícil, mas não se vitimiza. Trabalha o dia todo, estuda à noite, sente
-              medo e enfrenta. Para ele, o Quad é mais que um cursinho: é um lugar de reconstrução.
+              O aluno Quad carrega uma história difícil, mas não se vitimiza. Trabalha o dia todo, estuda à noite, sente medo e enfrenta. Para ele,
+              o Quad é mais que um cursinho: é um lugar de reconstrução.
             </p>
           </div>
         </div>
       </section>
 
-      <section className="bg-navy-deep py-section text-offwhite">
-        <div className="mx-auto max-w-narrow px-6">
-          <span className="eyebrow text-blue">Missão</span>
-          <p className="font-display mt-4 text-2xl font-bold uppercase leading-snug md:text-[28px]">
-            Transformar vidas por meio da educação de alta performance, acolhendo, direcionando e preparando nossos
-            alunos com excelência para conquistar a aprovação e iniciar uma nova trajetória com propósito.
+      <section className="relative overflow-hidden bg-marinho-950 py-[clamp(64px,8vw,120px)] text-white">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(45%_70%_at_15%_20%,rgba(0,107,255,0.22),transparent_70%)]" />
+        <div className="conteiner relative">
+          <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">Missão</span>
+          <p className="mt-4 max-w-[1080px] font-display text-[clamp(1.6rem,3.2vw,2.8rem)] font-extrabold leading-[1.15] tracking-[-0.03em] [text-wrap:balance]">
+            Transformar vidas por meio da educação de alta performance, acolhendo, direcionando e preparando nossos alunos com excelência para
+            conquistar a aprovação e iniciar uma nova trajetória com propósito.
           </p>
         </div>
       </section>
 
-      <section className="py-section">
-        <div className="mx-auto max-w-site px-6">
-          <span className="eyebrow">O que nos guia</span>
-          <h2 className="font-display my-4 text-2xl font-bold uppercase">Nossos valores</h2>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {valores.map((v) => (
-              <AccentCard key={v.nome} className="p-6">
-                <h3 className="font-display mb-1.5 text-lg font-bold uppercase leading-tight">{v.nome}</h3>
-                <p className="text-sm text-[#5A6472]">{v.texto}</p>
-              </AccentCard>
+      <section className="bg-nevoa py-[clamp(56px,7vw,104px)]">
+        <div className="conteiner">
+          <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-forte">O que nos guia</span>
+          <h2 className="titulo-secao mb-8 mt-2.5">Nossos valores</h2>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,300px),1fr))] gap-5">
+            {valores.map((v, i) => (
+              <article key={v.nome} className="rounded-[18px] border border-linha bg-white p-6">
+                <span className="font-display text-sm font-extrabold text-azul-forte">{String(i + 1).padStart(2, "0")}</span>
+                <h3 className="mb-2 mt-3 font-display text-xl font-extrabold tracking-[-0.015em]">{v.nome}</h3>
+                <p className="text-[15px] leading-[1.6] text-ardosia">{v.texto}</p>
+              </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="border-t border-light py-section">
-        <div className="mx-auto max-w-narrow px-6 text-center">
-          <p className="font-display mb-6 text-xl font-bold uppercase">
+      <section className="bg-white py-[clamp(56px,7vw,96px)]">
+        <div className="conteiner flex flex-col items-center gap-6 text-center">
+          <p className="max-w-[760px] font-display text-[clamp(1.5rem,2.6vw,2.2rem)] font-extrabold leading-[1.15] tracking-[-0.03em] [text-wrap:balance]">
             Nossa bandeira é a educação. Nossa causa é transformar vidas.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            <Link href="/turmas" className="btn btn-blue">
+            <Link href="/turmas" className="btn-q btn-q-azul h-[52px] px-6 text-[15px]">
               Conheça as turmas
             </Link>
-            <Link href="/contato" className="btn btn-outline-dark">
+            <Link href="/contato" className="btn-q btn-q-contorno h-[52px] px-6 text-[15px]">
               Fale com a gente
             </Link>
           </div>

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import AccentCard from "@/components/AccentCard";
 import PageHeader from "@/components/PageHeader";
 import { Dado } from "@/components/PaginaInstitucional";
 import { formatarTelefoneFixoOuCelular, institucional, linkDoWhatsApp } from "@/lib/institucional";
@@ -14,27 +13,29 @@ export const metadata = metadadosDaPagina({
 
 const emDesenvolvimento = process.env.NODE_ENV === "development";
 
-function Canal({ titulo, valor, campo, href }: { titulo: string; valor: string; campo: string; href?: string }) {
+function Canal({ titulo, valor, campo, href, destaque = false }: { titulo: string; valor: string; campo: string; href?: string; destaque?: boolean }) {
   // No site publicado, canal sem dado não aparece.
   if (!valor && !emDesenvolvimento) return null;
+  const externo = href?.startsWith("http");
   return (
-    <AccentCard className="p-6">
-      <div className="font-display mb-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-steel">{titulo}</div>
+    <div className={`flex flex-col gap-2 rounded-[18px] border p-6 ${destaque ? "border-transparent bg-marinho-900 text-white" : "border-linha bg-white"}`}>
+      <div className={`text-xs font-bold uppercase tracking-[0.12em] ${destaque ? "text-azul-ceu" : "text-azul-forte"}`}>{titulo}</div>
       {valor && href ? (
         <a
           href={href}
-          target={href.startsWith("http") ? "_blank" : undefined}
-          rel="noopener noreferrer"
-          className="focus-ring text-[17px] font-semibold text-navy underline-offset-4 hover:underline"
+          target={externo ? "_blank" : undefined}
+          rel={externo ? "noopener noreferrer" : undefined}
+          className={`font-display text-xl font-extrabold underline-offset-4 hover:underline ${destaque ? "text-white hover:text-white" : "text-tinta hover:text-azul"}`}
         >
           {valor}
+          {externo && <span className="sr-only"> (abre em nova aba)</span>}
         </a>
       ) : (
-        <div className="text-[17px] font-semibold text-navy">
+        <div className="font-display text-xl font-extrabold">
           <Dado valor={valor} campo={campo} />
         </div>
       )}
-    </AccentCard>
+    </div>
   );
 }
 
@@ -48,21 +49,19 @@ export default function ContatoPage() {
         eyebrow="Atendimento"
         title="Contato"
         desc="Tire suas dúvidas sobre turmas, materiais, eventos e matrículas. Respondemos o mais rápido possível."
-        bgClassName="bg-offwhite"
-        textClassName="text-navy"
-        descClassName="text-steel"
       />
-      <section className="py-section">
-        <div className="mx-auto max-w-site px-6">
+      <section className="bg-nevoa py-[clamp(48px,6vw,88px)]">
+        <div className="conteiner">
           {!algumCanal && !emDesenvolvimento ? (
-            <p className="text-steel">Nossos canais de atendimento serão publicados em breve.</p>
+            <p className="text-ardosia">Nossos canais de atendimento serão publicados em breve.</p>
           ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,300px),1fr))] gap-5">
               <Canal
                 titulo="WhatsApp"
                 valor={i.whatsapp ? formatarTelefoneFixoOuCelular(i.whatsapp) : ""}
                 campo="whatsapp"
                 href={i.whatsapp ? linkDoWhatsApp(i.whatsapp) : undefined}
+                destaque
               />
               <Canal
                 titulo="Telefone"
@@ -86,9 +85,9 @@ export default function ContatoPage() {
               <Canal titulo="Horário de atendimento" valor={i.horarioAtendimento} campo="horarioAtendimento" />
             </div>
           )}
-          <p className="mt-8 text-sm text-steel">
+          <p className="mt-8 text-[15px] text-ardosia">
             Para pedidos sobre os seus dados pessoais (acesso, correção ou exclusão), veja a{" "}
-            <Link href="/privacidade" className="text-navy underline underline-offset-4 hover:text-blue-dark">
+            <Link href="/privacidade" className="font-semibold text-azul-forte underline underline-offset-4 hover:text-azul">
               Política de privacidade
             </Link>
             .

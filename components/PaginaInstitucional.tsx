@@ -9,7 +9,7 @@ export function Dado({ valor, campo }: { valor: string; campo: string }) {
   if (valor) return <>{valor}</>;
   if (!emDesenvolvimento) return null;
   return (
-    <span className="bg-[#FFF6DD] px-1.5 py-0.5 text-[#7A5A00]" title="Preencher em lib/institucional.ts">
+    <span className="rounded bg-[#FFF4D6] px-1.5 py-0.5 text-[#7A5A00]" title="Preencher em lib/institucional.ts">
       [a preencher: {campo}]
     </span>
   );
@@ -17,15 +17,16 @@ export function Dado({ valor, campo }: { valor: string; campo: string }) {
 
 export function Secao({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
-    <section className="mb-9">
-      <h2 className="font-display mb-3 text-xl font-bold uppercase">{titulo}</h2>
-      <div className="space-y-3 text-[15px] leading-relaxed text-[#4A5462] [&_li]:ml-5 [&_li]:list-disc [&_li]:pl-1 [&_ul]:space-y-1.5">
+    <section className="border-t border-[#EEF2F7] pt-7 first:border-0 first:pt-0">
+      <h2 className="mb-3 font-display text-[22px] font-extrabold tracking-[-0.02em]">{titulo}</h2>
+      <div className="space-y-3 text-base leading-[1.75] text-ardosia-escura [&_a]:font-semibold [&_a]:text-azul-forte [&_a]:underline [&_a]:underline-offset-2 [&_li]:ml-5 [&_li]:list-disc [&_li]:pl-1 [&_ul]:space-y-1.5">
         {children}
       </div>
     </section>
   );
 }
 
+// Termos de uso e Política de privacidade: texto longo numa coluna de leitura.
 export default function PaginaInstitucional({
   eyebrow,
   titulo,
@@ -45,24 +46,19 @@ export default function PaginaInstitucional({
 }) {
   return (
     <>
-      <PageHeader
-        eyebrow={eyebrow}
-        title={titulo}
-        desc={descricao}
-        bgClassName="bg-offwhite"
-        textClassName="text-navy"
-        descClassName="text-steel"
-      />
-      <div className="py-section">
-        <article className="mx-auto max-w-narrow px-6">
-          {minuta && emDesenvolvimento && (
-            <div role="note" className="mb-8 border border-[#B8860B]/40 bg-[#FFF6DD] px-4 py-3 text-[13px] text-[#7A5A00]">
-              <strong>Minuta — aguardando revisão jurídica.</strong> Este aviso só aparece em desenvolvimento. Não publicar
-              antes da revisão e do preenchimento dos dados marcados como pendentes.
-            </div>
-          )}
-          {versao && <p className="mb-8 text-sm text-steel">Versão em vigor desde {versao}.</p>}
-          {children}
+      <PageHeader eyebrow={eyebrow} title={titulo} desc={descricao} />
+      <div className="bg-nevoa py-[clamp(48px,6vw,88px)]">
+        <article className="conteiner">
+          <div className="mx-auto max-w-[820px] rounded-[20px] border border-linha bg-white p-[clamp(24px,4vw,56px)]">
+            {minuta && emDesenvolvimento && (
+              <div role="note" className="mb-8 rounded-xl border border-[#F0DDA0] bg-[#FFF8E5] px-4 py-3 text-[13.5px] text-[#7A5A00]">
+                <strong>Minuta — aguardando revisão jurídica.</strong> Este aviso só aparece em desenvolvimento. Não publicar antes da revisão e do
+                preenchimento dos dados marcados como pendentes.
+              </div>
+            )}
+            {versao && <p className="mb-8 text-sm font-semibold text-ardosia">Versão em vigor desde {versao}.</p>}
+            <div className="flex flex-col gap-7">{children}</div>
+          </div>
         </article>
       </div>
     </>

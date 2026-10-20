@@ -115,10 +115,10 @@ export default function PrivacidadePage() {
           <li>informação sobre com quem compartilhamos os seus dados.</li>
         </ul>
         <p>
-          Parte dos seus dados pode ser vista e alterada diretamente na <Link href="/aluno/perfil" className="text-navy underline underline-offset-4">área do aluno</Link>.
+          Parte dos seus dados pode ser vista e alterada diretamente na <Link href="/aluno/perfil">área do aluno</Link>.
           Para os demais pedidos, escreva para o nosso encarregado de dados:{" "}
           {i.emailPrivacidade ? (
-            <a href={`mailto:${i.emailPrivacidade}`} className="text-navy underline underline-offset-4">
+            <a href={`mailto:${i.emailPrivacidade}`}>
               {i.emailPrivacidade}
             </a>
           ) : (

@@ -26,7 +26,7 @@ export default function TermosPage() {
         <p>
           Estes termos regem o uso do site e dos serviços de {i.nomeFantasia} (<Dado valor={i.razaoSocial} campo="razaoSocial" />,
           CNPJ <Dado valor={i.cnpj} campo="cnpj" />). Ao criar uma conta ou fazer uma compra, você declara que leu e aceita
-          estes termos e a <Link href="/privacidade" className="text-navy underline underline-offset-4">Política de privacidade</Link>.
+          estes termos e a <Link href="/privacidade">Política de privacidade</Link>.
         </p>
       </Secao>
 
