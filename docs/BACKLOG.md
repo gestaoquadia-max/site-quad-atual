@@ -42,7 +42,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | 10 | Segurança e LGPD | 2 | 6 | 1 |
 | 11 | Analytics e marketing | 1 | 4 | 0 |
 | 12 | Deploy e operação | 3 | 7 | 0 |
-| 13 | Redesenho do site | 9 | 28 | 13 |
+| 13 | Redesenho do site | 9 | 28 | 16 |
 
 ---
 
@@ -716,13 +716,13 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 6 — LOGIN E ÁREA DO ALUNO
 
-**Status:** PENDENTE
+**Status:** CONCLUÍDA
 
 | Tarefa | Status |
 |---|---|
-| Entrar e cadastro em abas, com layout próprio | PENDENTE |
-| Recuperação de senha e confirmação de e-mail no novo visual | PENDENTE |
-| Área do aluno com layout próprio | PENDENTE |
+| Entrar e cadastro em abas, com layout próprio | FEITO |
+| Recuperação de senha e confirmação de e-mail no novo visual | FEITO |
+| Área do aluno com layout próprio | FEITO |
 
 **Campos adicionais**
 - **Prioridade:** Alta
