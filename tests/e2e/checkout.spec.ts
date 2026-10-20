@@ -20,7 +20,7 @@ test("comprar um material com PIX leva a 'aguardando pagamento' e esvazia o carr
   // Escopo em <main>: o menu do topo (escondido) também tem esses textos.
   await expect(page.locator("main").getByText(nome).first()).toBeVisible();
 
-  await page.getByRole("button", { name: "PIX" }).click();
+  await page.getByRole("radio", { name: "PIX" }).click();
   await page.getByRole("button", { name: "Confirmar pagamento" }).click();
   await expect(page.getByRole("heading", { name: "Aguardando pagamento" })).toBeVisible();
 
