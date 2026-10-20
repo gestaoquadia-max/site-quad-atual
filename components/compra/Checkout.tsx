@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { CreditCard, PixLogo } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart";
 import { formatarValor, parsePreco } from "@/lib/format";
@@ -11,6 +12,9 @@ import { ehFisico, motivoDaIndisponibilidade, ROTULO_DO_TIPO } from "./Carrinho"
 import Etapas from "./Etapas";
 
 const metodos = ["Cartão", "PIX"] as const;
+
+// Ícones das formas de pagamento (Phosphor, a mesma biblioteca para os dois).
+const ICONE_DO_METODO = { Cartão: CreditCard, PIX: PixLogo } as const;
 
 const MAX_PARCELAS = 3;
 
@@ -108,6 +112,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                   <div role="radiogroup" aria-label="Forma de pagamento" className="mt-1 grid grid-cols-[repeat(auto-fit,minmax(min(100%,180px),1fr))] gap-2.5">
                     {metodos.map((m) => {
                       const marcado = metodo === m;
+                      const Icone = ICONE_DO_METODO[m];
                       return (
                         <button
                           key={m}
@@ -123,6 +128,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                             {marcado && <span className="h-2 w-2 rounded-full bg-azul" />}
                           </span>
                           <span className="font-display text-[15px] font-bold">{m}</span>
+                          <Icone size={24} weight={marcado ? "duotone" : "regular"} aria-hidden="true" className={`ml-auto ${marcado ? "text-azul" : "text-ardosia"}`} />
                         </button>
                       );
                     })}

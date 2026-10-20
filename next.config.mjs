@@ -45,6 +45,8 @@ const cabecalhosDeSeguranca = [
 const nextConfig = {
   // Há outro package-lock.json numa pasta acima; fixa a raiz neste projeto.
   turbopack: { root: path.dirname(fileURLToPath(import.meta.url)) },
+  // Ícones: carrega só os usados, não o pacote inteiro.
+  experimental: { optimizePackageImports: ["@phosphor-icons/react"] },
   // Não anuncia que o site é feito em Next.js.
   poweredByHeader: false,
   // Fotos de turmas e eventos cadastradas na API ficam nos buckets S3 da AWS (ex.: api-quad-dev-imagens).
