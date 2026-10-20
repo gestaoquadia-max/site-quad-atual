@@ -42,7 +42,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | 10 | Segurança e LGPD | 2 | 6 | 1 |
 | 11 | Analytics e marketing | 1 | 4 | 0 |
 | 12 | Deploy e operação | 3 | 7 | 0 |
-| 13 | Redesenho do site | 9 | 28 | 19 |
+| 13 | Redesenho do site | 9 | 28 | 22 |
 
 ---
 
@@ -744,13 +744,13 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 8 — LOJA E MENTORIAS
 
-**Status:** PENDENTE
+**Status:** CONCLUÍDA
 
 | Tarefa | Status |
 |---|---|
-| Loja com produtos e variações | PENDENTE |
-| Produto da loja com retirada ou frete por CEP (demonstrativo) | PENDENTE |
-| Mentorias do Quad no lugar de Cursos online | PENDENTE |
+| Loja com produtos e variações | FEITO |
+| Produto da loja com retirada ou frete por CEP (demonstrativo) | FEITO |
+| Mentorias do Quad no lugar de Cursos online | FEITO |
 
 **Campos adicionais**
 - **Prioridade:** Alta
