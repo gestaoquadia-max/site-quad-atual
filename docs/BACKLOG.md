@@ -31,13 +31,13 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Etapa | Título | Blocos | Tarefas | Feitas |
 |---|---|---|---|---|
 | 1 | Cadastro e login | 4 | 28 | 21 |
-| 2 | Páginas públicas | 3 | 17 | 10 |
+| 2 | Páginas públicas | 3 | 17 | 11 |
 | 3 | Área do aluno | 4 | 17 | 13 |
 | 4 | Qualidade de código | 3 | 11 | 10 |
 | 5 | Conteúdo via API | 4 | 11 | 4 |
 | 6 | Painel administrativo | 3 | 6 | 0 |
-| 7 | Carrinho | 1 | 7 | 3 |
-| 8 | Checkout e pagamento | 4 | 15 | 4 |
+| 7 | Carrinho | 1 | 7 | 4 |
+| 8 | Checkout e pagamento | 4 | 15 | 6 |
 | 9 | SEO e performance | 2 | 8 | 8 |
 | 10 | Segurança e LGPD | 2 | 6 | 1 |
 | 11 | Analytics e marketing | 1 | 4 | 0 |
@@ -167,14 +167,14 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 3 — CONTEÚDO REAL DAS PÁGINAS
 
-**Status:** PENDENTE
+**Status:** EM ANDAMENTO
 
 | Tarefa | Status |
 |---|---|
 | Links da Tutory em cada curso online | PENDENTE |
 | Fotos reais nas galerias | PENDENTE |
 | Revisar textos de exemplo (datas de 2025, nomes, vagas) | PENDENTE |
-| Botão de WhatsApp para atendimento | PENDENTE |
+| Botão de WhatsApp para atendimento | FEITO |
 
 **Campos adicionais**
 - **Descrição:** Trocar o que ainda é exemplo por conteúdo real do Quad
@@ -424,8 +424,8 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Identificar os itens pelo tipo e slug, não pelo nome | FEITO |
 | Botão de compra da página de detalhe coloca o item no carrinho antes do checkout | FEITO |
 | Inscrição em evento gratuito sem passar pelo checkout | EM ANDAMENTO |
-| Registrar a inscrição gratuita na API | PENDENTE |
-| Conferir preço e vagas no servidor antes de pagar | PENDENTE |
+| Registrar a inscrição gratuita na API | EM ANDAMENTO |
+| Conferir preço e vagas no servidor antes de pagar | FEITO |
 | Carrinho salvo na conta do aluno (melhoria futura) | PENDENTE |
 
 **Campos adicionais**
@@ -439,14 +439,14 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 1 — TELAS DE CHECKOUT
 
-**Status:** EM ANDAMENTO
+**Status:** CONCLUÍDA
 
 | Tarefa | Status |
 |---|---|
 | Telas de cartão, PIX, boleto, cupom e confirmação (visual) | FEITO |
 | Resumo do pedido lendo o carrinho real | FEITO |
 | Turmas cobradas pelo valor fechado da duração, sem mensalidade | FEITO |
-| Exigir login antes de pagar (ou criar conta no checkout) | PENDENTE |
+| Exigir login antes de pagar (ou criar conta no checkout) | FEITO |
 | Telas de pagamento aprovado, pendente e recusado | FEITO |
 
 **Campos adicionais**
@@ -456,14 +456,14 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 2 — INTEGRAÇÃO COM O PAGAR.ME
 
-**Status:** PENDENTE
+**Status:** EM ANDAMENTO
 
 | Tarefa | Status |
 |---|---|
-| Pagamento com cartão | PENDENTE |
-| Pagamento por PIX (QR Code e copia e cola) | PENDENTE |
-| Pagamento por boleto (linha digitável e PDF) | PENDENTE |
-| Parcelamento calculado pelo valor real | PENDENTE |
+| Pagamento com cartão | EM ANDAMENTO |
+| Pagamento por PIX (QR Code e copia e cola) | EM ANDAMENTO |
+| Pagamento por boleto (linha digitável e PDF) | EM ANDAMENTO |
+| Parcelamento calculado pelo valor real | EM ANDAMENTO |
 
 **Campos adicionais**
 - **Descrição:** Cobrança de verdade
@@ -472,13 +472,13 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 3 — PEDIDO E LIBERAÇÃO DE ACESSO
 
-**Status:** PENDENTE
+**Status:** EM ANDAMENTO
 
 | Tarefa | Status |
 |---|---|
-| Registrar o pedido na API | PENDENTE |
+| Registrar o pedido na API | EM ANDAMENTO |
 | Liberar o acesso automaticamente após o pagamento | PENDENTE |
-| Validar cupons no backend (hoje estão no código) | PENDENTE |
+| Validar cupons no backend (hoje estão no código) | FEITO |
 | E-mails de compra confirmada, boleto gerado e acesso liberado | PENDENTE |
 
 **Campos adicionais**
