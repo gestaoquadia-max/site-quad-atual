@@ -42,7 +42,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | 10 | Segurança e LGPD | 2 | 6 | 1 |
 | 11 | Analytics e marketing | 1 | 4 | 0 |
 | 12 | Deploy e operação | 3 | 7 | 0 |
-| 13 | Redesenho do site | 9 | 28 | 8 |
+| 13 | Redesenho do site | 9 | 28 | 10 |
 
 ---
 
@@ -689,12 +689,12 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 4 — EVENTOS
 
-**Status:** PENDENTE
+**Status:** CONCLUÍDA
 
 | Tarefa | Status |
 |---|---|
-| Agenda de eventos no novo visual | PENDENTE |
-| Página do evento no novo visual | PENDENTE |
+| Agenda de eventos no novo visual | FEITO |
+| Página do evento no novo visual | FEITO |
 
 **Campos adicionais**
 - **Prioridade:** Alta
