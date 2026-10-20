@@ -27,11 +27,23 @@ test("comprar um material com PIX leva a 'aguardando pagamento' e esvazia o carr
 });
 
 test("evento gratuito pula a parte de pagamento", async ({ page }) => {
-  // Os eventos vêm da vitrine da API: usa o primeiro gratuito que estiver aberto.
+  // Os eventos vêm da vitrine da API: procura, entre os da agenda, o primeiro gratuito com inscrições abertas.
   await page.goto("/eventos");
-  const cartao = page.locator("main div.group").filter({ hasText: "Gratuito" }).first();
-  test.skip((await cartao.count()) === 0, "A vitrine da API não tem evento gratuito aberto agora.");
-  await page.goto((await cartao.getByRole("link", { name: "Detalhes" }).getAttribute("href"))!);
+  // O "Detalhes" de cada cartão fica dentro do painel "Informações".
+  for (const botao of await page.locator("main").getByRole("button", { name: "Informações" }).all()) await botao.click();
+  const enderecos =[...new Set(await page.locator('main a[href^="/eventos/"]').evaluateAll((as) => as.map((a) => a.getAttribute("href"))))];
+  let achou = false;
+  for (const endereco of enderecos) {
+    await page.goto(endereco!);
+    // Espera a página carregar e conta, sem aguardar um botão que pode não existir (evento pago).
+    await page.getByRole("heading", { level: 1 }).waitFor();
+    const botao = page.getByRole("button", { name: "Fazer inscrição gratuita" });
+    if ((await botao.count()) > 0 && (await botao.isEnabled())) {
+      achou = true;
+      break;
+    }
+  }
+  test.skip(!achou, "A vitrine da API não tem evento gratuito aberto agora.");
   await page.getByRole("button", { name: "Fazer inscrição gratuita" }).click();
   await expect(page).toHaveURL(/\/checkout$/);
   await expect(page.getByRole("heading", { name: "Inscrição gratuita" })).toBeVisible();

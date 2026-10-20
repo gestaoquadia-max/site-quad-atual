@@ -1,16 +1,15 @@
 import Link from "next/link";
-import { aprovados, posts, produtos, professores, type Evento } from "@/lib/data";
+import { aprovados, posts, produtos, professores } from "@/lib/data";
 import { bannersPublicados, mentorias, modalidades, produtosDaLoja } from "@/lib/conteudo";
 import { listarEventos } from "@/lib/vitrine";
-import { parsePreco } from "@/lib/format";
-import { idDoItem } from "@/lib/itens";
 import { dadosDaOrganizacao } from "@/lib/dados-estruturados";
 import DadosEstruturados from "@/components/DadosEstruturados";
 import Reveal from "@/components/Reveal";
 import Trilho, { SetaDoLink } from "@/components/Trilho";
 import CarrosselDeDestaques from "@/components/home/CarrosselDeDestaques";
 import CartaoMaterial from "@/components/home/CartaoMaterial";
-import CartaoEvento, { type DadosDoCartaoEvento } from "@/components/home/CartaoEvento";
+import CartaoEvento from "@/components/home/CartaoEvento";
+import { CARTAO_DOS_SIMULADOS, paraCartao } from "@/lib/eventos";
 import {
   CartaoAprovado,
   CartaoArtigo,
@@ -25,39 +24,6 @@ export const revalidate = 60;
 
 // Título e descrição vêm do padrão do layout; aqui só o endereço canônico.
 export const metadata = { alternates: { canonical: "/" } };
-
-const MESES = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
-
-// O primeiro cartão da agenda é sempre a Central de Simulados; depois, os eventos abertos na vitrine da API.
-const CARTAO_DOS_SIMULADOS: DadosDoCartaoEvento = {
-  id: "simulados",
-  titulo: "Simulados do Quad",
-  href: "/simulados",
-  descricao: "Escolha sua carreira e encontre simulados presenciais, digitais, impressos e combos para sua preparação.",
-  selo: { texto: "Presenciais, individuais e combos", tom: "breve" },
-};
-
-function paraCartao(e: Evento): DadosDoCartaoEvento {
-  const inicio = e.detalhe?.inicio;
-  const vendavel = e.status === "aberta" && parsePreco(e.preco) !== null;
-  return {
-    id: e.slug,
-    titulo: e.nome,
-    href: `/eventos/${e.slug}`,
-    descricao: e.desc,
-    selo:
-      e.status === "encerrada"
-        ? { texto: "Esgotado", tom: "esgotado" }
-        : e.status === "breve"
-          ? { texto: "Em breve", tom: "breve" }
-          : { texto: e.statusLabel, tom: "aberta" },
-    data: inicio
-      ? { dia: inicio.slice(8, 10), mes: MESES[Number(inicio.slice(5, 7)) - 1], local: e.tag.split(" · ").slice(1).join(" · ") }
-      : undefined,
-    preco: e.preco,
-    item: vendavel ? { id: idDoItem("evento", e.slug), tipo: "evento", nome: e.nome, tag: e.tag, preco: e.preco } : undefined,
-  };
-}
 
 // `brilho`: camada decorativa de fundo, atrás do conteúdo.
 function Secao({ className = "", id, brilho, children }: { className?: string; id?: string; brilho?: string; children: React.ReactNode }) {

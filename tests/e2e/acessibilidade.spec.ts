@@ -8,6 +8,13 @@ async function primeiroDetalhe(page: Page, lista: string, rotulo: string) {
   return (await link.count()) ? link.getAttribute("href") : null;
 }
 
+// Primeiro link da agenda para a página de um evento (o "Detalhes" do cartão fica dentro de "Informações").
+async function primeiroEvento(page: Page) {
+  await page.goto("/eventos");
+  const link = page.locator('main a[href^="/eventos/"]').first();
+  return (await link.count()) ? link.getAttribute("href") : null;
+}
+
 // Regras WCAG 2.1 níveis A e AA (contraste, rótulos, teclado). As páginas da área do aluno exigem login e a API,
 // por isso ficam fora desta lista; foram conferidas à parte com dados de exemplo.
 // "turma:" e "evento:" = a primeira turma e o primeiro evento da vitrine da API (o endereço leva o id de cada um).
@@ -19,7 +26,7 @@ for (const caminho of PAGINAS) {
     if (caminho.endsWith(":")) {
       const detalhe = await (caminho === "turma:"
         ? primeiroDetalhe(page, "/turmas", "Conhecer e matricular")
-        : primeiroDetalhe(page, "/eventos", "Detalhes"));
+        : primeiroEvento(page));
       test.skip(!detalhe, `A vitrine da API não tem ${caminho.slice(0, -1)} aberto(a) agora.`);
       await page.goto(detalhe!);
     } else {

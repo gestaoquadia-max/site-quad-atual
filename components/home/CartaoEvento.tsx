@@ -3,30 +3,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useId, useState } from "react";
-import { useCart, type CartItem } from "@/lib/cart";
+import { useCart } from "@/lib/cart";
+import type { DadosDoCartaoEvento, TomDoSelo } from "@/lib/eventos";
 import { Brilho } from "../Brilho";
 import { PrecoEmDestaque } from "./CartaoMaterial";
-
-export type TomDoSelo = "aberta" | "breve" | "esgotado" | "encerrado";
 
 const CORES_DO_SELO: Record<TomDoSelo, string> = {
   aberta: "bg-sucesso-fundo text-sucesso",
   breve: "bg-azul-palido text-azul-forte",
   esgotado: "bg-[#FFF0D9] text-[#8A4B00]",
   encerrado: "bg-[#EEF2F7] text-[#4A5A70]",
-};
-
-export type DadosDoCartaoEvento = {
-  id: string;
-  titulo: string;
-  href: string;
-  descricao: string;
-  selo: { texto: string; tom: TomDoSelo };
-  // Selo de data sobre a arte ("09 AGO · Presencial · SIC/SIQ").
-  data?: { dia: string; mes: string; local: string };
-  preco?: string;
-  // Presente quando a inscrição pode ir para o carrinho.
-  item?: Omit<CartItem, "quantidade">;
 };
 
 export default function CartaoEvento({ evento }: { evento: DadosDoCartaoEvento }) {
