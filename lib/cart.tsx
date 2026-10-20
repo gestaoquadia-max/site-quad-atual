@@ -5,13 +5,15 @@ import { parsePreco } from "./format";
 
 export type CartItem = {
   id: string;
-  tipo: "produto" | "turma" | "evento";
+  tipo: "produto" | "turma" | "evento" | "simulado";
   nome: string;
   tag?: string;
   preco: string;
   precoSufixo?: string;
   // Materiais: digital ou impresso (o impresso é retirado no Quad; o envio pelo correio depende do frete).
   formato?: "digital" | "impresso";
+  // Simulados: carreira, edição e modalidade (presencial ou formato de estudo), revalidados em lib/simulados.ts.
+  simulado?: { carreira: string; edicao: number | null; modalidade: string; sku: string; edicoesDoCombo?: number[] };
   quantidade: number;
 };
 

@@ -9,8 +9,9 @@ test("checkout com o carrinho vazio orienta a escolher algo", async ({ page }) =
 
 test("comprar um material com PIX leva a 'aguardando pagamento' e esvazia o carrinho", async ({ page }) => {
   await page.goto("/produtos/direito-constitucional");
-  await page.getByRole("button", { name: "Comprar agora" }).click();
-  await expect(page).toHaveURL(/\/checkout$/);
+  await page.locator("main").getByRole("button", { name: "Adicionar ao carrinho" }).click();
+  await expect(page.getByRole("status")).toContainText("adicionado ao carrinho");
+  await page.goto("/checkout");
   // Escopo em <main>: o menu do topo (escondido) também tem esses textos.
   const conteudo = page.locator("main");
   await expect(conteudo.getByText("Direito Constitucional").first()).toBeVisible();

@@ -11,6 +11,7 @@ const labelPorTipo = {
   produto: "Material",
   turma: "Turma",
   evento: "Evento",
+  simulado: "Simulado",
 };
 
 export default function CarrinhoPage() {
