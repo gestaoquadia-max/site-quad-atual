@@ -75,7 +75,7 @@ export default function NavMegaMenu({
             {viewAllLabel} →
           </LinkDoMenu>
         </div>
-        <div className="relative flex flex-col gap-3 border-l border-white/[0.07] bg-[radial-gradient(90%_70%_at_100%_0%,rgba(0,107,255,0.22),transparent_70%),#102641] px-[26px] py-7">
+        <div className="relative flex flex-col gap-3 border-l border-white/[0.07] bg-[#102641] bg-[image:radial-gradient(90%_70%_at_100%_0%,rgba(0,107,255,0.22),transparent_70%)] px-[26px] py-7">
           <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-azul-ceu">{featured.eyebrow}</span>
           <span className="font-display text-[21px] font-extrabold leading-[1.15] tracking-[-0.02em] text-white">{featured.title}</span>
           <span className="text-sm leading-[1.55] text-[#B4C1D3]">{featured.desc}</span>

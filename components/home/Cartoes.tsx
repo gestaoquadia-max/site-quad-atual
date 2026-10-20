@@ -165,7 +165,7 @@ export function CartaoArtigo({ post }: { post: Post }) {
       className="relative flex h-full flex-col rounded-[18px] border border-white/[0.08] bg-marinho-800 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-[3px] hover:border-[rgba(111,174,255,0.45)] hover:text-white hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_28px_50px_-26px_rgba(0,0,0,0.8)]"
     >
       <Brilho raio={320} />
-      <div className="relative mx-1.5 mt-1.5 grid aspect-[16/10] place-items-center overflow-hidden rounded-[13px] bg-[radial-gradient(70%_60%_at_20%_10%,rgba(47,134,255,0.22),transparent_70%),#0B1C33] text-[rgba(201,213,229,0.35)]">
+      <div className="relative mx-1.5 mt-1.5 grid aspect-[16/10] place-items-center overflow-hidden rounded-[13px] bg-[#0B1C33] bg-[image:radial-gradient(70%_60%_at_20%_10%,rgba(47,134,255,0.22),transparent_70%)] text-[rgba(201,213,229,0.35)]">
         {post.imagemUrl ? <Image src={post.imagemUrl} alt="" fill sizes="(min-width: 1024px) 440px, 86vw" className="object-cover" /> : <IconeDeImagem />}
       </div>
       <div className="relative flex flex-1 flex-col px-[22px] pb-[22px] pt-5">
