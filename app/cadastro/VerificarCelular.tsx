@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { confirmarCodigoDoCelular, enviarCodigoDoCelular } from "@/lib/api";
 import { formatarTelefone } from "@/lib/format";
 import { ErroDaApi } from "@/lib/http";
+import { AvisoDeErro, AvisoInformativo, BotaoPrincipal, Campo } from "@/components/acesso/Campos";
 
 const ESPERA_PADRAO_REENVIO_MS = 60_000;
 
-const classeInput =
-  "w-full border border-dark bg-navy-deep px-3.5 py-3 text-[15px] text-offwhite outline-none transition-colors placeholder:text-[#4A5768] focus:border-blue";
-const classeLink = "focus-ring text-[13px] text-steel-light underline underline-offset-4 transition-colors hover:text-blue disabled:cursor-not-allowed disabled:no-underline disabled:opacity-60";
+const classeLink =
+  "text-sm font-semibold text-azul-forte underline-offset-4 transition-colors hover:text-azul hover:underline disabled:cursor-not-allowed disabled:text-ardosia disabled:no-underline";
 
 // Passo 3 do cadastro: a conta só é liberada depois de confirmar o celular.
 // O código é enviado só quando o aluno pede (evita SMS duplicado e permite corrigir o número antes).
@@ -72,27 +72,35 @@ export default function VerificarCelular({ telefoneInicial, onConcluir }: { tele
 
   if (indisponivel) {
     return (
-      <div>
-        <span className="eyebrow text-blue">Confirme seu celular</span>
-        <p className="mb-6 mt-4 border border-blue/35 bg-blue/10 px-3.5 py-3 text-[13px] leading-relaxed text-steel-light" role="status">
-          Sua conta foi criada. A confirmação do celular por código ainda não está disponível; por enquanto, você pode
-          continuar e confirmar depois.
-        </p>
-        <button onClick={onConcluir} className="btn btn-blue block w-full">
+      <div className="flex flex-col gap-4">
+        <AvisoInformativo>
+          Sua conta foi criada. A confirmação do celular por código ainda não está disponível; por enquanto, você pode continuar e
+          confirmar depois.
+        </AvisoInformativo>
+        <BotaoPrincipal type="button" onClick={onConcluir}>
           Continuar
-        </button>
+        </BotaoPrincipal>
       </div>
     );
   }
 
+  const digitandoCodigo = codigoEnviadoPara && !editandoNumero;
+
   return (
-    <div>
-      <span className="eyebrow text-blue">Confirme seu celular</span>
-      <p className="mb-5 mt-4 text-sm leading-relaxed text-steel-light">
+    <form
+      noValidate
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (digitandoCodigo) confirmar();
+        else enviarCodigo();
+      }}
+      className="flex flex-col gap-4"
+    >
+      <p className="text-[15px] leading-[1.6] text-ardosia-escura">
         {codigoEnviadoPara ? (
           <>
-            Enviamos um código de 6 números por SMS para <strong className="text-offwhite">{codigoEnviadoPara}</strong>.
-            Digite-o abaixo para liberar sua conta.
+            Enviamos um código de 6 números por SMS para <strong className="text-tinta">{codigoEnviadoPara}</strong>. Digite-o abaixo
+            para liberar sua conta.
           </>
         ) : (
           <>Sua conta foi criada. Para liberá-la, vamos enviar um código por SMS para o seu celular.</>
@@ -100,21 +108,16 @@ export default function VerificarCelular({ telefoneInicial, onConcluir }: { tele
       </p>
 
       {(!codigoEnviadoPara || editandoNumero) && (
-        <div className="mb-4">
-          <label
-            htmlFor="verificar-telefone"
-            className="font-display mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-steel-light"
-          >
-            Celular
-          </label>
-          <input
+        <div>
+          <Campo
             id="verificar-telefone"
-            inputMode="numeric"
-            value={telefone}
-            onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
+            rotulo="Celular"
+            tipo="tel"
+            valor={telefone}
+            aoMudar={setTelefone}
+            mascara={formatarTelefone}
             disabled={!editandoNumero || carregando}
             maxLength={15}
-            className={`${classeInput} disabled:text-steel-light`}
           />
           {!editandoNumero && (
             <button type="button" onClick={() => setEditandoNumero(true)} className={`${classeLink} mt-2`}>
@@ -124,12 +127,9 @@ export default function VerificarCelular({ telefoneInicial, onConcluir }: { tele
         </div>
       )}
 
-      {codigoEnviadoPara && !editandoNumero && (
-        <div className="mb-4">
-          <label
-            htmlFor="verificar-codigo"
-            className="font-display mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-steel-light"
-          >
+      {digitandoCodigo && (
+        <div className="flex flex-col gap-[7px]">
+          <label htmlFor="verificar-codigo" className="text-[13.5px] font-semibold text-tinta">
             Código
           </label>
           <input
@@ -138,27 +138,22 @@ export default function VerificarCelular({ telefoneInicial, onConcluir }: { tele
             autoComplete="one-time-code"
             value={codigo}
             onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
-            onKeyDown={(e) => e.key === "Enter" && confirmar()}
             placeholder="000000"
             maxLength={6}
             disabled={carregando}
-            className={`${classeInput} font-display text-center text-xl tracking-[0.5em]`}
+            className="h-[60px] w-full rounded-[10px] border border-linha-forte bg-white text-center font-display text-2xl font-bold tracking-[0.5em] text-tinta outline-none transition-[border-color,box-shadow] placeholder:text-[#C3CCD8] focus:border-azul focus:shadow-[0_0_0_4px_rgba(0,107,255,0.15)]"
           />
         </div>
       )}
 
-      {erro && (
-        <div role="alert" className="mb-3.5 border border-[#9B3535]/50 bg-[#9B3535]/15 px-3.5 py-2.5 text-[13px] text-[#E08A8A]">
-          {erro}
-        </div>
-      )}
+      {erro && <AvisoDeErro>{erro}</AvisoDeErro>}
 
-      {codigoEnviadoPara && !editandoNumero ? (
+      {digitandoCodigo ? (
         <>
-          <button onClick={confirmar} disabled={carregando} className="btn btn-blue mt-2 block w-full disabled:opacity-60">
-            {carregando ? "Confirmando..." : "Confirmar celular"}
-          </button>
-          <div className="mt-4 flex justify-between gap-3">
+          <BotaoPrincipal type="submit" carregando={carregando} textoCarregando="Confirmando…">
+            Confirmar celular
+          </BotaoPrincipal>
+          <div className="flex justify-between gap-3">
             <button type="button" onClick={enviarCodigo} disabled={carregando || segundosParaReenviar > 0} className={classeLink}>
               {segundosParaReenviar > 0 ? `Reenviar código em ${segundosParaReenviar}s` : "Reenviar código"}
             </button>
@@ -168,10 +163,10 @@ export default function VerificarCelular({ telefoneInicial, onConcluir }: { tele
           </div>
         </>
       ) : (
-        <button onClick={enviarCodigo} disabled={carregando} className="btn btn-blue mt-2 block w-full disabled:opacity-60">
-          {carregando ? "Enviando..." : codigoEnviadoPara ? "Enviar código para este número" : "Enviar código"}
-        </button>
+        <BotaoPrincipal type="submit" carregando={carregando} textoCarregando="Enviando…">
+          {codigoEnviadoPara ? "Enviar código para este número" : "Enviar código"}
+        </BotaoPrincipal>
       )}
-    </div>
+    </form>
   );
 }

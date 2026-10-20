@@ -1,4 +1,5 @@
 import MeusMateriaisConteudo from "./MeusMateriaisConteudo";
+import CabecalhoDoAluno from "@/components/aluno/CabecalhoDoAluno";
 
 export const metadata = { title: "Meus materiais — Área do Aluno", description: "Os materiais das suas turmas no Quad Concursos, do mais recente para o mais antigo." };
 
@@ -7,8 +8,7 @@ export default async function MeusMateriaisPage({ searchParams }: { searchParams
   const { turma } = await searchParams;
   return (
     <>
-      <h1 className="font-display text-[28px] font-bold uppercase">Meus materiais</h1>
-      <p className="mb-8 text-sm text-steel">Os materiais publicados nas suas turmas, disponíveis para download.</p>
+      <CabecalhoDoAluno titulo="Meus materiais" subtitulo="Os materiais publicados nas suas turmas, disponíveis para download." />
       <MeusMateriaisConteudo turmaInicial={typeof turma === "string" ? turma : null} />
     </>
   );

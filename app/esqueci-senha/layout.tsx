@@ -1,3 +1,4 @@
+import MolduraDeAcesso from "@/components/acesso/MolduraDeAcesso";
 import { NAO_INDEXAR } from "@/lib/seo";
 
 // A página é um componente de cliente, que não pode exportar metadados; eles ficam aqui.
@@ -8,5 +9,5 @@ export const metadata = {
 };
 
 export default function EsqueciSenhaLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return <MolduraDeAcesso>{children}</MolduraDeAcesso>;
 }

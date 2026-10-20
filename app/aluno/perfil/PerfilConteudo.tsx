@@ -21,10 +21,12 @@ import {
   type UsuarioAtual,
 } from "@/lib/usuario";
 
-const classeLabel = "font-display mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-steel";
+const classeLabel = "mb-[7px] block text-[13.5px] font-semibold text-tinta";
 const classeInput =
-  "mb-4 w-full border border-light bg-offwhite px-3.5 py-3 text-[15px] text-navy outline-none focus:border-blue disabled:cursor-not-allowed disabled:text-steel";
-const classeBotao = "btn btn-blue mt-2 block w-full disabled:cursor-not-allowed disabled:opacity-60";
+  "mb-4 h-12 w-full rounded-[10px] border border-linha-forte bg-white px-3.5 text-[15px] text-tinta outline-none transition-[border-color,box-shadow] focus:border-azul focus:shadow-[0_0_0_4px_rgba(0,107,255,0.15)] disabled:cursor-not-allowed disabled:bg-nevoa disabled:text-ardosia";
+const classeBotao = "btn-q btn-q-azul mt-2 h-12 w-full text-[15px] disabled:cursor-not-allowed disabled:opacity-60";
+const classeBotaoContorno =
+  "inline-flex h-12 items-center justify-center whitespace-nowrap rounded-[10px] border border-linha-forte bg-white px-4 font-display text-sm font-bold text-tinta transition-colors hover:border-azul hover:text-azul disabled:cursor-not-allowed disabled:opacity-60";
 
 function mensagemDoErro(e: unknown) {
   if (e instanceof ErroDaApi) {
@@ -45,7 +47,7 @@ export default function PerfilConteudo() {
   }
 
   return (
-    <div className="grid max-w-[1000px] items-start gap-6 lg:grid-cols-2">
+    <div className="grid items-start gap-5 xl:grid-cols-2">
       {/* Chaveado pelo id (e não pelo nome) para o aviso de "salvo" não sumir quando os dados recarregam. */}
       <DadosPessoais key={usuario.id} usuario={usuario} onSalvo={recarregar} />
       <EnderecoDoAluno usuarioId={usuario.id} />
@@ -56,7 +58,7 @@ export default function PerfilConteudo() {
 
 function CartoesCarregando({ quantidade }: { quantidade: number }) {
   return (
-    <div role="status" aria-label="Carregando" className="grid max-w-[1000px] gap-6 lg:grid-cols-2">
+    <div role="status" aria-label="Carregando" className="grid gap-5 xl:grid-cols-2">
       {Array.from({ length: quantidade }, (_, i) => (
         <CartaoCarregando key={i} />
       ))}
@@ -66,11 +68,11 @@ function CartoesCarregando({ quantidade }: { quantidade: number }) {
 
 function CartaoCarregando() {
   return (
-    <div className="animate-pulse border border-light bg-white p-7">
+    <div className="animate-pulse rounded-[18px] border border-linha bg-white p-7">
       {[0, 1, 2].map((j) => (
         <div key={j} className="mb-5">
-          <div className="mb-2 h-3 w-24 bg-[#E2DFD6]" />
-          <div className="h-[46px] bg-[#ECE9E1]" />
+          <div className="mb-2 h-3 w-24 rounded bg-[#E6ECF4]" />
+          <div className="h-12 rounded-[10px] bg-[#EEF2F7]" />
         </div>
       ))}
     </div>
@@ -79,12 +81,12 @@ function CartaoCarregando() {
 
 function Aviso({ tipo, children }: { tipo: "sucesso" | "erro" | "info"; children: React.ReactNode }) {
   const cores = {
-    sucesso: "border-[#3E7A44]/30 bg-[#E4EFE5] text-[#33693A]",
-    erro: "border-[#9B3535]/40 bg-[#9B3535]/10 text-[#9B3535]",
-    info: "border-light bg-offwhite text-[#4A5462]",
+    sucesso: "border-[#BFE3CC] bg-[#E4F4EA] text-[#1D6B3A]",
+    erro: "border-[#F1C4C4] bg-[#FFF5F5] text-[#9B1C1C]",
+    info: "border-linha bg-nevoa text-ardosia-escura",
   };
   return (
-    <div role={tipo === "erro" ? "alert" : "status"} className={`mb-4 border px-3.5 py-2.5 text-[13px] ${cores[tipo]}`}>
+    <div role={tipo === "erro" ? "alert" : "status"} className={`mb-4 rounded-[10px] border px-3.5 py-2.5 text-[13.5px] leading-[1.5] ${cores[tipo]}`}>
       {children}
     </div>
   );
@@ -92,11 +94,11 @@ function Aviso({ tipo, children }: { tipo: "sucesso" | "erro" | "info"; children
 
 function Cartao({ eyebrow, titulo, children }: { eyebrow: string; titulo: string; children: React.ReactNode }) {
   return (
-    <div className="border border-light bg-white p-7">
-      <span className="eyebrow">{eyebrow}</span>
-      <h2 className="font-display mb-5 mt-2 text-xl font-bold uppercase">{titulo}</h2>
+    <section className="rounded-[18px] border border-linha bg-white p-[clamp(20px,2.4vw,28px)] shadow-[0_1px_2px_rgba(16,27,45,0.05),0_12px_28px_-22px_rgba(7,20,38,0.25)]">
+      <span className="text-xs font-bold uppercase tracking-[0.12em] text-azul-forte">{eyebrow}</span>
+      <h2 className="mb-5 mt-1.5 font-display text-[22px] font-extrabold tracking-[-0.02em]">{titulo}</h2>
       {children}
-    </div>
+    </section>
   );
 }
 
@@ -177,7 +179,7 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
           type="button"
           onClick={() => setMostrarTrocaTelefone((v) => !v)}
           disabled={bloqueado}
-          className="btn btn-outline-dark whitespace-nowrap px-4 text-xs disabled:cursor-not-allowed disabled:opacity-60"
+          className={classeBotaoContorno}
         >
           Alterar
         </button>
@@ -190,7 +192,7 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
       <button type="button" onClick={salvar} disabled={bloqueado || salvando} className={classeBotao}>
         {salvando ? "Salvando..." : "Salvar alterações"}
       </button>
-      <p className="mt-3 text-center text-xs text-steel">CPF e e-mail não podem ser alterados por aqui.</p>
+      <p className="mt-3 text-center text-[13px] text-ardosia">CPF e e-mail não podem ser alterados por aqui.</p>
     </Cartao>
   );
 }
@@ -213,7 +215,7 @@ function AlertaEmailNaoVerificado() {
   }
 
   return (
-    <div role="alert" className="mb-4 border border-[#B8860B]/40 bg-[#FFF6DD] px-3.5 py-3 text-[13px] text-[#7A5A00]">
+    <div role="alert" className="mb-4 rounded-[10px] border border-[#F0DDA0] bg-[#FFF8E5] px-3.5 py-3 text-[13.5px] text-[#7A5A00]">
       <p className="mb-2 font-semibold">Seu e-mail ainda não foi verificado.</p>
       <p className="mb-2.5 leading-relaxed">
         Abra o link que enviamos para a sua caixa de entrada para confirmar. Confira também o spam.
@@ -222,12 +224,12 @@ function AlertaEmailNaoVerificado() {
         type="button"
         onClick={reenviar}
         disabled={enviando}
-        className="focus-ring font-semibold underline underline-offset-4 disabled:opacity-60"
+        className="font-semibold underline underline-offset-4 disabled:opacity-60"
       >
         {enviando ? "Enviando..." : "Reenviar e-mail de confirmação"}
       </button>
       {resultado && (
-        <p className={`mt-2 ${resultado.tipo === "erro" ? "text-[#9B3535]" : "text-[#33693A]"}`}>{resultado.texto}</p>
+        <p className={`mt-2 ${resultado.tipo === "erro" ? "text-[#9B1C1C]" : "text-[#1D6B3A]"}`}>{resultado.texto}</p>
       )}
     </div>
   );
@@ -241,7 +243,7 @@ function TrocaDeTelefone({ telefoneAtual }: { telefoneAtual: string | null }) {
   const igualAoAtual = !!telefoneAtual && digitos === telefoneAtual.replace(/\D/g, "");
 
   return (
-    <div className="mb-4 border border-light bg-offwhite p-4">
+    <div className="mb-4 rounded-xl border border-linha bg-nevoa p-4">
       <label className={classeLabel} htmlFor="perfil-telefone-novo">
         Novo telefone
       </label>
@@ -254,8 +256,8 @@ function TrocaDeTelefone({ telefoneAtual }: { telefoneAtual: string | null }) {
         maxLength={15}
         className={`${classeInput} mb-2 bg-white`}
       />
-      {igualAoAtual && <p className="mb-2 text-xs text-[#9B3535]">Esse já é o seu telefone atual.</p>}
-      <p className="mb-3 text-xs leading-relaxed text-[#4A5462]">
+      {igualAoAtual && <p className="mb-2 text-[13px] text-[#9B1C1C]">Esse já é o seu telefone atual.</p>}
+      <p className="mb-3 text-[13px] leading-relaxed text-ardosia-escura">
         Vamos enviar um código para o <strong>número novo</strong>. A troca só vale depois que você digitar esse
         código; até lá, o número atual continua cadastrado.
       </p>
@@ -263,11 +265,11 @@ function TrocaDeTelefone({ telefoneAtual }: { telefoneAtual: string | null }) {
         type="button"
         disabled
         title="O envio do código ainda não está disponível"
-        className="btn btn-outline-dark block w-full px-4 py-2.5 text-xs disabled:cursor-not-allowed disabled:opacity-60"
+        className={`${classeBotaoContorno} w-full`}
       >
         Enviar código para o novo número
       </button>
-      <p className="mt-2 text-center text-xs text-steel">O envio do código ainda não está disponível.</p>
+      <p className="mt-2 text-center text-[13px] text-ardosia">O envio do código ainda não está disponível.</p>
     </div>
   );
 }
@@ -408,8 +410,8 @@ function FormularioEndereco({ endereco, onSalvo }: { endereco: Endereco; onSalvo
         disabled={salvando}
         className={`${classeInput} ${avisoCep || buscandoCep ? "mb-1.5" : ""}`}
       />
-      {buscandoCep && <p className="mb-4 text-xs text-steel">Buscando endereço...</p>}
-      {avisoCep && <p className="mb-4 text-xs text-[#9B3535]">{avisoCep}</p>}
+      {buscandoCep && <p className="mb-4 text-[13px] text-ardosia">Buscando endereço...</p>}
+      {avisoCep && <p className="mb-4 text-[13px] text-[#9B1C1C]">{avisoCep}</p>}
 
       <label className={classeLabel} htmlFor="end-rua">
         Endereço

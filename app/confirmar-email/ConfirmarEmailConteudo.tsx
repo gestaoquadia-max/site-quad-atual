@@ -4,13 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { confirmarEmail } from "@/lib/auth";
 import { ErroDaApi } from "@/lib/http";
+import { AvisoDeErro, BotaoPrincipal, TituloDoFormulario } from "@/components/acesso/Campos";
 
 // A confirmação só acontece no clique: o link é de uso único, e confirmar sozinho ao abrir a página
 // poderia gastá-lo (ex.: pré-visualização do link pelo app de e-mail).
 export default function ConfirmarEmailConteudo({ token }: { token: string | null }) {
-  const [estado, setEstado] = useState<"inicial" | "confirmando" | "confirmado" | "invalido" | "erro">(
-    token ? "inicial" : "invalido",
-  );
+  const [estado, setEstado] = useState<"inicial" | "confirmando" | "confirmado" | "invalido" | "erro">(token ? "inicial" : "invalido");
   const [mensagem, setMensagem] = useState("");
 
   async function confirmar() {
@@ -28,44 +27,36 @@ export default function ConfirmarEmailConteudo({ token }: { token: string | null
     }
   }
 
-  return (
-    <div className="flex min-h-[calc(100vh-68px)] items-center justify-center bg-navy-deep px-6 py-12">
-      <div className="w-full max-w-[420px] border border-t-[3px] border-dark border-t-blue bg-navy-mid px-10 py-11">
-        <span className="eyebrow text-blue">Área do aluno</span>
-        <h1 className="font-display mb-4 mt-3.5 text-[26px] font-bold uppercase text-offwhite">Confirmar e-mail</h1>
+  const irAoPerfil = (
+    <Link href="/aluno/perfil" className="btn-q btn-q-azul h-[54px] w-full text-base">
+      Ir para o meu perfil
+    </Link>
+  );
 
-        {estado === "confirmado" ? (
-          <>
-            <p className="mb-6 text-sm text-steel-light" role="status">
-              E-mail confirmado. Obrigado!
-            </p>
-            <Link href="/aluno/perfil" className="btn btn-blue block w-full text-center">
-              Ir para o meu perfil
-            </Link>
-          </>
-        ) : estado === "invalido" ? (
-          <>
-            <p className="mb-6 text-sm text-steel-light" role="alert">
-              Este link não é válido ou já venceu. Você pode pedir um novo na página do seu perfil.
-            </p>
-            <Link href="/aluno/perfil" className="btn btn-blue block w-full text-center">
-              Ir para o meu perfil
-            </Link>
-          </>
-        ) : (
-          <>
-            <p className="mb-6 text-sm text-steel-light">Clique no botão abaixo para confirmar o seu e-mail.</p>
-            {estado === "erro" && (
-              <div role="alert" className="mb-3.5 border border-[#9B3535]/50 bg-[#9B3535]/15 px-3.5 py-2.5 text-[13px] text-[#E08A8A]">
-                {mensagem}
-              </div>
-            )}
-            <button onClick={confirmar} disabled={estado === "confirmando"} className="btn btn-blue block w-full disabled:opacity-60">
-              {estado === "confirmando" ? "Confirmando..." : "Confirmar meu e-mail"}
-            </button>
-          </>
-        )}
-      </div>
+  return (
+    <div className="flex flex-col gap-[18px]">
+      <TituloDoFormulario titulo={estado === "confirmado" ? "E-mail confirmado" : "Confirmar e-mail"} />
+      {estado === "confirmado" ? (
+        <>
+          <p className="text-[15px] text-ardosia-escura" role="status">
+            Obrigado! Você vai receber por e-mail os avisos das suas compras e turmas.
+          </p>
+          {irAoPerfil}
+        </>
+      ) : estado === "invalido" ? (
+        <>
+          <AvisoDeErro>Este link não é válido ou já venceu. Você pode pedir um novo na página do seu perfil.</AvisoDeErro>
+          {irAoPerfil}
+        </>
+      ) : (
+        <>
+          <p className="text-[15px] text-ardosia-escura">Clique no botão abaixo para confirmar o seu e-mail.</p>
+          {estado === "erro" && <AvisoDeErro>{mensagem}</AvisoDeErro>}
+          <BotaoPrincipal type="button" onClick={confirmar} carregando={estado === "confirmando"} textoCarregando="Confirmando…">
+            Confirmar meu e-mail
+          </BotaoPrincipal>
+        </>
+      )}
     </div>
   );
 }

@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import EstadoLista from "@/components/EstadoLista";
-import Kicker from "@/components/Kicker";
+import { CLASSE_DO_CARTAO, Etiqueta } from "@/components/aluno/CabecalhoDoAluno";
 import {
   buscarAgendaDaTurma,
   buscarTurma,
@@ -37,10 +38,10 @@ async function carregarMinhasTurmas(alunoId: string): Promise<TurmaComProgresso[
   );
 }
 
-const situacao: Record<Matricula["situacao"], { label: string; cor: string }> = {
-  ATIVA: { label: "Ativa", cor: "text-[#3E7A44]" },
-  TRANCADA: { label: "Trancada", cor: "text-[#9B3535]" },
-  CONCLUIDA: { label: "Concluída", cor: "text-steel" },
+const situacao: Record<Matricula["situacao"], { label: string; tom: "verde" | "vermelho" | "cinza" }> = {
+  ATIVA: { label: "Ativa", tom: "verde" },
+  TRANCADA: { label: "Trancada", tom: "vermelho" },
+  CONCLUIDA: { label: "Concluída", tom: "cinza" },
 };
 
 const diasAbreviados: Record<string, string> = {
@@ -90,40 +91,50 @@ export default function MinhasTurmasConteudo() {
         {dados?.map(({ matricula, turma, aulas }) => {
           const pct = aulas && aulas.total > 0 ? Math.round((aulas.realizadas / aulas.total) * 100) : 0;
           return (
-            <div key={matricula.id} className="border border-light bg-white p-6">
-              <div className="mb-1.5 flex items-center justify-between gap-3">
-                <Kicker>{descreverHorario(turma)}</Kicker>
-                <span className={`text-[11px] font-semibold uppercase tracking-wide ${situacao[matricula.situacao].cor}`}>
-                  {situacao[matricula.situacao].label}
-                </span>
+            <article key={matricula.id} className={`${CLASSE_DO_CARTAO} grid overflow-hidden md:grid-cols-[240px_minmax(0,1fr)]`}>
+              <div aria-hidden="true" className="relative hidden place-items-center bg-marinho-900 bg-[image:radial-gradient(80%_70%_at_20%_10%,rgba(0,107,255,0.28),transparent_70%)] md:grid">
+                <Image src="/images/quad-logo-branco.png" alt="" width={110} height={40} className="h-10 w-auto opacity-30" />
               </div>
-              <h3 className="font-display mb-1.5 text-xl font-bold uppercase">{turma.nome}</h3>
-              <p className="mb-5 text-sm text-[#5A6472]">
-                {formatarData(turma.inicio)} a {formatarData(turma.termino)}
-                {turma.descricao ? ` · ${turma.descricao}` : ""}
-              </p>
+              <div className="flex flex-col p-[clamp(20px,2.4vw,28px)]">
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-xs font-bold uppercase tracking-[0.12em] text-azul-forte">{descreverHorario(turma)}</span>
+                  <Etiqueta tom={situacao[matricula.situacao].tom}>{situacao[matricula.situacao].label}</Etiqueta>
+                </div>
+                <h2 className="mb-1.5 font-display text-[22px] font-extrabold leading-tight tracking-[-0.02em]">{turma.nome}</h2>
+                <p className="mb-5 text-[14.5px] text-ardosia">
+                  {formatarData(turma.inicio)} a {formatarData(turma.termino)}
+                  {turma.descricao ? ` · ${turma.descricao}` : ""}
+                </p>
 
-              {aulas && aulas.total > 0 && (
-                <>
-                  <div className="mb-1.5 flex items-center justify-between text-xs text-steel">
-                    <span>Progresso do curso</span>
-                    <span className="font-semibold text-navy">
-                      {aulas.realizadas} de {aulas.total} aulas realizadas
-                    </span>
+                {aulas && aulas.total > 0 && (
+                  <div className="mb-5">
+                    <div className="mb-2 flex items-center justify-between text-[13px] text-ardosia">
+                      <span>Progresso do curso</span>
+                      <span className="font-semibold text-tinta">
+                        {aulas.realizadas} de {aulas.total} aulas realizadas
+                      </span>
+                    </div>
+                    <div
+                      role="progressbar"
+                      aria-label="Progresso do curso"
+                      aria-valuenow={pct}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      className="h-2 w-full overflow-hidden rounded-full bg-[#E6ECF4]"
+                    >
+                      <div className="h-full rounded-full bg-azul" style={{ width: `${pct}%` }} />
+                    </div>
                   </div>
-                  <div className="mb-5 h-1.5 w-full bg-[#E2DFD6]">
-                    <div className="h-full bg-blue" style={{ width: `${pct}%` }} />
-                  </div>
-                </>
-              )}
+                )}
 
-              <Link
-                href={`/aluno/materiais?turma=${turma.id}`}
-                className="btn btn-outline-dark px-5 py-2.5 text-xs"
-              >
-                Ver materiais da turma
-              </Link>
-            </div>
+                <Link
+                  href={`/aluno/materiais?turma=${turma.id}`}
+                  className="mt-auto inline-flex items-center gap-2 self-start font-display text-[15px] font-bold text-azul-forte hover:text-azul"
+                >
+                  Ver materiais da turma <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+            </article>
           );
         })}
       </div>

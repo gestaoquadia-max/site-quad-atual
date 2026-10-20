@@ -3,6 +3,7 @@ import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SoNoSite from "@/components/SoNoSite";
 import AvisoDoCarrinho from "@/components/AvisoDoCarrinho";
 import { OuvinteDoBrilho } from "@/components/Brilho";
 import { CartProvider } from "@/lib/cart";
@@ -53,11 +54,15 @@ export default async function RootLayout({
             >
               Pular para o conteúdo
             </a>
-            <Navbar turmas={turmas ?? []} eventos={eventos ?? []} materiais={materiais ?? []} />
+            <SoNoSite>
+              <Navbar turmas={turmas ?? []} eventos={eventos ?? []} materiais={materiais ?? []} />
+            </SoNoSite>
             <main id="conteudo" tabIndex={-1} className="outline-none">
               {children}
             </main>
-            <Footer />
+            <SoNoSite>
+              <Footer />
+            </SoNoSite>
             <AvisoDoCarrinho />
             <OuvinteDoBrilho />
           </UsuarioProvider>

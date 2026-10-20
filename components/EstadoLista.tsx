@@ -5,14 +5,14 @@ import type { ReactNode } from "react";
 
 export function ListaCarregando({ linhas = 3, altura = "h-[76px]" }: { linhas?: number; altura?: string }) {
   return (
-    <div role="status" aria-label="Carregando">
+    <div role="status" aria-label="Carregando" className="flex flex-col gap-3">
       {Array.from({ length: linhas }, (_, i) => (
-        <div key={i} className={`mb-2.5 animate-pulse border border-light bg-white ${altura}`}>
+        <div key={i} className={`animate-pulse rounded-[18px] border border-linha bg-white ${altura}`}>
           <div className="flex h-full items-center gap-3.5 px-5">
-            <span className="h-11 w-[38px] flex-shrink-0 bg-[#E2DFD6]" />
+            <span className="h-11 w-11 flex-shrink-0 rounded-[10px] bg-[#E6ECF4]" />
             <div className="flex-1">
-              <div className="mb-2 h-3.5 w-2/5 bg-[#E2DFD6]" />
-              <div className="h-3 w-1/4 bg-[#ECE9E1]" />
+              <div className="mb-2 h-3.5 w-2/5 rounded bg-[#E6ECF4]" />
+              <div className="h-3 w-1/4 rounded bg-[#EEF2F7]" />
             </div>
           </div>
         </div>
@@ -31,11 +31,11 @@ export function ListaVazia({
   acao?: { href: string; label: string };
 }) {
   return (
-    <div className="border border-light bg-white p-10 text-center">
-      <p className="font-display mb-1.5 text-lg font-bold uppercase">{titulo}</p>
-      {texto && <p className="mx-auto mb-5 max-w-[420px] text-sm text-steel">{texto}</p>}
+    <div className="flex flex-col items-center rounded-[18px] border-[1.5px] border-dashed border-[#C9D3E0] bg-white/60 px-6 py-12 text-center">
+      <p className="mb-1.5 font-display text-xl font-extrabold tracking-[-0.01em] text-tinta">{titulo}</p>
+      {texto && <p className="mb-5 max-w-[420px] text-[15px] leading-[1.55] text-ardosia">{texto}</p>}
       {acao && (
-        <Link href={acao.href} className="btn btn-blue">
+        <Link href={acao.href} className="btn-q btn-q-azul h-11 px-5 text-sm">
           {acao.label}
         </Link>
       )}
@@ -51,13 +51,9 @@ export function ListaErro({
   onTentarNovamente?: () => void;
 }) {
   return (
-    <div role="alert" className="border border-[#9B3535]/40 bg-[#9B3535]/10 p-8 text-center">
-      <p className="mb-4 text-sm text-[#9B3535]">{mensagem}</p>
-      <button
-        type="button"
-        onClick={onTentarNovamente ?? (() => window.location.reload())}
-        className="btn btn-outline-dark px-5 py-2.5 text-xs"
-      >
+    <div role="alert" className="flex flex-col items-center rounded-[18px] border border-[#F1C4C4] bg-[#FFF5F5] px-6 py-8 text-center">
+      <p className="mb-4 text-sm text-[#9B1C1C]">{mensagem}</p>
+      <button type="button" onClick={onTentarNovamente ?? (() => window.location.reload())} className="btn-q btn-q-contorno h-10 px-4 text-[13.5px]">
         Tentar novamente
       </button>
     </div>

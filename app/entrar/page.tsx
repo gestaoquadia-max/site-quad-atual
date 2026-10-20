@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { login } from "@/lib/auth";
 import { ErroDaApi } from "@/lib/http";
-import { destinoAposLogin, lerDestinoAposLogin, rotaComDestino } from "@/lib/redirecionamento";
+import { destinoAposLogin } from "@/lib/redirecionamento";
+import AbasDeAcesso, { LinkDeAcesso } from "@/components/acesso/AbasDeAcesso";
+import { AvisoDeErro, BotaoPrincipal, Campo, TituloDoFormulario } from "@/components/acesso/Campos";
 
 export default function EntrarPage() {
   const router = useRouter();
@@ -14,79 +16,54 @@ export default function EntrarPage() {
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
 
-  async function tentarLogin() {
+  async function tentarLogin(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim() || !senha) return setErro("Informe o e-mail e a senha.");
     setErro("");
     setCarregando(true);
     try {
-      await login(email, senha);
+      await login(email.trim(), senha);
       router.push(destinoAposLogin());
     } catch (e) {
-      setErro(
-        e instanceof ErroDaApi ? e.message : "Não foi possível conectar. Verifique sua internet e tente novamente.",
-      );
-    } finally {
+      setErro(e instanceof ErroDaApi ? e.message : "Não foi possível conectar. Verifique sua internet e tente novamente.");
       setCarregando(false);
     }
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-68px)] items-center justify-center bg-navy-deep px-6 py-12">
-      <div className="w-full max-w-[420px] border border-t-[3px] border-dark border-t-blue bg-navy-mid px-10 py-11">
-        <span className="eyebrow text-blue">Área do aluno</span>
-        <h1 className="font-display mb-1.5 mt-3.5 text-[26px] font-bold uppercase text-offwhite">
-          Identifique-se
-        </h1>
-        <p className="mb-6 text-sm text-steel-light">Acesse seus materiais, turmas e eventos.</p>
-
-        <label className="font-display mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-steel-light">
-          E-mail
-        </label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="seu@email.com"
-          className="mb-4 w-full border border-dark bg-navy-deep px-3.5 py-3 text-[15px] text-offwhite outline-none transition-colors placeholder:text-[#4A5768] focus:border-blue"
-        />
-
-        <label className="font-display mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-steel-light">
-          Senha
-        </label>
-        <input
-          type="password"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && tentarLogin()}
+    <>
+      <AbasDeAcesso atual="/entrar" />
+      <form onSubmit={tentarLogin} noValidate className="flex flex-col gap-[18px]">
+        <TituloDoFormulario titulo="Bem-vindo de volta" subtitulo="Entre com o e-mail e a senha cadastrados." />
+        <Campo rotulo="E-mail" tipo="email" autoComplete="email" placeholder="seu@email.com" valor={email} aoMudar={setEmail} />
+        <Campo
+          rotulo="Senha"
+          tipo="password"
+          autoComplete="current-password"
           placeholder="••••••••"
-          className="mb-4 w-full border border-dark bg-navy-deep px-3.5 py-3 text-[15px] text-offwhite outline-none transition-colors placeholder:text-[#4A5768] focus:border-blue"
+          valor={senha}
+          aoMudar={setSenha}
+          extra={
+            <Link href="/esqueci-senha" className="text-[13px] font-semibold text-azul-forte hover:text-azul">
+              Esqueci minha senha
+            </Link>
+          }
         />
-
-        {erro && (
-          <div className="mb-3.5 border border-[#9B3535]/50 bg-[#9B3535]/15 px-3.5 py-2.5 text-[13px] text-[#E08A8A]">
-            {erro}
-          </div>
-        )}
-
-        <button onClick={tentarLogin} disabled={carregando} className="btn btn-blue mt-2 block w-full disabled:opacity-60">
-          {carregando ? "Entrando..." : "Entrar"}
-        </button>
-
-        <div className="mt-4 flex justify-between text-[13px]">
-          <Link href="/esqueci-senha" className="focus-ring cursor-pointer text-steel-light transition-colors hover:text-blue">
-            Esqueci minha senha
-          </Link>
-          <Link
-            href="/cadastro"
-            onClick={(e) => {
-              e.preventDefault();
-              router.push(rotaComDestino("/cadastro", lerDestinoAposLogin()));
-            }}
-            className="focus-ring cursor-pointer text-steel-light transition-colors hover:text-blue"
+        {erro && <AvisoDeErro>{erro}</AvisoDeErro>}
+        <BotaoPrincipal type="submit" carregando={carregando} textoCarregando="Entrando…">
+          Entrar
+        </BotaoPrincipal>
+        <div className="mt-1.5 flex flex-col gap-3 rounded-[14px] border border-linha bg-white p-5">
+          <span className="font-display text-base font-extrabold text-tinta">Ainda não tem conta?</span>
+          <span className="text-sm leading-[1.5] text-ardosia">Cadastre-se para acessar seus materiais, turmas e eventos.</span>
+          <LinkDeAcesso
+            para="/cadastro"
+            className="grid h-[50px] place-items-center rounded-[11px] bg-marinho-900 font-display text-[15.5px] font-bold text-white transition-colors hover:bg-[#12305A] hover:text-white"
           >
-            Criar conta
-          </Link>
+            Criar minha conta
+          </LinkDeAcesso>
         </div>
-      </div>
-    </div>
+      </form>
+    </>
   );
 }

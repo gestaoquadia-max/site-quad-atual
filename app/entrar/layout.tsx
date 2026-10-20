@@ -1,3 +1,5 @@
+import MolduraDeAcesso from "@/components/acesso/MolduraDeAcesso";
+
 // A página é um componente de cliente, que não pode exportar metadados; eles ficam aqui.
 export const metadata = {
   title: "Entrar",
@@ -5,5 +7,5 @@ export const metadata = {
 };
 
 export default function EntrarLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return <MolduraDeAcesso>{children}</MolduraDeAcesso>;
 }

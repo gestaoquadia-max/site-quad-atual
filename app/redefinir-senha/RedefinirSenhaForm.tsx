@@ -4,10 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { redefinirSenha, verificarLinkDeRedefinicao } from "@/lib/auth";
 import { ErroDaApi } from "@/lib/http";
-
-const classeLabel = "font-display mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-steel-light";
-const classeInput =
-  "mb-4 w-full border border-dark bg-navy-deep px-3.5 py-3 text-[15px] text-offwhite outline-none transition-colors placeholder:text-[#4A5768] focus:border-blue";
+import { AvisoDeErro, BotaoPrincipal, Campo, TituloDoFormulario } from "@/components/acesso/Campos";
 
 function ehLinkRecusado(e: unknown) {
   return e instanceof ErroDaApi && (e.codigo === "TOKEN_INVALIDO" || e.codigo === "TOKEN_EXPIRADO");
@@ -62,80 +59,59 @@ export default function RedefinirSenhaForm({ token }: { token: string | null }) 
     }
   }
 
-  return (
-    <div className="flex min-h-[calc(100vh-68px)] items-center justify-center bg-navy-deep px-6 py-12">
-      <div className="w-full max-w-[420px] border border-t-[3px] border-dark border-t-blue bg-navy-mid px-10 py-11">
-        <span className="eyebrow text-blue">Área do aluno</span>
-        <h1 className="font-display mb-1.5 mt-3.5 text-[26px] font-bold uppercase text-offwhite">Nova senha</h1>
-
-        {salvo ? (
-          <>
-            <p className="mb-6 text-sm text-steel-light" role="status">
-              Senha alterada. Agora é só entrar com a nova senha.
-            </p>
-            <Link href="/entrar" className="btn btn-blue block w-full text-center">
-              Entrar
-            </Link>
-          </>
-        ) : conferindo ? (
-          <p className="mb-6 text-sm text-steel-light" role="status">
-            Conferindo o link...
-          </p>
-        ) : linkInvalido ? (
-          <>
-            <p className="mb-6 text-sm text-steel-light" role="alert">
-              Este link não é válido ou já venceu. Cada link vale por 30 minutos e só pode ser usado uma vez.
-            </p>
-            <Link href="/esqueci-senha" className="btn btn-blue block w-full text-center">
-              Pedir um novo link
-            </Link>
-          </>
-        ) : (
-          <>
-            <p className="mb-6 text-sm text-steel-light">Crie uma nova senha para a sua conta.</p>
-
-            <label htmlFor="nova-senha" className={classeLabel}>
-              Nova senha
-            </label>
-            <input
-              id="nova-senha"
-              type="password"
-              autoComplete="new-password"
-              value={novaSenha}
-              onChange={(e) => setNovaSenha(e.target.value)}
-              placeholder="Entre 8 e 72 caracteres"
-              className={classeInput}
-            />
-
-            <label htmlFor="confirmar-senha" className={classeLabel}>
-              Confirmar nova senha
-            </label>
-            <input
-              id="confirmar-senha"
-              type="password"
-              autoComplete="new-password"
-              value={confirmar}
-              onChange={(e) => setConfirmar(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && salvar()}
-              placeholder="••••••••"
-              className={classeInput}
-            />
-
-            {erro && (
-              <div
-                role="alert"
-                className="mb-3.5 border border-[#9B3535]/50 bg-[#9B3535]/15 px-3.5 py-2.5 text-[13px] text-[#E08A8A]"
-              >
-                {erro}
-              </div>
-            )}
-
-            <button onClick={salvar} disabled={salvando} className="btn btn-blue mt-2 block w-full disabled:opacity-60">
-              {salvando ? "Salvando..." : "Salvar nova senha"}
-            </button>
-          </>
-        )}
+  if (salvo) {
+    return (
+      <div className="flex flex-col gap-[18px]">
+        <TituloDoFormulario titulo="Senha alterada" />
+        <p className="text-[15px] leading-[1.6] text-ardosia-escura" role="status">
+          Agora é só entrar com a nova senha.
+        </p>
+        <Link href="/entrar" className="btn-q btn-q-azul h-[54px] w-full text-base">
+          Entrar
+        </Link>
       </div>
-    </div>
+    );
+  }
+
+  if (conferindo) {
+    return (
+      <div className="flex flex-col gap-[18px]">
+        <TituloDoFormulario titulo="Nova senha" />
+        <p className="text-[15px] text-ardosia" role="status">
+          Conferindo o link...
+        </p>
+      </div>
+    );
+  }
+
+  if (linkInvalido) {
+    return (
+      <div className="flex flex-col gap-[18px]">
+        <TituloDoFormulario titulo="Nova senha" />
+        <AvisoDeErro>Este link não é válido ou já venceu. Cada link vale por 30 minutos e só pode ser usado uma vez.</AvisoDeErro>
+        <Link href="/esqueci-senha" className="btn-q btn-q-azul h-[54px] w-full text-base">
+          Pedir um novo link
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <form
+      noValidate
+      onSubmit={(e) => {
+        e.preventDefault();
+        salvar();
+      }}
+      className="flex flex-col gap-[18px]"
+    >
+      <TituloDoFormulario titulo="Nova senha" subtitulo="Crie uma nova senha para a sua conta." />
+      <Campo id="nova-senha" rotulo="Nova senha" tipo="password" autoComplete="new-password" placeholder="Entre 8 e 72 caracteres" valor={novaSenha} aoMudar={setNovaSenha} />
+      <Campo id="confirmar-senha" rotulo="Confirmar nova senha" tipo="password" autoComplete="new-password" placeholder="Repita a senha" valor={confirmar} aoMudar={setConfirmar} />
+      {erro && <AvisoDeErro>{erro}</AvisoDeErro>}
+      <BotaoPrincipal type="submit" carregando={salvando} textoCarregando="Salvando…">
+        Salvar nova senha
+      </BotaoPrincipal>
+    </form>
   );
 }

@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
+import { CONTA_A, entrar } from "./contas";
 
 // Endereço do primeiro link para a página de detalhe ("Detalhes", "Conhecer e matricular"), ou null quando a lista está vazia.
 async function primeiroDetalhe(page: Page, lista: string, rotulo: string) {
@@ -15,10 +16,9 @@ async function primeiroEvento(page: Page) {
   return (await link.count()) ? link.getAttribute("href") : null;
 }
 
-// Regras WCAG 2.1 níveis A e AA (contraste, rótulos, teclado). As páginas da área do aluno exigem login e a API,
-// por isso ficam fora desta lista; foram conferidas à parte com dados de exemplo.
+// Regras WCAG 2.1 níveis A e AA (contraste, rótulos, teclado). A área do aluno exige login: tem um teste próprio no fim.
 // "turma:", "material:" e "evento:" = o primeiro de cada um na vitrine da API (o endereço leva o id de cada um).
-const PAGINAS = ["/", "/turmas", "turma:", "/produtos", "material:", "/simulados", "/eventos", "evento:", "/aprovados", "/blog", "/blog/taf-cfp-soldado-pm-ba-como-funciona", "/professores/danilo-moura", "/sobre", "/contato", "/entrar", "/cadastro", "/checkout"];
+const PAGINAS = ["/", "/turmas", "turma:", "/produtos", "material:", "/simulados", "/eventos", "evento:", "/aprovados", "/esqueci-senha", "/redefinir-senha?token=x", "/blog", "/blog/taf-cfp-soldado-pm-ba-como-funciona", "/professores/danilo-moura", "/sobre", "/contato", "/entrar", "/cadastro", "/checkout"];
 
 for (const caminho of PAGINAS) {
   test(`sem problemas de acessibilidade WCAG A/AA em ${caminho}`, async ({ page }) => {
@@ -48,6 +48,18 @@ for (const caminho of PAGINAS) {
     expect(problemas).toEqual([]);
   });
 }
+
+// Área do aluno com a conta de teste A (banco local), já com os dados carregados.
+test("sem problemas de acessibilidade WCAG A/AA na área do aluno", async ({ page }) => {
+  await entrar(page, CONTA_A);
+  for (const rota of ["/aluno", "/aluno/materiais", "/aluno/turmas", "/aluno/eventos", "/aluno/compras", "/aluno/perfil"]) {
+    await page.goto(rota, { waitUntil: "networkidle" });
+    await expect(page.getByRole("status", { name: "Carregando" })).toHaveCount(0);
+    const resultado = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
+    const problemas = resultado.violations.map((v) => `${rota} ${v.id}: ${v.nodes.map((n) => n.html.slice(0, 80)).join(" | ")}`);
+    expect(problemas).toEqual([]);
+  }
+});
 
 test("o primeiro Tab mostra o atalho para pular direto ao conteúdo", async ({ page }) => {
   await page.goto("/sobre");

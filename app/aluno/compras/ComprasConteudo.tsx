@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import EstadoLista from "@/components/EstadoLista";
+import { CLASSE_DO_BOTAO_PEQUENO, CLASSE_DO_CARTAO, Etiqueta } from "@/components/aluno/CabecalhoDoAluno";
 import { listarMinhasComprasEmReais, type Compra } from "@/lib/api";
 import { formatarData, formatarValor } from "@/lib/format";
 import { useCarregar } from "@/lib/useCarregar";
@@ -9,14 +10,14 @@ import { useCarregandoUsuario, useUsuarioAtual } from "@/lib/usuario";
 
 const carregarCompras = () => listarMinhasComprasEmReais();
 
-const situacao: Record<Compra["situacao"], { label: string; classe: string }> = {
-  PAGA: { label: "Pago", classe: "bg-[#E4EFE5] text-[#33693A]" },
-  AGUARDANDO_PAGAMENTO: { label: "Aguardando pagamento", classe: "bg-[#FFF6DD] text-[#7A5A00]" },
-  CRIADA: { label: "Em processamento", classe: "bg-[#ECE9E1] text-steel" },
-  RECUSADA: { label: "Recusado", classe: "bg-[#9B3535]/10 text-[#9B3535]" },
-  EXPIRADA: { label: "Expirado", classe: "bg-[#ECE9E1] text-steel" },
-  CANCELADA: { label: "Cancelado", classe: "bg-[#ECE9E1] text-steel" },
-  ESTORNADA: { label: "Estornado", classe: "bg-[#ECE9E1] text-steel" },
+const situacao: Record<Compra["situacao"], { label: string; tom: "verde" | "amarelo" | "vermelho" | "cinza" }> = {
+  PAGA: { label: "Pago", tom: "verde" },
+  AGUARDANDO_PAGAMENTO: { label: "Aguardando pagamento", tom: "amarelo" },
+  CRIADA: { label: "Em processamento", tom: "cinza" },
+  RECUSADA: { label: "Recusado", tom: "vermelho" },
+  EXPIRADA: { label: "Expirado", tom: "cinza" },
+  CANCELADA: { label: "Cancelado", tom: "cinza" },
+  ESTORNADA: { label: "Estornado", tom: "cinza" },
 };
 
 function descreverPagamento(c: Compra) {
@@ -38,7 +39,7 @@ function PagamentoPendente({ compra }: { compra: Compra }) {
   if (compra.formaDePagamento === "PIX" && pix?.codigo) {
     const codigo = pix.codigo;
     return (
-      <div className="mt-3 text-xs text-steel">
+      <div className="mt-3 text-[13px] text-ardosia">
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
@@ -48,7 +49,7 @@ function PagamentoPendente({ compra }: { compra: Compra }) {
                 .then(() => setCopia("copiado"))
                 .catch(() => setCopia("falhou"))
             }
-            className="btn btn-outline-dark px-4 py-2 text-xs"
+            className="inline-flex h-10 items-center rounded-[9px] bg-azul px-4 font-display text-[13.5px] font-bold text-white transition-colors hover:bg-azul-forte"
           >
             {copia === "copiado" ? "Código copiado ✓" : "Copiar código PIX"}
           </button>
@@ -63,7 +64,7 @@ function PagamentoPendente({ compra }: { compra: Compra }) {
               value={codigo}
               onFocus={(e) => e.currentTarget.select()}
               aria-label="Código PIX"
-              className="w-full border border-light bg-offwhite px-3 py-2 font-mono text-xs text-navy"
+              className="w-full rounded-[9px] border border-linha-forte bg-nevoa px-3 py-2 font-mono text-xs text-tinta"
             />
           </div>
         )}
@@ -72,8 +73,8 @@ function PagamentoPendente({ compra }: { compra: Compra }) {
   }
   if (compra.formaDePagamento === "BOLETO" && linkDoBoleto) {
     return (
-      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-steel">
-        <a href={linkDoBoleto} target="_blank" rel="noopener noreferrer" className="btn btn-outline-dark px-4 py-2 text-xs">
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-[13px] text-ardosia">
+        <a href={linkDoBoleto} target="_blank" rel="noopener noreferrer" className={CLASSE_DO_BOTAO_PEQUENO}>
           Ver boleto
         </a>
         {boleto?.venceEm && <span>Vence em {formatarData(boleto.venceEm)}</span>}
@@ -101,28 +102,26 @@ export default function ComprasConteudo() {
       vazioTexto="Suas turmas, materiais e inscrições pagas aparecem aqui."
       vazioAcao={{ href: "/turmas", label: "Ver turmas" }}
     >
-      <div className="border border-light bg-white">
+      <div className={`${CLASSE_DO_CARTAO} overflow-hidden`}>
         {compras.map((c, i) => {
           const valor = c.pagamento?.valorEmCentavos;
           return (
-            <div key={c.id} className={`px-5 py-4 ${i !== compras.length - 1 ? "border-b border-light" : ""}`}>
+            <div key={c.id} className={`px-[22px] py-4 ${i > 0 ? "border-t border-[#EEF2F7]" : ""}`}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <div className="text-[15px] font-semibold">
                     {c.item.nome}
                     {c.quantidade > 1 && ` × ${c.quantidade}`}
                   </div>
-                  <div className="text-xs text-steel">
+                  <div className="mt-0.5 text-[13px] text-ardosia">
                     {formatarData(c.pagaEm ?? c.criadaEm)} · {descreverPagamento(c)}
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   {valor != null && (
-                    <span className="font-display text-base font-bold text-navy">{formatarValor(valor / 100)}</span>
+                    <span className="font-display text-[17px] font-extrabold text-tinta">{formatarValor(valor / 100)}</span>
                   )}
-                  <span className={`px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${situacao[c.situacao].classe}`}>
-                    {situacao[c.situacao].label}
-                  </span>
+                  <Etiqueta tom={situacao[c.situacao].tom}>{situacao[c.situacao].label}</Etiqueta>
                 </div>
               </div>
               {c.situacao === "AGUARDANDO_PAGAMENTO" && <PagamentoPendente compra={c} />}

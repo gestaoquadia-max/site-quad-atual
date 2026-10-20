@@ -1,8 +1,7 @@
 "use client";
 
-import AccentCard from "@/components/AccentCard";
 import EstadoLista from "@/components/EstadoLista";
-import Kicker from "@/components/Kicker";
+import { CLASSE_DO_CARTAO, Etiqueta } from "@/components/aluno/CabecalhoDoAluno";
 import { listarMinhasInscricoes, type AtividadeDoAluno } from "@/lib/api";
 import { formatarData, formatarHora } from "@/lib/format";
 import { useCarregar } from "@/lib/useCarregar";
@@ -11,8 +10,8 @@ import { useCarregandoUsuario, useUsuarioAtual } from "@/lib/usuario";
 const carregarInscricoes = () => listarMinhasInscricoes();
 
 const desfecho = {
-  CONCLUIDA: { label: "Participou", cor: "text-[#3E7A44]" },
-  AUSENTE: { label: "Não compareceu", cor: "text-[#9B3535]" },
+  CONCLUIDA: { label: "Participou", tom: "verde" as const },
+  AUSENTE: { label: "Não compareceu", tom: "vermelho" as const },
 };
 
 function quando(a: AtividadeDoAluno) {
@@ -27,25 +26,29 @@ function terminou(a: AtividadeDoAluno, hoje: string) {
   return a.desfecho !== null || (!!ultimo && ultimo < hoje);
 }
 
+const MESES = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
+
 function CartaoDaAtividade({ atividade, passada }: { atividade: AtividadeDoAluno; passada: boolean }) {
   const resultado = atividade.desfecho ? desfecho[atividade.desfecho] : null;
+  const [, mes, dia] = (atividade.quando.map((b) => b.data).sort()[0] ?? "").split("-");
   return (
-    <AccentCard className="p-6">
-      <div className="mb-1.5 flex items-center justify-between gap-3">
-        <Kicker>
-          {atividade.tipo === "SIMULADO" ? "Simulado" : "Evento"} · {atividade.presencial ? "Presencial" : "Online"}
-        </Kicker>
-        {passada ? (
-          resultado && (
-            <span className={`text-[11px] font-semibold uppercase tracking-wide ${resultado.cor}`}>{resultado.label}</span>
-          )
-        ) : (
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-[#3E7A44]">Inscrito</span>
-        )}
+    <article className={`${CLASSE_DO_CARTAO} flex items-center gap-4 p-[18px] ${passada ? "opacity-90" : ""}`}>
+      <div
+        aria-hidden="true"
+        className={`grid h-[68px] w-[64px] flex-none place-content-center rounded-[14px] text-center ${passada ? "bg-[#EEF2F7] text-ardosia-escura" : "bg-marinho-900 text-white"}`}
+      >
+        <div className="font-display text-[26px] font-extrabold leading-none tracking-[-0.03em]">{dia ?? "—"}</div>
+        <div className={`mt-1 text-[11px] font-bold tracking-[0.12em] ${passada ? "" : "text-azul-vivo"}`}>{mes ? MESES[Number(mes) - 1] : ""}</div>
       </div>
-      <h3 className="font-display mb-1.5 text-lg font-bold uppercase leading-tight">{atividade.nome}</h3>
-      <p className="text-sm text-[#5A6472]">{quando(atividade)}</p>
-    </AccentCard>
+      <div className="min-w-0 flex-1">
+        <div className="text-[11.5px] font-bold uppercase tracking-[0.12em] text-azul-forte">
+          {atividade.tipo === "SIMULADO" ? "Simulado" : "Evento"} · {atividade.presencial ? "Presencial" : "Online"}
+        </div>
+        <h3 className="mt-1 font-display text-[17px] font-extrabold leading-tight">{atividade.nome}</h3>
+        <p className="mt-1 text-[13.5px] text-ardosia">{quando(atividade)}</p>
+      </div>
+      {passada ? resultado && <Etiqueta tom={resultado.tom}>{resultado.label}</Etiqueta> : <Etiqueta tom="verde">Inscrito</Etiqueta>}
+    </article>
   );
 }
 
@@ -75,8 +78,8 @@ export default function MeusEventosConteudo() {
     >
       {proximas.length > 0 && (
         <section className="mb-10">
-          <h3 className="font-display mb-4 text-xl font-bold uppercase">Próximos</h3>
-          <div className="grid gap-5 sm:grid-cols-2">
+          <h2 className="mb-4 font-display text-xl font-extrabold tracking-[-0.01em]">Próximos</h2>
+          <div className="grid gap-3.5 xl:grid-cols-2">
             {proximas.map((a) => (
               <CartaoDaAtividade key={`${a.tipo}:${a.id}`} atividade={a} passada={false} />
             ))}
@@ -85,8 +88,8 @@ export default function MeusEventosConteudo() {
       )}
       {anteriores.length > 0 && (
         <section>
-          <h3 className="font-display mb-4 text-xl font-bold uppercase">Anteriores</h3>
-          <div className="grid gap-5 sm:grid-cols-2">
+          <h2 className="mb-4 font-display text-xl font-extrabold tracking-[-0.01em]">Anteriores</h2>
+          <div className="grid gap-3.5 xl:grid-cols-2">
             {anteriores.map((a) => (
               <CartaoDaAtividade key={`${a.tipo}:${a.id}`} atividade={a} passada />
             ))}
