@@ -42,7 +42,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | 10 | Segurança e LGPD | 2 | 6 | 1 |
 | 11 | Analytics e marketing | 1 | 4 | 0 |
 | 12 | Deploy e operação | 3 | 7 | 0 |
-| 13 | Redesenho do site | 9 | 28 | 5 |
+| 13 | Redesenho do site | 9 | 28 | 8 |
 
 ---
 
@@ -675,13 +675,13 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 3 — MATERIAIS E SIMULADOS
 
-**Status:** EM ANDAMENTO
+**Status:** CONCLUÍDA
 
 | Tarefa | Status |
 |---|---|
-| Materiais com busca e filtro | EM ANDAMENTO |
-| Página do material no novo visual | PENDENTE |
-| Central de Simulados (presenciais, individuais e combos) | PENDENTE |
+| Materiais com busca e filtro | FEITO |
+| Página do material no novo visual | FEITO |
+| Central de Simulados (presenciais, individuais e combos) | FEITO |
 
 **Campos adicionais**
 - **Prioridade:** Alta
