@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { parsePreco } from "./format";
+import type { Alvo } from "./loja";
 
 export type CartItem = {
   id: string;
@@ -14,6 +15,8 @@ export type CartItem = {
   formato?: "digital" | "impresso";
   // Simulados: carreira, edição e modalidade (presencial ou formato de estudo), revalidados em lib/simulados.ts.
   simulado?: { carreira: string; edicao: number | null; modalidade: string; sku: string; edicoesDoCombo?: number[] };
+  // O que reservar no carrinho do servidor, quando não dá para deduzir do id (ex.: tamanho da camisa). Ver alvoDoItem.
+  alvo?: Alvo;
   quantidade: number;
 };
 

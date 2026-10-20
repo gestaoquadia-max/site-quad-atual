@@ -164,7 +164,9 @@ export const mentorias = [
 // ---------- Loja Quad (produtos físicos) ----------
 // Os produtos vêm da vitrine de itens da API (tipo OUTROS; lib/vitrine.ts). Aqui ficam o tipo e as categorias.
 export type ProdutoDaLoja = {
+  // Slug (nome + id), usado no endereço da página.
   id: string;
+  idNaApi: string;
   categoria: string;
   nome: string;
   descricao: string | null;
@@ -173,7 +175,7 @@ export type ProdutoDaLoja = {
   estoque: number | null;
   imagemUrl: string | null;
   // esgotadas: opções sem estoque (aparecem, mas não podem ser escolhidas).
-  variacoes: { nome: string; opcoes: string[]; esgotadas: string[] }[];
+  variacoes: { nome: string; opcoes: string[]; esgotadas: string[]; ids: Record<string, string> }[];
   exemplo?: boolean;
 };
 

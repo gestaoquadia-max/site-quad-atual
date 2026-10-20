@@ -408,7 +408,13 @@ Hoje a API ignora esses campos.
 - `POST /api/loja/carrinho/eu/fechamento` (uma cobrança só, tudo ou nada, com `Idempotency-Key`);
 - `GET /api/loja/fechamentos/{id}`, mais `.../conciliacao` ("já paguei") e `.../cancelamento`.
 
-O site vai usar quando o catálogo vier da API (Etapa 5): hoje os itens do site ainda são de exemplo e não têm o `itemId` da API. Dúvidas para o backend:
+**Atualização (20/10/2026): o checkout do site já usa o carrinho do servidor.** Com login, ele esvazia o carrinho de lá, reserva item por item (`PUT .../linhas`), simula o total com o cupom (`POST .../simulacao`) e fecha com `Idempotency-Key`. PIX e boleto seguem para `/checkout/pagamento/{fechamentoId}`, que consulta `GET /api/loja/fechamentos/{id}` a cada 5 s e tem o botão "Já paguei" (`.../conciliacao`). Conferido na API local:
+- Reservar de novo o mesmo item **troca** a quantidade (não soma). O site conta com isso.
+- Cupom inválido na simulação: 422 `CUPOM_INVALIDO`, "Este cupom não é válido." O site mostra a mensagem da API.
+- **Bloqueio para testar o pagamento:** a API local está sem `PAGARME_SECRET_KEY`, `PAGARME_PUBLIC_KEY` e `PAGARME_WEBHOOK_SEGREDO`. O fechamento por cartão, PIX ou boleto responde 503 `PAGAMENTO_INDISPONIVEL` e a configuração vem com `disponivel: false`. Para o teste completo, faltam as chaves de **sandbox** (`sk_test_`/`pk_test_`) da conta do Quad.
+- Para o cartão, o site gera o token direto em `https://api.pagar.me/core/v5/tokens?appId={chavePublica}`. O domínio do site precisa estar autorizado na conta do Pagar.me.
+
+Dúvidas para o backend (continuam abertas):
 - O carrinho do servidor exige login. O visitante monta o carrinho sem conta; o site manda os itens para o servidor só depois do login. Está certo assim?
 - `CarrinhoResponse.totalEmReais` e `precoUnitarioEmReais` são inteiros, mas `FechamentoResponse.totalEmCentavos` está em centavos. Os campos "EmReais" estão em reais inteiros? Um material de R$ 49,90 não caberia (ver item 5.3).
 - Itens agora têm `variacoes` (ex.: tamanhos). Quais itens do site vão ter variação?

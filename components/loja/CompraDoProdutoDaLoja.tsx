@@ -36,6 +36,7 @@ export default function CompraDoProdutoDaLoja({ produto }: { produto: ProdutoDaL
         nome: produto.nome,
         tag: [textoDaVariacao, "Retirar no Quad"].filter(Boolean).join(" · "),
         preco,
+        alvo: { itemId: produto.idNaApi, variacaoId: variacoes.map((v) => v.ids[escolha[v.nome] ?? ""]).find(Boolean) },
       },
       quantidade,
     );

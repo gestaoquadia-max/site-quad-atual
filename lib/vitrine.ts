@@ -402,6 +402,7 @@ function categoriaDoNome(nome: string) {
 function paraProdutoDaLoja(i: ItemDaVitrine): ProdutoDaLoja {
   return {
     id: slugDa({ ...i, tipo: "TURMA" } as unknown as AtividadeDaVitrine),
+    idNaApi: i.id,
     categoria: categoriaDoNome(i.nome),
     nome: i.nome,
     descricao: i.descricao,
@@ -415,6 +416,7 @@ function paraProdutoDaLoja(i: ItemDaVitrine): ProdutoDaLoja {
               nome: "Tamanho",
               opcoes: i.variacoes.map((v) => v.nome),
               esgotadas: i.variacoes.filter((v) => v.restantes !== null && v.restantes <= 0).map((v) => v.nome),
+              ids: Object.fromEntries(i.variacoes.map((v) => [v.nome, v.id])),
             },
           ]
         : [],

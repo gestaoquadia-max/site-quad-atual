@@ -17,8 +17,8 @@ const politicaDeConteudo = [
   // Imagens da API (S3) e fotos de aprovados vêm de outros endereços https.
   "img-src 'self' data: blob: https:",
   "font-src 'self'",
-  // A API e a busca de endereço pelo CEP.
-  ["connect-src 'self'", origemDaApi, "https://viacep.com.br"].filter(Boolean).join(" "),
+  // A API, a busca de endereço pelo CEP e a tokenização do cartão no Pagar.me (lib/pagarme.ts).
+  ["connect-src 'self'", origemDaApi, "https://viacep.com.br", "https://api.pagar.me"].filter(Boolean).join(" "),
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

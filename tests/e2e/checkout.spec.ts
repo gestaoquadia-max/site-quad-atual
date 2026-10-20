@@ -1,14 +1,16 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import { CONTA_A, entrar } from "./contas";
 
-// O pagamento ainda é simulado (sem Pagar.me); estes testes cobrem carrinho, resumo e telas de resultado.
+// Checkout com o carrinho do servidor (API local). O pagamento em reais depende das chaves do Pagar.me na API:
+// sem elas (API local hoje), o checkout avisa que o pagamento está indisponível e não deixa pagar.
 
 test("checkout com o carrinho vazio orienta a escolher algo", async ({ page }) => {
   await page.goto("/checkout");
   await expect(page.getByText("Seu carrinho está vazio")).toBeVisible();
 });
 
-test("comprar um material com PIX leva a 'aguardando pagamento' e esvazia o carrinho", async ({ page }) => {
-  // Os materiais vêm da vitrine da API: usa o primeiro do catálogo.
+// Põe o primeiro material da vitrine no carrinho e devolve o nome dele (ou pula o teste se não houver).
+async function adicionarUmMaterial(page: Page) {
   await page.goto("/produtos");
   const detalhes = page.locator("main").getByRole("link", { name: "Detalhes" }).first();
   test.skip((await detalhes.count()) === 0, "A vitrine da API não tem material à venda agora.");
@@ -16,41 +18,67 @@ test("comprar um material com PIX leva a 'aguardando pagamento' e esvazia o carr
   const nome = (await page.getByRole("heading", { level: 1 }).textContent())!.trim();
   await page.locator("main").getByRole("button", { name: "Adicionar ao carrinho" }).click();
   await expect(page.getByRole("status")).toContainText("adicionado ao carrinho");
+  return nome;
+}
+
+test("sem login, o checkout pede para entrar e mantém o carrinho", async ({ page }) => {
+  const nome = await adicionarUmMaterial(page);
   await page.goto("/checkout");
-  // Escopo em <main>: o menu do topo (escondido) também tem esses textos.
+  await expect(page.getByRole("heading", { name: "Entre para finalizar a compra" })).toBeVisible();
+  await expect(page.locator("main").getByRole("link", { name: "Entrar" })).toHaveAttribute("href", "/entrar?redirect=%2Fcheckout");
+  await page.goto("/carrinho");
   await expect(page.locator("main").getByText(nome).first()).toBeVisible();
-
-  await page.getByRole("radio", { name: "PIX" }).click();
-  await page.getByRole("button", { name: "Confirmar pagamento" }).click();
-  await expect(page.getByRole("heading", { name: "Aguardando pagamento" })).toBeVisible();
-
-  await page.goto("/checkout");
-  await expect(page.getByText("Seu carrinho está vazio")).toBeVisible();
 });
 
-test("evento gratuito pula a parte de pagamento", async ({ page }) => {
+test("logado, o checkout reserva os itens no servidor, mostra o total da API e confere o cupom", async ({ page }) => {
+  await entrar(page, CONTA_A);
+  const nome = await adicionarUmMaterial(page);
+  await page.goto("/checkout");
+  const resumo = page.getByRole("complementary");
+  await expect(resumo.getByText(nome).first()).toBeVisible();
+  await expect(resumo.getByText(/Itens reservados para você até \d{2}:\d{2}/)).toBeVisible();
+  await expect(resumo.getByText(/R\$\s?\d/).first()).toBeVisible();
+
+  await resumo.getByPlaceholder("Cupom de desconto").fill("CUPOMQUENAOEXISTE");
+  await resumo.getByRole("button", { name: "Aplicar" }).click();
+  await expect(resumo.getByRole("alert")).toContainText("cupom");
+
+  // Com o Pagar.me desligado na API, avisa e não deixa pagar; com ele ligado, o botão fica disponível.
+  const pagar = page.getByRole("button", { name: "Pagar com cartão" });
+  const indisponivel = page.getByText("O pagamento online está indisponível no momento.", { exact: false });
+  await expect(indisponivel.or(pagar.and(page.locator(":enabled")))).toBeVisible();
+  if (await indisponivel.isVisible()) await expect(pagar).toBeDisabled();
+
+  // Solta as reservas (elas seguram o estoque por 30 minutos).
+  const status = await page.evaluate(async (api) => {
+    const sessao = JSON.parse(localStorage.getItem("quad-auth") ?? "{}");
+    const res = await fetch(`${api}/api/loja/carrinho/eu`, { method: "DELETE", headers: { Authorization: `Bearer ${sessao.tokenDeAcesso}` } });
+    return res.status;
+  }, process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080");
+  expect(status).toBe(204);
+});
+
+test("evento gratuito inscreve direto, pedindo login antes", async ({ page }) => {
   // Os eventos vêm da vitrine da API: procura, entre os da agenda, o primeiro gratuito com inscrições abertas.
   await page.goto("/eventos");
   // O "Detalhes" de cada cartão fica dentro do painel "Informações".
   for (const botao of await page.locator("main").getByRole("button", { name: "Informações" }).all()) await botao.click();
-  const enderecos =[...new Set(await page.locator('main a[href^="/eventos/"]').evaluateAll((as) => as.map((a) => a.getAttribute("href"))))];
-  let achou = false;
+  const enderecos = [...new Set(await page.locator('main a[href^="/eventos/"]').evaluateAll((as) => as.map((a) => a.getAttribute("href"))))];
+  let achou: string | null = null;
   for (const endereco of enderecos) {
     await page.goto(endereco!);
     // Espera a página carregar e conta, sem aguardar um botão que pode não existir (evento pago).
     await page.getByRole("heading", { level: 1 }).waitFor();
     const botao = page.getByRole("button", { name: "Fazer inscrição gratuita" });
     if ((await botao.count()) > 0 && (await botao.isEnabled())) {
-      achou = true;
+      achou = endereco;
       break;
     }
   }
   test.skip(!achou, "A vitrine da API não tem evento gratuito aberto agora.");
+  // Sem login: vai para o login e volta para o evento depois. Não inscreve de verdade (o teste rodaria uma vez só).
   await page.getByRole("button", { name: "Fazer inscrição gratuita" }).click();
-  await expect(page).toHaveURL(/\/checkout$/);
-  await expect(page.getByRole("heading", { name: "Inscrição gratuita" })).toBeVisible();
-  await page.getByRole("button", { name: "Confirmar inscrição" }).click();
-  await expect(page.getByRole("heading", { name: "Inscrição confirmada" })).toBeVisible();
+  await expect(page).toHaveURL(`/entrar?redirect=${encodeURIComponent(achou!)}`);
 });
 
 test("produto da loja vai para o carrinho com o tamanho, a quantidade e a retirada no Quad", async ({ page }) => {
