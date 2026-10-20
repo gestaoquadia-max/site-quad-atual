@@ -42,7 +42,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | 10 | Segurança e LGPD | 2 | 6 | 1 |
 | 11 | Analytics e marketing | 1 | 4 | 0 |
 | 12 | Deploy e operação | 3 | 7 | 0 |
-| 13 | Redesenho do site | 9 | 28 | 7 |
+| 13 | Redesenho do site | 9 | 28 | 5 |
 
 ---
 
@@ -665,8 +665,8 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 | Tarefa | Status |
 |---|---|
-| Turmas por modalidade (RONDESP, PATAMO e BOPE) com filtros | FEITO |
-| Página da turma no novo visual | FEITO |
+| Turmas por modalidade (RONDESP, PATAMO e BOPE) com filtros | EM ANDAMENTO |
+| Página da turma no novo visual | EM ANDAMENTO |
 | Lista de interessados (tela pronta, aguardando backend) | EM ANDAMENTO |
 
 **Campos adicionais**
@@ -675,11 +675,11 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 3 — MATERIAIS E SIMULADOS
 
-**Status:** PENDENTE
+**Status:** EM ANDAMENTO
 
 | Tarefa | Status |
 |---|---|
-| Materiais com busca e filtro | PENDENTE |
+| Materiais com busca e filtro | EM ANDAMENTO |
 | Página do material no novo visual | PENDENTE |
 | Central de Simulados (presenciais, individuais e combos) | PENDENTE |
 
