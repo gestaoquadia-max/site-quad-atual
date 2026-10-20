@@ -42,7 +42,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | 10 | Segurança e LGPD | 2 | 6 | 1 |
 | 11 | Analytics e marketing | 1 | 4 | 0 |
 | 12 | Deploy e operação | 3 | 7 | 0 |
-| 13 | Redesenho do site | 9 | 28 | 10 |
+| 13 | Redesenho do site | 9 | 28 | 13 |
 
 ---
 
@@ -702,13 +702,13 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 5 — BLOG E PROFESSORES
 
-**Status:** PENDENTE
+**Status:** CONCLUÍDA
 
 | Tarefa | Status |
 |---|---|
-| Blog com busca e categorias | PENDENTE |
-| Página do artigo no novo visual | PENDENTE |
-| Página do professor no novo visual | PENDENTE |
+| Blog com busca e categorias | FEITO |
+| Página do artigo no novo visual | FEITO |
+| Página do professor no novo visual | FEITO |
 
 **Campos adicionais**
 - **Prioridade:** Alta
