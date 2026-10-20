@@ -34,7 +34,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | 2 | Páginas públicas | 3 | 17 | 10 |
 | 3 | Área do aluno | 4 | 17 | 13 |
 | 4 | Qualidade de código | 3 | 11 | 10 |
-| 5 | Conteúdo via API | 4 | 11 | 3 |
+| 5 | Conteúdo via API | 4 | 11 | 4 |
 | 6 | Painel administrativo | 3 | 6 | 0 |
 | 7 | Carrinho | 1 | 7 | 3 |
 | 8 | Checkout e pagamento | 4 | 15 | 4 |
@@ -326,8 +326,8 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Tarefa | Status |
 |---|---|
 | Turmas pela API (com vagas ocupadas em tempo real) | FEITO |
-| Materiais PDF pela API (com preço) | PENDENTE |
-| Eventos pela API (com vagas) | EM ANDAMENTO |
+| Materiais PDF pela API (com preço) | EM ANDAMENTO |
+| Eventos pela API (com vagas) | FEITO |
 
 **Campos adicionais**
 - **Descrição:** O que o aluno compra no site
