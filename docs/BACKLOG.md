@@ -42,7 +42,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | 10 | Segurança e LGPD | 2 | 6 | 1 |
 | 11 | Analytics e marketing | 1 | 4 | 0 |
 | 12 | Deploy e operação | 3 | 7 | 0 |
-| 13 | Redesenho do site | 9 | 28 | 22 |
+| 13 | Redesenho do site | 9 | 28 | 25 |
 
 ---
 
@@ -758,13 +758,13 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 9 — PÁGINAS INSTITUCIONAIS NO NOVO VISUAL
 
-**Status:** PENDENTE
+**Status:** CONCLUÍDA
 
 | Tarefa | Status |
 |---|---|
-| Sobre, contato e aprovados | PENDENTE |
-| Termos de uso e política de privacidade | PENDENTE |
-| Páginas de não encontrada e de erro | PENDENTE |
+| Sobre, contato e aprovados | FEITO |
+| Termos de uso e política de privacidade | FEITO |
+| Páginas de não encontrada e de erro | FEITO |
 
 **Campos adicionais**
 - **Prioridade:** Alta
