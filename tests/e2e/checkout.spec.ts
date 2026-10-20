@@ -52,3 +52,25 @@ test("evento gratuito pula a parte de pagamento", async ({ page }) => {
   await page.getByRole("button", { name: "Confirmar inscrição" }).click();
   await expect(page.getByRole("heading", { name: "Inscrição confirmada" })).toBeVisible();
 });
+
+test("produto da loja vai para o carrinho com o tamanho, a quantidade e a retirada no Quad", async ({ page }) => {
+  await page.goto("/loja");
+  const produto = page.locator('main a[href^="/loja/"]').filter({ hasText: "Tamanho" }).first();
+  test.skip((await produto.count()) === 0, "A vitrine da API não tem produto da loja com tamanho agora.");
+  await produto.click();
+  await expect(page).toHaveURL(/\/loja\/.+/);
+  const nome = (await page.getByRole("heading", { level: 1 }).textContent())!.trim();
+  const tamanhos = page.getByRole("radiogroup", { name: "Tamanho" });
+  const escolhido = tamanhos.locator("[role=radio]:not([disabled])").last();
+  const tamanho = (await escolhido.textContent())!.trim();
+  await escolhido.click();
+  await page.getByRole("button", { name: "Aumentar" }).click();
+  await page.getByRole("button", { name: "Adicionar ao carrinho" }).click();
+  await expect(page.getByRole("status")).toContainText("adicionado ao carrinho");
+  await page.goto("/carrinho");
+  const item = page.locator("main li").filter({ hasText: nome });
+  await expect(item).toContainText(`Tamanho ${tamanho}`);
+  await expect(item).toContainText("2");
+  await expect(page.getByRole("heading", { name: "Entrega dos produtos físicos" })).toBeVisible();
+  await expect(page.getByRole("radio", { name: /Retirar no Quad/ })).toHaveAttribute("aria-checked", "true");
+});

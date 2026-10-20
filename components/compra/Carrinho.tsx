@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useCart, type CartItem } from "@/lib/cart";
+import { temQuantidade, useCart, type CartItem } from "@/lib/cart";
 import { formatarValor, parsePreco } from "@/lib/format";
 import { validarCompra, type Carreira, type FormatoDeEstudo } from "@/lib/simulados";
 import Etapas from "./Etapas";
@@ -12,6 +12,7 @@ export const ROTULO_DO_TIPO: Record<CartItem["tipo"], string> = {
   turma: "Turma",
   evento: "Evento",
   simulado: "Simulado",
+  loja: "Loja",
 };
 
 // Simulado no carrinho que deixou de estar à venda (edição despublicada, esgotada, formato retirado...).
@@ -30,7 +31,7 @@ export function motivoDaIndisponibilidade(item: CartItem, carreiras: Carreira[] 
 }
 
 export function ehFisico(item: CartItem) {
-  return item.formato === "impresso";
+  return item.formato === "impresso" || item.tipo === "loja";
 }
 
 function IconeDoCarrinho() {
@@ -122,12 +123,12 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
                           <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-azul-forte">{ROTULO_DO_TIPO[item.tipo]}</span>
-                          {item.formato === "impresso" && <span className={`${SELO} bg-[#EEF2F7] text-[#3E4A5E]`}>Impresso</span>}
+                          {ehFisico(item) && <span className={`${SELO} bg-[#EEF2F7] text-[#3E4A5E]`}>{item.tipo === "loja" ? "Físico" : "Impresso"}</span>}
                           {item.formato === "digital" && <span className={`${SELO} bg-azul-palido text-azul-forte`}>Digital</span>}
                         </div>
                         <div className="mt-1 font-display text-[17px] font-extrabold tracking-[-0.015em]">{item.nome}</div>
                         {item.tag && <div className="mt-0.5 text-[13px] text-ardosia">{item.tag}</div>}
-                        {item.tipo === "produto" && !motivo && <Quantidade item={item} />}
+                        {temQuantidade(item) && !motivo && <Quantidade item={item} />}
                         {motivo && (
                           <div role="alert" className="mt-1.5 inline-flex items-center gap-1.5 rounded-lg bg-[#FDECEC] px-2.5 py-1 text-[12.5px] font-semibold text-[#B42323]">
                             Indisponível: {motivo} Remova para continuar.

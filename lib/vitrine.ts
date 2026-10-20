@@ -407,7 +407,17 @@ function paraProdutoDaLoja(i: ItemDaVitrine): ProdutoDaLoja {
     descricao: i.descricao,
     preco: i.preco,
     estoque: i.restantes,
-    variacoes: i.variacoes.length > 0 ? [{ nome: "Tamanho", opcoes: i.variacoes.map((v) => v.nome) }] : [],
+    imagemUrl: i.imagemUrl,
+    variacoes:
+      i.variacoes.length > 0
+        ? [
+            {
+              nome: "Tamanho",
+              opcoes: i.variacoes.map((v) => v.nome),
+              esgotadas: i.variacoes.filter((v) => v.restantes !== null && v.restantes <= 0).map((v) => v.nome),
+            },
+          ]
+        : [],
   };
 }
 

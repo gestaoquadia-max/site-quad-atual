@@ -5,7 +5,7 @@ import { parsePreco } from "./format";
 
 export type CartItem = {
   id: string;
-  tipo: "produto" | "turma" | "evento" | "simulado";
+  tipo: "produto" | "turma" | "evento" | "simulado" | "loja";
   nome: string;
   tag?: string;
   preco: string;
@@ -19,7 +19,8 @@ export type CartItem = {
 
 type CartContextValue = {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, "quantidade">) => void;
+  // quantidade: só para itens com quantidade (materiais e produtos da loja); o padrão é 1.
+  addItem: (item: Omit<CartItem, "quantidade">, quantidade?: number) => void;
   removeItem: (id: string) => void;
   updateQuantidade: (id: string, quantidade: number) => void;
   clear: () => void;
@@ -36,6 +37,11 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null);
 
 const STORAGE_KEY = "quad-carrinho";
+
+// Materiais e produtos da loja podem ir em mais de uma unidade; turmas, eventos e simulados, não.
+export function temQuantidade(item: Pick<CartItem, "tipo">) {
+  return item.tipo === "produto" || item.tipo === "loja";
+}
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -60,17 +66,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items, carregado]);
 
-  function addItem(item: Omit<CartItem, "quantidade">) {
+  function addItem(item: Omit<CartItem, "quantidade">, quantidade = 1) {
     clearTimeout(temporizadorDoAviso.current);
     setAviso(item.nome);
     temporizadorDoAviso.current = setTimeout(() => setAviso(null), 3200);
     setItems((prev) => {
       const existente = prev.find((i) => i.id === item.id);
       if (existente) {
-        if (item.tipo !== "produto") return prev;
-        return prev.map((i) => (i.id === item.id ? { ...i, quantidade: i.quantidade + 1 } : i));
+        if (!temQuantidade(item)) return prev;
+        return prev.map((i) => (i.id === item.id ? { ...i, quantidade: i.quantidade + quantidade } : i));
       }
-      return [...prev, { ...item, quantidade: 1 }];
+      return [...prev, { ...item, quantidade: temQuantidade(item) ? quantidade : 1 }];
     });
   }
 

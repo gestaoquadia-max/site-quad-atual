@@ -123,6 +123,15 @@ export const mentorias = [
       "Uma preparação completa com aulas gravadas, materiais teóricos, cronograma personalizado e análise de desempenho para orientar a evolução do aluno.",
     destaque: false,
     link: `${LINK_DAS_MENTORIAS}#mentoria`,
+    recursos: [
+      "Aulas gravadas",
+      "Materiais teóricos em PDF",
+      "Cronograma personalizado na Tutory",
+      "Raio-X de desempenho por tópico",
+      "Análise da incidência dos assuntos na prova",
+      "Materiais exclusivos de redação",
+      "Ajustes após a publicação do edital",
+    ],
   },
   {
     nome: "Mentoria+",
@@ -131,6 +140,16 @@ export const mentorias = [
       "Todos os recursos da Mentoria, com acompanhamento premium para quem deseja uma preparação mais próxima e orientada.",
     destaque: true,
     link: `${LINK_DAS_MENTORIAS}#plus`,
+    // Além de tudo o que a Mentoria tem.
+    recursos: [
+      "Encontros semanais com professores do Quad",
+      "Curso Como Estudar",
+      "Comunidade Esparta",
+      "Relatórios individuais de desempenho",
+      "Uma correção individual de redação por mês",
+      "Acompanhamento individualizado com mentor aprovado em concurso público",
+      "QConcursos integrado à estratégia de preparação",
+    ],
   },
   {
     nome: "Combo",
@@ -138,6 +157,7 @@ export const mentorias = [
     descricao: "Mentoria por 12 meses + benefícios da Mentoria Plus por 3 meses.",
     destaque: false,
     link: `${LINK_DAS_MENTORIAS}#comparativo`,
+    recursos: [] as string[],
   },
 ];
 
@@ -151,7 +171,9 @@ export type ProdutoDaLoja = {
   // null = "A confirmar".
   preco: number | null;
   estoque: number | null;
-  variacoes: { nome: string; opcoes: string[] }[];
+  imagemUrl: string | null;
+  // esgotadas: opções sem estoque (aparecem, mas não podem ser escolhidas).
+  variacoes: { nome: string; opcoes: string[]; esgotadas: string[] }[];
   exemplo?: boolean;
 };
 

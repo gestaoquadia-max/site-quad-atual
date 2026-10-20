@@ -54,6 +54,10 @@ const nextConfig = {
   async headers() {
     return [{ source: "/(.*)", headers: cabecalhosDeSeguranca }];
   },
+  // Os cursos online viraram as Mentorias do Quad (novo visual, out/2026).
+  async redirects() {
+    return [{ source: "/cursos", destination: "/mentorias", permanent: true }];
+  },
 };
 
 export default nextConfig;

@@ -339,26 +339,3 @@ export const posts: Post[] = [
     ],
   },
 ];
-
-export const cursosOnline = [
-  {
-    tag: "Online · Acesso 12 meses",
-    nome: "Esquadrão",
-    desc: "Preparação completa para carreiras policiais. Videoaulas, PDFs, simulados e mentoria em grupo.",
-    preco: "R$ 89",
-    precoSufixo: "/mês",
-  },
-  {
-    tag: "Online · Acesso 12 meses",
-    nome: "Soldado",
-    desc: "Foco total no CFP Soldado PM-BA. Do edital à aprovação com plano de estudo guiado.",
-    preco: "R$ 69",
-    precoSufixo: "/mês",
-  },
-  {
-    tag: "Online · Vagas limitadas",
-    nome: "Mentoria Quad",
-    desc: "Acompanhamento individual com plano personalizado e encontros quinzenais.",
-    preco: "Consulte",
-  },
-];

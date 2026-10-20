@@ -71,7 +71,8 @@ export function CartaoMentoria({ nome, duracao, descricao, destaque }: { nome: s
   );
 }
 
-export function CartaoProdutoDaLoja({ produto }: { produto: ProdutoDaLoja }) {
+// fundo: "nevoa" na home (seção branca); "branco" na página da loja (seção névoa).
+export function CartaoProdutoDaLoja({ produto, fundo = "nevoa" }: { produto: ProdutoDaLoja; fundo?: "nevoa" | "branco" }) {
   const variacoes = produto.variacoes
     .filter((v) => v.opcoes.length > 0)
     .map((v) => `${v.nome}: ${v.opcoes.join(", ")}`)
@@ -81,10 +82,10 @@ export function CartaoProdutoDaLoja({ produto }: { produto: ProdutoDaLoja }) {
   return (
     <Link
       href={`/loja/${produto.id}`}
-      className="flex h-full flex-col rounded-[18px] border border-linha bg-nevoa p-2 text-tinta transition-[transform,border-color] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:text-tinta"
+      className={`flex h-full flex-col rounded-[18px] border border-linha ${fundo === "branco" ? "bg-white shadow-[0_1px_2px_rgba(16,27,45,0.05),0_12px_28px_-22px_rgba(7,20,38,0.25)]" : "bg-nevoa"} p-2 text-tinta transition-[transform,border-color] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:text-tinta`}
     >
       <div className="relative grid aspect-square place-items-center overflow-hidden rounded-xl bg-[#E6ECF4] text-[#8A97AA]">
-        <IconeDeImagem />
+        {produto.imagemUrl ? <Image src={produto.imagemUrl} alt="" fill sizes="(min-width: 1024px) 320px, 50vw" className="object-cover" /> : <IconeDeImagem />}
         {produto.exemplo && (
           <span className="absolute left-2.5 top-2.5">
             <SeloExemplo />
