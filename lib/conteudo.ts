@@ -142,6 +142,7 @@ export const mentorias = [
 ];
 
 // ---------- Loja Quad (produtos físicos) ----------
+// Os produtos vêm da vitrine de itens da API (tipo OUTROS; lib/vitrine.ts). Aqui ficam o tipo e as categorias.
 export type ProdutoDaLoja = {
   id: string;
   categoria: string;
@@ -159,19 +160,4 @@ export const categoriasDaLoja = [
   { id: "canecas", nome: "Canecas" },
   { id: "garrafas", nome: "Garrafas" },
   { id: "outros", nome: "Outros produtos" },
-];
-
-export const produtosDaLoja: ProdutoDaLoja[] = [
-  {
-    id: "camisa-quad",
-    categoria: "camisas",
-    nome: "Camisa Quad",
-    descricao: null,
-    preco: null,
-    estoque: null,
-    exemplo: true,
-    variacoes: [{ nome: "Tamanho", opcoes: ["P", "M", "G", "GG"] }],
-  },
-  { id: "caneca-quad", categoria: "canecas", nome: "Caneca Quad", descricao: null, preco: null, estoque: null, exemplo: true, variacoes: [] },
-  { id: "garrafa-quad", categoria: "garrafas", nome: "Garrafa Quad", descricao: null, preco: null, estoque: null, exemplo: true, variacoes: [] },
 ];

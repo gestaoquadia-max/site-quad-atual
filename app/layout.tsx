@@ -8,7 +8,7 @@ import { OuvinteDoBrilho } from "@/components/Brilho";
 import { CartProvider } from "@/lib/cart";
 import { UsuarioProvider } from "@/lib/usuario";
 import { DESCRICAO_DO_SITE, NOME_DO_SITE, URL_DO_SITE } from "@/lib/seo";
-import { listarEventos, listarTurmas } from "@/lib/vitrine";
+import { listarEventos, listarMateriais, listarTurmas } from "@/lib/vitrine";
 
 // Títulos em Manrope e textos em Inter (novo visual). As classes font-display e font-body apontam para elas.
 // As duas são fontes variáveis: um arquivo só cobre todos os pesos, então não se lista "weight".
@@ -39,7 +39,7 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   // Menu e barra de avisos de turmas e eventos. A resposta da API fica em cache (lib/vitrine.ts), então não pesa em cada página.
-  const [turmas, eventos] = await Promise.all([listarTurmas(), listarEventos()]);
+  const [turmas, eventos, materiais] = await Promise.all([listarTurmas(), listarEventos(), listarMateriais()]);
 
   return (
     <html lang="pt-BR" className={`${fonteDisplay.variable} ${fonteCorpo.variable}`} suppressHydrationWarning>
@@ -53,7 +53,7 @@ export default async function RootLayout({
             >
               Pular para o conteúdo
             </a>
-            <Navbar turmas={turmas ?? []} eventos={eventos ?? []} />
+            <Navbar turmas={turmas ?? []} eventos={eventos ?? []} materiais={materiais ?? []} />
             <main id="conteudo" tabIndex={-1} className="outline-none">
               {children}
             </main>

@@ -20,7 +20,9 @@ function normalizar(texto: string) {
   return texto.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 }
 
-export default function CatalogoDeMateriais({ produtos }: { produtos: Produto[] }) {
+// `lista` null = a API não respondeu.
+export default function CatalogoDeMateriais({ produtos: lista }: { produtos: Produto[] | null }) {
+  const produtos = lista ?? [];
   const [busca, setBusca] = useState("");
   const [tipo, setTipo] = useState<Tipo>("todos");
 
@@ -143,7 +145,15 @@ export default function CatalogoDeMateriais({ produtos }: { produtos: Produto[] 
                 {grade.length === 1 ? "1 material" : `${grade.length} materiais`}
               </span>
             </div>
-            {grade.length > 0 ? (
+            {lista === null ? (
+              <p role="alert" className="rounded-2xl border border-[#9B3535]/30 bg-[#9B3535]/[0.06] p-6 text-center text-sm text-[#9B3535]">
+                Não foi possível carregar os materiais agora. Tente novamente em instantes.
+              </p>
+            ) : produtos.length === 0 ? (
+              <p className="rounded-[18px] border-[1.5px] border-dashed border-[#C9D3E0] px-5 py-12 text-center font-display text-xl font-extrabold">
+                Nenhum material à venda no momento
+              </p>
+            ) : grade.length > 0 ? (
               <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-5">
                 {grade.map((p) => (
                   <CartaoMaterial key={p.slug} produto={p} indice={produtos.indexOf(p)} />

@@ -2,8 +2,10 @@
 // Rotas e campos: docs/mapa-api-conteudo.md. O formato final pedido ao backend está em docs/contrato-api-conteudo.md;
 // enquanto ele não chega, os textos de venda que a vitrine não tem (incluso, programação, professores) ficam vazios
 // e as páginas escondem essas seções.
-import type { Evento, Turma } from "./data";
-import { formatarHora } from "./format";
+import type { Evento, Produto, Turma } from "./data";
+import type { ProdutoDaLoja } from "./conteudo";
+import type { Carreira, Edicao } from "./simulados";
+import { formatarHora, precoSemCentavosZerados } from "./format";
 import { API_URL, lerErro } from "./http";
 
 // As páginas são refeitas no servidor no máximo a cada minuto: vagas e preços ficam atualizados sem
@@ -100,14 +102,7 @@ function diaBarraMes(iso: string) {
   return `${dia}/${mes}`;
 }
 
-// 1197 → "R$ 1.197"; 29.9 → "R$ 29,90". Mesmo formato dos preços escritos no site.
-function precoEmTexto(valor: number) {
-  return valor.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    minimumFractionDigits: Number.isInteger(valor) ? 0 : 2,
-  });
-}
+const precoEmTexto = precoSemCentavosZerados;
 
 function mesesEntre(inicio: string, fim: string) {
   const dias = (Date.parse(fim) - Date.parse(inicio)) / 86_400_000;
@@ -293,11 +288,10 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
   };
 }
 
-// Na API, evento e simulado são tipos diferentes; o site mostra os dois juntos, do mais próximo ao mais distante.
+// Agenda: só os eventos, do mais próximo ao mais distante. Os simulados ficam na Central de Simulados (listarCarreiras).
 export async function listarEventos(): Promise<Evento[] | null> {
   try {
-    const [eventos, simulados] = await Promise.all([listar("EVENTO"), listar("SIMULADO")]);
-    return [...eventos, ...simulados]
+    return (await listar("EVENTO"))
       .map(paraEvento)
       .sort((a, b) => (a.detalhe?.inicio ?? "9999").localeCompare(b.detalhe?.inicio ?? "9999"));
   } catch {
@@ -308,7 +302,141 @@ export async function listarEventos(): Promise<Evento[] | null> {
 export async function buscarEvento(slug: string): Promise<Evento | null> {
   const id = idDoSlug(slug);
   if (!id) return null;
-  // O endereço não diz se é evento ou simulado: procura nos dois.
-  const atividade = (await buscar("EVENTO", id)) ?? (await buscar("SIMULADO", id));
+  const atividade = await buscar("EVENTO", id);
   return atividade ? paraEvento(atividade) : null;
+}
+
+// ---------- Simulados ----------
+
+// Na API cada edição é um simulado, e a carreira ainda não é um campo: vem do nome, no padrão
+// "Simulado 77 — Soldado PMBA". Sem esse padrão, o simulado entra em "Outros simulados".
+function edicaoDoSimulado(a: AtividadeDaVitrine, ordem: number): { carreira: string; edicao: Edicao } {
+  const d = a.detalhe ?? {};
+  const numero = Number(a.nome.match(/simulado\s*(?:n[ºo°]?\s*)?(\d+)/i)?.[1] ?? ordem + 1);
+  const carreira = a.nome.split(/\s+[—–-]\s+/)[1]?.trim() || "Outros simulados";
+  const online = d.modalidade === "ONLINE";
+  return {
+    carreira,
+    edicao: {
+      numero,
+      data: d.data ?? null,
+      horario: d.inicio ? formatarHora(d.inicio) : null,
+      local: online ? "Online" : "Quad Concursos",
+      // Estar na vitrine = à venda (com preço e vagas). "Esgotado" sai das vagas restantes.
+      inscricao: "abertas",
+      publicado: true,
+      presencial: { preco: a.preco, vagas: a.vagas, vagasRestantes: a.restantes, sku: a.id },
+    },
+  };
+}
+
+export async function listarCarreiras(): Promise<Carreira[] | null> {
+  try {
+    const porCarreira = new Map<string, Carreira>();
+    (await listar("SIMULADO")).forEach((a, i) => {
+      const { carreira, edicao } = edicaoDoSimulado(a, i);
+      const id = slugDoNome(carreira);
+      if (!porCarreira.has(id)) porCarreira.set(id, { id, nome: `Simulado Presencial — ${carreira}`, curto: carreira, edicoes: [] });
+      porCarreira.get(id)!.edicoes.push(edicao);
+    });
+    return [...porCarreira.values()];
+  } catch {
+    return null;
+  }
+}
+
+// ---------- Itens: materiais impressos (MODULOS) e Loja (OUTROS) ----------
+
+type ItemDaVitrine = {
+  id: string;
+  nome: string;
+  // MODULOS = material impresso entregue no balcão; OUTROS = produto da loja. MENTORIA e SKIN são do app.
+  tipo: "MODULOS" | "EXCURSOES" | "TREINAMENTO_TAF" | "MENTORIA" | "OUTROS" | "SKIN";
+  descricao: string | null;
+  imagemUrl: string | null;
+  preco: number | null;
+  ofertadas: number | null;
+  vendidas: number | null;
+  restantes: number | null;
+  variacoes: { id: string; nome: string; ofertadas: number | null; vendidas: number | null; restantes: number | null }[];
+};
+
+async function listarItens(): Promise<ItemDaVitrine[]> {
+  const pagina = await lerDaVitrine<Pagina<ItemDaVitrine>>("/api/loja/vitrine?tamanho=100");
+  // A vitrine lista do mais novo ao mais antigo; o site mostra na ordem do cadastro.
+  return pagina === NAO_ENCONTRADA ? [] : pagina.conteudo.filter((i) => i.preco != null && i.preco > 0).reverse();
+}
+
+function paraMaterial(i: ItemDaVitrine): Produto {
+  const kit = /\bkit\b|combo/i.test(i.nome);
+  const esgotado = i.restantes !== null && i.restantes <= 0;
+  return {
+    slug: slugDa({ ...i, tipo: "TURMA" } as unknown as AtividadeDaVitrine),
+    tag: kit ? "Kit · Impresso" : "Apostila · Impresso",
+    nome: i.nome,
+    desc: i.descricao ?? "",
+    preco: precoEmTexto(i.preco!),
+    // A API ainda não vende a versão digital (PDF): o material sai impresso, retirado no Quad.
+    formatos: ["impresso"],
+    esgotado,
+    detalhe: {
+      lead: i.descricao ?? "",
+      specs: [
+        { label: "Formato", valor: "Impresso" },
+        { label: "Entrega", valor: "Retirada no Quad" },
+        ...(i.restantes !== null ? [{ label: "Disponíveis", valor: esgotado ? "Esgotado" : String(i.restantes), destaque: true }] : []),
+      ],
+      sumario: [],
+    },
+  };
+}
+
+function categoriaDoNome(nome: string) {
+  const n = slugDoNome(nome);
+  if (n.includes("camisa") || n.includes("camiseta")) return "camisas";
+  if (n.includes("caneca")) return "canecas";
+  if (n.includes("garrafa")) return "garrafas";
+  return "outros";
+}
+
+function paraProdutoDaLoja(i: ItemDaVitrine): ProdutoDaLoja {
+  return {
+    id: slugDa({ ...i, tipo: "TURMA" } as unknown as AtividadeDaVitrine),
+    categoria: categoriaDoNome(i.nome),
+    nome: i.nome,
+    descricao: i.descricao,
+    preco: i.preco,
+    estoque: i.restantes,
+    variacoes: i.variacoes.length > 0 ? [{ nome: "Tamanho", opcoes: i.variacoes.map((v) => v.nome) }] : [],
+  };
+}
+
+export async function listarMateriais(): Promise<Produto[] | null> {
+  try {
+    return (await listarItens()).filter((i) => i.tipo === "MODULOS").map(paraMaterial);
+  } catch {
+    return null;
+  }
+}
+
+export async function buscarMaterial(slug: string): Promise<Produto | null> {
+  const id = idDoSlug(slug);
+  if (!id) return null;
+  const item = await lerDaVitrine<ItemDaVitrine>(`/api/loja/vitrine/${id}`);
+  return item === NAO_ENCONTRADA || item.tipo !== "MODULOS" ? null : paraMaterial(item);
+}
+
+export async function listarProdutosDaLoja(): Promise<ProdutoDaLoja[] | null> {
+  try {
+    return (await listarItens()).filter((i) => i.tipo === "OUTROS").map(paraProdutoDaLoja);
+  } catch {
+    return null;
+  }
+}
+
+export async function buscarProdutoDaLoja(slug: string): Promise<ProdutoDaLoja | null> {
+  const id = idDoSlug(slug);
+  if (!id) return null;
+  const item = await lerDaVitrine<ItemDaVitrine>(`/api/loja/vitrine/${id}`);
+  return item === NAO_ENCONTRADA || item.tipo !== "OUTROS" ? null : paraProdutoDaLoja(item);
 }

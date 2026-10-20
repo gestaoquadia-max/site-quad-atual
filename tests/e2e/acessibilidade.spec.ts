@@ -17,8 +17,8 @@ async function primeiroEvento(page: Page) {
 
 // Regras WCAG 2.1 níveis A e AA (contraste, rótulos, teclado). As páginas da área do aluno exigem login e a API,
 // por isso ficam fora desta lista; foram conferidas à parte com dados de exemplo.
-// "turma:" e "evento:" = a primeira turma e o primeiro evento da vitrine da API (o endereço leva o id de cada um).
-const PAGINAS = ["/", "/turmas", "turma:", "/produtos", "/produtos/direito-constitucional", "/simulados", "/eventos", "evento:", "/aprovados", "/blog", "/sobre", "/contato", "/entrar", "/cadastro", "/checkout"];
+// "turma:", "material:" e "evento:" = o primeiro de cada um na vitrine da API (o endereço leva o id de cada um).
+const PAGINAS = ["/", "/turmas", "turma:", "/produtos", "material:", "/simulados", "/eventos", "evento:", "/aprovados", "/blog", "/sobre", "/contato", "/entrar", "/cadastro", "/checkout"];
 
 for (const caminho of PAGINAS) {
   test(`sem problemas de acessibilidade WCAG A/AA em ${caminho}`, async ({ page }) => {
@@ -26,7 +26,9 @@ for (const caminho of PAGINAS) {
     if (caminho.endsWith(":")) {
       const detalhe = await (caminho === "turma:"
         ? primeiroDetalhe(page, "/turmas", "Conhecer e matricular")
-        : primeiroEvento(page));
+        : caminho === "material:"
+          ? primeiroDetalhe(page, "/produtos", "Detalhes")
+          : primeiroEvento(page));
       test.skip(!detalhe, `A vitrine da API não tem ${caminho.slice(0, -1)} aberto(a) agora.`);
       await page.goto(detalhe!);
     } else {

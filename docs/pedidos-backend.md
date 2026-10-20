@@ -483,3 +483,16 @@ Criadas durante os testes do site; podem ser apagadas:
 - Conta "Teste Dup" (`dup.<número>@exemplo.com` · senha `senha12345`), criada ao reproduzir o item 1.4. Ela tem o mesmo CPF da conta C
 - Seed de desenvolvimento do backend aplicado em 19/10/2026 (`seeds/seed.sh`, no projeto da API). Ele criou o administrador `admin@quad.local`, professores, salas, matérias e alunos `@quad.local`, todos com a senha `Quad@2026`
 - "Turma de teste (site)" (19/10/2026): regular, de 03/11/2026 a 26/02/2027, seg a sex das 18h30 às 22h, no Auditório, **à venda por R$ 997 com 40 vagas**. Existe para a vitrine local ter uma turma: a C.O.R.E. e a Regular Tarde já terminaram e por isso não aparecem
+- Um produto de cada área (20/10/2026), para o site deixar os dados de exemplo e ler tudo da vitrine:
+  - Evento "Aulão de Véspera": aulão presencial em 14/11/2026, das 14h às 19h, no Auditório, R$ 30, 60 vagas
+  - Simulado "Simulado 77 — Soldado PMBA": presencial em 07/11/2026, das 8h às 12h30, no Auditório, R$ 25, 60 vagas. O site tira a carreira e o número do nome
+  - Materiais impressos (tipo `MODULOS`, 100 unidades cada): Direito Constitucional R$ 50, Direito Penal Militar R$ 45, Português para PM R$ 40, Raciocínio Lógico R$ 35, Legislação PM-BA R$ 45 e Kit Completo CFP R$ 150 (50 unidades)
+  - Loja (tipo `OUTROS`): Camisa Quad R$ 60 (tamanhos P, M, G e GG, 20 de cada), Caneca Quad R$ 35 e Garrafa Quad R$ 45 (40 de cada)
+
+### O que a API ainda não cobre (achado ao ligar os produtos, 20/10/2026)
+
+- **Material digital (PDF):** não há tipo de item para ele. Os materiais entram como impressos (`MODULOS`, retirada no balcão).
+- **Preço com centavos:** o preço é inteiro em reais. As apostilas de R$ 49,90 foram cadastradas como R$ 50 (pedido 5.3).
+- **Atividade gratuita fora da vitrine:** a vitrine só lista o que é vendido (preço > 0). Evento ou simulado gratuito não aparece no site; falta uma rota pública para eles (pedido 5.7).
+- **Simulados:** faltam a carreira (concurso), o número da edição e os formatos de estudo (PDF, plataforma, impresso) e combos, que a Central de Simulados do novo visual usa.
+- **Sumário e ficha dos materiais:** só há `descricao`. A página do material esconde o sumário até ele existir (contrato, seção 3).

@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Aprovado, Post, Professor } from "@/lib/data";
 import { categoriasDaLoja, type Modalidade, type ProdutoDaLoja } from "@/lib/conteudo";
-import { getIniciais } from "@/lib/format";
+import { getIniciais, precoSemCentavosZerados } from "@/lib/format";
 import { Brilho } from "../Brilho";
 
 function IconeDeImagem({ className = "" }: { className?: string }) {
@@ -77,7 +77,7 @@ export function CartaoProdutoDaLoja({ produto }: { produto: ProdutoDaLoja }) {
     .map((v) => `${v.nome}: ${v.opcoes.join(", ")}`)
     .join(" · ");
   const legenda = variacoes || categoriasDaLoja.find((c) => c.id === produto.categoria)?.nome || "";
-  const preco = produto.preco === null ? "A confirmar" : produto.preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const preco = produto.preco === null ? "A confirmar" : precoSemCentavosZerados(produto.preco);
   return (
     <Link
       href={`/loja/${produto.id}`}

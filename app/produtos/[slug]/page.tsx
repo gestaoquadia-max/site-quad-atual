@@ -1,33 +1,39 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { produtos } from "@/lib/data";
+import { notFound, redirect } from "next/navigation";
 import { metadadosDaPagina } from "@/lib/seo";
+import { buscarMaterial, listarMateriais } from "@/lib/vitrine";
 import CheckList from "@/components/CheckList";
 import CapaDoLivro, { CORES_DA_CAPA } from "@/components/CapaDoLivro";
 import CompraDoMaterial from "@/components/materiais/CompraDoMaterial";
 import { ehKit } from "@/lib/materiais";
 
-export function generateStaticParams() {
-  return produtos.map((p) => ({ slug: p.slug }));
+// Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts). Material que entrar na vitrine depois do build é gerado na primeira visita.
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  return ((await listarMateriais()) ?? []).map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const produto = produtos.find((p) => p.slug === slug);
+  const produto = await buscarMaterial(slug);
   if (!produto) return {};
-  return metadadosDaPagina({ titulo: produto.nome, descricao: produto.detalhe?.lead ?? produto.desc, caminho: `/produtos/${produto.slug}` });
+  return metadadosDaPagina({ titulo: produto.nome, descricao: produto.detalhe?.lead || produto.desc, caminho: `/produtos/${produto.slug}` });
 }
 
 export default async function ProdutoDetalhe({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const produto = produtos.find((p) => p.slug === slug);
+  const produto = await buscarMaterial(slug);
   if (!produto || !produto.detalhe) notFound();
+  // Material renomeado: o id continua o mesmo, então leva ao endereço com o nome atual.
+  if (produto.slug !== slug) redirect(`/produtos/${produto.slug}`);
   const d = produto.detalhe;
   const kit = ehKit(produto);
-  const indice = produtos.indexOf(produto);
-  // "PDF · 240 págs" → "240 págs"; "Combo · 5 PDFs" → "5 materiais".
-  const resumo = produto.tag.split(" · ")[1]?.replace("PDFs", "materiais");
+  // A cor da capa segue a posição do material no catálogo, como nos cartões.
+  const indice = Math.max(0, ((await listarMateriais()) ?? []).findIndex((p) => p.slug === produto.slug));
+  // "Apostila · Impresso" → "Impresso".
+  const resumo = produto.tag.split(" · ")[1];
 
   return (
     <>
@@ -72,9 +78,14 @@ export default async function ProdutoDetalhe({ params }: { params: Promise<{ slu
           <div className="rounded-[18px] border border-linha bg-white p-[clamp(28px,4vw,48px)]">
             <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-forte">Sobre o material</span>
             <h2 className="mb-4 mt-2 font-display text-2xl font-extrabold tracking-[-0.02em]">O que você vai receber</h2>
-            <p className="mb-7 max-w-[680px] text-[15.5px] leading-[1.65] text-ardosia-escura">{d.lead}</p>
-            <h3 className="mb-3 font-display text-lg font-extrabold">{kit ? "Materiais do kit" : "Sumário"}</h3>
-            <CheckList items={d.sumario} />
+            <p className="max-w-[680px] text-[15.5px] leading-[1.65] text-ardosia-escura">{d.lead}</p>
+            {/* O sumário ainda não vem da API (docs/contrato-api-conteudo.md, seção 3): sem ele, a lista some. */}
+            {d.sumario.length > 0 && (
+              <>
+                <h3 className="mb-3 mt-7 font-display text-lg font-extrabold">{kit ? "Materiais do kit" : "Sumário"}</h3>
+                <CheckList items={d.sumario} />
+              </>
+            )}
           </div>
           <div className="self-start rounded-[18px] bg-marinho-900 p-[clamp(24px,3vw,36px)] text-white">
             <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-ceu">Ficha</span>

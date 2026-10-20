@@ -33,6 +33,9 @@ export type Produto = {
   nome: string;
   desc: string;
   preco: string;
+  // Formatos à venda. Da API vem só "impresso" (tipo MODULOS, retirada no Quad); a versão digital ainda não existe lá.
+  formatos?: ("digital" | "impresso")[];
+  esgotado?: boolean;
   detalhe?: {
     lead: string;
     specs: { label: string; valor: string; destaque?: boolean }[];
@@ -63,154 +66,6 @@ export type Evento = {
     professores?: { iniciais: string; nome: string; papel: string }[];
   };
 };
-
-export const produtos: Produto[] = [
-  {
-    slug: "direito-constitucional",
-    tag: "PDF · 240 págs",
-    nome: "Direito Constitucional",
-    desc: "Teoria + 300 questões comentadas.",
-    preco: "R$ 49,90",
-    detalhe: {
-      lead: "Teoria direto ao ponto + 300 questões comentadas da banca. O material que os alunos das turmas presenciais do Quad usam, disponível para compra avulsa.",
-      specs: [
-        { label: "Páginas", valor: "240" },
-        { label: "Questões", valor: "300" },
-        { label: "Formato", valor: "PDF" },
-        { label: "Atualização", valor: "Jul 2025" },
-        { label: "Acesso", valor: "Imediato", destaque: true },
-      ],
-      sumario: [
-        "Teoria da Constituição e Poder Constituinte",
-        "Direitos e Garantias Fundamentais — o capítulo que mais cai",
-        "Organização do Estado e dos Poderes",
-        "Segurança Pública na Constituição (art. 144 detalhado)",
-        "Constituição do Estado da Bahia — recortes que a banca cobra",
-        "300 questões comentadas + 3 simulados temáticos",
-      ],
-    },
-  },
-  {
-    slug: "penal-militar",
-    tag: "PDF · 180 págs",
-    nome: "Direito Penal Militar",
-    desc: "Do zero à prova, jurisprudência atual.",
-    preco: "R$ 44,90",
-    detalhe: {
-      lead: "Do zero à prova: teoria completa de Direito Penal Militar com jurisprudência atualizada e questões da banca comentadas.",
-      specs: [
-        { label: "Páginas", valor: "180" },
-        { label: "Questões", valor: "220" },
-        { label: "Formato", valor: "PDF" },
-        { label: "Atualização", valor: "Jun 2025" },
-        { label: "Acesso", valor: "Imediato", destaque: true },
-      ],
-      sumario: [
-        "Aplicação da lei penal militar",
-        "Crime militar em tempo de paz",
-        "Crimes contra a autoridade e disciplina militar",
-        "Jurisprudência atualizada do STM e STF",
-        "220 questões comentadas",
-      ],
-    },
-  },
-  {
-    slug: "portugues-pm",
-    tag: "PDF · 150 págs",
-    nome: "Português para PM",
-    desc: "Gramática aplicada às últimas provas.",
-    preco: "R$ 39,90",
-    detalhe: {
-      lead: "Gramática aplicada às últimas 10 provas da banca. Sem teoria decorativa: só o que cai, com método de resolução.",
-      specs: [
-        { label: "Páginas", valor: "150" },
-        { label: "Questões", valor: "180" },
-        { label: "Formato", valor: "PDF" },
-        { label: "Atualização", valor: "Mai 2025" },
-        { label: "Acesso", valor: "Imediato", destaque: true },
-      ],
-      sumario: [
-        "Interpretação de texto — o método Quad",
-        "Concordância e regência aplicadas",
-        "Crase sem decoreba",
-        "Pontuação nas provas da banca",
-        "180 questões comentadas",
-      ],
-    },
-  },
-  {
-    slug: "raciocinio-logico",
-    tag: "PDF · 120 págs",
-    nome: "Raciocínio Lógico",
-    desc: "Método direto com resolução passo a passo.",
-    preco: "R$ 34,90",
-    detalhe: {
-      lead: "Método direto de resolução passo a passo, do básico às questões mais cobradas pela banca.",
-      specs: [
-        { label: "Páginas", valor: "120" },
-        { label: "Questões", valor: "150" },
-        { label: "Formato", valor: "PDF" },
-        { label: "Atualização", valor: "Abr 2025" },
-        { label: "Acesso", valor: "Imediato", destaque: true },
-      ],
-      sumario: [
-        "Proposições e conectivos lógicos",
-        "Equivalências e negações",
-        "Argumentação lógica",
-        "Sequências e padrões",
-        "150 questões resolvidas passo a passo",
-      ],
-    },
-  },
-  {
-    slug: "legislacao-pmba",
-    tag: "PDF · 200 págs",
-    nome: "Legislação PM-BA",
-    desc: "Estatuto, regulamentos e leis específicas.",
-    preco: "R$ 44,90",
-    detalhe: {
-      lead: "Estatuto dos Policiais Militares da Bahia, regulamentos disciplinares e legislação específica organizados do jeito que a banca cobra.",
-      specs: [
-        { label: "Páginas", valor: "200" },
-        { label: "Questões", valor: "190" },
-        { label: "Formato", valor: "PDF" },
-        { label: "Atualização", valor: "Jul 2025" },
-        { label: "Acesso", valor: "Imediato", destaque: true },
-      ],
-      sumario: [
-        "Estatuto dos Policiais Militares da Bahia comentado",
-        "Regulamento disciplinar na prática",
-        "Lei de organização básica da PM-BA",
-        "Quadros comparativos e esquemas",
-        "190 questões comentadas",
-      ],
-    },
-  },
-  {
-    slug: "kit-completo-cfp",
-    tag: "Combo · 5 PDFs",
-    nome: "Kit Completo CFP",
-    desc: "Todas as disciplinas do edital.",
-    preco: "R$ 149,90",
-    detalhe: {
-      lead: "Todas as disciplinas do edital do CFP Soldado PM-BA em um único pacote — com economia de mais de 30% em relação à compra avulsa.",
-      specs: [
-        { label: "Materiais", valor: "5 PDFs" },
-        { label: "Páginas", valor: "890" },
-        { label: "Questões", valor: "1.040" },
-        { label: "Formato", valor: "PDF" },
-        { label: "Acesso", valor: "Imediato", destaque: true },
-      ],
-      sumario: [
-        "Direito Constitucional (240 págs)",
-        "Direito Penal Militar (180 págs)",
-        "Português para PM (150 págs)",
-        "Raciocínio Lógico (120 págs)",
-        "Legislação PM-BA (200 págs)",
-      ],
-    },
-  },
-];
 
 export type Aprovado = {
   nome: string;

@@ -4,8 +4,6 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
 import {
-  carreiras,
-  combos,
   comboAVenda,
   dataCurta,
   formatosDa,
@@ -15,6 +13,7 @@ import {
   situacaoDa,
   validarCompra,
   type Carreira,
+  type Combo,
   type Edicao,
   type FormatoDeEstudo,
   type Situacao,
@@ -144,10 +143,22 @@ function TituloComDica({ id, titulo, dica, aberta, onAlternar }: { id: string; t
   );
 }
 
-export default function CentralDeSimulados({ modoInicial, carreiraInicial }: { modoInicial: Modo; carreiraInicial: string | null }) {
+// `carreiras` vem da vitrine da API (null = a API não respondeu). Combos ainda não existem lá.
+export default function CentralDeSimulados({
+  carreiras: recebidas,
+  combos,
+  modoInicial,
+  carreiraInicial,
+}: {
+  carreiras: Carreira[] | null;
+  combos: Combo[];
+  modoInicial: Modo;
+  carreiraInicial: string | null;
+}) {
+  const carreiras = recebidas ?? [];
   const { addItem } = useCart();
   const [modo, setModo] = useState<Modo>(modoInicial);
-  const [idDaCarreira, setIdDaCarreira] = useState(carreiraInicial ?? carreiras[0].id);
+  const [idDaCarreira, setIdDaCarreira] = useState(carreiraInicial ?? carreiras[0]?.id ?? "");
   const [selecionada, setSelecionada] = useState<number | null>(null);
   const [formato, setFormato] = useState<FormatoDeEstudo | null>(null);
   const [dica, setDica] = useState<string | null>(null);
@@ -169,7 +180,7 @@ export default function CentralDeSimulados({ modoInicial, carreiraInicial }: { m
   }, [dica]);
 
   const hoje = hojeEmBrasilia();
-  const carreira = carreiras.find((c) => c.id === idDaCarreira) ?? carreiras[0];
+  const carreira: Carreira = carreiras.find((c) => c.id === idDaCarreira) ?? carreiras[0] ?? { id: "", nome: "", curto: "", edicoes: [] };
   const edicoes: EdicaoComSituacao[] = carreira.edicoes
     .filter((e) => e.publicado)
     .map((e) => ({ ...e, st: situacaoDa(e, hoje) }))
@@ -232,7 +243,7 @@ export default function CentralDeSimulados({ modoInicial, carreiraInicial }: { m
         preco: precoOuACadastrar(e.presencial?.preco ?? null),
         simulado: { carreira: carreira.id, edicao: e.numero, modalidade: "presencial", sku: e.presencial!.sku },
       },
-      validarCompra(carreira.id, e.numero, "presencial"),
+      validarCompra(carreiras, carreira.id, e.numero, "presencial"),
     );
   }
 
@@ -309,6 +320,17 @@ export default function CentralDeSimulados({ modoInicial, carreiraInicial }: { m
             </Link>
           </div>
 
+          {carreiras.length === 0 ? (
+            <p
+              role={recebidas === null ? "alert" : undefined}
+              className="mt-[clamp(36px,4vw,52px)] rounded-[18px] border-[1.5px] border-dashed border-[#C9D3E0] px-5 py-12 text-center text-[15px] text-ardosia"
+            >
+              {recebidas === null
+                ? "Não foi possível carregar os simulados agora. Tente novamente em instantes."
+                : "Nenhum simulado com inscrições abertas no momento. As próximas edições aparecem aqui assim que forem publicadas."}
+            </p>
+          ) : (
+          <>
           {/* Carreira */}
           <h2 className="mb-5 mt-[clamp(36px,4vw,52px)] font-display text-[clamp(1.6rem,2.6vw,2.1rem)] font-extrabold tracking-[-0.03em]">Escolha a carreira</h2>
           <div role="radiogroup" aria-label="Carreira" className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,240px),1fr))] gap-3">
@@ -470,7 +492,7 @@ export default function CentralDeSimulados({ modoInicial, carreiraInicial }: { m
                   ) : (
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,300px),1fr))] gap-4">
                       {combosDaCarreira.map((c) => {
-                        const vendavel = comboAVenda(c);
+                        const vendavel = comboAVenda(c, carreiras);
                         return (
                           <article key={c.id} className="flex flex-col gap-3 rounded-2xl border border-linha bg-white p-[22px] shadow-[0_18px_36px_-24px_rgba(7,20,38,0.35)]">
                             <div className="flex items-start justify-between gap-3">
@@ -539,7 +561,7 @@ export default function CentralDeSimulados({ modoInicial, carreiraInicial }: { m
                         preco: precoOuACadastrar(atual[f]?.preco ?? null),
                         simulado: { carreira: carreira.id, edicao: atual.numero, modalidade: f, sku: atual[f]!.sku },
                       },
-                      validarCompra(carreira.id, atual.numero, f),
+                      validarCompra(carreiras, carreira.id, atual.numero, f),
                     )
                   }
                 />
@@ -551,6 +573,8 @@ export default function CentralDeSimulados({ modoInicial, carreiraInicial }: { m
               </div>
             )}
           </div>
+          </>
+          )}
         </div>
       </section>
     </>

@@ -1,6 +1,6 @@
 // Central de Simulados do Quad (redesenho, out/2026): carreiras → edições → formatos → compra.
-// Dados de exemplo da designer (`exemplo: true`): números, datas, horários e vagas ilustrativos e sem preço.
-// Quando existir o cadastro no backend (docs/pedidos-backend.md), este arquivo passa a ler da API com os mesmos campos.
+// As carreiras e edições vêm da vitrine da API (listarCarreiras em lib/vitrine.ts); aqui ficam os tipos e as regras de venda.
+// A API ainda não tem PDF, plataforma, impresso nem combos por edição (docs/pedidos-backend.md): esses campos ficam vazios.
 
 export type Inscricao = "a-confirmar" | "abertas" | "encerradas" | "esgotado";
 export type FormatoDeEstudo = "pdf" | "plataforma" | "impresso";
@@ -51,51 +51,6 @@ export const ROTULO_DO_FORMATO: Record<FormatoDeEstudo, { nome: string; curto: s
   impresso: { nome: "Versão impressa", curto: "Impresso", dica: "Impressão cobrada; retirada gratuita no Quad" },
 };
 
-export const carreiras: Carreira[] = [
-  {
-    id: "soldado-pmba",
-    nome: "Simulado Presencial — Soldado PMBA",
-    curto: "Soldado PMBA",
-    descricao: "Edições semanais aplicadas presencialmente no Quad, no formato da prova de Soldado PMBA.",
-    edicoes: [
-      { numero: 79, data: null, horario: null, local: null, inscricao: "a-confirmar", publicado: true, exemplo: true, presencial: { preco: null, vagas: null, vagasRestantes: null, sku: "SIM-PMBA-79-PRES" } },
-      { numero: 78, data: "2026-10-31", horario: "08h00", local: "Quad Concursos", inscricao: "abertas", publicado: true, exemplo: true, presencial: { preco: null, vagas: 120, vagasRestantes: 120, sku: "SIM-PMBA-78-PRES" } },
-      { numero: 77, data: "2026-10-24", horario: "08h00", local: "Quad Concursos", inscricao: "abertas", publicado: true, exemplo: true, presencial: { preco: null, vagas: 120, vagasRestantes: 96, sku: "SIM-PMBA-77-PRES" } },
-      { numero: 76, data: "2026-10-17", horario: "08h00", local: "Quad Concursos", inscricao: "abertas", publicado: true, exemplo: true, presencial: { preco: null, vagas: 120, vagasRestantes: 31, sku: "SIM-PMBA-76-PRES" } },
-      { numero: 75, data: "2026-10-10", horario: "08h00", local: "Quad Concursos", inscricao: "encerradas", publicado: true, exemplo: true,
-        pdf: { preco: null, disponivel: true, sku: "SIM-PMBA-75-PDF" },
-        plataforma: { preco: null, disponivel: true, sku: "SIM-PMBA-75-PLAT" },
-        impresso: { preco: null, disponivel: true, estoque: null, sku: "SIM-PMBA-75-IMP" } },
-      { numero: 74, data: "2026-10-03", horario: "08h00", local: "Quad Concursos", inscricao: "encerradas", publicado: true, exemplo: true,
-        pdf: { preco: null, disponivel: true, sku: "SIM-PMBA-74-PDF" } },
-    ],
-  },
-  {
-    id: "investigador-pcba",
-    nome: "Simulado Presencial — Investigador PCBA",
-    curto: "Investigador PCBA",
-    descricao: "Edições semanais aplicadas presencialmente no Quad, no formato da prova de Investigador PCBA.",
-    edicoes: [
-      { numero: 78, data: "2026-11-01", horario: "08h00", local: "Quad Concursos", inscricao: "a-confirmar", publicado: true, exemplo: true, presencial: { preco: null, vagas: 80, vagasRestantes: 80, sku: "SIM-PCBA-78-PRES" } },
-      { numero: 77, data: "2026-10-25", horario: "08h00", local: "Quad Concursos", inscricao: "abertas", publicado: true, exemplo: true, presencial: { preco: null, vagas: 80, vagasRestantes: 54, sku: "SIM-PCBA-77-PRES" } },
-      { numero: 76, data: "2026-10-18", horario: "08h00", local: "Quad Concursos", inscricao: "esgotado", publicado: true, exemplo: true,
-        presencial: { preco: null, vagas: 80, vagasRestantes: 0, sku: "SIM-PCBA-76-PRES" },
-        pdf: { preco: null, disponivel: true, sku: "SIM-PCBA-76-PDF" } },
-      { numero: 75, data: "2026-10-11", horario: "08h00", local: "Quad Concursos", inscricao: "encerradas", publicado: true, exemplo: true,
-        pdf: { preco: null, disponivel: true, sku: "SIM-PCBA-75-PDF" },
-        plataforma: { preco: null, disponivel: true, sku: "SIM-PCBA-75-PLAT" },
-        impresso: { preco: null, disponivel: false, estoque: 0, sku: "SIM-PCBA-75-IMP" } },
-    ],
-  },
-  { id: "soldado-pmpe", nome: "Soldado PMPE", curto: "Soldado PMPE", exemplo: true, edicoes: [] },
-  { id: "cfo-pmba", nome: "CFO PMBA", curto: "CFO PMBA", exemplo: true, edicoes: [] },
-];
-
-export const combos: Combo[] = [
-  { id: "combo-3-pmba-pdf", nome: "Combo 3 Simulados", carreira: "soldado-pmba", itens: [74, 75, 76], formato: "pdf", preco: null, disponivel: true, exemplo: true, sku: "COMBO-PMBA-3-PDF" },
-  { id: "combo-3-pcba-imp", nome: "Combo 3 Simulados", carreira: "investigador-pcba", itens: [75, 76, 77], formato: "impresso", preco: null, disponivel: true, exemplo: true, sku: "COMBO-PCBA-3-IMP" },
-];
-
 // "Hoje" no horário de Brasília, para comparar com as datas das edições.
 export function hojeEmBrasilia() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
@@ -133,14 +88,19 @@ export function formatosAVenda(e: Edicao) {
   return formatosDa(e).filter((f) => f.oferta.disponivel && f.oferta.preco != null);
 }
 
-export function comboAVenda(c: Combo) {
+export function comboAVenda(c: Combo, carreiras: Carreira[]) {
   const carreira = carreiras.find((x) => x.id === c.carreira);
   const todasExistem = c.itens.every((n) => carreira?.edicoes.some((e) => e.numero === n && e.publicado));
   return c.disponivel && c.preco != null && todasExistem;
 }
 
 // Validação única de compra: chamada ao pôr no carrinho; o backend precisa repetir ao criar o pedido e ao confirmar o pagamento.
-export function validarCompra(idDaCarreira: string, numero: number, modalidade: "presencial" | FormatoDeEstudo): { ok: true } | { ok: false; motivo: string } {
+export function validarCompra(
+  carreiras: Carreira[],
+  idDaCarreira: string,
+  numero: number,
+  modalidade: "presencial" | FormatoDeEstudo,
+): { ok: true } | { ok: false; motivo: string } {
   const e = carreiras.find((c) => c.id === idDaCarreira)?.edicoes.find((x) => x.numero === numero && x.publicado);
   if (!e) return { ok: false, motivo: "Edição não encontrada ou não publicada." };
   const s = situacaoDa(e);

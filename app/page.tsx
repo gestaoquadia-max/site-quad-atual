@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { aprovados, posts, produtos, professores } from "@/lib/data";
-import { bannersPublicados, mentorias, modalidades, produtosDaLoja } from "@/lib/conteudo";
-import { listarEventos } from "@/lib/vitrine";
+import { aprovados, posts, professores } from "@/lib/data";
+import { bannersPublicados, mentorias, modalidades } from "@/lib/conteudo";
+import { listarEventos, listarMateriais, listarProdutosDaLoja } from "@/lib/vitrine";
 import { dadosDaOrganizacao } from "@/lib/dados-estruturados";
 import DadosEstruturados from "@/components/DadosEstruturados";
 import Reveal from "@/components/Reveal";
@@ -36,7 +36,7 @@ function Secao({ className = "", id, brilho, children }: { className?: string; i
 }
 
 export default async function Home() {
-  const eventos = await listarEventos();
+  const [eventos, materiais, loja] = await Promise.all([listarEventos(), listarMateriais(), listarProdutosDaLoja()]);
   const cartoesDeEvento = [CARTAO_DOS_SIMULADOS, ...(eventos ?? []).map(paraCartao)];
 
   return (
@@ -60,22 +60,27 @@ export default async function Home() {
         </Trilho>
       </Secao>
 
-      <Secao className="bg-marinho-900 text-white" brilho="bg-[radial-gradient(50%_60%_at_100%_0%,rgba(0,107,255,0.16),transparent_70%),radial-gradient(40%_50%_at_0%_100%,rgba(0,107,255,0.08),transparent_70%)]">
-        <Trilho titulo="Materiais de estudo" link={{ href: "/produtos", label: "Ver todos os materiais" }} rotulo="Materiais de estudo" tema="escuro" colunas={4}>
-          {produtos.slice(0, 4).map((p, i) => (
-            <CartaoMaterial key={p.slug} produto={p} indice={i} />
-          ))}
-        </Trilho>
-        <p className="mt-5 text-[12.5px] text-[#7F90A8]">O impresso é retirado no Quad, sem custo. O envio pelo correio, com frete calculado pelo CEP, chega em breve.</p>
-      </Secao>
+      {/* Materiais e Loja vêm da vitrine de itens da API; sem nada à venda (ou sem resposta), a seção some. */}
+      {materiais && materiais.length > 0 && (
+        <Secao className="bg-marinho-900 text-white" brilho="bg-[radial-gradient(50%_60%_at_100%_0%,rgba(0,107,255,0.16),transparent_70%),radial-gradient(40%_50%_at_0%_100%,rgba(0,107,255,0.08),transparent_70%)]">
+          <Trilho titulo="Materiais de estudo" link={{ href: "/produtos", label: "Ver todos os materiais" }} rotulo="Materiais de estudo" tema="escuro" colunas={4}>
+            {materiais.slice(0, 8).map((p, i) => (
+              <CartaoMaterial key={p.slug} produto={p} indice={i} />
+            ))}
+          </Trilho>
+          <p className="mt-5 text-[12.5px] text-[#7F90A8]">O impresso é retirado no Quad, sem custo. O envio pelo correio, com frete calculado pelo CEP, chega em breve.</p>
+        </Secao>
+      )}
 
-      <Secao className="bg-white">
-        <Trilho titulo="Loja Quad" link={{ href: "/loja", label: "Ver todos os produtos" }} rotulo="Produtos da Loja Quad" colunas={4}>
-          {produtosDaLoja.map((p) => (
-            <CartaoProdutoDaLoja key={p.id} produto={p} />
-          ))}
-        </Trilho>
-      </Secao>
+      {loja && loja.length > 0 && (
+        <Secao className="bg-white">
+          <Trilho titulo="Loja Quad" link={{ href: "/loja", label: "Ver todos os produtos" }} rotulo="Produtos da Loja Quad" colunas={4}>
+            {loja.map((p) => (
+              <CartaoProdutoDaLoja key={p.id} produto={p} />
+            ))}
+          </Trilho>
+        </Secao>
+      )}
 
       <Secao className="bg-nevoa">
         <Trilho titulo="Próximos eventos" link={{ href: "/eventos", label: "Ver todos os eventos" }} rotulo="Próximos eventos">

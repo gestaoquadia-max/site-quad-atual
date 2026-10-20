@@ -7,6 +7,7 @@ import { useCart } from "@/lib/cart";
 import { idDoItem } from "@/lib/itens";
 import { Brilho } from "../Brilho";
 import CapaDoLivro, { CORES_DA_CAPA } from "../CapaDoLivro";
+import { formatosDo } from "@/lib/materiais";
 
 
 type Formato = "digital" | "impresso";
@@ -64,7 +65,8 @@ function OpcaoDeEntrega({ marcada, desativada, rotulo, dica, onEscolher }: {
 
 export default function CartaoMaterial({ produto, indice }: { produto: Produto; indice: number }) {
   const { addItem } = useCart();
-  const [formato, setFormato] = useState<Formato>("digital");
+  const formatos = formatosDo(produto);
+  const [formato, setFormato] = useState<Formato>(formatos[0]);
   const impresso = formato === "impresso";
 
   function adicionar() {
@@ -89,8 +91,10 @@ export default function CartaoMaterial({ produto, indice }: { produto: Produto; 
         <h3 className="mb-1.5 font-display text-[19px] font-extrabold leading-[1.2] tracking-[-0.02em]">{produto.nome}</h3>
         <p className="text-sm leading-[1.5] text-prata">{produto.desc}</p>
 
+        {/* Com um formato só (da API, hoje só o impresso), não há o que escolher. */}
+        {formatos.length > 1 && (
         <div role="radiogroup" aria-label={`Formato de ${produto.nome}`} className="mt-4 grid grid-cols-2 rounded-[10px] border border-white/[0.08] bg-black/25 p-[3px]">
-          {(["digital", "impresso"] as const).map((f) => (
+          {formatos.map((f) => (
             <button
               key={f}
               type="button"
@@ -105,6 +109,7 @@ export default function CartaoMaterial({ produto, indice }: { produto: Produto; 
             </button>
           ))}
         </div>
+        )}
 
         {impresso && (
           <div className="mt-2.5 animate-[q-surgir_200ms_ease_both] rounded-xl border border-white/[0.08] bg-black/[0.22] p-3">
@@ -122,8 +127,13 @@ export default function CartaoMaterial({ produto, indice }: { produto: Produto; 
         <div className="mt-[18px] flex flex-col gap-3.5 border-t border-white/[0.08] pt-4">
           <PrecoEmDestaque preco={produto.preco} />
           <div className="flex gap-2">
-            <button type="button" onClick={adicionar} className="btn-q btn-q-azul h-11 flex-1 px-3 text-[13.5px]">
-              Adicionar ao carrinho
+            <button
+              type="button"
+              onClick={adicionar}
+              disabled={produto.esgotado}
+              className="btn-q btn-q-azul h-11 flex-1 px-3 text-[13.5px] disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-prata disabled:shadow-none"
+            >
+              {produto.esgotado ? "Esgotado" : "Adicionar ao carrinho"}
             </button>
             <Link href={`/produtos/${produto.slug}`} className="btn-q btn-q-contorno-escuro h-11 px-3.5 text-[13.5px]">
               Detalhes

@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
-import { produtos, type Evento, type Turma } from "@/lib/data";
+import type { Evento, Produto, Turma } from "@/lib/data";
+import { ehKit } from "@/lib/materiais";
 import { LINK_DAS_MENTORIAS } from "@/lib/conteudo";
 import { useCart } from "@/lib/cart";
 import { useUsuarioAtual } from "@/lib/usuario";
@@ -42,11 +43,11 @@ type LinkDoMenu = {
   menu?: { items: MegaMenuItem[]; featured: MegaMenuFeatured; viewAllHref: string; viewAllLabel: string };
 };
 
-const kitCompleto = produtos.find((p) => p.slug === "kit-completo-cfp");
 
 // Turmas e eventos vêm da vitrine da API (lida no servidor, em app/layout.tsx). Sem nenhum aberto, o destaque
 // vira um convite para a página da lista.
-function montarLinks(turmas: Turma[], eventos: Evento[]): LinkDoMenu[] {
+function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): LinkDoMenu[] {
+  const kit = materiais.find(ehKit);
   const turmaDestaque = turmas.find((t) => t.status === "aberta") ?? turmas[0];
   return [
     { href: "/", label: "Início" },
@@ -99,19 +100,28 @@ function montarLinks(turmas: Turma[], eventos: Evento[]): LinkDoMenu[] {
       href: "/produtos",
       label: "Materiais",
       menu: {
-        items: produtos.map((p) => ({
+        items: materiais.map((p) => ({
           href: `/produtos/${p.slug}`,
           nome: p.nome,
-          meta: p.tag.startsWith("Combo") ? "Kit" : "Apostila",
-          status: p.tag.startsWith("Combo") ? "aberta" : undefined,
+          meta: ehKit(p) ? "Kit" : "Apostila",
+          status: ehKit(p) ? "aberta" : undefined,
         })),
-        featured: {
-          eyebrow: "Material em destaque",
-          title: kitCompleto?.nome ?? "Materiais de estudo",
-          desc: "Os materiais de estudo do CFP reunidos em um só kit.",
-          ctaLabel: "Ver material",
-          ctaHref: kitCompleto ? `/produtos/${kitCompleto.slug}` : "/produtos",
-        },
+        featured: kit
+          ? {
+              eyebrow: "Material em destaque",
+              title: kit.nome,
+              desc: kit.desc,
+              meta: kit.preco,
+              ctaLabel: "Ver material",
+              ctaHref: `/produtos/${kit.slug}`,
+            }
+          : {
+              eyebrow: "Materiais de estudo",
+              title: "Apostilas do Quad",
+              desc: "Teoria direto ao ponto e questões comentadas da banca.",
+              ctaLabel: "Ver materiais",
+              ctaHref: "/produtos",
+            },
         viewAllHref: "/produtos",
         viewAllLabel: "Ver todos os materiais",
       },
@@ -186,8 +196,8 @@ function ItemSanfona({ link, aberto, onAlternar }: { link: LinkDoMenu; aberto: b
 }
 
 // Cabeçalho fixo no topo: faixa de avisos + navegação. Abaixo de 1220px de largura vira o menu do celular.
-export default function Navbar({ turmas, eventos }: { turmas: Turma[]; eventos: Evento[] }) {
-  const links = montarLinks(turmas, eventos);
+export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]; eventos: Evento[]; materiais: Produto[] }) {
+  const links = montarLinks(turmas, eventos, materiais);
   const pathname = usePathname();
   const { totalCount } = useCart();
   const usuario = useUsuarioAtual();

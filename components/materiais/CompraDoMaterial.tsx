@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Produto } from "@/lib/data";
 import { useCart } from "@/lib/cart";
 import { idDoItem } from "@/lib/itens";
+import { formatosDo } from "@/lib/materiais";
 
 type Formato = "digital" | "impresso";
 
@@ -15,7 +16,8 @@ const OPCOES: { valor: Formato; rotulo: string; dica: string }[] = [
 // Formato, preço e "Adicionar ao carrinho" da página do material. O envio do impresso pelo correio depende do frete.
 export default function CompraDoMaterial({ produto }: { produto: Produto }) {
   const { addItem } = useCart();
-  const [formato, setFormato] = useState<Formato>("digital");
+  const disponiveis = OPCOES.filter((o) => formatosDo(produto).includes(o.valor));
+  const [formato, setFormato] = useState<Formato>(disponiveis[0].valor);
   const temMoeda = produto.preco.startsWith("R$");
 
   return (
@@ -25,7 +27,7 @@ export default function CompraDoMaterial({ produto }: { produto: Produto }) {
           Formato
         </div>
         <div role="radiogroup" aria-labelledby="formato-do-material" className="grid max-w-[420px] grid-cols-2 gap-2.5">
-          {OPCOES.map((o) => {
+          {disponiveis.map((o) => {
             const marcado = formato === o.valor;
             return (
               <button
@@ -67,9 +69,10 @@ export default function CompraDoMaterial({ produto }: { produto: Produto }) {
             formato,
           })
         }
-        className="btn-q btn-q-azul mt-6 h-14 w-full max-w-[420px] rounded-xl text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_16px_36px_-14px_rgba(0,107,255,1)] hover:-translate-y-0.5"
+        disabled={produto.esgotado}
+        className="btn-q btn-q-azul mt-6 h-14 w-full max-w-[420px] rounded-xl text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_16px_36px_-14px_rgba(0,107,255,1)] hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-prata disabled:shadow-none"
       >
-        Adicionar ao carrinho
+        {produto.esgotado ? "Esgotado" : "Adicionar ao carrinho"}
       </button>
     </>
   );

@@ -15,6 +15,15 @@ export function parsePreco(preco: string): number | null {
   return isNaN(valor) ? null : valor;
 }
 
+// 1197 → "R$ 1.197"; 29.9 → "R$ 29,90". Formato dos preços nas vitrines do site.
+export function precoSemCentavosZerados(valor: number) {
+  return valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: Number.isInteger(valor) ? 0 : 2,
+  });
+}
+
 export function formatarValor(valor: number) {
   return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }

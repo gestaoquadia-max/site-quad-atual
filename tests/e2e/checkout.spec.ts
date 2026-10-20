@@ -8,15 +8,17 @@ test("checkout com o carrinho vazio orienta a escolher algo", async ({ page }) =
 });
 
 test("comprar um material com PIX leva a 'aguardando pagamento' e esvazia o carrinho", async ({ page }) => {
-  await page.goto("/produtos/direito-constitucional");
+  // Os materiais vêm da vitrine da API: usa o primeiro do catálogo.
+  await page.goto("/produtos");
+  const detalhes = page.locator("main").getByRole("link", { name: "Detalhes" }).first();
+  test.skip((await detalhes.count()) === 0, "A vitrine da API não tem material à venda agora.");
+  await page.goto((await detalhes.getAttribute("href"))!);
+  const nome = (await page.getByRole("heading", { level: 1 }).textContent())!.trim();
   await page.locator("main").getByRole("button", { name: "Adicionar ao carrinho" }).click();
   await expect(page.getByRole("status")).toContainText("adicionado ao carrinho");
   await page.goto("/checkout");
   // Escopo em <main>: o menu do topo (escondido) também tem esses textos.
-  const conteudo = page.locator("main");
-  await expect(conteudo.getByText("Direito Constitucional").first()).toBeVisible();
-  // exact: a lista de parcelas também contém "R$ 49,90" ("1x de R$ 49,90 sem juros").
-  await expect(conteudo.getByText("R$ 49,90", { exact: true }).first()).toBeVisible();
+  await expect(page.locator("main").getByText(nome).first()).toBeVisible();
 
   await page.getByRole("button", { name: "PIX" }).click();
   await page.getByRole("button", { name: "Confirmar pagamento" }).click();
