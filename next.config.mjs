@@ -47,6 +47,10 @@ const nextConfig = {
   turbopack: { root: path.dirname(fileURLToPath(import.meta.url)) },
   // Não anuncia que o site é feito em Next.js.
   poweredByHeader: false,
+  // Fotos de turmas e eventos cadastradas na API ficam nos buckets S3 da AWS (ex.: api-quad-dev-imagens).
+  images: {
+    remotePatterns: [{ protocol: "https", hostname: "*.s3.amazonaws.com", pathname: "/imagens/**" }],
+  },
   async headers() {
     return [{ source: "/(.*)", headers: cabecalhosDeSeguranca }];
   },

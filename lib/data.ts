@@ -7,6 +7,15 @@ export type Turma = {
   precoSufixo?: string;
   status: "aberta" | "breve" | "encerrada";
   statusLabel: string;
+  // Novo visual (Turmas por modalidade). A API ainda não tem modalidade nem nome do concurso: lib/vitrine.ts deduz
+  // pelo nome e pela descrição da turma. Ausente = não deu para saber.
+  modalidade?: "rondesp" | "patamo" | "bope";
+  concurso?: string;
+  turno?: string;
+  // "06/07/2026"
+  inicio?: string;
+  // Foto da turma cadastrada na API (capa da página da turma).
+  imagem?: string;
   detalhe?: {
     lead: string;
     specs: { label: string; valor: string; destaque?: boolean }[];

@@ -154,6 +154,24 @@ function vagasDa(a: AtividadeDaVitrine) {
 
 // ---------- Turmas ----------
 
+// Enquanto a API não traz a modalidade (pedido no contrato), ela sai do nome: "Patamo - CFO" → PATAMO.
+function modalidadeDoNome(nome: string): Turma["modalidade"] {
+  const n = slugDoNome(nome);
+  if (n.includes("rondesp")) return "rondesp";
+  if (n.includes("patamo")) return "patamo";
+  if (n.includes("bope")) return "bope";
+  return undefined;
+}
+
+// O nome do concurso só sai da API com login (docs/mapa-api-conteudo.md). Até lá, vem do nome e da descrição.
+function concursoDaTurma(nome: string, descricao: string) {
+  const texto = slugDoNome(`${nome} ${descricao}`);
+  if (/\bcfo\b|oficia/.test(texto)) return "CFO PMBA";
+  if (/\binvestigador\b|\bpcba\b|\bpc-ba\b/.test(texto)) return "Investigador PCBA";
+  if (/\bsd\b|soldado|\bcfp\b/.test(texto)) return "Soldado PMBA";
+  return undefined;
+}
+
 function paraTurma(a: AtividadeDaVitrine): Turma {
   const d = a.detalhe ?? {};
   const tipo = rotulo(TIPO_DE_TURMA, d.modalidade);
@@ -184,6 +202,11 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
 
   return {
     slug: slugDa(a),
+    modalidade: modalidadeDoNome(a.nome),
+    concurso: concursoDaTurma(a.nome, d.descricao ?? ""),
+    turno: turnos || undefined,
+    inicio: d.inicio ? `${diaBarraMes(d.inicio)}/${d.inicio.slice(0, 4)}` : undefined,
+    imagem: a.imagemUrl ?? undefined,
     tag: [d.modalidade && (ETIQUETA_DA_TURMA[d.modalidade] ?? `Turma ${tipo.toLowerCase()}`), "Presencial"]
       .filter(Boolean)
       .join(" · "),

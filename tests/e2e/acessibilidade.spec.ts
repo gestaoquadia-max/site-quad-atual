@@ -1,10 +1,10 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-// Endereço do primeiro "Detalhes" da lista, ou null quando a lista está vazia.
-async function primeiroDetalhe(page: Page, lista: string) {
+// Endereço do primeiro link para a página de detalhe ("Detalhes", "Conhecer e matricular"), ou null quando a lista está vazia.
+async function primeiroDetalhe(page: Page, lista: string, rotulo: string) {
   await page.goto(lista);
-  const link = page.locator("main").getByRole("link", { name: "Detalhes" }).first();
+  const link = page.locator("main").getByRole("link", { name: rotulo }).first();
   return (await link.count()) ? link.getAttribute("href") : null;
 }
 
@@ -17,7 +17,9 @@ for (const caminho of PAGINAS) {
   test(`sem problemas de acessibilidade WCAG A/AA em ${caminho}`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     if (caminho.endsWith(":")) {
-      const detalhe = await primeiroDetalhe(page, caminho === "turma:" ? "/turmas" : "/eventos");
+      const detalhe = await (caminho === "turma:"
+        ? primeiroDetalhe(page, "/turmas", "Conhecer e matricular")
+        : primeiroDetalhe(page, "/eventos", "Detalhes"));
       test.skip(!detalhe, `A vitrine da API não tem ${caminho.slice(0, -1)} aberto(a) agora.`);
       await page.goto(detalhe!);
     } else {

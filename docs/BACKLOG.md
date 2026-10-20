@@ -1,4 +1,4 @@
-# Backlog — Site do Quad Concursos
+| Home nova com carrossel de destaques | FEITO || Botão flutuante do WhatsApp | FEITO || Rodapé novo | FEITO || Menu do topo novo (desktop e celular) | FEITO || Cores, fontes e largura do novo visual | FEITO |# Backlog — Site do Quad Concursos
 
 Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** → **blocos** → **tarefas**. Cada bloco abaixo vira um cartão no POP, com sua lista de tarefas e seus campos adicionais.
 
@@ -42,7 +42,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | 10 | Segurança e LGPD | 2 | 6 | 1 |
 | 11 | Analytics e marketing | 1 | 4 | 0 |
 | 12 | Deploy e operação | 3 | 7 | 0 |
-| 13 | Redesenho do site | 9 | 28 | 0 |
+| 13 | Redesenho do site | 9 | 28 | 5 |
 
 ---
 
@@ -645,7 +645,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 1 — BASE VISUAL E HOME
 
-**Status:** EM ANDAMENTO
+**Status:** CONCLUÍDA
 
 | Tarefa | Status |
 |---|---|
@@ -661,11 +661,11 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 2 — TURMAS PRESENCIAIS
 
-**Status:** PENDENTE
+**Status:** EM ANDAMENTO
 
 | Tarefa | Status |
 |---|---|
-| Turmas por modalidade (RONDESP, PATAMO e BOPE) com filtros | PENDENTE |
+| Turmas por modalidade (RONDESP, PATAMO e BOPE) com filtros | EM ANDAMENTO |
 | Página da turma no novo visual | PENDENTE |
 | Lista de interessados (tela pronta, aguardando backend) | PENDENTE |
 
