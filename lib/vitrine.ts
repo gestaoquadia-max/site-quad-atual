@@ -7,6 +7,7 @@ import type { ProdutoDaLoja } from "./conteudo";
 import type { Carreira, Edicao } from "./simulados";
 import { formatarHora, precoSemCentavosZerados } from "./format";
 import { API_URL, lerErro } from "./http";
+import { chaveDaTurma, juntarTurnos, ORDEM_DOS_TURNOS, type OfertaDaTurma, type Turno, type TurmaComTurnos } from "./turmas";
 
 // As páginas são refeitas no servidor no máximo a cada minuto: vagas e preços ficam atualizados sem
 // consultar a API a cada visita.
@@ -234,6 +235,56 @@ export async function buscarTurma(slug: string): Promise<Turma | null> {
   if (!id) return null;
   const atividade = await buscar("TURMA", id);
   return atividade ? paraTurma(atividade) : null;
+}
+
+// ---------- Turma no formato da planilha (lib/turmas.ts) ----------
+
+// A vitrine ainda não tem as colunas da planilha (modalidade RONDESP/PATAMO/BOPE, edição, cargo, concurso,
+// os dois horários, lote, valor em centavos). Até o banco ter, elas saem do que existe: o nome
+// ("RONDESP 2 - Soldado PMBA" → RONDESP, 2) e a descrição. Quando a API mandar os campos, troca-se só esta função.
+function paraOferta(a: AtividadeDaVitrine): OfertaDaTurma {
+  const d = a.detalhe ?? {};
+  const modalidade = modalidadeDoNome(a.nome);
+  const edicao = modalidade ? a.nome.match(new RegExp(`${modalidade}\\D{0,3}(\\d+)`, "i"))?.[1] : undefined;
+  const concurso = concursoDaTurma(a.nome, d.descricao ?? "");
+  // "Soldado PMBA" → cargo "Soldado", concurso "PMBA"
+  const partes = concurso?.split(" ") ?? [];
+  const turno = d.turnos?.[0];
+  return {
+    id: a.id,
+    slug: slugDa(a),
+    modalidade: modalidade ? modalidade.toUpperCase() : null,
+    edicao: edicao ? Number(edicao) : null,
+    cargo: partes.length > 1 ? partes.slice(0, -1).join(" ") : null,
+    concurso: partes.at(-1) ?? null,
+    turno: turno && ORDEM_DOS_TURNOS.includes(turno as Turno) ? (turno as Turno) : null,
+    inicio: d.inicio ?? null,
+    termino: d.fim ?? null,
+    horarios: d.horaInicio && d.horaFim ? [{ inicio: d.horaInicio, fim: d.horaFim }] : [],
+    precoEmCentavos: a.preco === null ? null : a.preco * 100,
+    vagas: a.vagas && a.vagas > 0 ? { total: a.vagas, ocupadas: Math.min(a.vendidas ?? 0, a.vagas) } : null,
+    descricao: d.descricao?.trim() || null,
+    imagemUrl: a.imagemUrl,
+    lote: null,
+    nomeOriginal: a.nome,
+  };
+}
+
+// A turma do endereço e os outros turnos dela (as outras linhas da planilha com a mesma turma).
+export async function buscarTurmaComTurnos(slug: string): Promise<{ turma: TurmaComTurnos; atual: OfertaDaTurma } | null> {
+  const id = idDoSlug(slug);
+  if (!id) return null;
+  const atividade = await buscar("TURMA", id);
+  if (!atividade) return null;
+  const atual = paraOferta(atividade);
+  const chave = chaveDaTurma(atual);
+  let irmas: OfertaDaTurma[] = [];
+  try {
+    irmas = (await listar("TURMA")).map(paraOferta).filter((o) => o.id !== atual.id && chaveDaTurma(o) === chave);
+  } catch {
+    // Sem a lista, a página mostra só o turno do endereço.
+  }
+  return { turma: juntarTurnos([atual, ...irmas]), atual };
 }
 
 // ---------- Eventos e simulados ----------

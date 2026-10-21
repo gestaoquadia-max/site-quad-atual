@@ -2,15 +2,13 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { idDoItem } from "@/lib/itens";
 import { metadadosDaPagina } from "@/lib/seo";
 import { modalidades } from "@/lib/conteudo";
 import { dadosDoCurso } from "@/lib/dados-estruturados";
-import { buscarTurma, listarTurmas } from "@/lib/vitrine";
+import { buscarTurma, buscarTurmaComTurnos, listarTurmas } from "@/lib/vitrine";
 import DadosEstruturados from "@/components/DadosEstruturados";
 import CheckList from "@/components/CheckList";
-import AviseMePeloWhatsApp from "@/components/AviseMePeloWhatsApp";
-import BotaoAdicionarAoCarrinho from "@/components/BotaoAdicionarAoCarrinho";
+import EscolhaDoTurno from "@/components/turmas/EscolhaDoTurno";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts). Turma que entrar na vitrine depois do build é gerada na primeira visita.
 export const revalidate = 60;
@@ -26,22 +24,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return metadadosDaPagina({ titulo: turma.nome, descricao: turma.detalhe?.lead ?? turma.desc, caminho: `/turmas/${turma.slug}` });
 }
 
-const CORES_DA_SITUACAO = {
-  aberta: "bg-[#E3F5EA] text-[#17663F]",
-  breve: "bg-[#E6ECFF] text-[#1238C4]",
-  encerrada: "bg-[#FFF0D9] text-[#8A4B00]",
-};
-
 export default async function TurmaDetalhe({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const turma = await buscarTurma(slug);
-  if (!turma || !turma.detalhe) notFound();
+  const [turma, comTurnos] = await Promise.all([buscarTurma(slug), buscarTurmaComTurnos(slug)]);
+  if (!turma || !turma.detalhe || !comTurnos) notFound();
   // Turma renomeada: o id continua o mesmo, então leva ao endereço com o nome atual.
   if (turma.slug !== slug) redirect(`/turmas/${turma.slug}`);
   const d = turma.detalhe;
-  const aberta = turma.status === "aberta";
+  const { turma: grupo, atual } = comTurnos;
   const modalidade = modalidades.find((m) => m.id === turma.modalidade);
-  const temPreco = turma.preco.startsWith("R$");
 
   return (
     <>
@@ -60,7 +51,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
             </Link>
             <span aria-hidden="true">/</span>
             <span aria-current="page" className="text-white">
-              {turma.nome}
+              {grupo.nome}
             </span>
           </nav>
 
@@ -68,7 +59,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
             {/* Capa: foto cadastrada na API ou, sem foto, o nome da turma sobre o fundo do Quad. */}
             <div className="relative aspect-[4/5] w-full max-w-[520px] overflow-hidden rounded-[18px] border border-white/10 bg-[linear-gradient(170deg,#12305A,#071426_75%)] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.85)]">
               {turma.imagem ? (
-                <Image src={turma.imagem} alt={`Turma ${turma.nome}`} fill priority sizes="(min-width: 900px) 520px, 100vw" className="object-cover" />
+                <Image src={turma.imagem} alt={`Turma ${grupo.nome}`} fill priority sizes="(min-width: 900px) 520px, 100vw" className="object-cover" />
               ) : (
                 <>
                   {modalidade && (
@@ -82,7 +73,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
                   )}
                   <div aria-hidden="true" className="absolute inset-x-7 bottom-7">
                     <div className="text-xs font-bold uppercase tracking-[0.16em] text-azul-ceu">{turma.tag}</div>
-                    <div className="mt-2.5 font-display text-[44px] font-extrabold leading-none tracking-[-0.035em] text-white/90">{turma.nome}</div>
+                    <div className="mt-2.5 font-display text-[44px] font-extrabold leading-none tracking-[-0.035em] text-white/90">{grupo.nome}</div>
                   </div>
                 </>
               )}
@@ -90,37 +81,18 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
 
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-azul-ceu">{turma.tag}</div>
-              <h1 className="mb-[18px] mt-3 font-display text-[clamp(2.2rem,4.6vw,3.6rem)] font-extrabold leading-[1.02] tracking-[-0.035em]">{turma.nome}</h1>
-              <span className={`inline-flex items-center gap-1.5 rounded-full px-[11px] py-[5px] text-[12.5px] font-semibold ${CORES_DA_SITUACAO[turma.status]}`}>
-                <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                {turma.status === "encerrada" ? "Turma lotada" : turma.statusLabel}
-              </span>
-              <ul className="mt-7 border-t border-white/10">
-                {d.specs.map((s) => (
-                  <li key={s.label} className="flex min-h-[52px] items-center gap-3 border-b border-white/[0.08] text-[15.5px] text-[#DCE4EF]">
-                    <span className="h-1.5 w-1.5 flex-none rounded-[1px] bg-azul-vivo" />
-                    <span className="text-prata">{s.label}:</span> {s.valor}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-7 flex items-baseline gap-2">
-                {temPreco && <span className="font-display text-lg font-bold text-prata">R$</span>}
-                <span className="font-display text-[clamp(44px,5vw,56px)] font-extrabold leading-none tracking-[-0.035em] [font-variant-numeric:tabular-nums]">
-                  {temPreco ? turma.preco.slice(3) : turma.preco}
-                </span>
-                {turma.precoSufixo && <span className="text-[15px] text-prata">{turma.precoSufixo}</span>}
-              </div>
-              <p className="mt-2 text-[13px] text-prata">Valor fechado pela duração · Material didático incluso · Sem taxa de matrícula · Parcele em até 3x no cartão</p>
-              <div className="mt-6 max-w-[420px]">
-                {aberta ? (
-                  <BotaoAdicionarAoCarrinho
-                    item={{ id: idDoItem("turma", turma.slug), tipo: "turma", nome: turma.nome, tag: turma.tag, preco: turma.preco, precoSufixo: turma.precoSufixo }}
-                    className="h-14 w-full rounded-xl text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_16px_36px_-14px_rgba(0,107,255,1)] hover:-translate-y-0.5"
-                  />
-                ) : (
-                  <AviseMePeloWhatsApp assunto={`vaga na turma ${turma.nome}`} rotulo="Lista de espera pelo WhatsApp" destaque className="h-14 w-full" />
-                )}
-              </div>
+              <h1 className="mb-[18px] mt-3 font-display text-[clamp(2.2rem,4.6vw,3.6rem)] font-extrabold leading-[1.02] tracking-[-0.035em]">{grupo.nome}</h1>
+              {(grupo.cargo || grupo.concurso) && (
+                <div className="flex flex-wrap gap-2">
+                  {[grupo.cargo, grupo.concurso].filter(Boolean).map((selo) => (
+                    <span key={selo} className="inline-flex items-center gap-1.5 rounded-full bg-[#E6ECFF] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#1238C4]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                      {selo}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <EscolhaDoTurno turma={grupo} inicial={atual.id} />
             </div>
           </div>
         </div>
@@ -134,7 +106,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
             <div className="grid max-w-[760px] gap-3 text-[15.5px] leading-[1.65] text-ardosia-escura">
               <p>{d.lead}</p>
               <p>
-                A {turma.nome} é a preparação presencial do Quad com rotina estruturada, simulados periódicos nos moldes da banca e
+                A {grupo.nome} é a preparação presencial do Quad com rotina estruturada, simulados periódicos nos moldes da banca e
                 acompanhamento individual de desempenho. Cada aluno recebe o material didático completo do Quad e acesso à área do aluno
                 com PDFs diários, listas de exercícios e correções comentadas.
               </p>
