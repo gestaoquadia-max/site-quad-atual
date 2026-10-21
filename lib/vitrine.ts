@@ -212,9 +212,8 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
 
   return {
     slug: slugDa(a),
-    // Nível (RONDESP, PATAMO, BOPE) só na PMBA; as outras turmas ficam na área "Outros concursos".
+    // Nível (RONDESP, PATAMO, BOPE) só na PMBA; fora dela a turma não tem nível.
     modalidade: nivel,
-    area: nivel ? "pmba" : "outros",
     concurso: colunas.cargo || colunas.concurso ? seloDoCargoEConcurso(colunas.cargo, colunas.concurso) : undefined,
     turno: turnos || undefined,
     inicio: d.inicio ? `${diaBarraMes(d.inicio)}/${d.inicio.slice(0, 4)}` : undefined,

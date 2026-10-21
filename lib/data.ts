@@ -9,10 +9,7 @@ export type Turma = {
   statusLabel: string;
   // Novo visual (Turmas por modalidade). A API ainda não tem modalidade nem nome do concurso: lib/vitrine.ts deduz
   // pelo nome e pela descrição da turma. Ausente = não deu para saber.
-  modalidade?: "rondesp" | "patamo" | "bope";
-  // "pmba": tem nível (RONDESP, PATAMO, BOPE). "outros": PCBA, Bombeiros, outros estados, sem nível.
-  area: "pmba" | "outros";
-  concurso?: string;
+  modalidade?: "rondesp" | "patamo" | "bope";  concurso?: string;
   turno?: string;
   // "06/07/2026"
   inicio?: string;

@@ -10,8 +10,8 @@ export default function ComModalidadeDoEndereco({ turmas }: { turmas: Turma[] | 
   const parametros = useSearchParams();
   const m = parametros.get("m");
   const inicial = modalidades.find((x) => x.id === m)?.id ?? null;
-  // /turmas?area=outros abre em "Outros concursos" (PCBA, Bombeiros, outros estados).
-  const area = parametros.get("area") === "outros" ? "outros" : "pmba";
+  // /turmas?cargo=ipc-pcba abre na aba do cargo (sem ?cargo=, a primeira: SD • PMBA).
+  const cargo = parametros.get("cargo");
   // Só vale ao abrir a página: depois, a escolha fica no estado do componente (e o endereço é atualizado por ele).
-  return <EscolhaDeModalidade turmas={turmas} inicial={inicial} areaInicial={area} />;
+  return <EscolhaDeModalidade turmas={turmas} inicial={inicial} cargoInicial={cargo} />;
 }
