@@ -9,7 +9,9 @@ export type Turma = {
   statusLabel: string;
   // Novo visual (Turmas por modalidade). A API ainda não tem modalidade nem nome do concurso: lib/vitrine.ts deduz
   // pelo nome e pela descrição da turma. Ausente = não deu para saber.
-  modalidade?: "rondesp" | "patamo" | "bope";  concurso?: string;
+  modalidade?: "rondesp" | "patamo" | "bope";
+  // Insígnia da MODALIDADE da turma (toda turma tem uma; null = ainda sem arquivo, o site mostra a marca do Quad).
+  insignia: string | null;  concurso?: string;
   turno?: string;
   // "06/07/2026"
   inicio?: string;

@@ -10,6 +10,7 @@ import { API_URL, lerErro } from "./http";
 import {
   chaveDaTurma,
   ehNivelDaPmba,
+  insigniaDaTurma,
   juntarTurnos,
   lerNomeDaTurma,
   nomeDaTurma,
@@ -214,6 +215,7 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     slug: slugDa(a),
     // Nível (RONDESP, PATAMO, BOPE) só na PMBA; fora dela a turma não tem nível.
     modalidade: nivel,
+    insignia: insigniaDaTurma(colunas.modalidade),
     concurso: colunas.cargo || colunas.concurso ? seloDoCargoEConcurso(colunas.cargo, colunas.concurso) : undefined,
     turno: turnos || undefined,
     inicio: d.inicio ? `${diaBarraMes(d.inicio)}/${d.inicio.slice(0, 4)}` : undefined,

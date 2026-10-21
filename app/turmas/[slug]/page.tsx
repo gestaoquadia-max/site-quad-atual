@@ -6,7 +6,8 @@ import { metadadosDaPagina } from "@/lib/seo";
 import { modalidades } from "@/lib/conteudo";
 import { dadosDoCurso } from "@/lib/dados-estruturados";
 import { buscarTurma, buscarTurmaComTurnos, listarTurmas } from "@/lib/vitrine";
-import { seloDoCargoEConcurso } from "@/lib/turmas";
+import { insigniaDaTurma, seloDoCargoEConcurso } from "@/lib/turmas";
+import InsigniaDaTurma from "@/components/turmas/InsigniaDaTurma";
 import DadosEstruturados from "@/components/DadosEstruturados";
 import CheckList from "@/components/CheckList";
 import EscolhaDoTurno from "@/components/turmas/EscolhaDoTurno";
@@ -63,15 +64,14 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
                 <Image src={turma.imagem} alt={`Turma ${grupo.nome}`} fill priority sizes="(min-width: 900px) 520px, 100vw" className="object-cover" />
               ) : (
                 <>
-                  {modalidade && (
-                    <Image
-                      src={modalidade.insignia}
-                      alt=""
-                      width={240}
-                      height={240}
-                      className="absolute left-1/2 top-[38%] w-[46%] -translate-x-1/2 -translate-y-1/2 object-contain opacity-90 [filter:drop-shadow(0_18px_28px_rgba(0,0,0,0.6))]"
-                    />
-                  )}
+                  {/* Toda turma tem insígnia (a da modalidade); sem arquivo ainda, a marca do Quad. */}
+                  <InsigniaDaTurma
+                    insignia={insigniaDaTurma(grupo.modalidade)}
+                    tamanho={240}
+                    sizes="240px"
+                    priority
+                    className="absolute left-1/2 top-[38%] w-[46%] -translate-x-1/2 -translate-y-1/2 opacity-90"
+                  />
                   <div aria-hidden="true" className="absolute inset-x-7 bottom-7">
                     <div className="text-xs font-bold uppercase tracking-[0.16em] text-azul-ceu">{turma.tag}</div>
                     <div className="mt-2.5 font-display text-[44px] font-extrabold leading-none tracking-[-0.035em] text-white/90">{grupo.nome}</div>

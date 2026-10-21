@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import type { Turma } from "@/lib/data";
 import { modalidades, type Modalidade } from "@/lib/conteudo";
 import AviseMe from "../AviseMePeloWhatsApp";
+import InsigniaDaTurma from "./InsigniaDaTurma";
 
 type IdDaModalidade = Modalidade["id"];
 
@@ -77,13 +78,16 @@ function CartaoDaTurma({ turma, titulo }: { turma: Turma; titulo: string }) {
   ] as const;
   return (
     <article className="grid animate-[q-surgir_220ms_ease_both] grid-cols-[repeat(auto-fit,minmax(min(100%,190px),1fr))] items-center gap-x-6 gap-y-4 rounded-2xl border border-linha bg-white p-[clamp(18px,2vw,24px)] shadow-[0_1px_2px_rgba(16,27,45,0.04),0_18px_36px_-28px_rgba(16,27,45,0.3)]">
-      <div className="flex min-w-0 flex-col gap-2">
+      <div className="flex min-w-0 items-center gap-4">
+        <InsigniaDaTurma insignia={turma.insignia} tamanho={64} sizes="64px" className="h-16 w-16 flex-none" />
+        <div className="flex min-w-0 flex-col gap-2">
         <div className="flex flex-wrap gap-1.5">
           <span className={`inline-flex h-6 items-center whitespace-nowrap rounded-full px-[9px] text-[11px] font-bold uppercase tracking-[0.06em] ${situacao.cor}`}>
             {turma.status === "aberta" && turma.statusLabel !== "Matrículas abertas" ? turma.statusLabel : situacao.rotulo}
           </span>
         </div>
         <h4 className="font-display text-[19px] font-extrabold leading-[1.2] tracking-[-0.01em]">{titulo}</h4>
+        </div>
       </div>
       <dl className="grid grid-cols-2 gap-x-[18px] gap-y-2.5 text-sm">
         {campos.map(([rotulo, valor]) => (
