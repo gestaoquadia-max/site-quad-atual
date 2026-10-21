@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import type { Turma } from "@/lib/data";
@@ -9,6 +8,36 @@ import AviseMe from "../AviseMePeloWhatsApp";
 import InsigniaDaTurma from "./InsigniaDaTurma";
 
 type IdDaModalidade = Modalidade["id"];
+
+// Cartão de modalidade da aba: na PMBA, os três níveis (com perfil, método e barra teoria/questões); nas outras abas,
+// as modalidades das turmas daquele cargo ("INVESTIGADOR"), só com insígnia, nome e resumo.
+type OpcaoDeModalidade = {
+  id: string;
+  nome: string;
+  insignia: string | null;
+  nivel?: string;
+  perfil?: string;
+  metodo?: string;
+  teoria?: number;
+  resumo?: string;
+};
+
+function opcoesDaAba(aba: string, doCargo: Turma[], comNiveis: boolean): OpcaoDeModalidade[] {
+  if (comNiveis) return modalidades.map((m) => ({ ...m }));
+  const porId = new Map<string, Turma[]>();
+  for (const t of doCargo) porId.set(t.modalidadeId, [...(porId.get(t.modalidadeId) ?? []), t]);
+  return [...porId.values()].map((turmas) => {
+    const abertas = turmas.filter((t) => t.status === "aberta").length;
+    return {
+      id: turmas[0].modalidadeId,
+      nome: turmas[0].modalidadeNome,
+      insignia: turmas[0].insignia,
+      resumo: `Turma presencial para ${aba === SEM_CARGO ? "o seu concurso" : aba}. ${
+        abertas === 0 ? "Sem matrículas abertas no momento." : abertas === 1 ? "1 turma com matrículas abertas." : `${abertas} turmas com matrículas abertas.`
+      }`,
+    };
+  });
+}
 
 const PERGUNTAS: { modalidade: IdDaModalidade; rotulo: string; explicacao: string }[] = [
   {
@@ -204,13 +233,14 @@ export default function EscolhaDeModalidade({
   cargoInicial = null,
 }: {
   turmas: Turma[] | null;
-  inicial: IdDaModalidade | null;
+  // ?m= do endereço: um nível da PMBA ("rondesp") ou a modalidade de outro cargo ("investigador")
+  inicial: string | null;
   // id da aba no endereço (?cargo=ipc-pcba)
   cargoInicial?: string | null;
 }) {
   const abas = abasDasTurmas(turmas);
   const [aba, setAba] = useState<string>(() => abas.find((a) => idDaAba(a) === cargoInicial) ?? abas[0]);
-  const [selecionada, setSelecionada] = useState<IdDaModalidade | null>(inicial);
+  const [selecionada, setSelecionada] = useState<string | null>(inicial);
   const [resposta, setResposta] = useState<number | null>(null);
   const [turno, setTurno] = useState<string | null>(null);
   const secaoDasTurmas = useRef<HTMLElement>(null);
@@ -218,13 +248,15 @@ export default function EscolhaDeModalidade({
 
   const comNiveis = ehDaPmba(aba);
   const doCargo = (turmas ?? []).filter((t) => abaDa(t) === aba);
-  const sugerida = resposta === null ? null : modalidades.find((m) => m.id === PERGUNTAS[resposta].modalidade) ?? null;
-  const atual = modalidades.find((m) => m.id === selecionada) ?? null;
-  const daModalidade = doCargo.filter((t) => atual && t.modalidade === atual.id);
+  const opcoes = opcoesDaAba(aba, doCargo, comNiveis);
+  const sugerida = resposta === null ? null : opcoes.find((m) => m.id === PERGUNTAS[resposta].modalidade) ?? null;
+  // Aba sem níveis com uma modalidade só: ela já vem escolhida.
+  const atual = opcoes.find((m) => m.id === selecionada) ?? (!comNiveis && opcoes.length === 1 ? opcoes[0] : null);
+  const daModalidade = doCargo.filter((t) => atual && t.modalidadeId === atual.id);
   const turnos = [...new Set(daModalidade.map((t) => t.turno).filter((t): t is string => !!t))];
   const visiveis = daModalidade.filter((t) => !turno || t.turno === turno);
   // Turma da PMBA que não tem nível no nome: aparece embaixo, para não sumir.
-  const doCargoSemNivel = doCargo.filter((t) => !t.modalidade);
+  const doCargoSemNivel = comNiveis ? doCargo.filter((t) => !t.modalidade) : [];
 
   // Endereço compartilhável: /turmas?cargo=ipc-pcba abre já na aba.
   function trocarAba(nova: string) {
@@ -232,12 +264,16 @@ export default function EscolhaDeModalidade({
     setTurno(null);
     const url = new URL(window.location.href);
     url.searchParams.set("cargo", idDaAba(nova));
-    if (!ehDaPmba(nova)) url.searchParams.delete("m");
-    else if (selecionada) url.searchParams.set("m", selecionada);
+    // Os níveis valem para as duas abas da PMBA; a modalidade de outro cargo, não.
+    if (ehDaPmba(nova) && ehDaPmba(aba) && selecionada) url.searchParams.set("m", selecionada);
+    else {
+      url.searchParams.delete("m");
+      setSelecionada(null);
+    }
     window.history.replaceState(null, "", url);
   }
 
-  function escolher(id: IdDaModalidade, rolar: boolean) {
+  function escolher(id: string, rolar: boolean) {
     setSelecionada(id);
     setTurno(null);
     // Endereço compartilhável: /turmas?m=patamo abre já na modalidade.
@@ -327,7 +363,7 @@ export default function EscolhaDeModalidade({
               {sugerida && resposta !== null && (
                 <>
                   <div className="mt-4 grid animate-[q-surgir_240ms_ease_both] grid-cols-[72px_minmax(0,1fr)] items-center gap-4 rounded-[14px] border border-[rgba(111,174,255,0.28)] bg-[linear-gradient(135deg,rgba(0,107,255,0.16),rgba(0,107,255,0.04))] p-4">
-                    <Image src={sugerida.insignia} alt="" width={72} height={72} className="h-[72px] w-[72px] object-contain [filter:drop-shadow(0_6px_14px_rgba(0,0,0,0.5))]" />
+                    <InsigniaDaTurma insignia={sugerida.insignia} tamanho={72} sizes="72px" className="h-[72px] w-[72px]" />
                     <div className="flex flex-col gap-1.5" aria-live="polite">
                       <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-azul-ceu">Modalidade sugerida</span>
                       <span className="font-display text-[22px] font-extrabold tracking-[-0.01em]">{sugerida.nome}</span>
@@ -345,10 +381,15 @@ export default function EscolhaDeModalidade({
             )}
           </div>
 
-          {comNiveis && (
-          <div className="mt-[clamp(40px,5vw,72px)] grid grid-cols-[repeat(auto-fit,minmax(min(100%,250px),1fr))] gap-[clamp(16px,1.6vw,24px)]">
-            {modalidades.map((m) => {
-              const ligada = selecionada === m.id;
+          {opcoes.length > 0 && (
+          // Com uma ou duas modalidades, os cartões ficam do tamanho dos da PMBA (um terço da largura), sem esticar.
+          <div
+            className={`mt-[clamp(40px,5vw,72px)] grid grid-cols-[repeat(auto-fit,minmax(min(100%,250px),1fr))] gap-[clamp(16px,1.6vw,24px)] ${
+              opcoes.length === 1 ? "max-w-[440px]" : opcoes.length === 2 ? "max-w-[900px]" : ""
+            }`}
+          >
+            {opcoes.map((m) => {
+              const ligada = atual?.id === m.id;
               return (
                 <button
                   key={m.id}
@@ -366,20 +407,19 @@ export default function EscolhaDeModalidade({
                   {sugerida?.id === m.id && (
                     <span className="absolute right-4 top-4 whitespace-nowrap rounded-full bg-azul px-2.5 py-[5px] text-[11px] font-bold uppercase tracking-[0.1em]">Sugerida para você</span>
                   )}
-                  <Image
-                    src={m.insignia}
-                    alt={`Insígnia ${m.nome}`}
-                    width={240}
-                    height={240}
+                  <InsigniaDaTurma
+                    insignia={m.insignia}
+                    tamanho={240}
+                    sizes="230px"
                     priority
-                    className="relative mx-auto mb-5 mt-1 block aspect-square h-auto w-[clamp(170px,15vw,230px)] object-contain [filter:drop-shadow(0_18px_28px_rgba(0,0,0,0.6))_drop-shadow(0_0_1px_rgba(170,210,255,0.5))]"
+                    className="relative mx-auto mb-5 mt-1 block aspect-square h-auto w-[clamp(170px,15vw,230px)] [filter:drop-shadow(0_18px_28px_rgba(0,0,0,0.6))_drop-shadow(0_0_1px_rgba(170,210,255,0.5))]"
                   />
                   <span className="relative flex flex-wrap items-baseline justify-between gap-3">
                     <span className="font-display text-[clamp(24px,2vw,28px)] font-extrabold tracking-[0.02em]">{m.nome}</span>
-                    <span className="whitespace-nowrap text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">{m.nivel}</span>
+                    {m.nivel && <span className="whitespace-nowrap text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">{m.nivel}</span>}
                   </span>
-                  <span className="relative mb-5 mt-2.5 block flex-1 text-[15px] leading-[1.55] text-[#B4C1D3] [text-wrap:pretty]">{m.perfil}</span>
-                  <BarraDoMetodo teoria={m.teoria} />
+                  <span className="relative mb-5 mt-2.5 block flex-1 text-[15px] leading-[1.55] text-[#B4C1D3] [text-wrap:pretty]">{m.perfil ?? m.resumo}</span>
+                  {m.teoria !== undefined && <BarraDoMetodo teoria={m.teoria} />}
                   <span className={`relative mt-[22px] inline-flex h-[46px] items-center justify-center gap-2 rounded-[10px] font-display text-[15px] font-bold ${ligada ? "bg-white/[0.08]" : "bg-azul"}`}>
                     {ligada ? "Turmas exibidas abaixo" : "Ver turmas"}
                     <SetaParaBaixo />
@@ -399,7 +439,7 @@ export default function EscolhaDeModalidade({
               Não foi possível carregar as turmas agora. Tente novamente em instantes.
             </div>
           )}
-          {!comNiveis ? (
+          {opcoes.length === 0 ? (
             <TurmasDoCargo key={aba} turmas={doCargo} aba={aba} />
           ) : !atual ? (
             <div className="flex flex-col items-center gap-2.5 rounded-[18px] border-[1.5px] border-dashed border-[#C9D3E0] px-5 py-[clamp(40px,5vw,64px)] text-center text-[#3E4A5E]">
@@ -410,36 +450,44 @@ export default function EscolhaDeModalidade({
             <div className="flex flex-wrap items-start gap-[clamp(28px,3vw,48px)]">
               <aside className="flex max-w-[440px] flex-[1_1_320px] flex-col gap-5 rounded-[18px] bg-marinho-900 p-[clamp(22px,2.4vw,30px)] text-white shadow-[0_30px_60px_-36px_rgba(7,20,38,0.7)] min-[900px]:sticky min-[900px]:top-[124px]">
                 <div className="flex items-center gap-4">
-                  <Image src={atual.insignia} alt="" width={84} height={84} className="h-[84px] w-[84px] flex-none object-contain [filter:drop-shadow(0_8px_16px_rgba(0,0,0,0.5))]" />
+                  <InsigniaDaTurma insignia={atual.insignia} tamanho={84} sizes="84px" className="h-[84px] w-[84px] flex-none" />
                   <div className="flex flex-col gap-1">
-                    <span className="text-[11.5px] font-bold uppercase tracking-[0.14em] text-azul-ceu">{atual.nivel}</span>
+                    <span className="text-[11.5px] font-bold uppercase tracking-[0.14em] text-azul-ceu">{atual.nivel ?? aba}</span>
                     <span className="font-display text-[28px] font-extrabold tracking-[0.02em]">{atual.nome}</span>
                   </div>
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-[11.5px] font-bold uppercase tracking-[0.14em] text-[#8FA0B8]">Perfil indicado</span>
-                  <p className="text-[15px] leading-[1.55] text-[#DCE4EF] [text-wrap:pretty]">{atual.perfil}</p>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-[11.5px] font-bold uppercase tracking-[0.14em] text-[#8FA0B8]">Metodologia</span>
-                  <p className="text-[15px] leading-[1.55] text-[#DCE4EF] [text-wrap:pretty]">{atual.metodo}</p>
-                </div>
-                <BarraDoMetodo teoria={atual.teoria} />
-                <div className="flex flex-wrap gap-1.5 border-t border-white/[0.08] pt-4">
-                  {modalidades.map((m) => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      aria-pressed={selecionada === m.id}
-                      onClick={() => escolher(m.id, false)}
-                      className={`h-[34px] rounded-lg border px-3 font-display text-[12.5px] font-bold tracking-[0.06em] ${
-                        selecionada === m.id ? "border-azul bg-azul text-white" : "border-white/[0.14] text-prata hover:text-white"
-                      }`}
-                    >
-                      {m.nome}
-                    </button>
-                  ))}
-                </div>
+                {atual.perfil ? (
+                  <>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[11.5px] font-bold uppercase tracking-[0.14em] text-[#8FA0B8]">Perfil indicado</span>
+                      <p className="text-[15px] leading-[1.55] text-[#DCE4EF] [text-wrap:pretty]">{atual.perfil}</p>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[11.5px] font-bold uppercase tracking-[0.14em] text-[#8FA0B8]">Metodologia</span>
+                      <p className="text-[15px] leading-[1.55] text-[#DCE4EF] [text-wrap:pretty]">{atual.metodo}</p>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-[15px] leading-[1.55] text-[#DCE4EF] [text-wrap:pretty]">{atual.resumo}</p>
+                )}
+                {atual.teoria !== undefined && <BarraDoMetodo teoria={atual.teoria} />}
+                {opcoes.length > 1 && (
+                  <div className="flex flex-wrap gap-1.5 border-t border-white/[0.08] pt-4">
+                    {opcoes.map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        aria-pressed={atual.id === m.id}
+                        onClick={() => escolher(m.id, false)}
+                        className={`h-[34px] rounded-lg border px-3 font-display text-[12.5px] font-bold tracking-[0.06em] ${
+                          atual.id === m.id ? "border-azul bg-azul text-white" : "border-white/[0.14] text-prata hover:text-white"
+                        }`}
+                      >
+                        {m.nome}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </aside>
 
               <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-5">
@@ -462,7 +510,7 @@ export default function EscolhaDeModalidade({
                       Não há turmas {atual.nome} para {aba} abertas agora
                     </span>
                     <span className="max-w-[560px] text-[15px] leading-[1.55] text-[#3E4A5E] [text-wrap:pretty]">
-                      {atual.perfil} {atual.metodo}
+                      {atual.perfil ? `${atual.perfil} ${atual.metodo}` : "Avisamos pelo WhatsApp quando abrir uma turma."}
                     </span>
                     <div className="mt-1.5 flex flex-wrap gap-2.5">
                       <AviseMe assunto={`turma ${atual.nome} ${aba}`} destaque />

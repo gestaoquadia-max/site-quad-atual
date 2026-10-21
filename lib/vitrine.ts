@@ -216,6 +216,8 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     // Nível (RONDESP, PATAMO, BOPE) só na PMBA; fora dela a turma não tem nível.
     modalidade: nivel,
     insignia: insigniaDaTurma(colunas.modalidade),
+    modalidadeNome: colunas.modalidade ?? a.nome,
+    modalidadeId: slugDoNome(colunas.modalidade ?? a.nome),
     concurso: colunas.cargo || colunas.concurso ? seloDoCargoEConcurso(colunas.cargo, colunas.concurso) : undefined,
     turno: turnos || undefined,
     inicio: d.inicio ? `${diaBarraMes(d.inicio)}/${d.inicio.slice(0, 4)}` : undefined,

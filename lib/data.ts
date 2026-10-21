@@ -11,7 +11,11 @@ export type Turma = {
   // pelo nome e pela descrição da turma. Ausente = não deu para saber.
   modalidade?: "rondesp" | "patamo" | "bope";
   // Insígnia da MODALIDADE da turma (toda turma tem uma; null = ainda sem arquivo, o site mostra a marca do Quad).
-  insignia: string | null;  concurso?: string;
+  insignia: string | null;
+  // MODALIDADE da planilha, em qualquer cargo ("RONDESP", "INVESTIGADOR"); id = nome em minúsculas, sem acento.
+  // Sem modalidade no cadastro, o nome da turma faz o papel.
+  modalidadeNome: string;
+  modalidadeId: string;  concurso?: string;
   turno?: string;
   // "06/07/2026"
   inicio?: string;
