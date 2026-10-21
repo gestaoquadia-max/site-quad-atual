@@ -82,20 +82,15 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-azul-ceu">{turma.tag}</div>
               <h1 className="mb-[18px] mt-3 font-display text-[clamp(2.2rem,4.6vw,3.6rem)] font-extrabold leading-[1.02] tracking-[-0.035em]">{grupo.nome}</h1>
-              {/* Cargo e concurso sempre aparecem; sem o dado no cadastro, "a confirmar" (padrão das notas da designer). */}
+              {/* Cargo e concurso sempre aparecem. Sem o dado, vale para todos (como "TODOS OS CONCURSOS" na planilha). */}
               <div className="flex flex-wrap gap-2">
                 {[
-                  { rotulo: "Cargo", valor: grupo.cargo },
-                  { rotulo: "Concurso", valor: grupo.concurso },
-                ].map(({ rotulo, valor }) => (
-                  <span
-                    key={rotulo}
-                    className={`inline-flex items-center gap-1.5 rounded-full px-[11px] py-[5px] text-[12.5px] font-semibold ${
-                      valor ? "bg-[#E6ECFF] text-[#1238C4]" : "bg-white/10 text-prata"
-                    }`}
-                  >
+                  { chave: "cargo", valor: grupo.cargo ?? "Todos os cargos" },
+                  { chave: "concurso", valor: grupo.concurso ?? "Todos os concursos" },
+                ].map(({ chave, valor }) => (
+                  <span key={chave} className="inline-flex items-center gap-1.5 rounded-full bg-[#E6ECFF] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#1238C4]">
                     <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                    {valor ?? `${rotulo} a confirmar`}
+                    {valor}
                   </span>
                 ))}
               </div>
