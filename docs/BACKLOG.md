@@ -30,11 +30,11 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 | Etapa | Título | Blocos | Tarefas | Feitas |
 |---|---|---|---|---|
-| 1 | Cadastro e login | 4 | 28 | 21 |
+| 1 | Cadastro e login | 4 | 28 | 23 |
 | 2 | Páginas públicas | 3 | 17 | 11 |
 | 3 | Área do aluno | 4 | 17 | 13 |
 | 4 | Qualidade de código | 3 | 11 | 10 |
-| 5 | Conteúdo via API | 4 | 11 | 4 |
+| 5 | Conteúdo via API | 4 | 11 | 5 |
 | 6 | Painel administrativo | 3 | 6 | 0 |
 | 7 | Carrinho | 1 | 7 | 4 |
 | 8 | Checkout e pagamento | 4 | 15 | 6 |
@@ -98,8 +98,8 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Menu de perfil na navbar (avatar, editar conta, sair) | FEITO |
 | Navbar atualizando na hora ao entrar e sair, inclusive em outras abas | FEITO |
 | Definir onde guardar o token (navegador ou cookie protegido) | FEITO |
-| Migrar o login para cookie protegido | PENDENTE |
-| Proteção da área do aluno também no servidor | PENDENTE |
+| Migrar o login para cookie protegido | FEITO |
+| Proteção da área do aluno também no servidor | FEITO |
 | Voltar para a página anterior depois do login | FEITO |
 | Login com Google (melhoria futura) | PENDENTE |
 
@@ -336,11 +336,11 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 3 — CONTEÚDO INSTITUCIONAL
 
-**Status:** PENDENTE
+**Status:** EM ANDAMENTO
 
 | Tarefa | Status |
 |---|---|
-| Professores pela API | PENDENTE |
+| Professores pela API | FEITO |
 | Aprovados e histórias em vídeo pela API | PENDENTE |
 | Blog pela API ou por um sistema de conteúdo | PENDENTE |
 | Barra de notícias do topo editável | PENDENTE |
