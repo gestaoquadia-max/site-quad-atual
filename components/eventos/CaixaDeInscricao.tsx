@@ -8,7 +8,7 @@ import { ErroDaApi } from "@/lib/http";
 import { alvoDoItem } from "@/lib/itens";
 import { inscreverSeDeGraca } from "@/lib/loja";
 import { rotaComDestino } from "@/lib/redirecionamento";
-import { useTokenDeAcesso } from "@/lib/usuario";
+import { useSessaoAtiva } from "@/lib/usuario";
 
 // Preço, ocupação e botão de inscrição da página do evento.
 // Evento pago: vai para o carrinho e segue para o checkout. Gratuito: inscreve direto na API, sem checkout
@@ -30,7 +30,7 @@ export default function CaixaDeInscricao({
 }) {
   const router = useRouter();
   const caminho = usePathname();
-  const token = useTokenDeAcesso();
+  const sessaoAtiva = useSessaoAtiva();
   const { addItem } = useCart();
   const [inscrevendo, setInscrevendo] = useState(false);
   const [erro, setErro] = useState("");
@@ -43,7 +43,7 @@ export default function CaixaDeInscricao({
       router.push("/checkout");
       return;
     }
-    if (!token) {
+    if (!sessaoAtiva) {
       router.push(rotaComDestino("/entrar", caminho));
       return;
     }

@@ -11,7 +11,7 @@ import { ErroDoCartao, formatarNumeroDoCartao, formatarValidade, problemaNoCarta
 import { rotaComDestino } from "@/lib/redirecionamento";
 import type { Carreira } from "@/lib/simulados";
 import { usePedido } from "@/lib/usePedido";
-import { useTokenDeAcesso } from "@/lib/usuario";
+import { useSessaoAtiva } from "@/lib/usuario";
 import { CLASSE_DO_CAMPO, CLASSE_DO_ROTULO } from "../acesso/Campos";
 import { ehFisico, motivoDaIndisponibilidade, ROTULO_DO_TIPO } from "./Carrinho";
 import Etapas from "./Etapas";
@@ -72,8 +72,8 @@ function PedirLogin() {
 export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }) {
   const router = useRouter();
   const { items, carregado, clear } = useCart();
-  const token = useTokenDeAcesso();
-  const logado = !!token;
+  const sessaoAtiva = useSessaoAtiva();
+  const logado = !!sessaoAtiva;
   const { estado, cupom, aplicarCupom, refazer } = usePedido(items, carregado && logado && items.length > 0);
   const [config, setConfig] = useState<ConfiguracaoDoPagamento | null>(null);
   const [metodo, setMetodo] = useState<Metodo>("CARTAO");
@@ -185,7 +185,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
         <h1 className="mb-7 font-display text-[clamp(2rem,4vw,2.8rem)] font-extrabold tracking-[-0.03em]">{titulo}</h1>
 
         {/* Ainda lendo o carrinho e a sessão salvos no navegador: a área reservada evita que o rodapé pule (CLS). */}
-        {!carregado || token === undefined ? (
+        {!carregado || sessaoAtiva === undefined ? (
           <div role="status" aria-label="Carregando" className="min-h-[50vh]" />
         ) : items.length === 0 ? (
           <Vazio />

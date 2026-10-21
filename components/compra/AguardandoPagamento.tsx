@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ErroDaApi } from "@/lib/http";
 import { buscarFechamento, conferirPagamento, emReais, type Fechamento } from "@/lib/loja";
 import { rotaComDestino } from "@/lib/redirecionamento";
-import { useTokenDeAcesso } from "@/lib/usuario";
+import { useSessaoAtiva } from "@/lib/usuario";
 import Etapas from "./Etapas";
 
 const INTERVALO_DA_CONSULTA_MS = 5000;
@@ -41,7 +41,7 @@ function Cartao({ children }: { children: React.ReactNode }) {
 }
 
 export default function AguardandoPagamento({ id }: { id: string }) {
-  const token = useTokenDeAcesso();
+  const sessaoAtiva = useSessaoAtiva();
   const [fechamento, setFechamento] = useState<Fechamento | null>(null);
   const [erro, setErro] = useState("");
   const [conferindo, setConferindo] = useState(false);
@@ -51,7 +51,7 @@ export default function AguardandoPagamento({ id }: { id: string }) {
 
   // Consulta a situação até o pagamento ser confirmado (ou vencer). O aviso do Pagar.me chega à API, não ao site.
   useEffect(() => {
-    if (!token || !aguardando) return;
+    if (!sessaoAtiva || !aguardando) return;
     let cancelado = false;
     const consultar = () =>
       buscarFechamento(id)
@@ -63,7 +63,7 @@ export default function AguardandoPagamento({ id }: { id: string }) {
       cancelado = true;
       clearInterval(intervalo);
     };
-  }, [id, token, aguardando]);
+  }, [id, sessaoAtiva, aguardando]);
 
   async function jaPaguei() {
     setConferindo(true);
@@ -83,7 +83,7 @@ export default function AguardandoPagamento({ id }: { id: string }) {
   const boleto = fechamento?.pagamento?.boleto;
 
   let conteudo: React.ReactNode;
-  if (token === null) {
+  if (sessaoAtiva === false) {
     conteudo = (
       <Cartao>
         <h1 className="mb-3 font-display text-[clamp(1.8rem,3.6vw,2.4rem)] font-extrabold tracking-[-0.03em]">Entre para ver o seu pagamento</h1>

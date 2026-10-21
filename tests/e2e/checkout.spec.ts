@@ -50,9 +50,9 @@ test("logado, o checkout reserva os itens no servidor, mostra o total da API e c
   if (await indisponivel.isVisible()) await expect(pagar).toBeDisabled();
 
   // Solta as reservas (elas seguram o estoque por 30 minutos).
+  // A sessão está nos cookies (o navegador manda sozinho); escrita por cookie exige o cabeçalho do site.
   const status = await page.evaluate(async (api) => {
-    const sessao = JSON.parse(localStorage.getItem("quad-auth") ?? "{}");
-    const res = await fetch(`${api}/api/loja/carrinho/eu`, { method: "DELETE", headers: { Authorization: `Bearer ${sessao.tokenDeAcesso}` } });
+    const res = await fetch(`${api}/api/loja/carrinho/eu`, { method: "DELETE", credentials: "include", headers: { "X-Quad-Cliente": "site" } });
     return res.status;
   }, process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080");
   expect(status).toBe(204);

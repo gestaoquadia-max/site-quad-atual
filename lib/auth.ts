@@ -1,113 +1,88 @@
 import { API_URL, ErroDaApi, lerErro } from "./http";
 
-const STORAGE_KEY = "quad-auth";
+// Sessão em cookies (docs/pedidos-backend.md, 2.10). Com o cabeçalho X-Quad-Cliente: site, a API grava:
+// - quad_acesso e quad_renovacao: HttpOnly, nenhum script da página lê; o navegador os manda sozinho
+//   (credentials: "include");
+// - quad_sessao: só "1", sem segredo, legível aqui e no servidor do site (proxy.ts), para saber se há sessão.
+// O site nunca vê nem guarda os tokens. Requisições que alteram dados exigem o mesmo cabeçalho (proteção CSRF).
+export const CABECALHO_DO_SITE = { "X-Quad-Cliente": "site" } as const;
+export const COOKIE_DE_SESSAO = "quad_sessao";
+
 const EVENTO_MUDANCA = "quad-auth-mudou";
-// Renova um pouco antes do vencimento para não mandar requisição com token no limite.
-const MARGEM_EXPIRACAO_MS = 30_000;
+// Login e logout em outra aba: o cookie muda sem evento; esta chave do localStorage (sem nada sensível) avisa as abas.
+const CHAVE_ENTRE_ABAS = "quad-sessao-mudou";
 
-export type Sessao = {
-  tipoDeToken: string;
-  tokenDeAcesso: string;
-  acessoExpiraEm: string;
-  tokenDeRenovacao: string;
-  renovacaoExpiraEm: string;
-};
-
-function salvarSessao(sessao: Sessao) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(sessao));
+function avisarMudanca() {
   window.dispatchEvent(new Event(EVENTO_MUDANCA));
+  try {
+    localStorage.setItem(CHAVE_ENTRE_ABAS, String(Date.now()));
+  } catch {
+    // Sem localStorage, só as outras abas deixam de ser avisadas.
+  }
 }
 
-function limparSessao() {
-  localStorage.removeItem(STORAGE_KEY);
-  window.dispatchEvent(new Event(EVENTO_MUDANCA));
+export function temSessao(): boolean {
+  return document.cookie.split("; ").some((c) => c.startsWith(`${COOKIE_DE_SESSAO}=`) && c.length > COOKIE_DE_SESSAO.length + 1);
 }
 
-// Data inválida conta como "não expirou": nesse caso quem decide é o 401 da API.
-function expirou(dataIso: string) {
-  return Date.parse(dataIso) - MARGEM_EXPIRACAO_MS <= Date.now();
+function enviarParaAApi(caminho: string, init: RequestInit = {}) {
+  return fetch(`${API_URL}${caminho}`, {
+    ...init,
+    credentials: "include",
+    headers: { ...init.headers, ...CABECALHO_DO_SITE },
+  });
 }
 
-export async function login(email: string, senha: string): Promise<Sessao> {
-  const res = await fetch(`${API_URL}/auth/login`, {
+export async function login(email: string, senha: string): Promise<void> {
+  const res = await enviarParaAApi("/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, senha }),
   });
-
-  if (!res.ok) {
-    throw await lerErro(res, "E-mail ou senha inválidos.");
-  }
-
-  const sessao: Sessao = await res.json();
-  salvarSessao(sessao);
-  return sessao;
+  if (!res.ok) throw await lerErro(res, "E-mail ou senha inválidos.");
+  avisarMudanca();
 }
 
-export function getSessao(): Sessao | null {
+// Revoga a sessão na API, que também apaga os três cookies.
+export async function logout() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
+    await enviarParaAApi("/auth/logout", { method: "POST" });
   } catch {
-    return null;
+    // Sem rede: a sessão continua até a próxima tentativa.
   }
+  avisarMudanca();
 }
 
-export function logout() {
-  const sessao = getSessao();
-  limparSessao();
-  if (!sessao) return;
-  // Revoga a sessão no servidor; a sessão local já foi apagada de qualquer forma.
-  fetch(`${API_URL}/auth/logout`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${sessao.tokenDeAcesso}` },
-    keepalive: true,
-  }).catch(() => {});
-}
-
-// Avisa sobre login/logout nesta aba e em outras abas (evento "storage").
+// Avisa sobre login/logout nesta aba e em outras abas (evento "storage"), e ao voltar para a aba.
 export function assinarSessao(callback: () => void) {
+  const aoMudarEmOutraAba = (e: StorageEvent) => e.key === CHAVE_ENTRE_ABAS && callback();
   window.addEventListener(EVENTO_MUDANCA, callback);
-  window.addEventListener("storage", callback);
+  window.addEventListener("storage", aoMudarEmOutraAba);
+  document.addEventListener("visibilitychange", callback);
   return () => {
     window.removeEventListener(EVENTO_MUDANCA, callback);
-    window.removeEventListener("storage", callback);
+    window.removeEventListener("storage", aoMudarEmOutraAba);
+    document.removeEventListener("visibilitychange", callback);
   };
 }
 
-let renovacaoEmAndamento: Promise<Sessao | null> | null = null;
+let renovacaoEmAndamento: Promise<boolean> | null = null;
 
-// Troca o token de renovação por uma sessão nova. Várias chamadas simultâneas
-// compartilham a mesma requisição. Devolve null se não for possível renovar.
-function renovarSessao(tokenQueFalhou: string): Promise<Sessao | null> {
+// Troca os cookies vencidos por novos (a API lê o quad_renovacao). Várias chamadas simultâneas compartilham
+// a mesma requisição. false = não deu para renovar.
+function renovarSessao(): Promise<boolean> {
   renovacaoEmAndamento ??= (async () => {
-    const atual = getSessao();
-    if (!atual) return null;
-
-    // Outra aba (ou outra requisição) já renovou.
-    if (atual.tokenDeAcesso !== tokenQueFalhou && !expirou(atual.acessoExpiraEm)) return atual;
-
-    if (expirou(atual.renovacaoExpiraEm)) {
-      limparSessao();
-      return null;
-    }
-
     try {
-      const res = await fetch(`${API_URL}/auth/refresh`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tokenDeRenovacao: atual.tokenDeRenovacao }),
-      });
-      if (!res.ok) {
-        if (res.status === 401) limparSessao();
-        return null;
+      const res = await enviarParaAApi("/auth/refresh", { method: "POST" });
+      if (res.status === 401) {
+        // Renovação vencida ou revogada: encerra a sessão (a API apaga os cookies no logout).
+        await logout();
+        return false;
       }
-      const nova: Sessao = await res.json();
-      salvarSessao(nova);
-      return nova;
+      return res.ok;
     } catch {
       // Falha de rede: mantém a sessão para tentar de novo depois.
-      return null;
+      return false;
     }
   })().finally(() => {
     renovacaoEmAndamento = null;
@@ -115,45 +90,17 @@ function renovarSessao(tokenQueFalhou: string): Promise<Sessao | null> {
   return renovacaoEmAndamento;
 }
 
-// fetch para rotas protegidas: envia o token, renova quando vence e encerra a
-// sessão quando não há mais como renovar (a área do aluno então manda para /entrar).
+// fetch para rotas protegidas: os cookies vão sozinhos; no 401 renova uma vez e tenta de novo.
+// Sem como renovar, a sessão é encerrada (a área do aluno então manda para /entrar).
 export async function fetchAutenticado(caminho: string, init: RequestInit = {}): Promise<Response> {
-  let sessao = getSessao();
-  if (!sessao) throw new ErroDaApi(401, "Sessão encerrada. Entre novamente.");
-
-  if (expirou(sessao.acessoExpiraEm)) {
-    sessao = await renovarSessao(sessao.tokenDeAcesso);
-    if (!sessao) throw new ErroDaApi(401, "Sessão encerrada. Entre novamente.");
-  }
-
-  const enviar = (token: string) =>
-    fetch(`${API_URL}${caminho}`, {
-      ...init,
-      headers: { ...init.headers, Authorization: `Bearer ${token}` },
-    });
-
-  let res = await enviar(sessao.tokenDeAcesso);
+  if (!temSessao()) throw new ErroDaApi(401, "Sessão encerrada. Entre novamente.");
+  let res = await enviarParaAApi(caminho, init);
   if (res.status === 401) {
-    const nova = await renovarSessao(sessao.tokenDeAcesso);
-    if (!nova) throw new ErroDaApi(401, "Sessão encerrada. Entre novamente.");
-    res = await enviar(nova.tokenDeAcesso);
-    if (res.status === 401) limparSessao();
+    if (!(await renovarSessao())) throw new ErroDaApi(401, "Sessão encerrada. Entre novamente.");
+    res = await enviarParaAApi(caminho, init);
+    if (res.status === 401) await logout();
   }
   return res;
-}
-
-function decodeTokenPayload(token: string): { sub?: string; roles?: string[] } | null {
-  try {
-    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
-    return JSON.parse(atob(padded));
-  } catch {
-    return null;
-  }
-}
-
-export function getUsuarioIdDoToken(token: string): string | null {
-  return decodeTokenPayload(token)?.sub ?? null;
 }
 
 // Recuperação de senha (rotas públicas). O e-mail traz o link /redefinir-senha?token=...

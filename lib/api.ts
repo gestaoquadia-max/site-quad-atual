@@ -57,16 +57,6 @@ export type Usuario = {
   emailVerificado?: boolean;
 };
 
-export async function buscarUsuario(id: string): Promise<Usuario> {
-  const res = await fetchAutenticado(`/api/usuarios/${id}`);
-
-  if (!res.ok) {
-    throw await lerErro(res, "Não foi possível carregar os dados do usuário.");
-  }
-
-  return res.json();
-}
-
 // Cadastro de aluno da conta logada. Responde 409 para contas que não são de aluno.
 // GET /api/alunos/eu (MeuPerfilResponse): os dados do aluno e, ao lado, os da conta.
 // Telefone e CPF vêm só com dígitos (ou null).

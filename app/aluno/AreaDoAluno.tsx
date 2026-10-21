@@ -3,19 +3,19 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import AlunoSidebar from "@/components/AlunoSidebar";
-import { useTokenDeAcesso } from "@/lib/usuario";
+import { useSessaoAtiva } from "@/lib/usuario";
 import { rotaComDestino } from "@/lib/redirecionamento";
 
 export default function AreaDoAluno({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const token = useTokenDeAcesso();
+  const sessaoAtiva = useSessaoAtiva();
 
   useEffect(() => {
-    if (token === null) router.replace(rotaComDestino("/entrar", pathname));
-  }, [token, router, pathname]);
+    if (sessaoAtiva === false) router.replace(rotaComDestino("/entrar", pathname));
+  }, [sessaoAtiva, router, pathname]);
 
-  if (!token) {
+  if (!sessaoAtiva) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-nevoa text-sm text-ardosia" role="status">
         Carregando...

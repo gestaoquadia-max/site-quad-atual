@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
-import { assinarSessao, getSessao, getUsuarioIdDoToken } from "./auth";
-import { buscarAlunoAtual, buscarUsuario, type Aluno } from "./api";
+import { assinarSessao, temSessao } from "./auth";
+import { buscarAlunoAtual, type Aluno } from "./api";
 import { ErroDaApi } from "./http";
 
 export type UsuarioAtual = {
@@ -25,22 +25,20 @@ type Estado = { usuario: UsuarioAtual | null; carregando: boolean; recarregar: (
 
 const UsuarioContext = createContext<Estado>({ usuario: null, carregando: false, recarregar: () => {} });
 
-function lerToken() {
-  return getSessao()?.tokenDeAcesso ?? null;
-}
-
+// A sessão mora em cookies HttpOnly (lib/auth.ts): o site só sabe SE há sessão, pelo cookie quad_sessao.
 // undefined = ainda não sabemos (renderização no servidor / antes da hidratação).
-export function useTokenDeAcesso(): string | null | undefined {
-  return useSyncExternalStore(assinarSessao, lerToken, () => undefined);
+export function useSessaoAtiva(): boolean | undefined {
+  return useSyncExternalStore(assinarSessao, temSessao, () => undefined);
 }
 
-// Aluno: tudo vem de /api/alunos/eu. Conta sem cadastro de aluno (professor, administrador)
-// recebe 409 ali e usa /api/usuarios/{id}, que essas contas têm permissão de ler e editar.
-async function carregarUsuarioAtual(id: string): Promise<UsuarioAtual> {
+// Tudo vem de /api/alunos/eu, que traz também o id da conta (usuarioId). Conta sem cadastro de aluno
+// (professor, administrador) recebe 409 ali; sem um /api/usuarios/eu (pedido ao backend), o site não tem como
+// ler os dados dela e mostra só o essencial.
+async function carregarUsuarioAtual(): Promise<UsuarioAtual> {
   try {
     const a = await buscarAlunoAtual();
     return {
-      id,
+      id: a.usuarioId,
       nome: a.nomeCompleto || a.nomeDeGuerra,
       email: a.email ?? null,
       telefone: a.telefone ?? null,
@@ -53,50 +51,55 @@ async function carregarUsuarioAtual(id: string): Promise<UsuarioAtual> {
   } catch (e) {
     if (!(e instanceof ErroDaApi && e.status === 409)) throw e;
   }
-
-  const u = await buscarUsuario(id);
   return {
-    id,
-    nome: u.nome,
-    email: u.email ?? null,
-    telefone: u.telefone ?? null,
-    cpf: u.cpf ?? null,
-    emailVerificado: u.emailVerificado ?? null,
-    dadosDaContaDisponiveis: true,
-    podeEditarCadastro: true,
+    id: "",
+    nome: "Minha conta",
+    email: null,
+    telefone: null,
+    cpf: null,
+    emailVerificado: null,
+    dadosDaContaDisponiveis: false,
+    podeEditarCadastro: false,
     aluno: null,
   };
 }
 
 export function UsuarioProvider({ children }: { children: ReactNode }) {
-  const token = useTokenDeAcesso();
-  // Chaveado pelo id (e não pelo token) para não "piscar" quando o token é renovado.
-  const id = token ? getUsuarioIdDoToken(token) : null;
-  const [carregado, setCarregado] = useState<{ id: string; usuario: UsuarioAtual | null } | null>(null);
+  const ativa = useSessaoAtiva();
+  // Cada login conta como uma sessão nova (a anterior pode ter sido de outra conta).
+  const [sessao, setSessao] = useState(0);
+  const [carregado, setCarregado] = useState<{ sessao: number; usuario: UsuarioAtual | null } | null>(null);
   // Incrementado para buscar de novo (ex.: depois de salvar o perfil) sem apagar o que está na tela.
   const [versao, setVersao] = useState(0);
   const recarregar = useCallback(() => setVersao((v) => v + 1), []);
 
+  // Ao sair, a próxima entrada conta como sessão nova (ajuste durante a renderização, como recomenda o React).
+  const [ativaAntes, setAtivaAntes] = useState(ativa);
+  if (ativaAntes !== ativa) {
+    setAtivaAntes(ativa);
+    if (ativa === false) setSessao((s) => s + 1);
+  }
+
   useEffect(() => {
-    if (!id) return;
+    if (!ativa) return;
 
     let cancelado = false;
-    carregarUsuarioAtual(id)
+    carregarUsuarioAtual()
       .then((usuario) => {
-        if (!cancelado) setCarregado({ id, usuario });
+        if (!cancelado) setCarregado({ sessao, usuario });
       })
       .catch(() => {
-        if (!cancelado) setCarregado({ id, usuario: null });
+        if (!cancelado) setCarregado({ sessao, usuario: null });
       });
     return () => {
       cancelado = true;
     };
-  }, [id, versao]);
+  }, [ativa, sessao, versao]);
 
-  const pronto = !!id && carregado?.id === id;
+  const pronto = !!ativa && carregado?.sessao === sessao;
   const estado: Estado = {
     usuario: pronto ? carregado.usuario : null,
-    carregando: !!id && !pronto,
+    carregando: !!ativa && !pronto,
     recarregar,
   };
 
