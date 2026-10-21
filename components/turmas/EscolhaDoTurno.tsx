@@ -126,7 +126,6 @@ export default function EscolhaDoTurno({ turma, inicial }: { turma: TurmaComTurn
             <span className="font-display text-[clamp(44px,5vw,56px)] font-extrabold leading-none tracking-[-0.035em] [font-variant-numeric:tabular-nums]">
               {preco.replace(/^R\$\s?/, "")}
             </span>
-            {duracao && <span className="text-[15px] text-prata">/ {duracao}</span>}
           </>
         ) : (
           <span className="font-display text-[clamp(32px,4vw,40px)] font-extrabold">Valor a confirmar</span>
@@ -146,7 +145,6 @@ export default function EscolhaDoTurno({ turma, inicial }: { turma: TurmaComTurn
               nome: turma.nome,
               tag: [nomeDoTurno, turma.cargo, turma.concurso].filter(Boolean).join(" · "),
               preco,
-              precoSufixo: duracao ? ` / ${duracao}` : undefined,
             }}
             className="h-14 w-full rounded-xl text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_16px_36px_-14px_rgba(0,107,255,1)] hover:-translate-y-0.5"
           />

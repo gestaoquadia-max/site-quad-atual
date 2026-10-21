@@ -137,9 +137,7 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
                       </div>
                       <div className="flex flex-none flex-col items-end gap-1.5 text-right">
                         <div className="whitespace-nowrap font-display text-lg font-extrabold [font-variant-numeric:tabular-nums]">
-                          {unitario === null ? item.preco : unitario === 0 ? "Gratuito" : formatarValor(unitario * item.quantidade)}
-                          {item.precoSufixo && <small className="ml-0.5 text-xs font-medium text-ardosia">{item.precoSufixo}</small>}
-                        </div>
+                          {unitario === null ? item.preco : unitario === 0 ? "Gratuito" : formatarValor(unitario * item.quantidade)}                        </div>
                         <button
                           type="button"
                           onClick={() => removeItem(item.id)}

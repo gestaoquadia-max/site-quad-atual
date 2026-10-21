@@ -4,7 +4,6 @@ export type Turma = {
   nome: string;
   desc: string;
   preco: string;
-  precoSufixo?: string;
   status: "aberta" | "breve" | "encerrada";
   statusLabel: string;
   // Novo visual (Turmas por modalidade). A API ainda não tem modalidade nem nome do concurso: lib/vitrine.ts deduz

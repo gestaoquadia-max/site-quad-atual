@@ -10,7 +10,6 @@ export type CartItem = {
   nome: string;
   tag?: string;
   preco: string;
-  precoSufixo?: string;
   // Materiais: digital ou impresso (o impresso é retirado no Quad; o envio pelo correio depende do frete).
   formato?: "digital" | "impresso";
   // Simulados: carreira, edição e modalidade (presencial ou formato de estudo), revalidados em lib/simulados.ts.

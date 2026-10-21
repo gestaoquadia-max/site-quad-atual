@@ -103,7 +103,7 @@ function CartaoDaTurma({ turma, titulo }: { turma: Turma; titulo: string }) {
     ["Turno", turma.turno],
     ["Horário", undefined],
     ["Início", turma.inicio],
-    ["Valor", turma.preco === "Consulte" ? undefined : `${turma.preco}${turma.precoSufixo ?? ""}`],
+    ["Valor", turma.preco === "Consulte" ? undefined : turma.preco],
   ] as const;
   return (
     <article className="grid animate-[q-surgir_220ms_ease_both] grid-cols-[repeat(auto-fit,minmax(min(100%,190px),1fr))] items-center gap-x-6 gap-y-4 rounded-2xl border border-linha bg-white p-[clamp(18px,2vw,24px)] shadow-[0_1px_2px_rgba(16,27,45,0.04),0_18px_36px_-28px_rgba(16,27,45,0.3)]">

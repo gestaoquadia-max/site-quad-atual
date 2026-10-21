@@ -227,9 +227,8 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     // MODALIDADE + EDIÇÃO ("RONDESP 2", "INVESTIGADOR 1"); fora do padrão, o nome cadastrado.
     nome: nomeDaTurma({ ...colunas, nomeOriginal: a.nome }),
     desc: resumo.join(" · "),
+    // A turma é cobrada pelo valor fechado da duração, nunca por mês (e o preço aparece sem a duração ao lado).
     preco: a.preco === null ? "Consulte" : precoEmTexto(a.preco),
-    // A turma é cobrada pelo valor fechado da duração, nunca por mês.
-    precoSufixo: duracao ? ` / ${duracao}` : undefined,
     ...situacao(a, "Matrículas abertas"),
     detalhe: {
       lead: d.descricao?.trim() || "Preparação presencial do Quad com rotina estruturada e professores especialistas na banca.",
