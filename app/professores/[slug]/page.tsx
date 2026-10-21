@@ -1,33 +1,39 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { professores } from "@/lib/data";
+import { notFound, redirect } from "next/navigation";
+import { buscarProfessor, listarProfessores } from "@/lib/vitrine";
 import { getIniciais } from "@/lib/format";
 import Trilha from "@/components/Trilha";
 import { metadadosDaPagina } from "@/lib/seo";
 
-// Foto recortada (sem fundo) usada no topo; quem não tem usa a foto do cadastro.
-const FOTO_DO_TOPO: Record<string, string> = { "danilo-moura": "/images/danilo-hero.png" };
+// Foto recortada (sem fundo) usada no topo, pelo nome; quem não tem usa a foto do cadastro.
+const FOTO_DO_TOPO: Record<string, string> = { "Danilo Moura": "/images/danilo-hero.png" };
 
-export function generateStaticParams() {
-  return professores.map((p) => ({ slug: p.slug }));
+// Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts). Professor cadastrado depois do build é gerado na primeira visita.
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  return ((await listarProfessores()) ?? []).map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const professor = professores.find((p) => p.slug === slug);
+  const professor = await buscarProfessor(slug);
   if (!professor) return {};
-  return metadadosDaPagina({ titulo: professor.nome, descricao: professor.bio, caminho: `/professores/${professor.slug}` });
+  const descricao = professor.bio ?? `${professor.nome}, professor do Quad Concursos${professor.materia ? ` (${professor.materia})` : ""}.`;
+  return metadadosDaPagina({ titulo: professor.nome, descricao, caminho: `/professores/${professor.slug}` });
 }
 
 export default async function ProfessorDetalhe({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const professor = professores.find((p) => p.slug === slug);
+  const professor = await buscarProfessor(slug);
   if (!professor) notFound();
-  const foto = FOTO_DO_TOPO[professor.slug] ?? professor.fotoUrl;
-  const recortada = professor.slug in FOTO_DO_TOPO;
-  const outros = professores.filter((p) => p.slug !== professor.slug);
+  // Professor renomeado: o id continua o mesmo, então leva ao endereço com o nome atual.
+  if (professor.slug !== slug) redirect(`/professores/${professor.slug}`);
+  const foto = FOTO_DO_TOPO[professor.nome] ?? professor.fotoUrl;
+  const recortada = professor.nome in FOTO_DO_TOPO;
+  const outros = ((await listarProfessores()) ?? []).filter((p) => p.slug !== professor.slug);
 
   return (
     <>
@@ -39,9 +45,9 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
               itens={[{ rotulo: "Início", href: "/" }, { rotulo: "Professores", href: "/#professores" }, { rotulo: professor.nome }]}
               className="mb-[clamp(28px,4vw,48px)]"
             />
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">{professor.materia}</span>
+            {professor.materia && <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">{professor.materia}</span>}
             <h1 className="mb-5 mt-3 font-display text-[clamp(2.6rem,5.4vw,4.4rem)] font-extrabold leading-none tracking-[-0.045em]">{professor.nome}</h1>
-            <p className="max-w-[560px] text-[clamp(16px,1.4vw,18px)] leading-[1.65] text-[#C9D5E5]">{professor.bioCompleta}</p>
+            {professor.bioCompleta && <p className="max-w-[560px] text-[clamp(16px,1.4vw,18px)] leading-[1.65] text-[#C9D5E5]">{professor.bioCompleta}</p>}
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/turmas" className="btn-q btn-q-azul h-[52px] px-6 text-[15px]">
                 Conhecer as turmas presenciais
@@ -70,24 +76,26 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
         </div>
       </section>
 
-      <section className="secao bg-nevoa">
-        <div className="conteiner">
-          <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-forte">Formação e experiência</span>
-          <h2 className="titulo-secao mb-8 mt-2">Credenciais</h2>
-          <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-4">
-            {professor.formacao.map((item) => (
-              <li key={item} className="flex items-start gap-3 rounded-[18px] border border-linha bg-white p-5 text-[15.5px] font-semibold leading-[1.45] text-tinta">
-                <span aria-hidden="true" className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-azul-palido text-azul-forte">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12l5 5L20 7" />
-                  </svg>
-                </span>
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+      {professor.formacao.length > 0 && (
+        <section className="secao bg-nevoa">
+          <div className="conteiner">
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-forte">Formação e experiência</span>
+            <h2 className="titulo-secao mb-8 mt-2">Credenciais</h2>
+            <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-4">
+              {professor.formacao.map((item) => (
+                <li key={item} className="flex items-start gap-3 rounded-[18px] border border-linha bg-white p-5 text-[15.5px] font-semibold leading-[1.45] text-tinta">
+                  <span aria-hidden="true" className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-azul-palido text-azul-forte">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12l5 5L20 7" />
+                    </svg>
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
 
       {outros.length > 0 && (
         <section className="secao bg-white">

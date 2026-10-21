@@ -130,98 +130,17 @@ export const aprovados: Aprovado[] = [
   },
 ];
 
+// Vem da vitrine de professores da API (lib/vitrine.ts). Ela ainda não tem minibio nem slug (pedidos ao backend):
+// sem bio, as páginas escondem o texto.
 export type Professor = {
   slug: string;
   nome: string;
   materia: string;
-  bio: string;
-  bioCompleta: string;
+  bio?: string;
+  bioCompleta?: string;
   formacao: string[];
   fotoUrl?: string;
 };
-
-export const professores: Professor[] = [
-  {
-    slug: "danilo-moura",
-    nome: "Danilo Moura",
-    materia: "Direito Administrativo",
-    fotoUrl: "/images/professores/danilo.webp",
-    bio: "Fundador do Quad Concursos, ex-policial militar e à frente da preparação presencial desde 2013.",
-    bioCompleta:
-      "Danilo fundou o Quad Concursos em 2013 depois de passar pela própria caserna como policial militar. Desde então já formou mais de 800 aprovados, sempre com o mesmo método: estudar só o que a banca realmente cobra.",
-    formacao: [
-      "Bacharel em Direito",
-      "Ex-policial militar da PM-BA",
-      "Fundador do Quad Concursos (2013)",
-      "+12 anos de experiência em preparação presencial",
-    ],
-  },
-  {
-    slug: "fernanda-ribeiro",
-    nome: "Fernanda Ribeiro",
-    materia: "Direito Constitucional",
-    bio: "10 anos de experiência acompanhando a banca da PM-BA, especialista em direitos e garantias fundamentais.",
-    bioCompleta:
-      "Fernanda acompanha de perto o estilo de cobrança da banca da PM-BA há uma década, com foco especial no capítulo de Direitos e Garantias Fundamentais — o que mais cai nas provas de Soldado e Oficial.",
-    formacao: [
-      "Bacharel em Direito",
-      "Pós-graduada em Direito Constitucional",
-      "10 anos de experiência com bancas militares",
-    ],
-  },
-  {
-    slug: "marcos-vinicius",
-    nome: "Marcos Vinícius",
-    materia: "Direito Penal Militar",
-    bio: "Referência em jurisprudência atualizada do STM e STF, com foco nas questões mais cobradas em prova.",
-    bioCompleta:
-      "Marcos mantém o material de Direito Penal Militar sempre atualizado com as decisões mais recentes do STM e do STF, traduzindo jurisprudência complexa em conteúdo direto ao ponto para quem está estudando para a prova.",
-    formacao: [
-      "Bacharel em Direito",
-      "Especialista em Direito Penal Militar",
-      "Atualização constante em jurisprudência do STM/STF",
-    ],
-  },
-  {
-    slug: "juliana-prado",
-    nome: "Juliana Prado",
-    materia: "Língua Portuguesa",
-    bio: "Especialista em interpretação de texto e gramática aplicada às últimas provas das bancas militares.",
-    bioCompleta:
-      "Juliana ensina português com foco total em interpretação de texto — a habilidade que mais separa aprovados de reprovados nas provas de concursos militares. Gramática é sempre aplicada às últimas provas da banca, nunca decorada.",
-    formacao: [
-      "Licenciada em Letras",
-      "Especialista em interpretação de texto para concursos",
-      "Professora de Português desde 2016",
-    ],
-  },
-  {
-    slug: "rodrigo-aguiar",
-    nome: "Rodrigo Aguiar",
-    materia: "Redação e Discursiva",
-    bio: "Corretor de banca, orienta a produção textual das turmas de oficiais com correção individual.",
-    bioCompleta:
-      "Rodrigo já atuou como corretor de banca e traz esse olhar para dentro da sala de aula, corrigindo individualmente cada redação e peça discursiva das turmas de oficiais até o texto sair no padrão que a banca espera.",
-    formacao: [
-      "Bacharel em Letras",
-      "Ex-corretor de banca de concursos militares",
-      "Especialista em redação e discursiva",
-    ],
-  },
-  {
-    slug: "camila-duarte",
-    nome: "Camila Duarte",
-    materia: "Raciocínio Lógico",
-    bio: "Método direto de resolução passo a passo, do básico às questões mais cobradas em concursos militares.",
-    bioCompleta:
-      "Camila desenvolveu um método de resolução passo a passo para Raciocínio Lógico que parte do zero e chega até as questões mais cobradas em concursos militares, sem depender de fórmulas decoradas.",
-    formacao: [
-      "Bacharel em Matemática",
-      "Especialista em Raciocínio Lógico para concursos",
-      "Professora do Quad desde 2019",
-    ],
-  },
-];
 
 export type Post = {
   slug: string;

@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { posts, professores } from "@/lib/data";
+import { posts } from "@/lib/data";
+import { listarProfessores } from "@/lib/vitrine";
 import { modalidades } from "@/lib/conteudo";
 import { metadadosDaPagina } from "@/lib/seo";
 import Trilha from "@/components/Trilha";
 import { ImagemDoArtigo } from "@/components/blog/ListaDoBlog";
+
+// Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts): o link do autor acompanha a vitrine de professores.
+export const revalidate = 60;
 
 export function generateStaticParams() {
   return posts.map((p) => ({ slug: p.slug }));
@@ -28,7 +32,7 @@ export default async function PostDetalhe({ params }: { params: Promise<{ slug: 
   const leiaTambem = posts.filter((p) => p.slug !== post.slug).slice(0, 4);
   const categorias = [...new Set(posts.map((p) => p.categoria))];
   // Autor que é professor do Quad leva à página dele.
-  const professor = professores.find((p) => p.nome === post.autor);
+  const professor = ((await listarProfessores()) ?? []).find((p) => p.nome === post.autor);
   const [abertura, ...resto] = post.conteudo;
 
   return (

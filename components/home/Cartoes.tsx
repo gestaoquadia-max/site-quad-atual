@@ -122,10 +122,12 @@ export function CartaoProfessor({ professor }: { professor: Professor }) {
         </div>
       </div>
       <div className="flex flex-1 flex-col gap-3.5 px-3 py-3.5">
-        <p className="flex-1 text-[13.5px] leading-[1.55] text-prata">{professor.bio}</p>
-        <span className="self-start rounded-md border border-[rgba(111,174,255,0.22)] bg-azul/[0.14] px-2.5 py-[5px] text-[11.5px] font-semibold uppercase tracking-[0.06em] text-azul-ceu">
-          {professor.materia}
-        </span>
+        {professor.bio ? <p className="flex-1 text-[13.5px] leading-[1.55] text-prata">{professor.bio}</p> : <span className="flex-1" />}
+        {professor.materia && (
+          <span className="self-start rounded-md border border-[rgba(111,174,255,0.22)] bg-azul/[0.14] px-2.5 py-[5px] text-[11.5px] font-semibold uppercase tracking-[0.06em] text-azul-ceu">
+            {professor.materia}
+          </span>
+        )}
       </div>
     </Link>
   );

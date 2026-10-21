@@ -31,11 +31,13 @@
 
 > | 2.9 | Consultar se e-mail, CPF e telefone já estão cadastrados (antes do endereço) | ✅ **Resolvido** via `POST /api/usuarios/disponibilidade` (o site já usa). Falta o limite de tentativas (item 6.3) | — |
 
-| 2.10 | Login em cookie protegido (o token sai do navegador) | ✅ **Resolvido na API local** (conferido em 21/10/2026: os 5 testes de entrega passaram, e o login do app segue igual). Falta o site migrar e publicar em produção com `COOKIES_DOMINIO` | Alta |
+| 2.10 | Login em cookie protegido (o token sai do navegador) | ✅ **Resolvido na API local** (conferido em 21/10/2026: os 5 testes de entrega passaram, e o login do app segue igual). O site já migrou (21/10/2026). Falta publicar em produção com `COOKIES_DOMINIO` e `CORS_ORIGENS` | Alta |
 
 | 2.8 | Foto de perfil | Criar | Baixa |
 
-| 3 | Catálogo público (turmas, eventos, materiais, professores) sem login | Parcial (21/10/2026): professores públicos em `GET /api/professores/vitrine` e `/{id}` (nome, graduação, matérias, foto); faltam slug e minibio. Turmas, eventos e materiais seguem só com a vitrine | Alta |
+| 2.11 | `GET /api/usuarios/eu` para conta sem cadastro de aluno (professor, administrador) | Criar | Baixa |
+
+| 3 | Catálogo público (turmas, eventos, materiais, professores) sem login | Parcial (21/10/2026): professores públicos em `GET /api/professores/vitrine` e `/{id}` (nome, graduação, matérias, foto); o site já usa (21/10/2026); faltam slug e minibio. Turmas, eventos e materiais seguem só com a vitrine | Alta |
 
 | 4 | Rotas "minhas" da área do aluno | ✅ Quase tudo resolvido (09/10/2026). Falta: armazenamento de arquivos para testar o download e confirmar os "materiais diários" | Média |
 
@@ -337,6 +339,16 @@ Hoje a API ignora esses campos.
 
 ---
 
+### 2.11 `GET /api/usuarios/eu` — conta sem cadastro de aluno
+
+Com o login em cookie, o site não lê mais o token, então pega o id e os dados da conta em `GET /api/alunos/eu`. Uma conta de professor ou administrador recebe **409** ali e o site não tem outra rota para os dados dela: mostra só "Minha conta", sem nome nem e-mail.
+
+- **Rota:** `GET /api/usuarios/eu`, para qualquer conta logada.
+- **Resposta:** `{ id, nome, email, telefone, papeis }`.
+- Prioridade baixa: o site é para alunos; isso só afeta quem da equipe entrar com a própria conta.
+
+---
+
 ## 3. Catálogo público (visitante sem login)
 
 **Situação hoje:**
@@ -364,8 +376,12 @@ Hoje a API ignora esses campos.
 - vagas totais e ocupadas
 - situação
 
-**Professores:**
-- nome, foto, minibio, matérias
+**Professores:** ✅ parcial (21/10/2026). `GET /api/professores/vitrine` e `/{id}` trazem nome, graduação, matérias e foto, e o site já usa (home, página do professor, sitemap, link do autor no blog). Faltam:
+- **`minibio`** (2 ou 3 linhas) e, se possível, uma **bio completa**. Sem elas, o cartão e a página do professor ficam só com nome, matérias e graduação.
+- **`slug`** (ex.: `danilo-moura`). Até lá, o endereço é o nome seguido do id (`/professores/danilo-moura-6cb5e8ae-…`), como nas turmas.
+- **`credenciais`** (lista de itens, ex.: "Ex-policial militar da PM-BA"). Hoje a seção "Credenciais" mostra só a graduação.
+- **Fotos:** nenhum professor tem `fotoUrl` no banco local. O site usa a foto que já tinha do Danilo enquanto isso.
+- **Cadastros de teste:** "Danilo Mourão ribeiro" e "Davi" aparecem na vitrine local; em produção, a vitrine deve listar só professores ativos que devem aparecer no site.
 
 **Materiais em PDF vendidos avulsos:** não encontrei na API onde ficam (os itens de `/api/loja/itens` são skins). Onde vão ficar? Campos necessários: nome, descrição, preço, nº de páginas, sumário e capa.
 

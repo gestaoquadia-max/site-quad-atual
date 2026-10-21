@@ -2,7 +2,7 @@
 // Rotas e campos: docs/mapa-api-conteudo.md. O formato final pedido ao backend está em docs/contrato-api-conteudo.md;
 // enquanto ele não chega, os textos de venda que a vitrine não tem (incluso, programação, professores do evento) ficam
 // vazios e as páginas escondem essas seções. Turma não mostra professores (decisão de 21/10/2026).
-import type { Evento, Produto, Turma } from "./data";
+import type { Evento, Produto, Professor, Turma } from "./data";
 import type { ProdutoDaLoja } from "./conteudo";
 import type { Carreira, Edicao } from "./simulados";
 import { formatarHora, precoSemCentavosZerados } from "./format";
@@ -515,4 +515,48 @@ export async function buscarProdutoDaLoja(slug: string): Promise<ProdutoDaLoja |
   if (!id) return null;
   const item = await lerDaVitrine<ItemDaVitrine>(`/api/loja/vitrine/${id}`);
   return item === NAO_ENCONTRADA || item.tipo !== "OUTROS" ? null : paraProdutoDaLoja(item);
+}
+
+// ---------- Professores ----------
+
+// Resposta de /api/professores/vitrine em 21/10/2026 (sem login). Não tem slug nem minibio: o endereço segue o
+// padrão das outras páginas (nome + id) e a bio fica de fora até o backend mandar.
+type ProfessorDaVitrine = {
+  id: string;
+  nome: string;
+  graduacao: string | null;
+  materias: string[] | null;
+  fotoUrl: string | null;
+};
+
+// Fotos que o site já tinha enquanto o cadastro não tem foto. A foto da API, quando houver, vale mais.
+const FOTO_DO_SITE: Record<string, string> = { "Danilo Moura": "/images/professores/danilo.webp" };
+
+function paraProfessor(p: ProfessorDaVitrine): Professor {
+  const nome = p.nome.trim();
+  const slug = slugDoNome(nome);
+  return {
+    slug: slug ? `${slug}-${p.id}` : p.id,
+    nome,
+    materia: (p.materias ?? []).join(" • "),
+    formacao: p.graduacao?.trim() ? [p.graduacao.trim()] : [],
+    fotoUrl: p.fotoUrl ?? FOTO_DO_SITE[nome],
+  };
+}
+
+// null = a API não respondeu. A seção some em vez de quebrar a página.
+export async function listarProfessores(): Promise<Professor[] | null> {
+  try {
+    const lista = await lerDaVitrine<ProfessorDaVitrine[]>("/api/professores/vitrine");
+    return lista === NAO_ENCONTRADA ? [] : lista.map(paraProfessor);
+  } catch {
+    return null;
+  }
+}
+
+export async function buscarProfessor(slug: string): Promise<Professor | null> {
+  const id = idDoSlug(slug);
+  if (!id) return null;
+  const professor = await lerDaVitrine<ProfessorDaVitrine>(`/api/professores/vitrine/${id}`);
+  return professor === NAO_ENCONTRADA ? null : paraProfessor(professor);
 }

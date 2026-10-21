@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { aprovados, posts, professores } from "@/lib/data";
+import { aprovados, posts } from "@/lib/data";
 import { bannersPublicados, mentorias, modalidades } from "@/lib/conteudo";
-import { listarEventos, listarMateriais, listarProdutosDaLoja } from "@/lib/vitrine";
+import { listarEventos, listarMateriais, listarProdutosDaLoja, listarProfessores } from "@/lib/vitrine";
 import { dadosDaOrganizacao } from "@/lib/dados-estruturados";
 import DadosEstruturados from "@/components/DadosEstruturados";
 import Reveal from "@/components/Reveal";
@@ -36,7 +36,7 @@ function Secao({ className = "", id, brilho, children }: { className?: string; i
 }
 
 export default async function Home() {
-  const [eventos, materiais, loja] = await Promise.all([listarEventos(), listarMateriais(), listarProdutosDaLoja()]);
+  const [eventos, materiais, loja, professores] = await Promise.all([listarEventos(), listarMateriais(), listarProdutosDaLoja(), listarProfessores()]);
   const cartoesDeEvento = [CARTAO_DOS_SIMULADOS, ...(eventos ?? []).map(paraCartao)];
 
   return (
@@ -90,13 +90,15 @@ export default async function Home() {
         </Trilho>
       </Secao>
 
-      <Secao id="professores" className="bg-marinho-950 text-white" brilho="bg-[radial-gradient(45%_55%_at_0%_0%,rgba(0,107,255,0.16),transparent_70%)]">
-        <Trilho titulo="Conheça nossos professores" rotulo="Professores" tema="escuro" colunas={4}>
-          {professores.map((p) => (
-            <CartaoProfessor key={p.slug} professor={p} />
-          ))}
-        </Trilho>
-      </Secao>
+      {!!professores?.length && (
+        <Secao id="professores" className="bg-marinho-950 text-white" brilho="bg-[radial-gradient(45%_55%_at_0%_0%,rgba(0,107,255,0.16),transparent_70%)]">
+          <Trilho titulo="Conheça nossos professores" rotulo="Professores" tema="escuro" colunas={4}>
+            {professores.map((p) => (
+              <CartaoProfessor key={p.slug} professor={p} />
+            ))}
+          </Trilho>
+        </Secao>
+      )}
 
       <Secao className="bg-nevoa">
         <Reveal className="mb-[clamp(32px,4vw,48px)]">
