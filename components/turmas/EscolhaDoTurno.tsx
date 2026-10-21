@@ -66,7 +66,6 @@ export default function EscolhaDoTurno({ turma, inicial }: { turma: TurmaComTurn
             const marcada = !!o && o.id === oferta.id;
             // Sem vaga: o turno não é oferecido nesta turma ou já lotou.
             const semVaga = !o || esgotada(o);
-            const motivo = !o ? "não oferecido" : semVaga ? "esgotado" : null;
             return (
               <button
                 key={chave}
@@ -74,13 +73,13 @@ export default function EscolhaDoTurno({ turma, inicial }: { turma: TurmaComTurn
                 role="radio"
                 aria-checked={marcada}
                 disabled={semVaga && !marcada}
-                aria-label={motivo ? `${nome} (${motivo})` : nome}
                 onClick={() => o && escolher(o.id)}
-                className={`inline-flex h-[46px] min-w-[96px] items-center justify-center rounded-[10px] border px-4 font-display text-[15px] font-bold transition-colors ${
+                className={`inline-flex min-h-[46px] min-w-[96px] flex-col items-center justify-center rounded-[10px] border px-4 py-1.5 font-display text-[15px] font-bold leading-tight transition-colors ${
                   marcada ? "border-white bg-white text-marinho-950" : "border-white/20 bg-white/[0.04] text-white hover:border-azul-ceu"
-                } disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-transparent disabled:text-white/35 disabled:line-through disabled:hover:border-white/10`}
+                } disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-transparent disabled:text-white/40 disabled:hover:border-white/10`}
               >
                 {nome}
+                {semVaga && <span className="font-body text-[11px] font-medium">(Indisponível)</span>}
               </button>
             );
           })}
