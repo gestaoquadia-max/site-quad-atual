@@ -82,16 +82,23 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-azul-ceu">{turma.tag}</div>
               <h1 className="mb-[18px] mt-3 font-display text-[clamp(2.2rem,4.6vw,3.6rem)] font-extrabold leading-[1.02] tracking-[-0.035em]">{grupo.nome}</h1>
-              {(grupo.cargo || grupo.concurso) && (
-                <div className="flex flex-wrap gap-2">
-                  {[grupo.cargo, grupo.concurso].filter(Boolean).map((selo) => (
-                    <span key={selo} className="inline-flex items-center gap-1.5 rounded-full bg-[#E6ECFF] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#1238C4]">
-                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                      {selo}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {/* Cargo e concurso sempre aparecem; sem o dado no cadastro, "a confirmar" (padrão das notas da designer). */}
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { rotulo: "Cargo", valor: grupo.cargo },
+                  { rotulo: "Concurso", valor: grupo.concurso },
+                ].map(({ rotulo, valor }) => (
+                  <span
+                    key={rotulo}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-[11px] py-[5px] text-[12.5px] font-semibold ${
+                      valor ? "bg-[#E6ECFF] text-[#1238C4]" : "bg-white/10 text-prata"
+                    }`}
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                    {valor ?? `${rotulo} a confirmar`}
+                  </span>
+                ))}
+              </div>
               <EscolhaDoTurno turma={grupo} inicial={atual.id} />
             </div>
           </div>
