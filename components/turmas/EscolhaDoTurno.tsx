@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { idDoItem } from "@/lib/itens";
-import { esgotada, horarioDoDia, NOME_DO_TURNO, precoDaOferta, textoDoLote, type TurmaComTurnos } from "@/lib/turmas";
+import { esgotada, horarioDoDia, NOME_DO_TURNO, ORDEM_DOS_TURNOS, precoDaOferta, textoDoLote, type TurmaComTurnos } from "@/lib/turmas";
 import AviseMePeloWhatsApp from "../AviseMePeloWhatsApp";
 import BotaoAdicionarAoCarrinho from "../BotaoAdicionarAoCarrinho";
 
@@ -29,8 +29,14 @@ export default function EscolhaDoTurno({ turma, inicial }: { turma: TurmaComTurn
   const duracao = oferta.inicio && oferta.termino ? meses(oferta.inicio, oferta.termino) : null;
   const restantes = oferta.vagas ? oferta.vagas.total - oferta.vagas.ocupadas : null;
   const pct = oferta.vagas ? Math.round((oferta.vagas.ocupadas / oferta.vagas.total) * 100) : 0;
-  const temVariosTurnos = turma.ofertas.length > 1;
   const nomeDoTurno = oferta.turno ? NOME_DO_TURNO[oferta.turno] : null;
+  // Manhã, Tarde e Noite sempre aparecem (Integral, só se existir). Turno sem oferta ou sem vaga fica desativado.
+  const opcoes = ORDEM_DOS_TURNOS.filter((t) => t !== "INTEGRAL" || turma.ofertas.some((o) => o.turno === t)).map((t) => ({
+    turno: t,
+    oferta: turma.ofertas.find((o) => o.turno === t) ?? null,
+  }));
+  // Turma sem turno identificado (dado antigo): vira uma opção com o próprio nome.
+  const semTurno = turma.ofertas.filter((o) => !o.turno);
 
   // O endereço acompanha o turno escolhido (cada turno tem a sua página), para o link compartilhado abrir nele.
   function escolher(novo: string) {
@@ -40,7 +46,6 @@ export default function EscolhaDoTurno({ turma, inicial }: { turma: TurmaComTurn
   }
 
   const ficha = [
-    !temVariosTurnos && nomeDoTurno && { rotulo: "Turno", valor: nomeDoTurno },
     oferta.inicio && { rotulo: "Início", valor: data(oferta.inicio) },
     oferta.termino && { rotulo: "Término", valor: data(oferta.termino) },
     duracao && { rotulo: "Duração", valor: duracao },
@@ -49,35 +54,38 @@ export default function EscolhaDoTurno({ turma, inicial }: { turma: TurmaComTurn
 
   return (
     <>
-      {temVariosTurnos && (
-        <div className="mt-7">
-          <span id="rotulo-turno" className="text-[13px] font-semibold text-prata">
-            Turno{nomeDoTurno && <span className="text-white"> · {nomeDoTurno}</span>}
-          </span>
-          <div role="radiogroup" aria-labelledby="rotulo-turno" className="mt-2.5 flex flex-wrap gap-2">
-            {turma.ofertas.map((o) => {
-              const marcada = o.id === oferta.id;
-              const cheia = esgotada(o);
-              const nome = o.turno ? NOME_DO_TURNO[o.turno] : o.nomeOriginal;
-              return (
-                <button
-                  key={o.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={marcada}
-                  onClick={() => escolher(o.id)}
-                  className={`inline-flex h-[46px] min-w-[96px] items-center justify-center gap-2 rounded-[10px] border px-4 font-display text-[15px] font-bold transition-colors ${
-                    marcada ? "border-white bg-white text-marinho-950" : "border-white/20 bg-white/[0.04] text-white hover:border-azul-ceu"
-                  }`}
-                >
-                  {nome}
-                  {cheia && <span className={`text-[11px] font-semibold ${marcada ? "text-[#8A4B00]" : "text-prata"}`}>esgotado</span>}
-                </button>
-              );
-            })}
-          </div>
+      <div className="mt-7">
+        <span id="rotulo-turno" className="text-[13px] font-semibold text-prata">
+          Turno{nomeDoTurno && <span className="text-white"> · {nomeDoTurno}</span>}
+        </span>
+        <div role="radiogroup" aria-labelledby="rotulo-turno" className="mt-2.5 flex flex-wrap gap-2">
+          {[
+            ...opcoes.map(({ turno, oferta: o }) => ({ chave: turno, nome: NOME_DO_TURNO[turno], o })),
+            ...semTurno.map((o) => ({ chave: o.id, nome: o.nomeOriginal, o })),
+          ].map(({ chave, nome, o }) => {
+            const marcada = !!o && o.id === oferta.id;
+            // Sem vaga: o turno não é oferecido nesta turma ou já lotou.
+            const semVaga = !o || esgotada(o);
+            const motivo = !o ? "não oferecido" : semVaga ? "esgotado" : null;
+            return (
+              <button
+                key={chave}
+                type="button"
+                role="radio"
+                aria-checked={marcada}
+                disabled={semVaga && !marcada}
+                aria-label={motivo ? `${nome} (${motivo})` : nome}
+                onClick={() => o && escolher(o.id)}
+                className={`inline-flex h-[46px] min-w-[96px] items-center justify-center rounded-[10px] border px-4 font-display text-[15px] font-bold transition-colors ${
+                  marcada ? "border-white bg-white text-marinho-950" : "border-white/20 bg-white/[0.04] text-white hover:border-azul-ceu"
+                } disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-transparent disabled:text-white/35 disabled:line-through disabled:hover:border-white/10`}
+              >
+                {nome}
+              </button>
+            );
+          })}
         </div>
-      )}
+      </div>
 
       {ficha.length > 0 && (
         <ul className="mt-7 border-t border-white/10">
