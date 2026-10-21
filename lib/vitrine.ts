@@ -1,7 +1,7 @@
 // Turmas, eventos e simulados à venda, lidos da vitrine pública da API (sem login).
 // Rotas e campos: docs/mapa-api-conteudo.md. O formato final pedido ao backend está em docs/contrato-api-conteudo.md;
-// enquanto ele não chega, os textos de venda que a vitrine não tem (incluso, programação, professores) ficam vazios
-// e as páginas escondem essas seções.
+// enquanto ele não chega, os textos de venda que a vitrine não tem (incluso, programação, professores do evento) ficam
+// vazios e as páginas escondem essas seções. Turma não mostra professores (decisão de 21/10/2026).
 import type { Evento, Produto, Turma } from "./data";
 import type { ProdutoDaLoja } from "./conteudo";
 import type { Carreira, Edicao } from "./simulados";
@@ -216,7 +216,6 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
       specs,
       ...vagas,
       incluso: [],
-      professores: [],
     },
   };
 }

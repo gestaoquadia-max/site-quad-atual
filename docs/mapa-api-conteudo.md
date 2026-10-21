@@ -86,7 +86,7 @@ Página: `/turmas`, `/turmas/[slug]` e os cartões da home. Tipo no site: `Turma
 | Ficha (duração, horário, início, modalidade, local) | `detalhe.specs` | `inicio`, `fim`, `turnos`, `modalidade` | ⚠️ O local é só `salaId`; o nome da sala em `GET /api/salas` exige login e não traz endereço |
 | Vagas totais e ocupadas | `detalhe.vagasTotal`, `vagasOcupadas` | `vagasDiamante`, `vendidasDiamante` | ✅ Em tempo real |
 | O que está incluso | `detalhe.incluso` | — | ❌ |
-| Professores da turma | `detalhe.professores` | — | ❌ Não há ligação pública entre turma e professores |
+| Professores da turma | — | — | Fora do escopo por enquanto (decisão de 21/10/2026): a página da turma não mostra a grade de professores |
 | Máximo de parcelas | (fixo em 3x no site) | `GET /api/loja/pagamentos/configuracao` → `parcelasMaximas` | 🔒 Exige login (serve no checkout, não na vitrine) |
 
 ## Eventos e simulados
@@ -144,13 +144,13 @@ Nenhum desses tem rota na API. A decisão em aberto é se vêm da API (o backend
 **Ligado em 19/10/2026, sem mudar o backend** (`lib/vitrine.ts`, com cache de 1 minuto):
 - Turmas, eventos e simulados: nome, preço, datas, turno ou horário, modalidade, descrição da turma e **vagas**. Também vêm da vitrine as listas, os detalhes, a home, o menu do topo, a barra de avisos e o sitemap.
 - **Endereço provisório:** nome + id (`/turmas/patamo-6c29678d-…`). Se a turma for renomeada, o endereço antigo redireciona para o novo. Quando a API tiver `slug`, troca-se só `slugDa()` em `lib/vitrine.ts`.
-- **Seções que somem** até a API entregar os textos de venda: "O que está incluso" e "Professores" (turma); "Sobre", "Programação", "O que está incluso" e "Quem conduz" (evento).
+- **Seções que somem** até a API entregar os textos de venda: "O que está incluso" (turma); "Sobre", "Programação", "O que está incluso" e "Quem conduz" (evento).
 - **Eventos e simulados** estão ligados, mas não foram conferidos com dados reais porque a produção não tinha nenhum à venda. Conferir na primeira vez que um for publicado.
 
 **Falta pedir ao backend** (complementa o pedido 3 de `pedidos-backend.md`):
 1. **`slug`** em turmas, eventos e simulados, ou a decisão de usar o id na URL.
 2. **Textos de venda públicos:**
-   - turma: rótulo do concurso, o que está incluso, professores e dias e horário exatos;
+   - turma: rótulo do concurso, o que está incluso e dias e horário exatos (sem professores, decisão de 21/10/2026);
    - evento: categoria, resumo, programação, o que está incluso e professores;
    - simulado: descrição, duração e nº de questões.
 3. **Local com endereço** (nome e endereço da unidade), público.

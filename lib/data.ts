@@ -23,7 +23,6 @@ export type Turma = {
     vagasTotal?: number;
     vagasOcupadas?: number;
     incluso: string[];
-    professores: { iniciais: string; nome: string; papel: string }[];
   };
 };
 

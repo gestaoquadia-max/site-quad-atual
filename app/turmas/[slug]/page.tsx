@@ -5,7 +5,6 @@ import { notFound, redirect } from "next/navigation";
 import { idDoItem } from "@/lib/itens";
 import { metadadosDaPagina } from "@/lib/seo";
 import { modalidades } from "@/lib/conteudo";
-import { getIniciais } from "@/lib/format";
 import { dadosDoCurso } from "@/lib/dados-estruturados";
 import { buscarTurma, listarTurmas } from "@/lib/vitrine";
 import DadosEstruturados from "@/components/DadosEstruturados";
@@ -166,21 +165,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
             </div>
           )}
 
-          {d.professores.length > 0 && (
-            <div className="rounded-[18px] border border-linha bg-white p-[clamp(28px,4vw,48px)]">
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-forte">Time</span>
-              <h2 className="mb-2 mt-2 font-display text-2xl font-extrabold tracking-[-0.02em]">Professores</h2>
-              {d.professores.map((p) => (
-                <div key={p.nome} className="flex items-center gap-3.5 border-b border-linha py-3.5 last:border-0">
-                  <span className="grid h-11 w-11 place-items-center rounded-full bg-marinho-900 font-display font-extrabold text-azul-ceu">{p.iniciais || getIniciais(p.nome)}</span>
-                  <div>
-                    <div className="text-[15px] font-semibold">{p.nome}</div>
-                    <div className="text-xs text-ardosia">{p.papel}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* Sem grade de professores na turma por enquanto (decisão de 21/10/2026); eles ficam na página de professores. */}
         </div>
       </section>
     </>

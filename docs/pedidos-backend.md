@@ -341,7 +341,7 @@ Hoje a API ignora esses campos.
 
 **Situação hoje:**
 - `GET /api/turmas`, `GET /api/eventos` e `GET /api/professores` respondem **401** sem login. As páginas públicas do site (home, lista e detalhe de turma, evento e professor) são abertas a qualquer visitante, então não conseguem usar essas rotas.
-- `GET /api/loja/vitrine/atividades?tipo=TURMA|EVENTO|SIMULADO` e o detalhe `.../{tipo}/{id}` são públicos. Desde 10/10/2026 trazem também datas, turno ou horário, modalidade, descrição (turma) e vagas em tempo real. Ainda faltam os textos de venda, o local com endereço, os professores e o `slug`. O comparativo campo a campo está em [mapa-api-conteudo.md](mapa-api-conteudo.md), e o **formato exato pedido** (JSON de cada conteúdo, em ordem de prioridade) está em [contrato-api-conteudo.md](contrato-api-conteudo.md).
+- `GET /api/loja/vitrine/atividades?tipo=TURMA|EVENTO|SIMULADO` e o detalhe `.../{tipo}/{id}` são públicos. Desde 10/10/2026 trazem também datas, turno ou horário, modalidade, descrição (turma) e vagas em tempo real. Ainda faltam os textos de venda, o local com endereço, os professores dos eventos e o `slug`. O comparativo campo a campo está em [mapa-api-conteudo.md](mapa-api-conteudo.md), e o **formato exato pedido** (JSON de cada conteúdo, em ordem de prioridade) está em [contrato-api-conteudo.md](contrato-api-conteudo.md).
 
 **Pedido:** rotas públicas, sem login, só com dados que podem ser vistos por qualquer pessoa, nunca dados de alunos. Pode ser ampliando a vitrine ou criando rotas próprias.
 
@@ -353,7 +353,7 @@ Hoje a API ignora esses campos.
 - situação: inscrições abertas / em breve / encerrada
 - vagas totais e ocupadas
 - o que está incluso
-- professores (nome, papel ou matéria, foto)
+- ~~professores da turma~~: **fora do pedido** (decisão de 21/10/2026). A página da turma não mostra a grade de professores por enquanto; os professores aparecem só na página de professores (pedido abaixo).
 
 **Eventos** (lista e detalhe):
 - id, `slug`, nome, rótulo, descrição e texto de apresentação

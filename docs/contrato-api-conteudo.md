@@ -66,7 +66,7 @@ Só as vagas de quem paga em reais (hoje o "pool" de diamante, que já conta car
 
 - `concurso` vira o rótulo do cartão: "CFP · Soldado PM-BA".
 - `local` = `null` em atividade online.
-- Em `professores`, o `papel` é o texto curto mostrado embaixo do nome, e muda por atividade.
+- Em `professores`, o `papel` é o texto curto mostrado embaixo do nome, e muda por atividade. **Só em eventos e simulados:** a turma não leva professores por enquanto (decisão de 21/10/2026).
 
 ---
 
@@ -128,11 +128,11 @@ Página `/turmas/{slug}`. Acrescenta ao cartão:
   "incluso": [
     "Aulas presenciais de segunda a sexta, 18h30 às 22h",
     "Material didático completo — apostilas de todas as disciplinas do edital"
-  ],
-  "professores": [{ "slug": "…", "nome": "…", "papel": "…", "fotoUrl": "…" }]
+  ]
 }
 ```
 
+- Sem `professores`: a página da turma não mostra a grade de professores por enquanto (decisão de 21/10/2026).
 - `duracaoEmMeses` é o texto "3 meses" da página. A turma é **valor fechado pela duração**, nunca mensalidade. O preço é sempre o total.
 - `horarios` é uma lista porque a turma pode ter dois turnos (hoje: `horarioInicial2`/`horarioFim2`).
 - `dias` usa os mesmos valores de hoje (`SEGUNDA` … `DOMINGO`).
@@ -323,7 +323,7 @@ O site mostra "em até 3x" na página da turma, antes do login. Pedido: liberar 
 | 3 | `situacao` (ABERTA, EM_BREVE, ESGOTADA, ENCERRADA) e filtro `?situacao=` | Novo campo + filtro |
 | 4 | `vagas` (total, ocupadas, restantes) só do pool em reais | Novo campo |
 | 5 | Textos de venda: `resumo`, `apresentacao`, `sobre`, `incluso`, `programacao` | Novos campos (cadastro da coordenação) |
-| 6 | `concurso`, `local` com endereço, `professores` resumidos | Novos campos |
+| 6 | `concurso`, `local` com endereço, `professores` resumidos (só eventos e simulados) | Novos campos |
 | 7 | Turma: `tipoDeTurma`, `duracaoEmMeses`, `dias`, `horarios`; `modalidade` passa a ser presencial/online | Novos campos |
 | 8 | Simulado: `quantidadeDeQuestoes`, `duracaoEmMinutos` públicos | Campos existentes, agora públicos |
 | 9 | Tipo de item `MATERIAL_PDF` com páginas, sumário, capa e kit | Novo tipo |
