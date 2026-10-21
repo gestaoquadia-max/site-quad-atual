@@ -110,21 +110,6 @@ function mesesEntre(inicio: string, fim: string) {
   return Math.max(1, Math.round(dias / 30.44));
 }
 
-const TIPO_DE_TURMA: Record<string, string> = {
-  NIVELAMENTO: "Nivelamento",
-  REGULAR: "Regular",
-  QUESTOES: "Questões",
-  ISOLADAS: "Isoladas",
-};
-
-// Etiqueta do cartão ("Turma de questões · Presencial").
-const ETIQUETA_DA_TURMA: Record<string, string> = {
-  NIVELAMENTO: "Turma de nivelamento",
-  REGULAR: "Turma regular",
-  QUESTOES: "Turma de questões",
-  ISOLADAS: "Aulas isoladas",
-};
-
 const TURNO: Record<string, string> = { MANHA: "Manhã", TARDE: "Tarde", NOITE: "Noite", INTEGRAL: "Integral" };
 
 const FORMATO: Record<string, string> = { PRESENCIAL: "Presencial", ONLINE: "Online", HIBRIDO: "Híbrido" };
@@ -170,7 +155,6 @@ function concursoDaTurma(nome: string, descricao: string) {
 
 function paraTurma(a: AtividadeDaVitrine): Turma {
   const d = a.detalhe ?? {};
-  const tipo = rotulo(TIPO_DE_TURMA, d.modalidade);
   const turnos = (d.turnos ?? []).map((t) => rotulo(TURNO, t)).join(" e ");
   const meses = d.inicio && d.fim ? mesesEntre(d.inicio, d.fim) : null;
   const duracao = meses === null ? null : meses === 1 ? "1 mês" : `${meses} meses`;
@@ -188,7 +172,6 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     d.fim && { label: "Término", valor: diaEMes(d.fim) },
     turnos && { label: "Turno", valor: turnos },
     duracao && { label: "Duração", valor: duracao },
-    tipo && { label: "Tipo de turma", valor: tipo },
     vagas.vagasTotal !== undefined && {
       label: "Vagas restantes",
       valor: `${vagas.vagasTotal - vagas.vagasOcupadas} de ${vagas.vagasTotal}`,
@@ -203,9 +186,8 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     turno: turnos || undefined,
     inicio: d.inicio ? `${diaBarraMes(d.inicio)}/${d.inicio.slice(0, 4)}` : undefined,
     imagem: a.imagemUrl ?? undefined,
-    tag: [d.modalidade && (ETIQUETA_DA_TURMA[d.modalidade] ?? `Turma ${tipo.toLowerCase()}`), "Presencial"]
-      .filter(Boolean)
-      .join(" · "),
+    // Sem o tipo da API (Regular, Nivelamento...): a planilha da coordenação não tem essa coluna (decisão de 21/10/2026).
+    tag: "Turma presencial",
     nome: a.nome,
     desc: resumo.join(" · "),
     preco: a.preco === null ? "Consulte" : precoEmTexto(a.preco),
