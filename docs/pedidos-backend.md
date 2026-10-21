@@ -25,31 +25,31 @@
 
 | 2.5 | Verificação de telefone por código (perfil) | Criar | Alta |
 
-| 2.6 | Verificação no cadastro: celular obrigatório, e-mail por link depois | Criar | Alta |
+| 2.6 | Verificação no cadastro: celular obrigatório, e-mail por link depois | Parcial (14/10/2026): o e-mail por link está pronto e o site já usa; falta o código do celular | Alta |
 
 > | 2.7 | Registrar o aceite dos termos no cadastro | ✅ **Resolvido na API local** (conferido em 13/10/2026). Falta publicar em produção. ⚠️ Conferir o cadastro do app (ver 2.7) | Alta |
 
 > | 2.9 | Consultar se e-mail, CPF e telefone já estão cadastrados (antes do endereço) | ✅ **Resolvido** via `POST /api/usuarios/disponibilidade` (o site já usa). Falta o limite de tentativas (item 6.3) | — |
 
-| 2.10 | Login em cookie protegido (o token sai do navegador) | Criar | Alta |
+| 2.10 | Login em cookie protegido (o token sai do navegador) | ✅ **Resolvido na API local** (conferido em 21/10/2026: os 5 testes de entrega passaram, e o login do app segue igual). Falta o site migrar e publicar em produção com `COOKIES_DOMINIO` | Alta |
 
 | 2.8 | Foto de perfil | Criar | Baixa |
 
-| 3 | Catálogo público (turmas, eventos, materiais, professores) sem login | Criar / ampliar | Alta |
+| 3 | Catálogo público (turmas, eventos, materiais, professores) sem login | Parcial (21/10/2026): professores públicos em `GET /api/professores/vitrine` e `/{id}` (nome, graduação, matérias, foto); faltam slug e minibio. Turmas, eventos e materiais seguem só com a vitrine | Alta |
 
 | 4 | Rotas "minhas" da área do aluno | ✅ Quase tudo resolvido (09/10/2026). Falta: armazenamento de arquivos para testar o download e confirmar os "materiais diários" | Média |
 
 | 5.1 | Compra com vários itens num único pagamento | ✅ Decidido e criado (carrinho no servidor, 07/10/2026). Faltam 3 respostas (ver 5.1) | Alta |
 
-| 5.2 | Cupons de desconto | Criar | Alta |
+| 5.2 | Cupons de desconto | ✅ **Resolvido** (19/10/2026): simulação com o cupom, desconto calculado pela API, pagamento só com cupom e limite de tentativas. O checkout do site já usa | — |
 
 | 5.3–5.7 | Detalhes da compra (valores em reais, parcelas, chave pública, situação, inscrição gratuita) | Parcial (09/10/2026): parcelas e chave pública já vêm da API; preços em reais inteiros não comportam centavos (5.3) | Alta |
 
 | 6.1 | CORS com o domínio do site | Configurar | Alta (antes do lançamento) |
 
-| 6.2 | Swagger anunciando `https` | Configurar | Média |
+| 6.2 | Swagger anunciando `https` | Parcial: `forward-headers-strategy` configurado, mas o Swagger agora fica desligado em produção (`DOCS_ABERTOS=false`; `/v3/api-docs` responde 404) | Média |
 
-| 6.3 | Limite de tentativas no login e no cadastro | Criar | Média |
+| 6.3 | Limite de tentativas no login e no cadastro | Parcial: login bloqueia após 5 erros no e-mail, e o cupom tem limite; faltam o cadastro e a consulta de disponibilidade | Média |
 
 
 
