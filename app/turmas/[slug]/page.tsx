@@ -6,6 +6,7 @@ import { metadadosDaPagina } from "@/lib/seo";
 import { modalidades } from "@/lib/conteudo";
 import { dadosDoCurso } from "@/lib/dados-estruturados";
 import { buscarTurma, buscarTurmaComTurnos, listarTurmas } from "@/lib/vitrine";
+import { seloDoCargoEConcurso } from "@/lib/turmas";
 import DadosEstruturados from "@/components/DadosEstruturados";
 import CheckList from "@/components/CheckList";
 import EscolhaDoTurno from "@/components/turmas/EscolhaDoTurno";
@@ -82,18 +83,11 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-azul-ceu">{turma.tag}</div>
               <h1 className="mb-[18px] mt-3 font-display text-[clamp(2.2rem,4.6vw,3.6rem)] font-extrabold leading-[1.02] tracking-[-0.035em]">{grupo.nome}</h1>
-              {/* Cargo e concurso sempre aparecem. Sem o dado, vale para todos (como "TODOS OS CONCURSOS" na planilha). */}
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { chave: "cargo", valor: grupo.cargo ?? "Todos os cargos" },
-                  { chave: "concurso", valor: grupo.concurso ?? "Todos os concursos" },
-                ].map(({ chave, valor }) => (
-                  <span key={chave} className="inline-flex items-center gap-1.5 rounded-full bg-[#E6ECFF] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#1238C4]">
-                    <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                    {valor}
-                  </span>
-                ))}
-              </div>
+              {/* Cargo e concurso num selo só ("SD • PMBA"). Sem os dois, vale para todos (como "TODOS OS CONCURSOS" na planilha). */}
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E6ECFF] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#1238C4]">
+                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
+                {seloDoCargoEConcurso(grupo.cargo, grupo.concurso)}
+              </span>
               <EscolhaDoTurno turma={grupo} inicial={atual.id} />
             </div>
           </div>

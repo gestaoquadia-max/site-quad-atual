@@ -51,6 +51,15 @@ export function nomeDaTurma(o: Pick<OfertaDaTurma, "modalidade" | "edicao" | "no
   return o.edicao ? `${o.modalidade} ${o.edicao}` : o.modalidade;
 }
 
+// Abreviações de cargo usadas no selo ("SD • PMBA"). Cargo fora da lista aparece como cadastrado.
+const SIGLA_DO_CARGO: Record<string, string> = { SOLDADO: "SD" };
+
+// "Soldado" + "PMBA" → "SD • PMBA"; sem os dois → "Todos os concursos".
+export function seloDoCargoEConcurso(cargo: string | null, concurso: string | null) {
+  const partes = [cargo && (SIGLA_DO_CARGO[cargo.toUpperCase()] ?? cargo.toUpperCase()), concurso?.toUpperCase()].filter(Boolean);
+  return partes.length ? partes.join(" • ") : "Todos os concursos";
+}
+
 // Turmas iguais em turnos diferentes têm a mesma chave. Sem modalidade não dá para agrupar: cada uma fica sozinha.
 export function chaveDaTurma(o: OfertaDaTurma) {
   if (!o.modalidade) return o.id;
