@@ -84,8 +84,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-azul-ceu">{turma.tag}</div>
               <h1 className="mb-[18px] mt-3 font-display text-[clamp(2.2rem,4.6vw,3.6rem)] font-extrabold leading-[1.02] tracking-[-0.035em]">{grupo.nome}</h1>
               {/* Cargo e concurso num selo só ("SD • PMBA"). Sem os dois, vale para todos (como "TODOS OS CONCURSOS" na planilha). */}
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E6ECFF] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#1238C4]">
-                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-current" />
+              <span className="inline-flex items-center rounded-full bg-[#E6ECFF] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#1238C4]">
                 {seloDoCargoEConcurso(grupo.cargo, grupo.concurso)}
               </span>
               <EscolhaDoTurno turma={grupo} inicial={atual.id} />
