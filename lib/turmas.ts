@@ -51,6 +51,35 @@ export function nomeDaTurma(o: Pick<OfertaDaTurma, "modalidade" | "edicao" | "no
   return o.edicao ? `${o.modalidade} ${o.edicao}` : o.modalidade;
 }
 
+// Níveis de preparação da PMBA (Soldado e CFO). Fora da PMBA (PCBA, Bombeiros, outros estados) a MODALIDADE é um
+// nome livre ("INVESTIGADOR") e não há níveis: é uma turma por concurso.
+export const NIVEIS_DA_PMBA = ["RONDESP", "PATAMO", "BOPE"] as const;
+
+export function ehNivelDaPmba(modalidade: string | null): boolean {
+  return !!modalidade && (NIVEIS_DA_PMBA as readonly string[]).includes(modalidade.toUpperCase());
+}
+
+const TURNO_PELO_NOME: Record<string, Turno> = { MANHA: "MANHA", TARDE: "TARDE", NOITE: "NOITE", INTEGRAL: "INTEGRAL" };
+
+// Enquanto o banco não tem as colunas da planilha, elas saem do nome cadastrado, no padrão
+// "MODALIDADE EDIÇÃO - CARGO CONCURSO - TURNO" (ex.: "RONDESP 2 - SD PMBA - Manhã", "INVESTIGADOR 1 - IPC PCBA - Noite").
+// Nome fora do padrão (sem " - ") devolve null, e quem chama usa as deduções antigas.
+export function lerNomeDaTurma(nome: string) {
+  const partes = nome.split(/\s+[-–—]\s+/).map((p) => p.trim()).filter(Boolean);
+  if (partes.length < 2) return null;
+  const primeira = partes[0].match(/^(.*?)\s*(\d+)?$/);
+  const modalidade = primeira?.[1]?.trim().toUpperCase() || null;
+  const edicao = primeira?.[2] ? Number(primeira[2]) : null;
+  const palavras = partes[1].split(/\s+/);
+  const concurso = palavras.length ? palavras[palavras.length - 1].toUpperCase() : null;
+  const cargo = palavras.length > 1 ? palavras.slice(0, -1).join(" ") : null;
+  const turnoTexto = partes[2]
+    ?.normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toUpperCase();
+  return { modalidade, edicao, cargo, concurso, turno: (turnoTexto && TURNO_PELO_NOME[turnoTexto]) || null };
+}
+
 // Abreviações de cargo usadas no selo ("SD • PMBA"). Cargo fora da lista aparece como cadastrado.
 const SIGLA_DO_CARGO: Record<string, string> = { SOLDADO: "SD" };
 

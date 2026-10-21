@@ -157,7 +157,60 @@ function Filtro({ rotulo, opcoes, atual, onEscolher, todos }: {
   );
 }
 
-export default function EscolhaDeModalidade({ turmas, inicial }: { turmas: Turma[] | null; inicial: IdDaModalidade | null }) {
+type Area = Turma["area"];
+
+const AREAS: { id: Area; nome: string; detalhe: string }[] = [
+  { id: "pmba", nome: "Polícia Militar da Bahia", detalhe: "Soldado e CFO · escolha o seu nível" },
+  { id: "outros", nome: "Outros concursos", detalhe: "Polícia Civil, Bombeiros e outros estados" },
+];
+
+// Turmas de outros concursos (sem nível): filtros de concurso e turno e a lista agrupada por concurso.
+function TurmasDeOutrosConcursos({ turmas }: { turmas: Turma[] }) {
+  const [concurso, setConcurso] = useState<string | null>(null);
+  const [turno, setTurno] = useState<string | null>(null);
+  const concursos = [...new Set(turmas.map((t) => t.concurso).filter((c): c is string => !!c))];
+  const turnos = [...new Set(turmas.map((t) => t.turno).filter((t): t is string => !!t))];
+  const visiveis = turmas.filter((t) => (!concurso || t.concurso === concurso) && (!turno || t.turno === turno));
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex-auto">
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-azul-forte">Turmas</span>
+          <h2 className="mt-2 font-display text-[clamp(1.8rem,3vw,2.5rem)] font-extrabold leading-[1.05] tracking-[-0.03em]">Outros concursos</h2>
+        </div>
+        {(concursos.length > 1 || turnos.length > 1) && (
+          <div className="flex flex-wrap gap-4">
+            <Filtro rotulo="Concurso" opcoes={concursos} atual={concurso} onEscolher={setConcurso} todos="Todos os concursos" />
+            <Filtro rotulo="Turno" opcoes={turnos} atual={turno} onEscolher={setTurno} todos="Todos os turnos" />
+          </div>
+        )}
+      </div>
+      {visiveis.length > 0 ? (
+        <ListaDeTurmas turmas={visiveis} />
+      ) : (
+        <div className="flex flex-col items-start gap-3 rounded-2xl border border-linha bg-white p-[clamp(24px,3vw,36px)]">
+          <span className="inline-flex h-[26px] items-center rounded-full bg-[#EEF2F7] px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">Sem oferta no momento</span>
+          <span className="font-display text-xl font-extrabold">Não há turmas abertas para outros concursos agora</span>
+          <span className="max-w-[560px] text-[15px] leading-[1.55] text-[#3E4A5E] [text-wrap:pretty]">
+            Avisamos pelo WhatsApp quando abrir uma turma para o seu concurso.
+          </span>
+          <AviseMe assunto="turma para outros concursos" destaque />
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function EscolhaDeModalidade({
+  turmas,
+  inicial,
+  areaInicial = "pmba",
+}: {
+  turmas: Turma[] | null;
+  inicial: IdDaModalidade | null;
+  areaInicial?: Area;
+}) {
+  const [area, setArea] = useState<Area>(areaInicial);
   const [selecionada, setSelecionada] = useState<IdDaModalidade | null>(inicial);
   const [resposta, setResposta] = useState<number | null>(null);
   const [concurso, setConcurso] = useState<string | null>(null);
@@ -171,7 +224,21 @@ export default function EscolhaDeModalidade({ turmas, inicial }: { turmas: Turma
   const concursos = [...new Set(daModalidade.map((t) => t.concurso).filter((c): c is string => !!c))];
   const turnos = [...new Set(daModalidade.map((t) => t.turno).filter((t): t is string => !!t))];
   const visiveis = daModalidade.filter((t) => (!concurso || t.concurso === concurso) && (!turno || t.turno === turno));
-  const semModalidade = (turmas ?? []).filter((t) => !t.modalidade);
+  const deOutrosConcursos = (turmas ?? []).filter((t) => t.area === "outros");
+
+  // Endereço compartilhável: /turmas?area=outros abre já em "Outros concursos".
+  function trocarArea(nova: Area) {
+    setArea(nova);
+    const url = new URL(window.location.href);
+    if (nova === "outros") {
+      url.searchParams.set("area", "outros");
+      url.searchParams.delete("m");
+    } else {
+      url.searchParams.delete("area");
+      if (selecionada) url.searchParams.set("m", selecionada);
+    }
+    window.history.replaceState(null, "", url);
+  }
 
   function escolher(id: IdDaModalidade, rolar: boolean) {
     setSelecionada(id);
@@ -208,14 +275,36 @@ export default function EscolhaDeModalidade({ turmas, inicial }: { turmas: Turma
                   Turmas presenciais
                 </span>
               </nav>
+              <div role="group" aria-label="Concurso" className="mb-7 inline-grid max-w-full grid-cols-2 gap-1 rounded-[14px] border border-white/10 bg-white/[0.04] p-1">
+                {AREAS.map((a) => {
+                  const ligada = area === a.id;
+                  return (
+                    <button
+                      key={a.id}
+                      type="button"
+                      aria-pressed={ligada}
+                      onClick={() => trocarArea(a.id)}
+                      className={`flex flex-col items-start rounded-[10px] px-4 py-2.5 text-left transition-colors ${
+                        ligada ? "bg-white text-marinho-950" : "text-white hover:bg-white/[0.06]"
+                      }`}
+                    >
+                      <span className="font-display text-[15px] font-bold leading-tight">{a.nome}</span>
+                      <span className={`mt-0.5 text-[12px] leading-tight ${ligada ? "text-ardosia" : "text-prata"}`}>{a.detalhe}</span>
+                    </button>
+                  );
+                })}
+              </div>
               <h1 className="mb-[18px] font-display text-[clamp(2.4rem,5vw,4.2rem)] font-extrabold leading-[1.02] tracking-[-0.04em] [text-wrap:balance]">
-                Escolha o seu nível de preparação
+                {area === "pmba" ? "Escolha o seu nível de preparação" : "Turmas para outros concursos"}
               </h1>
               <p className="max-w-[520px] text-[clamp(16px,1.4vw,18px)] leading-[1.6] text-[#B4C1D3] [text-wrap:pretty]">
-                Três modalidades de preparação, cada uma pensada para um momento diferente dos seus estudos.
+                {area === "pmba"
+                  ? "Para os concursos da PM-BA (Soldado e CFO): três modalidades de preparação, cada uma pensada para um momento diferente dos seus estudos."
+                  : "Polícia Civil, Bombeiros e concursos de outros estados. Cada concurso tem a sua turma presencial, com edições e turnos."}
               </p>
             </div>
 
+            {area === "pmba" && (
             <div className="relative rounded-[18px] border border-[rgba(111,174,255,0.2)] bg-[rgba(11,28,51,0.9)] p-[clamp(22px,2.4vw,30px)] shadow-[0_30px_60px_-30px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.05)]">
               <h2 id="pergunta-modalidade" className="mb-4 font-display text-xl font-extrabold tracking-[-0.02em]">
                 Qual preparação combina com você?
@@ -258,8 +347,10 @@ export default function EscolhaDeModalidade({ turmas, inicial }: { turmas: Turma
                 </>
               )}
             </div>
+            )}
           </div>
 
+          {area === "pmba" && (
           <div className="mt-[clamp(40px,5vw,72px)] grid grid-cols-[repeat(auto-fit,minmax(min(100%,250px),1fr))] gap-[clamp(16px,1.6vw,24px)]">
             {modalidades.map((m) => {
               const ligada = selecionada === m.id;
@@ -302,6 +393,7 @@ export default function EscolhaDeModalidade({ turmas, inicial }: { turmas: Turma
               );
             })}
           </div>
+          )}
         </div>
       </section>
 
@@ -312,7 +404,9 @@ export default function EscolhaDeModalidade({ turmas, inicial }: { turmas: Turma
               Não foi possível carregar as turmas agora. Tente novamente em instantes.
             </div>
           )}
-          {!atual ? (
+          {area === "outros" ? (
+            <TurmasDeOutrosConcursos turmas={deOutrosConcursos} />
+          ) : !atual ? (
             <div className="flex flex-col items-center gap-2.5 rounded-[18px] border-[1.5px] border-dashed border-[#C9D3E0] px-5 py-[clamp(40px,5vw,64px)] text-center text-[#3E4A5E]">
               <span className="font-display text-[22px] font-extrabold text-tinta">Selecione uma modalidade</span>
               <span className="max-w-[440px] text-[15px] [text-wrap:pretty]">As turmas disponíveis aparecem aqui, organizadas por concurso e turno.</span>
@@ -392,15 +486,14 @@ export default function EscolhaDeModalidade({ turmas, inicial }: { turmas: Turma
             </div>
           )}
 
-          {/* Turmas que ainda não têm modalidade definida no nome continuam à venda, logo abaixo. */}
-          {semModalidade.length > 0 && (
-            <div className="mt-[clamp(48px,6vw,80px)] flex flex-col gap-5">
-              <div>
-                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-azul-forte">Também com matrículas</span>
-                <h2 className="mt-2 font-display text-[clamp(1.8rem,3vw,2.5rem)] font-extrabold leading-[1.05] tracking-[-0.03em]">Outras turmas presenciais</h2>
-              </div>
-              <ListaDeTurmas turmas={semModalidade} />
-            </div>
+          {/* Na PMBA, um atalho para quem procura outro concurso (as turmas sem nível ficam na outra área). */}
+          {area === "pmba" && deOutrosConcursos.length > 0 && (
+            <p className="mt-[clamp(32px,4vw,56px)] text-center text-[15px] text-ardosia">
+              Procurando Polícia Civil, Bombeiros ou outro estado?{" "}
+              <button type="button" onClick={() => trocarArea("outros")} className="font-semibold text-azul-forte underline underline-offset-2 hover:text-azul">
+                Ver turmas de outros concursos
+              </button>
+            </p>
           )}
         </div>
       </section>

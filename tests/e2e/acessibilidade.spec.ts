@@ -16,6 +16,15 @@ async function primeiroEvento(page: Page) {
   return (await link.count()) ? link.getAttribute("href") : null;
 }
 
+// /turmas só lista os cartões depois de escolher a área e o nível: procura na PMBA (cada nível) e em "Outros concursos".
+async function primeiraTurma(page: Page) {
+  for (const lista of ["/turmas?m=rondesp", "/turmas?m=patamo", "/turmas?m=bope", "/turmas?area=outros"]) {
+    const endereco = await primeiroDetalhe(page, lista, "Conhecer e matricular");
+    if (endereco) return endereco;
+  }
+  return null;
+}
+
 // Primeiro produto da loja (o cartão inteiro é o link).
 async function primeiroDaLoja(page: Page) {
   await page.goto("/loja");
@@ -25,14 +34,14 @@ async function primeiroDaLoja(page: Page) {
 
 // Regras WCAG 2.1 níveis A e AA (contraste, rótulos, teclado). A área do aluno exige login: tem um teste próprio no fim.
 // "turma:", "material:", "evento:" e "loja:" = o primeiro de cada um na vitrine da API (o endereço leva o id de cada um).
-const PAGINAS = ["/", "/turmas", "turma:", "/produtos", "material:", "/simulados", "/eventos", "evento:", "/loja", "loja:", "/mentorias", "/aprovados", "/esqueci-senha", "/redefinir-senha?token=x", "/blog", "/blog/taf-cfp-soldado-pm-ba-como-funciona", "/professores/danilo-moura", "/sobre", "/contato", "/termos", "/privacidade", "/pagina-que-nao-existe", "/entrar", "/cadastro", "/carrinho", "/checkout", "/checkout/confirmacao?status=pendente"];
+const PAGINAS = ["/", "/turmas", "/turmas?area=outros", "turma:", "/produtos", "material:", "/simulados", "/eventos", "evento:", "/loja", "loja:", "/mentorias", "/aprovados", "/esqueci-senha", "/redefinir-senha?token=x", "/blog", "/blog/taf-cfp-soldado-pm-ba-como-funciona", "/professores/danilo-moura", "/sobre", "/contato", "/termos", "/privacidade", "/pagina-que-nao-existe", "/entrar", "/cadastro", "/carrinho", "/checkout", "/checkout/confirmacao?status=pendente"];
 
 for (const caminho of PAGINAS) {
   test(`sem problemas de acessibilidade WCAG A/AA em ${caminho}`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     if (caminho.endsWith(":")) {
       const detalhe = await (caminho === "turma:"
-        ? primeiroDetalhe(page, "/turmas", "Conhecer e matricular")
+        ? primeiraTurma(page)
         : caminho === "material:"
           ? primeiroDetalhe(page, "/produtos", "Detalhes")
           : caminho === "loja:"

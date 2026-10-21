@@ -7,8 +7,11 @@ import EscolhaDeModalidade from "./EscolhaDeModalidade";
 
 // /turmas?m=patamo abre a página já com a modalidade escolhida (links da Home e do carrossel).
 export default function ComModalidadeDoEndereco({ turmas }: { turmas: Turma[] | null }) {
-  const m = useSearchParams().get("m");
+  const parametros = useSearchParams();
+  const m = parametros.get("m");
   const inicial = modalidades.find((x) => x.id === m)?.id ?? null;
+  // /turmas?area=outros abre em "Outros concursos" (PCBA, Bombeiros, outros estados).
+  const area = parametros.get("area") === "outros" ? "outros" : "pmba";
   // Só vale ao abrir a página: depois, a escolha fica no estado do componente (e o endereço é atualizado por ele).
-  return <EscolhaDeModalidade turmas={turmas} inicial={inicial} />;
+  return <EscolhaDeModalidade turmas={turmas} inicial={inicial} areaInicial={area} />;
 }

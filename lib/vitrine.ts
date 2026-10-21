@@ -7,7 +7,18 @@ import type { ProdutoDaLoja } from "./conteudo";
 import type { Carreira, Edicao } from "./simulados";
 import { formatarHora, precoSemCentavosZerados } from "./format";
 import { API_URL, lerErro } from "./http";
-import { chaveDaTurma, juntarTurnos, ORDEM_DOS_TURNOS, type OfertaDaTurma, type Turno, type TurmaComTurnos } from "./turmas";
+import {
+  chaveDaTurma,
+  ehNivelDaPmba,
+  juntarTurnos,
+  lerNomeDaTurma,
+  nomeDaTurma,
+  ORDEM_DOS_TURNOS,
+  seloDoCargoEConcurso,
+  type OfertaDaTurma,
+  type Turno,
+  type TurmaComTurnos,
+} from "./turmas";
 
 // As páginas são refeitas no servidor no máximo a cada minuto: vagas e preços ficam atualizados sem
 // consultar a API a cada visita.
@@ -153,8 +164,28 @@ function concursoDaTurma(nome: string, descricao: string) {
   return undefined;
 }
 
+// MODALIDADE, EDIÇÃO, CARGO e CONCURSO da planilha. Enquanto o banco não tem as colunas, saem do nome no padrão
+// "MODALIDADE EDIÇÃO - CARGO CONCURSO - TURNO"; nome fora do padrão cai nas deduções antigas (nível e concurso).
+function colunasDaTurma(a: AtividadeDaVitrine) {
+  const lido = lerNomeDaTurma(a.nome);
+  if (lido) return lido;
+  const nivel = modalidadeDoNome(a.nome);
+  const edicao = nivel ? a.nome.match(new RegExp(`${nivel}\\D{0,3}(\\d+)`, "i"))?.[1] : undefined;
+  // "Soldado PMBA" → cargo "Soldado", concurso "PMBA"
+  const partes = concursoDaTurma(a.nome, a.detalhe?.descricao ?? "")?.split(" ") ?? [];
+  return {
+    modalidade: nivel ? nivel.toUpperCase() : null,
+    edicao: edicao ? Number(edicao) : null,
+    cargo: partes.length > 1 ? partes.slice(0, -1).join(" ") : null,
+    concurso: partes.at(-1) ?? null,
+    turno: null,
+  };
+}
+
 function paraTurma(a: AtividadeDaVitrine): Turma {
   const d = a.detalhe ?? {};
+  const colunas = colunasDaTurma(a);
+  const nivel = ehNivelDaPmba(colunas.modalidade) ? (colunas.modalidade!.toLowerCase() as Turma["modalidade"]) : undefined;
   const turnos = (d.turnos ?? []).map((t) => rotulo(TURNO, t)).join(" e ");
   const meses = d.inicio && d.fim ? mesesEntre(d.inicio, d.fim) : null;
   const duracao = meses === null ? null : meses === 1 ? "1 mês" : `${meses} meses`;
@@ -181,14 +212,17 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
 
   return {
     slug: slugDa(a),
-    modalidade: modalidadeDoNome(a.nome),
-    concurso: concursoDaTurma(a.nome, d.descricao ?? ""),
+    // Nível (RONDESP, PATAMO, BOPE) só na PMBA; as outras turmas ficam na área "Outros concursos".
+    modalidade: nivel,
+    area: nivel ? "pmba" : "outros",
+    concurso: colunas.cargo || colunas.concurso ? seloDoCargoEConcurso(colunas.cargo, colunas.concurso) : undefined,
     turno: turnos || undefined,
     inicio: d.inicio ? `${diaBarraMes(d.inicio)}/${d.inicio.slice(0, 4)}` : undefined,
     imagem: a.imagemUrl ?? undefined,
     // Sem o tipo da API (Regular, Nivelamento...): a planilha da coordenação não tem essa coluna (decisão de 21/10/2026).
     tag: "Turma presencial",
-    nome: a.nome,
+    // MODALIDADE + EDIÇÃO ("RONDESP 2", "INVESTIGADOR 1"); fora do padrão, o nome cadastrado.
+    nome: nomeDaTurma({ ...colunas, nomeOriginal: a.nome }),
     desc: resumo.join(" · "),
     preco: a.preco === null ? "Consulte" : precoEmTexto(a.preco),
     // A turma é cobrada pelo valor fechado da duração, nunca por mês.
@@ -221,24 +255,20 @@ export async function buscarTurma(slug: string): Promise<Turma | null> {
 
 // ---------- Turma no formato da planilha (lib/turmas.ts) ----------
 
-// A vitrine ainda não tem as colunas da planilha (modalidade RONDESP/PATAMO/BOPE, edição, cargo, concurso,
-// os dois horários, lote, valor em centavos). Até o banco ter, elas saem do que existe: o nome
-// ("RONDESP 2 - Soldado PMBA" → RONDESP, 2) e a descrição. Quando a API mandar os campos, troca-se só esta função.
+// A vitrine ainda não tem as colunas da planilha (modalidade, edição, cargo, concurso, os dois horários, lote,
+// valor em centavos). Até o banco ter, elas saem do nome (colunasDaTurma). Quando a API mandar os campos,
+// troca-se só esta função.
 function paraOferta(a: AtividadeDaVitrine): OfertaDaTurma {
   const d = a.detalhe ?? {};
-  const modalidade = modalidadeDoNome(a.nome);
-  const edicao = modalidade ? a.nome.match(new RegExp(`${modalidade}\\D{0,3}(\\d+)`, "i"))?.[1] : undefined;
-  const concurso = concursoDaTurma(a.nome, d.descricao ?? "");
-  // "Soldado PMBA" → cargo "Soldado", concurso "PMBA"
-  const partes = concurso?.split(" ") ?? [];
-  const turno = d.turnos?.[0];
+  const colunas = colunasDaTurma(a);
+  const turno = d.turnos?.[0] ?? colunas.turno;
   return {
     id: a.id,
     slug: slugDa(a),
-    modalidade: modalidade ? modalidade.toUpperCase() : null,
-    edicao: edicao ? Number(edicao) : null,
-    cargo: partes.length > 1 ? partes.slice(0, -1).join(" ") : null,
-    concurso: partes.at(-1) ?? null,
+    modalidade: colunas.modalidade,
+    edicao: colunas.edicao,
+    cargo: colunas.cargo,
+    concurso: colunas.concurso,
     turno: turno && ORDEM_DOS_TURNOS.includes(turno as Turno) ? (turno as Turno) : null,
     inicio: d.inicio ?? null,
     termino: d.fim ?? null,

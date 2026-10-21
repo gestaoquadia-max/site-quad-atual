@@ -10,7 +10,7 @@ export const revalidate = 60;
 export const metadata = metadadosDaPagina({
   titulo: "Turmas presenciais",
   descricao:
-    "Turmas presenciais RONDESP, PATAMO e BOPE para Soldado PM-BA, CFO e outros concursos em Feira de Santana. Escolha o seu nível de preparação.",
+    "Turmas presenciais em Feira de Santana: RONDESP, PATAMO e BOPE para Soldado e CFO da PM-BA, e turmas para Polícia Civil, Bombeiros e outros concursos.",
   caminho: "/turmas",
 });
 
