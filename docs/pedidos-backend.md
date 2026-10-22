@@ -27,7 +27,7 @@
 
 | 2.6 | Verificação no cadastro: celular obrigatório, e-mail por link depois | Parcial (14/10/2026): o e-mail por link está pronto e o site já usa; falta o código do celular | Alta |
 
-> | 2.7 | Registrar o aceite dos termos no cadastro | ✅ **Resolvido na API local** (conferido em 13/10/2026). Falta publicar em produção. ⚠️ Conferir o cadastro do app (ver 2.7) | Alta |
+> | 2.7 | Registrar o aceite dos termos no cadastro | ✅ **Resolvido e publicado** (conferido em 22/10/2026: produção já tem mudanças posteriores da `main`). O app não cria alunos, então não quebra (ver 2.7) | — |
 
 > | 2.9 | Consultar se e-mail, CPF e telefone já estão cadastrados (antes do endereço) | ✅ **Resolvido** via `POST /api/usuarios/disponibilidade` (o site já usa). Falta o limite de tentativas (item 6.3) | — |
 
@@ -265,9 +265,9 @@ Hoje a API ignora esses campos.
 
 ✅ **Resolvido na API local (migração 105, conferido em 13/10/2026).** `aceiteTermos` e `versaoDosTermos` são obrigatórios no `POST /api/alunos`, e o aceite vai para a tabela `aceites_dos_termos` (usuário, versão e data). Testado criando uma conta pelo cadastro do site: o aceite foi gravado com a versão `2026-10-06`. Sem os campos, com `aceiteTermos: false` ou sem a versão, a API responde 400.
 
-**Pendências:**
-- **Publicar em produção.** Em 13/10/2026 a API de produção ainda não tinha os campos.
-- ⚠️ **App Viver o Quad:** os dois campos agora são obrigatórios. Se o app também cria alunos por `POST /api/alunos`, o cadastro dele passa a dar 400 até ele enviar o aceite. Confirmar antes de publicar.
+**Pendências resolvidas (conferido em 22/10/2026):**
+- **Produção:** o aceite entrou na `main` em 13/10/2026 (`cbb6dfc5`), e a produção já responde com mudanças posteriores da mesma `main` (vitrine de professores de 21/10 e `slug` de 22/10). Conferido só por rotas públicas de leitura, sem criar conta em produção.
+- **App Viver o Quad:** o app não chama `POST /api/alunos`. O "Criar conta" do login abre uma folha que manda o aluno se cadastrar no site (`CadastroNoSiteSheet`); a recepção só lê a lista de alunos (GET). Conferido na cópia do app de 17/10/2026, que não é um repositório git: vale confirmar com o time do app se a versão atual segue assim.
 
 ### 2.9 Consultar duplicidade antes de pedir o endereço
 
