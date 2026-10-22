@@ -79,10 +79,11 @@ export function esvaziarCarrinhoDoServidor() {
 }
 
 // Reserva a quantidade do item (reservar de novo o mesmo item troca a quantidade, não soma).
+// Turma, evento e simulado são sempre um por aluno: a API recusa o campo quantidade neles (400).
 export function reservar(alvo: Alvo, quantidade: number) {
   return chamar<CarrinhoDoServidor>("/api/loja/carrinho/eu/linhas", "Não foi possível reservar este item.", {
     method: "PUT",
-    body: JSON.stringify({ ...alvo, quantidade }),
+    body: JSON.stringify(alvo.atividade ? alvo : { ...alvo, quantidade }),
   });
 }
 

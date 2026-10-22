@@ -58,6 +58,34 @@ test("logado, o checkout reserva os itens no servidor, mostra o total da API e c
   expect(status).toBe(204);
 });
 
+// Turma, evento e simulado vão ao servidor sem quantidade (a API recusa o campo neles).
+test("logado, a turma do carrinho é reservada no servidor", async ({ page }) => {
+  await entrar(page, CONTA_A);
+  let endereco: string | null = null;
+  for (const lista of ["/turmas?m=rondesp", "/turmas?m=patamo", "/turmas?m=bope", "/turmas?cargo=ipc-pcba"]) {
+    await page.goto(lista);
+    const link = page.locator("main").getByRole("link", { name: "Conhecer e matricular" }).first();
+    if (await link.count()) {
+      endereco = await link.getAttribute("href");
+      break;
+    }
+  }
+  test.skip(!endereco, "A vitrine da API não tem turma aberta agora.");
+  await page.goto(endereco!);
+  const nome = (await page.getByRole("heading", { level: 1 }).textContent())!.trim();
+  await page.getByRole("button", { name: "Adicionar ao carrinho" }).click();
+  await page.goto("/checkout");
+  const pedido = page.locator("main");
+  await expect(pedido.getByText(nome).first()).toBeVisible();
+  await expect(pedido.getByText(/Itens reservados para você até \d{2}:\d{2}/)).toBeVisible();
+
+  const status = await page.evaluate(async (api) => {
+    const res = await fetch(`${api}/api/loja/carrinho/eu`, { method: "DELETE", credentials: "include", headers: { "X-Quad-Cliente": "site" } });
+    return res.status;
+  }, process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080");
+  expect(status).toBe(204);
+});
+
 test("evento gratuito inscreve direto, pedindo login antes", async ({ page }) => {
   // Os eventos vêm da vitrine da API: procura, entre os da agenda, o primeiro gratuito com inscrições abertas.
   await page.goto("/eventos");
