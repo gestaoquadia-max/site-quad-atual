@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import InsigniaDaTurma from "../turmas/InsigniaDaTurma";
 import { useState } from "react";
 import { temQuantidade, useCart, type CartItem } from "@/lib/cart";
 import { formatarValor, parsePreco } from "@/lib/format";
@@ -118,7 +119,12 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
                         aria-hidden="true"
                         className="grid aspect-square w-[clamp(64px,8vw,88px)] flex-none place-items-center rounded-xl border border-linha bg-[linear-gradient(160deg,#12305A,#071426)] font-display text-xs font-extrabold uppercase tracking-[0.1em] text-prata"
                       >
-                        {ROTULO_DO_TIPO[item.tipo].slice(0, 3)}
+                        {/* Turma: a insígnia (ou a marca do Quad, nos itens guardados antes da miniatura). */}
+                        {item.tipo === "turma" ? (
+                          <InsigniaDaTurma insignia={item.imagem} tamanho={88} sizes="88px" className="h-[78%] w-[78%]" />
+                        ) : (
+                          ROTULO_DO_TIPO[item.tipo].slice(0, 3)
+                        )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">

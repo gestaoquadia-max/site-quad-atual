@@ -44,7 +44,8 @@ export default async function RootLayout({
 
   return (
     <html lang="pt-BR" className={`${fonteDisplay.variable} ${fonteCorpo.variable}`} suppressHydrationWarning>
-      <body>
+      {/* Coluna da altura da tela: em página curta (carrinho vazio, 404), o rodapé fica no fim dela. */}
+      <body className="flex min-h-dvh flex-col">
         <CartProvider>
           <UsuarioProvider>
             {/* Primeiro item do Tab: pula avisos e menu (aparece só quando recebe o foco). */}
@@ -57,7 +58,7 @@ export default async function RootLayout({
             <SoNoSite>
               <Navbar turmas={turmas ?? []} eventos={eventos ?? []} materiais={materiais ?? []} />
             </SoNoSite>
-            <main id="conteudo" tabIndex={-1} className="outline-none">
+            <main id="conteudo" tabIndex={-1} className="flex-1 outline-none">
               {children}
             </main>
             <SoNoSite>

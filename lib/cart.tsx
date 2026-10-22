@@ -14,6 +14,8 @@ export type CartItem = {
   formato?: "digital" | "impresso";
   // Simulados: carreira, edição e modalidade (presencial ou formato de estudo), revalidados em lib/simulados.ts.
   simulado?: { carreira: string; edicao: number | null; modalidade: string; sku: string; edicoesDoCombo?: number[] };
+  // Miniatura no carrinho (turma: a insígnia da modalidade). Sem ela, o carrinho mostra um marcador do tipo.
+  imagem?: string;
   // O que reservar no carrinho do servidor, quando não dá para deduzir do id (ex.: tamanho da camisa). Ver alvoDoItem.
   alvo?: Alvo;
   quantidade: number;

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { idDoItem } from "@/lib/itens";
-import { esgotada, horarioDoDia, NOME_DO_TURNO, ORDEM_DOS_TURNOS, precoDaOferta, textoDoLote, type TurmaComTurnos } from "@/lib/turmas";
+import { esgotada, horarioDoDia, insigniaDaTurma, NOME_DO_TURNO, ORDEM_DOS_TURNOS, precoDaOferta, textoDoLote, type TurmaComTurnos } from "@/lib/turmas";
 import AviseMePeloWhatsApp from "../AviseMePeloWhatsApp";
 import BotaoAdicionarAoCarrinho from "../BotaoAdicionarAoCarrinho";
 
@@ -146,6 +146,7 @@ export default function EscolhaDoTurno({ turma, inicial }: { turma: TurmaComTurn
               tag: [nomeDoTurno, turma.cargo, turma.concurso].filter(Boolean).join(" · "),
               preco,
               alvo: { atividade: { tipo: "TURMA", id: oferta.id } },
+              imagem: insigniaDaTurma(turma.modalidade) ?? undefined,
             }}
             className="h-14 w-full rounded-xl text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_16px_36px_-14px_rgba(0,107,255,1)] hover:-translate-y-0.5"
           />
