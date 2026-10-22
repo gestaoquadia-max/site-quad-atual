@@ -203,14 +203,10 @@ function TurmasDoCargo({ turmas, aba }: { turmas: Turma[]; aba: string }) {
   const [turno, setTurno] = useState<string | null>(null);
   const turnos = [...new Set(turmas.map((t) => t.turno).filter((t): t is string => !!t))];
   const visiveis = turmas.filter((t) => !turno || t.turno === turno);
-  const nome = aba === SEM_CARGO ? "Outras turmas presenciais" : `Turmas ${aba}`;
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex-auto">
-          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-azul-forte">Turmas</span>
-          <h2 className="mt-2 font-display text-[clamp(1.8rem,3vw,2.5rem)] font-extrabold leading-[1.05] tracking-[-0.03em]">{nome}</h2>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h2 className="flex-auto text-xs font-semibold uppercase tracking-[0.14em] text-azul-forte">Turmas</h2>
         {turnos.length > 1 && <Filtro rotulo="Turno" opcoes={turnos} atual={turno} onEscolher={setTurno} todos="Todos os turnos" />}
       </div>
       {visiveis.length > 0 ? (
@@ -491,13 +487,8 @@ export default function EscolhaDeModalidade({
               </aside>
 
               <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-5">
-                <div className="flex flex-wrap items-end justify-between gap-4">
-                  <div className="flex-auto">
-                    <span className="text-xs font-semibold uppercase tracking-[0.14em] text-azul-forte">Turmas</span>
-                    <h2 className="mt-2 font-display text-[clamp(1.8rem,3vw,2.5rem)] font-extrabold leading-[1.05] tracking-[-0.03em]">
-                      Turmas {atual.nome} · {aba}
-                    </h2>
-                  </div>
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <h2 className="flex-auto text-xs font-semibold uppercase tracking-[0.14em] text-azul-forte">Turmas</h2>
                   {turnos.length > 1 && <Filtro rotulo="Turno" opcoes={turnos} atual={turno} onEscolher={setTurno} todos="Todos os turnos" />}
                 </div>
 
