@@ -86,12 +86,14 @@ function SetaParaDireita() {
 function BarraDoMetodo({ teoria }: { teoria: number }) {
   return (
     <span className="relative flex flex-col gap-[7px]">
-      <span className="flex justify-between text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[#8FA0B8]">
-        <span>Teoria</span>
-        <span>Questões</span>
+      <span className="flex justify-between text-[11.5px] font-semibold uppercase tracking-[0.08em]">
+        <span className="text-[#6FAEFF]">Teoria</span>
+        <span className="text-[#F5B83D]">Questões</span>
       </span>
-      <span className="flex h-1.5 overflow-hidden rounded-md bg-white/10" role="img" aria-label={`${teoria}% teoria e ${100 - teoria}% questões`}>
+      {/* Teoria em azul, questões em âmbar: as duas partes aparecem, com um respiro entre elas. */}
+      <span className="flex h-1.5 gap-[3px]" role="img" aria-label={`${teoria}% teoria e ${100 - teoria}% questões`}>
         <span className="block rounded-md bg-[linear-gradient(90deg,#2F86FF,#6FAEFF)]" style={{ width: `${teoria}%` }} />
+        <span className="block flex-1 rounded-md bg-[linear-gradient(90deg,#F5B83D,#FFD27A)]" />
       </span>
     </span>
   );
@@ -137,7 +139,7 @@ function CartaoDaTurma({ turma, titulo }: { turma: Turma; titulo: string }) {
         ) : (
           <AviseMe
             assunto={`vaga na turma ${turma.nome}`}
-            rotulo={turma.status === "encerrada" ? "Lista de espera pelo WhatsApp" : "Avise-me pelo WhatsApp"}
+            rotulo={turma.status === "encerrada" ? "Lista de espera pelo WhatsApp" : "Entrar na lista de interesses"}
           />
         )}
       </div>

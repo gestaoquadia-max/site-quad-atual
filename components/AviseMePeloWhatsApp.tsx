@@ -4,7 +4,7 @@ import { institucional, linkDoWhatsApp } from "@/lib/institucional";
 // com a mensagem já escrita. Sem número cadastrado em lib/institucional.ts, não aparece.
 export default function AviseMePeloWhatsApp({
   assunto,
-  rotulo = "Avise-me pelo WhatsApp",
+  rotulo = "Entrar na lista de interesses",
   destaque = false,
   className = "",
 }: {
