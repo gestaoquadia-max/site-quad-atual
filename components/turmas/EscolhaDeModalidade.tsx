@@ -60,7 +60,7 @@ const PERGUNTAS: { modalidade: IdDaModalidade; rotulo: string; explicacao: strin
 ];
 
 const SITUACAO: Record<Turma["status"], { rotulo: string; cor: string }> = {
-  aberta: { rotulo: "Matrículas abertas", cor: "bg-[#E3F5EA] text-[#17663F]" },
+  aberta: { rotulo: "Matrículas abertas", cor: "bg-[#EEF2F7] text-[#4A5A70]" },
   breve: { rotulo: "Em breve", cor: "bg-[#E6ECFF] text-[#1238C4]" },
   encerrada: { rotulo: "Turma lotada", cor: "bg-[#FFF0D9] text-[#8A4B00]" },
 };
@@ -100,12 +100,13 @@ function BarraDoMetodo({ teoria }: { teoria: number }) {
   );
 }
 
-// Cada turno com cor e ícone próprios: turmas iguais em turnos diferentes se distinguem de relance.
+// Cada turno com ícone e um tom da mesma escala de azul, do mais claro (manhã) ao mais escuro (noite):
+// turmas iguais em turnos diferentes se distinguem de relance.
 const ESTILO_DO_TURNO: Record<string, { icone: Icon; cor: string }> = {
-  Manhã: { icone: Sun, cor: "bg-[#FFF4D6] text-[#7A5A00]" },
-  Tarde: { icone: SunHorizon, cor: "bg-[#FFE9DA] text-[#94400A]" },
-  Noite: { icone: Moon, cor: "bg-[#E9EAFF] text-[#3B3FA8]" },
-  Integral: { icone: Sun, cor: "bg-azul-palido text-azul-forte" },
+  Manhã: { icone: Sun, cor: "bg-azul-palido text-azul-forte" },
+  Tarde: { icone: SunHorizon, cor: "bg-[#BCD5FF] text-[#0C3594]" },
+  Noite: { icone: Moon, cor: "bg-marinho-700 text-[#D6E6FF]" },
+  Integral: { icone: Sun, cor: "bg-[#D6E5FF] text-[#123E9C]" },
 };
 
 function EtiquetaDoTurno({ turno }: { turno: string }) {
