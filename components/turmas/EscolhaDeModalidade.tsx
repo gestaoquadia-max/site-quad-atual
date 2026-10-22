@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Moon, Sun, SunHorizon, type Icon } from "@phosphor-icons/react";
 import { useRef, useState } from "react";
 import type { Turma } from "@/lib/data";
 import { modalidades, type Modalidade } from "@/lib/conteudo";
@@ -99,14 +100,32 @@ function BarraDoMetodo({ teoria }: { teoria: number }) {
   );
 }
 
+// Cada turno com cor e ícone próprios: turmas iguais em turnos diferentes se distinguem de relance.
+const ESTILO_DO_TURNO: Record<string, { icone: Icon; cor: string }> = {
+  Manhã: { icone: Sun, cor: "bg-[#FFF4D6] text-[#7A5A00]" },
+  Tarde: { icone: SunHorizon, cor: "bg-[#FFE9DA] text-[#94400A]" },
+  Noite: { icone: Moon, cor: "bg-[#E9EAFF] text-[#3B3FA8]" },
+  Integral: { icone: Sun, cor: "bg-azul-palido text-azul-forte" },
+};
+
+function EtiquetaDoTurno({ turno }: { turno: string }) {
+  const estilo = ESTILO_DO_TURNO[turno] ?? ESTILO_DO_TURNO.Integral;
+  const Icone = estilo.icone;
+  return (
+    <span className={`inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 text-[13px] font-bold ${estilo.cor}`}>
+      <Icone size={16} weight="fill" aria-hidden="true" />
+      {turno}
+    </span>
+  );
+}
+
 function CartaoDaTurma({ turma, titulo }: { turma: Turma; titulo: string }) {
   const situacao = SITUACAO[turma.status];
   const campos = [
-    ["Turno", turma.turno],
-    ["Horário", undefined],
     ["Início", turma.inicio],
-    ["Valor", turma.preco === "Consulte" ? undefined : turma.preco],
+    ["Horário", undefined],
   ] as const;
+  const preco = turma.preco === "Consulte" ? undefined : turma.preco;
   return (
     <article className="grid animate-[q-surgir_220ms_ease_both] grid-cols-[repeat(auto-fit,minmax(min(100%,190px),1fr))] items-center gap-x-6 gap-y-4 rounded-2xl border border-linha bg-white p-[clamp(18px,2vw,24px)] shadow-[0_1px_2px_rgba(16,27,45,0.04),0_18px_36px_-28px_rgba(16,27,45,0.3)]">
       <div className="flex min-w-0 items-center gap-4">
@@ -117,7 +136,10 @@ function CartaoDaTurma({ turma, titulo }: { turma: Turma; titulo: string }) {
             {turma.status === "aberta" && turma.statusLabel !== "Matrículas abertas" ? turma.statusLabel : situacao.rotulo}
           </span>
         </div>
-        <h4 className="font-display text-[19px] font-extrabold leading-[1.2] tracking-[-0.01em]">{titulo}</h4>
+        <div className="flex flex-wrap items-center gap-2">
+          <h4 className="font-display text-[19px] font-extrabold leading-[1.2] tracking-[-0.01em]">{titulo}</h4>
+          {turma.turno && <EtiquetaDoTurno turno={turma.turno} />}
+        </div>
         </div>
       </div>
       <dl className="grid grid-cols-2 gap-x-[18px] gap-y-2.5 text-sm">
@@ -128,7 +150,11 @@ function CartaoDaTurma({ turma, titulo }: { turma: Turma; titulo: string }) {
           </div>
         ))}
       </dl>
-      <div className="flex flex-col items-stretch gap-1.5">
+      <div className="flex flex-col items-stretch gap-2.5">
+        <div className="flex items-baseline justify-between gap-3">
+          <span className="text-[11.5px] font-semibold uppercase tracking-[0.06em] text-ardosia">Valor</span>
+          <span className={`font-display font-extrabold tracking-[-0.02em] ${preco ? "text-[26px] leading-none text-tinta" : "text-base text-ardosia"}`}>{preco ?? A_CONFIRMAR}</span>
+        </div>
         {turma.status === "aberta" ? (
           <Link
             href={`/turmas/${turma.slug}`}
