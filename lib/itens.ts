@@ -8,7 +8,8 @@ export function idDoItem(tipo: CartItem["tipo"], slug: string) {
 
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
 
-// O que o carrinho do servidor precisa para reservar o item. Os ids do carrinho levam o slug, que termina no id da API.
+// O que o carrinho do servidor precisa para reservar o item. Quem põe no carrinho manda o id da API em `alvo` (o
+// endereço é o slug da API, sem o id). Itens de antes do slug (até 22/10/2026) ainda têm o id no fim do slug.
 // null = o item não pode ser comprado online (ex.: simulado em PDF ou combo, que a API ainda não vende).
 export function alvoDoItem(item: CartItem): Alvo | null {
   if (item.alvo) return item.alvo;

@@ -27,21 +27,30 @@ export const SEGUNDOS_DE_CACHE = 60;
 
 type TipoDeAtividade = "TURMA" | "EVENTO" | "SIMULADO";
 
-// Resposta da vitrine em 19/10/2026. `preco` em reais; as vagas são as de quem paga em reais (cartão, PIX,
-// boleto e diamantes). Os campos de Quad Coins são do app Viver o Quad e o site ignora.
+// Resposta da vitrine em 22/10/2026 (modelo novo do banco, V115 a V119). `preco` em reais; as vagas são as de quem
+// paga em reais (cartão, PIX, boleto e diamantes). Os campos de Quad Coins são do app Viver o Quad e o site ignora.
 type AtividadeDaVitrine = {
   tipo: TipoDeAtividade;
   id: string;
   nome: string;
+  // Nasce do nome na criação e não muda mais, nem se o nome mudar. Único dentro do tipo.
+  slug?: string | null;
   imagemUrl: string | null;
   preco: number | null;
   vagas: number | null;
   vendidas: number | null;
   restantes: number | null;
   detalhe: {
-    // TURMA: NIVELAMENTO, REGULAR, QUESTOES ou ISOLADAS. EVENTO e SIMULADO: PRESENCIAL ou ONLINE.
+    // TURMA: TURMA ou ISOLADA (calendário de turma com nome próprio).
+    tipo?: string | null;
+    // TURMA: o nível (NIVELAMENTO, INTERMEDIARIO, AVANCADO ou TODOS; REGULAR e QUESTOES nas turmas antigas).
+    // EVENTO e SIMULADO: PRESENCIAL ou ONLINE.
     modalidade?: string | null;
+    // TURMA: o apelido do nível ("Rondesp", "Patamo", "Bope", "Todos"); nulo nas modalidades antigas.
+    codinome?: string | null;
     turnos?: string[] | null;
+    // TURMA: o edital que ela prepara, ou nulo (de todos os concursos). Cargo e órgão só saem com login.
+    concursoId?: string | null;
     descricao?: string | null;
     // TURMA e EVENTO: datas ("2026-07-06"). SIMULADO: horas ("08:00:00"), com a data em `data`.
     inicio?: string | null;
@@ -49,6 +58,8 @@ type AtividadeDaVitrine = {
     data?: string | null;
     horaInicio?: string | null;
     horaFim?: string | null;
+    // EVENTO presencial fora do Quad (sede EXTERNA): onde fica. Nulo no evento do Quad e no online.
+    endereco?: string | null;
   } | null;
 };
 
@@ -70,15 +81,19 @@ async function listar(tipo: TipoDeAtividade): Promise<AtividadeDaVitrine[]> {
   return pagina === NAO_ENCONTRADA ? [] : pagina.conteudo;
 }
 
-async function buscar(tipo: TipoDeAtividade, id: string): Promise<AtividadeDaVitrine | null> {
-  const atividade = await lerDaVitrine<AtividadeDaVitrine>(`/api/loja/vitrine/atividades/${tipo}/${id}`);
+// Pelo endereço da página: o slug da API ou, nos endereços antigos (nome + id), o id. A página redireciona
+// o endereço antigo para o do slug.
+async function buscar(tipo: TipoDeAtividade, endereco: string): Promise<AtividadeDaVitrine | null> {
+  const id = idDoSlug(endereco);
+  const caminho = id ? `${tipo}/${id}` : `${tipo}/slug/${encodeURIComponent(endereco)}`;
+  const atividade = await lerDaVitrine<AtividadeDaVitrine>(`/api/loja/vitrine/atividades/${caminho}`);
   return atividade === NAO_ENCONTRADA ? null : atividade;
 }
 
 // ---------- Endereço das páginas ----------
 
-// A API ainda não tem slug (pedido no contrato, item 1). Até lá, o endereço é o nome seguido do id:
-// /turmas/patamo-6c29678d-31d5-4a62-b4a7-2cbf21650cff. Só o id importa para achar a atividade.
+// O endereço é o slug da API (/turmas/rondesp-2-soldado-pmba-manha). Até 22/10/2026 a API não tinha slug e o
+// endereço era o nome seguido do id (/turmas/patamo-6c29678d-…): esses endereços ainda abrem, pelo id.
 const UUID_NO_FIM = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
 
 function slugDoNome(nome: string) {
@@ -90,7 +105,9 @@ function slugDoNome(nome: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-function slugDa(a: AtividadeDaVitrine) {
+// O slug da API; sem ele (API antiga), o nome seguido do id.
+function slugDa(a: { id: string; nome: string; slug?: string | null }) {
+  if (a.slug) return a.slug;
   const nome = slugDoNome(a.nome);
   return nome ? `${nome}-${a.id}` : a.id;
 }
@@ -147,7 +164,7 @@ function vagasDa(a: AtividadeDaVitrine) {
 
 // ---------- Turmas ----------
 
-// Enquanto a API não traz a modalidade (pedido no contrato), ela sai do nome: "Patamo - CFO" → PATAMO.
+// Turmas antigas (modalidade REGULAR ou QUESTOES, sem nível na API): o nível sai do nome. "Patamo - CFO" → PATAMO.
 function modalidadeDoNome(nome: string): Turma["modalidade"] {
   const n = slugDoNome(nome);
   if (n.includes("rondesp")) return "rondesp";
@@ -165,9 +182,21 @@ function concursoDaTurma(nome: string, descricao: string) {
   return undefined;
 }
 
-// MODALIDADE, EDIÇÃO, CARGO e CONCURSO da planilha. Enquanto o banco não tem as colunas, saem do nome no padrão
-// "MODALIDADE EDIÇÃO - CARGO CONCURSO - TURNO"; nome fora do padrão cai nas deduções antigas (nível e concurso).
+// O nível vem da coluna `modalidade` (V116). Só as turmas antigas (REGULAR, QUESTOES) ainda o tiram do nome.
+const NIVEL_DA_API: Record<string, string> = { NIVELAMENTO: "RONDESP", INTERMEDIARIO: "PATAMO", AVANCADO: "BOPE" };
+
+// MODALIDADE, EDIÇÃO, CARGO e CONCURSO da planilha. O nível vem da API; edição, cargo e concurso ainda não estão
+// na vitrine (pedido ao backend) e saem do nome no padrão "MODALIDADE EDIÇÃO - CARGO CONCURSO - TURNO".
 function colunasDaTurma(a: AtividadeDaVitrine) {
+  const colunas = colunasDoNome(a);
+  const modalidade = a.detalhe?.modalidade;
+  if (modalidade && NIVEL_DA_API[modalidade]) return { ...colunas, modalidade: NIVEL_DA_API[modalidade] };
+  // TODOS = turma sem nível: o nome não pode transformá-la numa turma RONDESP, PATAMO ou BOPE.
+  if (modalidade === "TODOS" && ehNivelDaPmba(colunas.modalidade)) return { ...colunas, modalidade: null };
+  return colunas;
+}
+
+function colunasDoNome(a: AtividadeDaVitrine) {
   const lido = lerNomeDaTurma(a.nome);
   if (lido) return lido;
   const nivel = modalidadeDoNome(a.nome);
@@ -249,9 +278,7 @@ export async function listarTurmas(): Promise<Turma[] | null> {
 }
 
 export async function buscarTurma(slug: string): Promise<Turma | null> {
-  const id = idDoSlug(slug);
-  if (!id) return null;
-  const atividade = await buscar("TURMA", id);
+  const atividade = await buscar("TURMA", slug);
   return atividade ? paraTurma(atividade) : null;
 }
 
@@ -286,9 +313,7 @@ function paraOferta(a: AtividadeDaVitrine): OfertaDaTurma {
 
 // A turma do endereço e os outros turnos dela (as outras linhas da planilha com a mesma turma).
 export async function buscarTurmaComTurnos(slug: string): Promise<{ turma: TurmaComTurnos; atual: OfertaDaTurma } | null> {
-  const id = idDoSlug(slug);
-  if (!id) return null;
-  const atividade = await buscar("TURMA", id);
+  const atividade = await buscar("TURMA", slug);
   if (!atividade) return null;
   const atual = paraOferta(atividade);
   const chave = chaveDaTurma(atual);
@@ -331,6 +356,7 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
 
   return {
     slug: slugDa(a),
+    idNaApi: a.id,
     tag: [data && diaEMes(data), formato].filter(Boolean).join(" · "),
     nome: a.nome,
     desc,
@@ -346,7 +372,9 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
       incluso: [],
       local: online
         ? { nome: "Online", endereco: "O link de acesso fica na área do aluno de quem se inscrever." }
-        : { nome: "Quad Concursos — Feira de Santana", endereco: "Feira de Santana — BA · Endereço completo enviado por e-mail após a inscrição" },
+        : d.endereco
+          ? { nome: "Fora do Quad", endereco: d.endereco }
+          : { nome: "Quad Concursos — Feira de Santana", endereco: "Feira de Santana — BA · Endereço completo enviado por e-mail após a inscrição" },
       ...vagas,
     },
   };
@@ -364,9 +392,7 @@ export async function listarEventos(): Promise<Evento[] | null> {
 }
 
 export async function buscarEvento(slug: string): Promise<Evento | null> {
-  const id = idDoSlug(slug);
-  if (!id) return null;
-  const atividade = await buscar("EVENTO", id);
+  const atividade = await buscar("EVENTO", slug);
   return atividade ? paraEvento(atividade) : null;
 }
 
@@ -414,6 +440,8 @@ export async function listarCarreiras(): Promise<Carreira[] | null> {
 type ItemDaVitrine = {
   id: string;
   nome: string;
+  // Único entre os itens; não muda se o nome mudar (V119).
+  slug?: string | null;
   // MODULOS = material impresso entregue no balcão; OUTROS = produto da loja. MENTORIA e SKIN são do app.
   tipo: "MODULOS" | "EXCURSOES" | "TREINAMENTO_TAF" | "MENTORIA" | "OUTROS" | "SKIN";
   descricao: string | null;
@@ -425,6 +453,13 @@ type ItemDaVitrine = {
   variacoes: { id: string; nome: string; ofertadas: number | null; vendidas: number | null; restantes: number | null }[];
 };
 
+// Pelo endereço da página: o slug da API ou, nos endereços antigos (nome + id), o id.
+async function buscarItem(endereco: string): Promise<ItemDaVitrine | null> {
+  const id = idDoSlug(endereco);
+  const item = await lerDaVitrine<ItemDaVitrine>(`/api/loja/vitrine/${id ?? `slug/${encodeURIComponent(endereco)}`}`);
+  return item === NAO_ENCONTRADA ? null : item;
+}
+
 async function listarItens(): Promise<ItemDaVitrine[]> {
   const pagina = await lerDaVitrine<Pagina<ItemDaVitrine>>("/api/loja/vitrine?tamanho=100");
   // A vitrine lista do mais novo ao mais antigo; o site mostra na ordem do cadastro.
@@ -435,7 +470,8 @@ function paraMaterial(i: ItemDaVitrine): Produto {
   const kit = /\bkit\b|combo/i.test(i.nome);
   const esgotado = i.restantes !== null && i.restantes <= 0;
   return {
-    slug: slugDa({ ...i, tipo: "TURMA" } as unknown as AtividadeDaVitrine),
+    slug: slugDa(i),
+    idNaApi: i.id,
     tag: kit ? "Kit · Impresso" : "Apostila · Impresso",
     nome: i.nome,
     desc: i.descricao ?? "",
@@ -465,7 +501,7 @@ function categoriaDoNome(nome: string) {
 
 function paraProdutoDaLoja(i: ItemDaVitrine): ProdutoDaLoja {
   return {
-    id: slugDa({ ...i, tipo: "TURMA" } as unknown as AtividadeDaVitrine),
+    id: slugDa(i),
     idNaApi: i.id,
     categoria: categoriaDoNome(i.nome),
     nome: i.nome,
@@ -496,10 +532,8 @@ export async function listarMateriais(): Promise<Produto[] | null> {
 }
 
 export async function buscarMaterial(slug: string): Promise<Produto | null> {
-  const id = idDoSlug(slug);
-  if (!id) return null;
-  const item = await lerDaVitrine<ItemDaVitrine>(`/api/loja/vitrine/${id}`);
-  return item === NAO_ENCONTRADA || item.tipo !== "MODULOS" ? null : paraMaterial(item);
+  const item = await buscarItem(slug);
+  return item?.tipo === "MODULOS" ? paraMaterial(item) : null;
 }
 
 export async function listarProdutosDaLoja(): Promise<ProdutoDaLoja[] | null> {
@@ -511,16 +545,14 @@ export async function listarProdutosDaLoja(): Promise<ProdutoDaLoja[] | null> {
 }
 
 export async function buscarProdutoDaLoja(slug: string): Promise<ProdutoDaLoja | null> {
-  const id = idDoSlug(slug);
-  if (!id) return null;
-  const item = await lerDaVitrine<ItemDaVitrine>(`/api/loja/vitrine/${id}`);
-  return item === NAO_ENCONTRADA || item.tipo !== "OUTROS" ? null : paraProdutoDaLoja(item);
+  const item = await buscarItem(slug);
+  return item?.tipo === "OUTROS" ? paraProdutoDaLoja(item) : null;
 }
 
 // ---------- Professores ----------
 
-// Resposta de /api/professores/vitrine em 21/10/2026 (sem login). Não tem slug nem minibio: o endereço segue o
-// padrão das outras páginas (nome + id) e a bio fica de fora até o backend mandar.
+// Resposta de /api/professores/vitrine em 21/10/2026 (sem login). Não tem slug nem minibio: o endereço é o nome + id, como
+// eram as outras páginas antes do slug, e a bio fica de fora até o backend mandar.
 type ProfessorDaVitrine = {
   id: string;
   nome: string;

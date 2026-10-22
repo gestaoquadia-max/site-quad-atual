@@ -32,6 +32,8 @@ export type Turma = {
 
 export type Produto = {
   slug: string;
+  // O id do item na API: é o que o carrinho do servidor reserva (o endereço é o slug).
+  idNaApi?: string;
   tag: string;
   nome: string;
   desc: string;
@@ -48,6 +50,8 @@ export type Produto = {
 
 export type Evento = {
   slug: string;
+  // O id da atividade na API: é o que o carrinho do servidor reserva (o endereço é o slug).
+  idNaApi?: string;
   tag: string;
   nome: string;
   desc: string;

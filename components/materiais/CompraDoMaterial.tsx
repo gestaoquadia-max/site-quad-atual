@@ -67,6 +67,7 @@ export default function CompraDoMaterial({ produto }: { produto: Produto }) {
             tag: formato === "impresso" ? "Impresso · Retirar no Quad" : "Digital",
             preco: produto.preco,
             formato,
+            alvo: produto.idNaApi ? { itemId: produto.idNaApi } : undefined,
           })
         }
         disabled={produto.esgotado}

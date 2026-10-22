@@ -106,7 +106,14 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
                 cta={cta}
                 desabilitado={emBreve || esgotado}
                 vagas={d.vagasTotal !== undefined && d.vagasOcupadas !== undefined ? { total: d.vagasTotal, ocupadas: d.vagasOcupadas } : undefined}
-                item={{ id: idDoItem("evento", evento.slug), tipo: "evento", nome: evento.nome, tag: evento.tag, preco: evento.preco }}
+                item={{
+                  id: idDoItem("evento", evento.slug),
+                  tipo: "evento",
+                  nome: evento.nome,
+                  tag: evento.tag,
+                  preco: evento.preco,
+                  alvo: evento.idNaApi ? { atividade: { tipo: "EVENTO", id: evento.idNaApi } } : undefined,
+                }}
               />
             </div>
           </div>

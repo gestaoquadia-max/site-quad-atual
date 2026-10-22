@@ -77,6 +77,7 @@ export default function CartaoMaterial({ produto, indice }: { produto: Produto; 
       tag: impresso ? "Impresso · Retirar no Quad" : "Digital",
       preco: produto.preco,
       formato,
+      alvo: produto.idNaApi ? { itemId: produto.idNaApi } : undefined,
     });
   }
 

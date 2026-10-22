@@ -37,7 +37,7 @@
 
 | 2.11 | `GET /api/usuarios/eu` para conta sem cadastro de aluno (professor, administrador) | Criar | Baixa |
 
-| 3 | Catálogo público (turmas, eventos, materiais, professores) sem login | Parcial (21/10/2026): professores públicos em `GET /api/professores/vitrine` e `/{id}` (nome, graduação, matérias, foto); o site já usa (21/10/2026); faltam slug e minibio. Turmas, eventos e materiais seguem só com a vitrine | Alta |
+| 3 | Catálogo público (turmas, eventos, materiais, professores) sem login | Parcial (21/10/2026): professores públicos em `GET /api/professores/vitrine` e `/{id}` (nome, graduação, matérias, foto); o site já usa (21/10/2026); faltam slug e minibio. Turmas, eventos e materiais seguem só com a vitrine, que desde 22/10/2026 tem `slug` e o nível da turma (o site já usa); faltam edição, cargo e órgão, horário da turma, janelas do simulado e espécie do evento (item 3.1) | Alta |
 
 | 4 | Rotas "minhas" da área do aluno | ✅ Quase tudo resolvido (09/10/2026). Falta: armazenamento de arquivos para testar o download e confirmar os "materiais diários" | Média |
 
@@ -353,7 +353,21 @@ Com o login em cookie, o site não lê mais o token, então pega o id e os dados
 
 **Situação hoje:**
 - `GET /api/turmas`, `GET /api/eventos` e `GET /api/professores` respondem **401** sem login. As páginas públicas do site (home, lista e detalhe de turma, evento e professor) são abertas a qualquer visitante, então não conseguem usar essas rotas.
-- `GET /api/loja/vitrine/atividades?tipo=TURMA|EVENTO|SIMULADO` e o detalhe `.../{tipo}/{id}` são públicos. Desde 10/10/2026 trazem também datas, turno ou horário, modalidade, descrição (turma) e vagas em tempo real. Ainda faltam os textos de venda, o local com endereço, os professores dos eventos e o `slug`. O comparativo campo a campo está em [mapa-api-conteudo.md](mapa-api-conteudo.md), e o **formato exato pedido** (JSON de cada conteúdo, em ordem de prioridade) está em [contrato-api-conteudo.md](contrato-api-conteudo.md).
+- `GET /api/loja/vitrine/atividades?tipo=TURMA|EVENTO|SIMULADO` e o detalhe `.../{tipo}/{id}` são públicos. Desde 10/10/2026 trazem também datas, turno ou horário, modalidade, descrição (turma) e vagas em tempo real. Desde 22/10/2026 (modelo novo do banco, V115 a V119) trazem também o `slug`, abrem pelo slug (`.../{tipo}/slug/{slug}` e `/api/loja/vitrine/slug/{slug}`) e, na turma, `tipo`, `modalidade` (o nível), `codinome` e `concursoId`; no evento externo, o `endereco`. O site já usa tudo isso (item 3.1). Ainda faltam os textos de venda e os professores dos eventos. O comparativo campo a campo está em [mapa-api-conteudo.md](mapa-api-conteudo.md), e o **formato exato pedido** (JSON de cada conteúdo, em ordem de prioridade) está em [contrato-api-conteudo.md](contrato-api-conteudo.md).
+
+### 3.1 Modelo novo do banco na vitrine (22/10/2026)
+
+**Entregue e já usado pelo site:**
+- **`slug`** em turma, evento, simulado e item, e as rotas por slug. Os endereços do site passaram a ser o slug (`/turmas/rondesp-2-soldado-pmba-manha`); os antigos (nome + id) redirecionam.
+- **Nível da turma** em `modalidade` (NIVELAMENTO, INTERMEDIARIO, AVANCADO, TODOS). O site não deduz mais o nível pelo nome, a não ser nas turmas antigas (REGULAR, QUESTOES).
+- **`endereco`** do evento externo, mostrado no lugar do endereço do Quad.
+
+**Falta na vitrine** (o banco já tem, mas a rota pública não mostra; até lá, o site tira do nome da turma):
+- **`edicao`** e **`ano`** da turma, do evento e do simulado. O título da turma ("RONDESP 2") e o agrupamento dos turnos de uma mesma turma dependem da edição.
+- **`cargo`** e **`orgao`** do concurso (o rótulo "SD/PMBA"). A vitrine traz só o `concursoId`, e `GET /api/concursos` exige login. Basta mandar os dois junto da turma, do evento e do simulado (ou abrir uma rota pública de concursos com código, nome, cargo e órgão).
+- **Horário da turma** (`horarioInicial`, `horarioFim`, `horarioInicial2`, `horarioFim2`) e os **dias da semana**. Hoje o site mostra "A confirmar".
+- **Janelas do simulado** (de 1 a 10 dias). A vitrine ainda manda uma data só.
+- **Espécie do evento** (AULAO ou EVENTO), para separar aulões de eventos na agenda.
 
 **Pedido:** rotas públicas, sem login, só com dados que podem ser vistos por qualquer pessoa, nunca dados de alunos. Pode ser ampliando a vitrine ou criando rotas próprias.
 

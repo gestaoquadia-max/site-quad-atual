@@ -145,6 +145,7 @@ export default function EscolhaDoTurno({ turma, inicial }: { turma: TurmaComTurn
               nome: turma.nome,
               tag: [nomeDoTurno, turma.cargo, turma.concurso].filter(Boolean).join(" · "),
               preco,
+              alvo: { atividade: { tipo: "TURMA", id: oferta.id } },
             }}
             className="h-14 w-full rounded-xl text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_16px_36px_-14px_rgba(0,107,255,1)] hover:-translate-y-0.5"
           />

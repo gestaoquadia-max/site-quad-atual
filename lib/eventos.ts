@@ -49,6 +49,15 @@ export function paraCartao(e: Evento): DadosDoCartaoEvento {
       ? { dia: inicio.slice(8, 10), mes: MESES[Number(inicio.slice(5, 7)) - 1], local: e.tag.split(" · ").slice(1).join(" · ") }
       : undefined,
     preco: e.preco,
-    item: vendavel ? { id: idDoItem("evento", e.slug), tipo: "evento", nome: e.nome, tag: e.tag, preco: e.preco } : undefined,
+    item: vendavel
+      ? {
+          id: idDoItem("evento", e.slug),
+          tipo: "evento",
+          nome: e.nome,
+          tag: e.tag,
+          preco: e.preco,
+          alvo: e.idNaApi ? { atividade: { tipo: "EVENTO", id: e.idNaApi } } : undefined,
+        }
+      : undefined,
   };
 }
