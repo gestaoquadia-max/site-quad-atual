@@ -214,7 +214,7 @@ function TurmasDoCargo({ turmas, aba }: { turmas: Turma[]; aba: string }) {
       ) : (
         <div className="flex flex-col items-start gap-3 rounded-2xl border border-linha bg-white p-[clamp(24px,3vw,36px)]">
           <span className="inline-flex h-[26px] items-center rounded-full bg-[#EEF2F7] px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">Sem oferta no momento</span>
-          <span className="font-display text-xl font-extrabold">Não há turmas abertas agora</span>
+          <span className="font-display text-xl font-extrabold">Ainda não há turmas abertas para este cargo</span>
           <span className="max-w-[560px] text-[15px] leading-[1.55] text-[#3E4A5E] [text-wrap:pretty]">Avisamos pelo WhatsApp quando abrir uma turma.</span>
           <AviseMe assunto={`turma ${aba}`} destaque />
         </div>
@@ -498,7 +498,7 @@ export default function EscolhaDeModalidade({
                   <div className="flex flex-col items-start gap-3 rounded-2xl border border-linha bg-white p-[clamp(24px,3vw,36px)]">
                     <span className="inline-flex h-[26px] items-center rounded-full bg-[#EEF2F7] px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">Sem oferta no momento</span>
                     <span className="font-display text-xl font-extrabold">
-                      Não há turmas abertas agora
+                      Ainda não há turmas abertas nesta modalidade
                     </span>
                     <span className="max-w-[560px] text-[15px] leading-[1.55] text-[#3E4A5E] [text-wrap:pretty]">
                       {atual.perfil ? `${atual.perfil} ${atual.metodo}` : "Avisamos pelo WhatsApp quando abrir uma turma."}
