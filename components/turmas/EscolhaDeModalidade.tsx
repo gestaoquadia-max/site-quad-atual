@@ -88,12 +88,12 @@ function BarraDoMetodo({ teoria }: { teoria: number }) {
     <span className="relative flex flex-col gap-[7px]">
       <span className="flex justify-between text-[11.5px] font-semibold uppercase tracking-[0.08em]">
         <span className="text-[#6FAEFF]">Teoria</span>
-        <span className="text-[#5FDCF2]">Questões</span>
+        <span className="text-[#8DA6FF]">Questões</span>
       </span>
-      {/* Teoria em azul, questões em ciano: as duas partes aparecem, com um respiro entre elas. */}
+      {/* Teoria em azul, questões em azul escuro: as duas partes aparecem, com um respiro entre elas. */}
       <span className="flex h-1.5 gap-[3px]" role="img" aria-label={`${teoria}% teoria e ${100 - teoria}% questões`}>
         <span className="block rounded-md bg-[linear-gradient(90deg,#2F86FF,#6FAEFF)]" style={{ width: `${teoria}%` }} />
-        <span className="block flex-1 rounded-md bg-[linear-gradient(90deg,#22C7E8,#7FE6F7)]" />
+        <span className="block flex-1 rounded-md bg-[linear-gradient(90deg,#0F3FE0,#144AFF)]" />
       </span>
     </span>
   );
