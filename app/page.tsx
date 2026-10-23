@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { aprovados, posts } from "@/lib/data";
+import { aprovados } from "@/lib/data";
 import { bannersPublicados, mentorias, modalidades } from "@/lib/conteudo";
 import { listarEventos, listarMateriais, listarProdutosDaLoja, listarProfessores } from "@/lib/vitrine";
 import { dadosDaOrganizacao } from "@/lib/dados-estruturados";
@@ -12,7 +12,6 @@ import CartaoEvento from "@/components/home/CartaoEvento";
 import { CARTAO_DOS_SIMULADOS, paraCartao } from "@/lib/eventos";
 import {
   CartaoAprovado,
-  CartaoArtigo,
   CartaoMentoria,
   CartaoModalidade,
   CartaoProdutoDaLoja,
@@ -117,14 +116,6 @@ export default async function Home() {
             <SetaDoLink />
           </Link>
         </div>
-      </Secao>
-
-      <Secao className="bg-marinho-900 text-white">
-        <Trilho titulo="Do nosso blog" link={{ href: "/blog", label: "Ver todos os artigos" }} rotulo="Artigos do blog" tema="escuro">
-          {posts.slice(0, 3).map((p) => (
-            <CartaoArtigo key={p.slug} post={p} />
-          ))}
-        </Trilho>
       </Secao>
     </>
   );

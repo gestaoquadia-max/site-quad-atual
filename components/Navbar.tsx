@@ -146,7 +146,6 @@ function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): 
         viewAllLabel: "Ver agenda completa",
       },
     },
-    { href: "/blog", label: "Blog" },
   ];
 }
 

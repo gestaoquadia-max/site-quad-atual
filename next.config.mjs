@@ -56,9 +56,15 @@ const nextConfig = {
   async headers() {
     return [{ source: "/(.*)", headers: cabecalhosDeSeguranca }];
   },
-  // Os cursos online viraram as Mentorias do Quad (novo visual, out/2026).
+  // Os cursos online viraram as Mentorias do Quad. O blog saiu do ar por enquanto (23/10/2026): os endereços dele
+  // levam à página inicial, sem redirecionamento permanente, para o blog poder voltar (o código continua em
+  // components/blog e os artigos em lib/data.ts; a página estava em app/blog, no histórico do git).
   async redirects() {
-    return [{ source: "/cursos", destination: "/mentorias", permanent: true }];
+    return [
+      { source: "/cursos", destination: "/mentorias", permanent: true },
+      { source: "/blog", destination: "/", permanent: false },
+      { source: "/blog/:slug*", destination: "/", permanent: false },
+    ];
   },
 };
 
