@@ -355,7 +355,7 @@ export default function EscolhaDeModalidade({
               </h1>
               <p className="max-w-[520px] text-[clamp(16px,1.4vw,18px)] leading-[1.6] text-[#B4C1D3] [text-wrap:pretty]">
                 {comNiveis
-                  ? `Para ${aba}: três modalidades de preparação, cada uma pensada para um momento diferente dos seus estudos.`
+                  ? `Três modalidades, cada uma pensada para um momento diferente dos seus estudos.`
                   : "Turma presencial com rotina estruturada, simulados nos moldes da banca e acompanhamento do seu desempenho."}
               </p>
             </div>

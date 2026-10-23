@@ -3,7 +3,7 @@
 **De:** time do site (Next.js) · **Atualizado em:** 23/10/2026
 **Base:** testes na API local (`localhost:8080`) e leituras públicas da API de produção (`https://api.quadconcursos.com.br`).
 
-Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: falhas de segurança 1.1 a 1.4, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
+Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
 
 > **Banco compartilhado:** a API e o banco também atendem o **app Viver o Quad**. Toda mudança pedida aqui precisa considerar o impacto no app; os itens em que isso pesa estão marcados com ⚠️.
 
@@ -16,7 +16,6 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 
 | # | Pedido | Prioridade |
 |---|---|---|
-| 1.1 | CORS não aceita o cabeçalho `Idempotency-Key`: nenhum pagamento sai pelo site | **Urgente** |
 | 1.2 | Produção: `CORS_ORIGENS` com o domínio do site e `COOKIES_DOMINIO` | Alta (antes do lançamento) |
 | 1.3 | Autorizar o domínio do site na conta do Pagar.me | Alta (antes do lançamento) |
 | 1.4 | Publicar a API e o site juntos (preços em centavos) | Alta (no lançamento) |
@@ -42,22 +41,6 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 
 ## 1. Antes do lançamento
 
-### 1.1 CORS não aceita o cabeçalho `Idempotency-Key` (urgente)
-
-**O problema.** Para fechar o carrinho (`POST /api/loja/carrinho/eu/fechamento`), a API exige o cabeçalho `Idempotency-Key`. Ele evita cobrar duas vezes quando o aluno clica duas vezes em "Pagar". Antes de mandar esse pedido, o navegador pergunta à API quais cabeçalhos ela aceita (a pré-verificação `OPTIONS` do CORS), e a resposta é `Access-Control-Allow-Headers: content-type, x-quad-cliente`. Como o `Idempotency-Key` não está na lista, o navegador **bloqueia o fechamento antes de enviá-lo**.
-
-**O efeito.** No teste de 23/10/2026, já com as chaves de sandbox, cartão aprovado, cartão recusado, PIX e boleto falharam no checkout com "Não foi possível concluir o pagamento". Nenhuma cobrança chegou a ser criada. Hoje **nenhum pagamento sai pelo site**.
-
-**O pedido.** Incluir `Idempotency-Key` na lista `ACEITOS` de `ConfiguracaoDeCors.java`. A mesma lista atende `POST /api/loja/compras`, `AvisoController` e `LoteController`, que também exigem o cabeçalho.
-
-**Como conferir:**
-```
-curl -i -X OPTIONS http://localhost:8080/api/loja/carrinho/eu/fechamento \
-  -H "Origin: http://localhost:3000" -H "Access-Control-Request-Method: POST" \
-  -H "Access-Control-Request-Headers: content-type,idempotency-key,x-quad-cliente"
-```
-A resposta deve trazer `idempotency-key` em `Access-Control-Allow-Headers`. Assim que estiver no ar, o site repete os quatro pagamentos no sandbox.
-
 ### 1.2 Produção: domínio do site no CORS e nos cookies
 
 **O problema.** O código do login em cookie já está em produção, mas o site só funciona nela com duas configurações:
@@ -66,7 +49,11 @@ A resposta deve trazer `idempotency-key` em `Access-Control-Allow-Headers`. Assi
 
 **O pedido.** Configurar as duas variáveis em produção com os dois endereços do site, sem liberar qualquer origem.
 
-**Como conferir:** a mesma pré-verificação do item 1.1, contra `https://api.quadconcursos.com.br`, com `Origin: https://quadconcursos.com.br`, deve responder 200 com essa origem em `Access-Control-Allow-Origin`.
+**Como conferir:**
+```
+curl -i -X OPTIONS https://api.quadconcursos.com.br/api/loja/carrinho/eu/fechamento   -H "Origin: https://quadconcursos.com.br" -H "Access-Control-Request-Method: POST"   -H "Access-Control-Request-Headers: content-type,idempotency-key,x-quad-cliente"
+```
+Deve responder 200, com essa origem em `Access-Control-Allow-Origin` e `idempotency-key` em `Access-Control-Allow-Headers`.
 
 ### 1.3 Autorizar o domínio do site no Pagar.me
 
@@ -88,7 +75,7 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 
 ### 2.1 Edição e ano
 
-**Por que o site precisa.** O título da turma é a modalidade mais a edição ("RONDESP 2"). Além disso, a página da turma junta os turnos da mesma turma (Manhã, Tarde, Noite) pela modalidade, edição e concurso. Hoje a edição sai do nome cadastrado ("RONDESP 2 - Soldado PMBA - Manhã").
+**Por que o site precisa.** O título da turma é a modalidade mais a edição ("RONDESP 2"). Desde 23/10/2026 a modalidade é um cadastro e a vitrine manda o nome dela (`"Rondesp"`, ou nulo na turma de todas), e o site já usa; a edição, contada por modalidade e concurso, ainda não sai. Além disso, a página da turma junta os turnos da mesma turma (Manhã, Tarde, Noite) pela modalidade, edição e concurso. Hoje a edição sai do nome cadastrado ("RONDESP 2 - Soldado PMBA - Manhã").
 
 **O pedido.** `edicao` e `ano` na turma, no evento e no simulado.
 
@@ -231,6 +218,7 @@ Criados durante os testes do site; podem ser apagados:
 - Compras em reais da conta A (05/10/2026): turma Regular Tarde no cartão (paga, 3x, Visa final 4242) e "Apostila de teste (Claude)" no PIX (aguardando pagamento), com as cobranças correspondentes
 - Conta B: 20 Quad Coins creditados, personagem escolhido e a compra da "Boina exclusiva" (paga com as moedas)
 - Minibio de teste (23/10/2026): a graduação dos cinco professores da vitrine local virou um texto começando com "[TESTE]", para ver a minibio no site. Trocar pelo texto real no cadastro
+- Pagamentos no sandbox do Pagar.me (23/10/2026), conta A, Caneca Quad R$ 35: um PIX aguardando, um cartão aprovado, dois cartões aprovados (R$ 20 + R$ 15) e um cartão `4000 0000 0000 0028`, que o sandbox também aprovou (o caso de recusa ainda não foi testado)
 - Seed de desenvolvimento do backend (19/10/2026, `seeds/seed.sh`): administrador `admin@quad.local`, professores, salas, matérias e alunos `@quad.local`, todos com a senha `Quad@2026`
 - Turmas à venda:
   - "Turma de teste (site)" (19/10/2026): de 03/11/2026 a 26/02/2027, no Auditório, 40 vagas
