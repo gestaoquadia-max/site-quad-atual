@@ -49,6 +49,8 @@
 
 | 6.1 | CORS com o domínio do site | Configurar | Alta (antes do lançamento) |
 
+| 6.4 | CORS não aceita o cabeçalho `Idempotency-Key`: o navegador bloqueia o fechamento do carrinho (cartão, PIX e boleto) | **Corrigir** (achado em 23/10/2026, com as chaves de sandbox) | **Urgente** |
+
 | 6.2 | Swagger anunciando `https` | Parcial: `forward-headers-strategy` configurado, mas o Swagger agora fica desligado em produção (`DOCS_ABERTOS=false`; `/v3/api-docs` responde 404) | Média |
 
 | 6.3 | Limite de tentativas no login e no cadastro | Parcial: login bloqueia após 5 erros no e-mail, e o cupom tem limite; faltam o cadastro e a consulta de disponibilidade | Média |
@@ -441,7 +443,7 @@ Com o login em cookie, o site não lê mais o token, então pega o id e os dados
 **Atualização (20/10/2026): o checkout do site já usa o carrinho do servidor.** Com login, ele esvazia o carrinho de lá, reserva item por item (`PUT .../linhas`), simula o total com o cupom (`POST .../simulacao`) e fecha com `Idempotency-Key`. PIX e boleto seguem para `/checkout/pagamento/{fechamentoId}`, que consulta `GET /api/loja/fechamentos/{id}` a cada 5 s e tem o botão "Já paguei" (`.../conciliacao`). Conferido na API local:
 - Reservar de novo o mesmo item **troca** a quantidade (não soma). O site conta com isso.
 - Cupom inválido na simulação: 422 `CUPOM_INVALIDO`, "Este cupom não é válido." O site mostra a mensagem da API.
-- **Bloqueio para testar o pagamento:** a API local está sem `PAGARME_SECRET_KEY`, `PAGARME_PUBLIC_KEY` e `PAGARME_WEBHOOK_SEGREDO`. O fechamento por cartão, PIX ou boleto responde 503 `PAGAMENTO_INDISPONIVEL` e a configuração vem com `disponivel: false`. Para o teste completo, faltam as chaves de **sandbox** (`sk_test_`/`pk_test_`) da conta do Quad.
+- ~~Bloqueio para testar o pagamento: faltavam as chaves do Pagar.me na API local.~~ **Resolvido em 23/10/2026:** as chaves de sandbox (`sk_test_`/`pk_test_`) estão na API local e a configuração responde `disponivel: true`. O teste de ponta a ponta agora esbarra no CORS (item 6.4).
 - Para o cartão, o site gera o token direto em `https://api.pagar.me/core/v5/tokens?appId={chavePublica}`. O domínio do site precisa estar autorizado na conta do Pagar.me.
 
 Dúvidas para o backend (continuam abertas):
@@ -496,6 +498,22 @@ Compra confirmada, boleto gerado e acesso liberado. Confirmar se já existem ou 
 
 ### 6.1 CORS
 Hoje só `http://localhost:3000` é aceito. `https://quadconcursos.com.br` e `https://www.quadconcursos.com.br` recebem **403** (conferido de novo em 09/10/2026). **Liberar o domínio final do site antes do lançamento**, sem liberar qualquer origem.
+
+### 6.4 CORS bloqueia o fechamento do carrinho
+
+**Achado em 23/10/2026**, no primeiro teste com as chaves de sandbox do Pagar.me (a configuração do pagamento já responde `disponivel: true`).
+
+- `POST /api/loja/carrinho/eu/fechamento` exige o cabeçalho `Idempotency-Key` (`FechamentoController`).
+- A pré-verificação do CORS (`OPTIONS`) responde `Access-Control-Allow-Headers: content-type, x-quad-cliente`. O `Idempotency-Key` não está na lista `ACEITOS` de `ConfiguracaoDeCors.java`.
+- Resultado: o navegador bloqueia o fechamento antes de enviá-lo. Cartão, PIX e boleto falham no checkout do site com erro de rede, e nenhuma cobrança é criada.
+
+**Pedido:** incluir `Idempotency-Key` em `ACEITOS`. A mesma lista atende `POST /api/loja/compras`, `AvisoController` e `LoteController`, que também exigem o cabeçalho.
+
+**Como conferir:**
+```
+curl -i -X OPTIONS http://localhost:8080/api/loja/carrinho/eu/fechamento   -H "Origin: http://localhost:3000" -H "Access-Control-Request-Method: POST"   -H "Access-Control-Request-Headers: content-type,idempotency-key,x-quad-cliente"
+```
+A resposta deve trazer `idempotency-key` em `Access-Control-Allow-Headers`.
 
 ### 6.2 Swagger anunciando `http`
 A spec publicada declara o servidor como `http://api.quadconcursos.com.br` (ainda assim em 09/10/2026). O botão de testar rotas do Swagger falha, porque a página abre em HTTPS. Sugestão: `server.forward-headers-strategy=framework` no Spring.
