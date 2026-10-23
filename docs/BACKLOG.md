@@ -83,7 +83,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Avisar já no passo 1 quando e-mail, CPF ou telefone já estiverem cadastrados | FEITO |
 
 **Campos adicionais**
-- **Descrição:** Tela de criação de conta do aluno, ligada à API. Decisão (02/10/2026): só o **celular** é obrigatório para liberar a conta — o passo 3 do cadastro envia um código por SMS para ele. O **e-mail** é confirmado depois, por um link, e enquanto não for confirmado aparece um alerta em "Meu perfil". As telas já estão prontas; faltam as rotas no backend (docs/pedidos-backend.md, itens 2.5 a 2.7). Enquanto a rota do celular não existir, o passo 3 deixa o aluno continuar (provisório)
+- **Descrição:** Tela de criação de conta do aluno, ligada à API. Decisão (02/10/2026): só o **celular** é obrigatório para liberar a conta — o passo 3 do cadastro envia um código por SMS para ele. O **e-mail** é confirmado depois, por um link, e enquanto não for confirmado aparece um alerta em "Meu perfil". As telas já estão prontas; faltam as rotas no backend (docs/pedidos-backend.md, item 4.1). Enquanto a rota do celular não existir, o passo 3 deixa o aluno continuar (provisório)
 - **Prioridade:** Alta
 - **Depende de:** Backend (registro do aceite e envio/conferência dos códigos) · Decisão (serviço de SMS ou WhatsApp) · Etapa 2, Bloco 2 (páginas de termos e privacidade)
 
@@ -106,7 +106,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 **Campos adicionais**
 - **Descrição:** Manter o aluno logado com segurança e encerrar a sessão quando necessário. Testado no navegador: login normal, token vencido e renovação inválida
 - **Prioridade:** Alta
-- **Depende de:** Backend (login em cookie protegido, docs/pedidos-backend.md item 2.10) · Atualização do Next.js (docs/seguranca.md, item S1)
+- **Depende de:** Backend (login em cookie protegido: entregue; configuração de produção em docs/pedidos-backend.md, item 1.2) · Atualização do Next.js (docs/seguranca.md, item S1)
 
 ### Bloco 4 — RECUPERAÇÃO E DADOS DA CONTA
 

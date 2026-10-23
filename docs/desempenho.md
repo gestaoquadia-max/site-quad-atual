@@ -33,7 +33,7 @@ Notas de 0 a 100 (Desempenho / Acessibilidade / Boas práticas / SEO), modo simu
 **Como ler:** o Google considera bom LCP até 2,5 s (quando o conteúdo principal aparece), CLS até 0,1 (o quanto a página "pula" ao carregar) e TBT até 200 ms (travamento por JavaScript; aqui ficou entre 30 e 130 ms).
 
 ¹ SEO 66 é esperado: carrinho e checkout estão marcados de propósito para não aparecer no Google.
-² O conteúdo do checkout (o carrinho) fica só no navegador e só aparece depois que o JavaScript roda. Melhora quando o carrinho passar para o servidor (rotas `/api/loja/carrinho/eu`, ver `pedidos-backend.md`, item 5.1).
+² O conteúdo do checkout (o carrinho) fica só no navegador e só aparece depois que o JavaScript roda. O carrinho do servidor (`/api/loja/carrinho/eu`) já existe, mas só depois do login: o do visitante continua no navegador (pergunta 1 da seção 6 de `pedidos-backend.md`).
 
 ### Por que o LCP simulado dá 2,7 s em todas
 

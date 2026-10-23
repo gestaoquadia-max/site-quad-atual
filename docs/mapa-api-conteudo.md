@@ -54,7 +54,7 @@ A lista (`GET /api/loja/vitrine/atividades?tipo=TURMA|EVENTO|SIMULADO`) e o deta
 ```
 
 Pontos importantes:
-- **Preço em reais inteiros**, sem centavos (`1197` = R$ 1.197). Ver o pedido 5.3 em `pedidos-backend.md`.
+- **Preço em centavos** desde 23/10/2026 (`119700` = R$ 1.197), o do lote vigente, que vem em `lote`. Até 22/10/2026 era em reais inteiros.
 - **Vagas para quem paga em reais** são as de "diamante": segundo a API, `vendidasDiamante` conta diamantes, cartão, PIX e boleto juntos. As vagas de Quad Coins são do app Viver o Quad e o site ignora.
 - **O detalhe muda conforme o tipo:**
 
@@ -147,7 +147,7 @@ Nenhum desses tem rota na API. A decisão em aberto é se vêm da API (o backend
 - **Seções que somem** até a API entregar os textos de venda: "O que está incluso" (turma); "Sobre", "Programação", "O que está incluso" e "Quem conduz" (evento).
 - **Eventos e simulados** estão ligados, mas não foram conferidos com dados reais porque a produção não tinha nenhum à venda. Conferir na primeira vez que um for publicado.
 
-**Falta pedir ao backend** (complementa o pedido 3 de `pedidos-backend.md`):
+**Falta pedir ao backend** (complementa as seções 2 e 5 de `pedidos-backend.md`):
 1. **`slug`** em turmas, eventos e simulados, ou a decisão de usar o id na URL.
 2. **Textos de venda públicos:**
    - turma: rótulo do concurso, o que está incluso e dias e horário exatos (sem professores, decisão de 21/10/2026);

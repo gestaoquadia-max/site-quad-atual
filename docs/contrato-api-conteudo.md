@@ -201,7 +201,7 @@ Hoje não existem na API. Proposta: um novo tipo de item na vitrine de itens, `M
 
 - **Kit** (vários PDFs num produto só, ex.: "Kit Completo CFP"): `itensDoKit` traz `[{ "slug": "direito-constitucional", "nome": "…", "paginas": 240 }]`. Num material avulso, `null`.
 - O rótulo do cartão ("PDF · 240 págs") e a ficha (páginas, questões, formato, atualização, "Acesso imediato") saem desses campos.
-- **Depois da compra**, o arquivo precisa aparecer em "Meus materiais" do aluno. Isso já está no pedido 3 de [pedidos-backend.md](pedidos-backend.md).
+- **Depois da compra**, o arquivo precisa aparecer em "Meus materiais" do aluno. Isso está no item 5.1 de [pedidos-backend.md](pedidos-backend.md).
 
 ---
 

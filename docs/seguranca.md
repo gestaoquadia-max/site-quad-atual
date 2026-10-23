@@ -132,7 +132,7 @@ Lista de todos os riscos de segurança levantados até agora no site e na API, c
 3. **Controlar scripts de terceiros** (S15).
 4. Manter o token de acesso curto (✅ cerca de 15 minutos).
 
-**Decisão (05/10/2026):** cookie protegido. Pedido detalhado ao backend em `docs/pedidos-backend.md`, item 2.10; o site é adaptado depois da entrega.
+**Decisão (05/10/2026):** cookie protegido. Entregue pelo backend e adotado pelo site em 21/10/2026; falta só a configuração de produção (`docs/pedidos-backend.md`, item 1.2).
 
 **Requisito:** o site precisa ficar no mesmo domínio principal da API (`quadconcursos.com.br`).
 
