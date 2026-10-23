@@ -121,9 +121,11 @@ export function hora(texto: string) {
   return m && m !== "00" ? `${Number(h)}h${m}` : `${Number(h)}h`;
 }
 
-// "19h às 20h30 · 20h40 às 22h"
+// "19h às 22h" (dois blocos de aula: 19h às 20h30 e 20h40 às 22h)
 export function horarioDoDia(horarios: OfertaDaTurma["horarios"]) {
-  return horarios.map((h) => `${hora(h.inicio)} às ${hora(h.fim)}`).join(" · ");
+  // Do início do 1º bloco ao fim do último (HORA INÍCIO 01 → HORA FIM 02): "8h às 11h", sem o intervalo do meio.
+  if (horarios.length === 0) return "";
+  return `${hora(horarios[0].inicio)} às ${hora(horarios[horarios.length - 1].fim)}`;
 }
 
 export function precoDaOferta(o: OfertaDaTurma) {
