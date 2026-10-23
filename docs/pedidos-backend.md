@@ -32,7 +32,6 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
 | 4.5 | Foto de perfil | Baixa |
 | 5.1 | Material digital (PDF) | Média |
-| 5.2 | Sumário e ficha técnica dos materiais | Baixa |
 | 5.3 | Simulados: formatos de estudo e combos | Média |
 | 5.4 | Textos de venda e professores dos eventos | Média |
 | 6 | Sete perguntas que precisam de resposta | — |
@@ -172,12 +171,6 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 **O problema.** Não existe tipo de item para o material em PDF. Hoje todo material entra como impresso (`MODULOS`, retirada no Quad), e a opção "Digital" do site fica sem venda.
 
 **O pedido.** Um tipo de item digital vendido em reais, com o arquivo liberado em "Meus materiais" (`GET /api/materiais/eu`) depois do pagamento. Hoje o item digital só se vende em Quad Coins.
-
-### 5.2 Sumário e ficha técnica dos materiais
-
-**O problema.** O item só tem `descricao`. A página do material tem espaço para o sumário (capítulos) e a ficha (páginas, edição, banca), e esconde essas partes enquanto não vêm.
-
-**O pedido.** Campos para o sumário (lista de capítulos) e a ficha técnica. O formato sugerido está em [contrato-api-conteudo.md](contrato-api-conteudo.md), seção 3.
 
 ### 5.3 Simulados: formatos de estudo e combos
 

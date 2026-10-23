@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { metadadosDaPagina } from "@/lib/seo";
 import { buscarMaterial, listarMateriais } from "@/lib/vitrine";
-import CheckList from "@/components/CheckList";
 import CapaDoLivro, { CORES_DA_CAPA } from "@/components/CapaDoLivro";
 import CompraDoMaterial from "@/components/materiais/CompraDoMaterial";
 import { ehKit } from "@/lib/materiais";
@@ -28,7 +27,6 @@ export default async function ProdutoDetalhe({ params }: { params: Promise<{ slu
   if (!produto || !produto.detalhe) notFound();
   // Material renomeado: o id continua o mesmo, então leva ao endereço com o nome atual.
   if (produto.slug !== slug) redirect(`/produtos/${produto.slug}`);
-  const d = produto.detalhe;
   const kit = ehKit(produto);
   // A cor da capa segue a posição do material no catálogo, como nos cartões.
   const indice = Math.max(0, ((await listarMateriais()) ?? []).findIndex((p) => p.slug === produto.slug));
@@ -69,34 +67,6 @@ export default async function ProdutoDetalhe({ params }: { params: Promise<{ slu
               {resumo && <p className="mt-2 text-sm text-prata">{resumo}</p>}
               <CompraDoMaterial produto={produto} />
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-[clamp(56px,7vw,88px)]">
-        <div className="mx-auto grid max-w-[1200px] gap-6 px-[clamp(20px,4vw,32px)] lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-          <div className="rounded-[18px] border border-linha bg-white p-[clamp(28px,4vw,48px)]">
-            <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-forte">Sobre o material</span>
-            <h2 className="mb-4 mt-2 font-display text-2xl font-extrabold tracking-[-0.02em]">O que você vai receber</h2>
-            <p className="max-w-[680px] text-[15.5px] leading-[1.65] text-ardosia-escura">{d.lead}</p>
-            {/* O sumário ainda não vem da API (docs/contrato-api-conteudo.md, seção 3): sem ele, a lista some. */}
-            {d.sumario.length > 0 && (
-              <>
-                <h3 className="mb-3 mt-7 font-display text-lg font-extrabold">{kit ? "Materiais do kit" : "Sumário"}</h3>
-                <CheckList items={d.sumario} />
-              </>
-            )}
-          </div>
-          <div className="self-start rounded-[18px] bg-marinho-900 p-[clamp(24px,3vw,36px)] text-white">
-            <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-ceu">Ficha</span>
-            <dl className="mt-3">
-              {d.specs.map((s) => (
-                <div key={s.label} className="flex items-center justify-between gap-4 border-b border-white/[0.08] py-3.5 last:border-0">
-                  <dt className="text-sm text-prata">{s.label}</dt>
-                  <dd className={`font-display text-[15px] font-bold ${s.destaque ? "text-azul-ceu" : ""}`}>{s.valor}</dd>
-                </div>
-              ))}
-            </dl>
           </div>
         </div>
       </section>
