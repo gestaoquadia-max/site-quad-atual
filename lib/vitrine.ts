@@ -27,8 +27,9 @@ export const SEGUNDOS_DE_CACHE = 60;
 
 type TipoDeAtividade = "TURMA" | "EVENTO" | "SIMULADO";
 
-// Resposta da vitrine em 22/10/2026 (modelo novo do banco, V115 a V119). `preco` em reais; as vagas são as de quem
-// paga em reais (cartão, PIX, boleto e diamantes). Os campos de Quad Coins são do app Viver o Quad e o site ignora.
+// Resposta da vitrine em 23/10/2026 (modelo novo do banco). `preco` em CENTAVOS de reais (desde 23/10/2026; antes,
+// reais inteiros), o do lote vigente; as vagas são as de quem paga em reais (cartão, PIX, boleto e diamantes).
+// Os campos de Quad Coins são do app Viver o Quad e o site ignora.
 type AtividadeDaVitrine = {
   tipo: TipoDeAtividade;
   id: string;
@@ -40,6 +41,7 @@ type AtividadeDaVitrine = {
   vagas: number | null;
   vendidas: number | null;
   restantes: number | null;
+  lote: LoteDaVitrine | null;
   detalhe: {
     // TURMA: TURMA ou ISOLADA (calendário de turma com nome próprio).
     tipo?: string | null;
@@ -63,7 +65,29 @@ type AtividadeDaVitrine = {
   } | null;
 };
 
+// O lote em reais que vale agora: o preço de agora e quanto resta a esse preço. Nulo sem lotes.
+type LoteDaVitrine = {
+  ordem: number;
+  // Já exibível: "Lote único", "Lote final", "2º lote"…
+  rotulo: string;
+  preco: number;
+  quantidade: number;
+  restantesNoLote: number;
+  // Quantos lotes a oferta tem.
+  total: number;
+};
+
 type Pagina<T> = { conteudo: T[] };
+
+// A API manda os preços em centavos; o site trabalha em reais (R$ 1.197 = 119700).
+function emReais(centavos: number) {
+  return centavos / 100;
+}
+
+// O selo de lote só faz sentido quando a oferta tem mais de um ("2º lote", "Lote final").
+function rotuloDoLote(lote: LoteDaVitrine | null | undefined) {
+  return lote && lote.total > 1 ? lote.rotulo : null;
+}
 
 const NAO_ENCONTRADA = "nao-encontrada";
 
@@ -257,7 +281,7 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     nome: nomeDaTurma({ ...colunas, nomeOriginal: a.nome }),
     desc: resumo.join(" · "),
     // A turma é cobrada pelo valor fechado da duração, nunca por mês (e o preço aparece sem a duração ao lado).
-    preco: a.preco === null ? "Consulte" : precoEmTexto(a.preco),
+    preco: a.preco === null ? "Consulte" : precoEmTexto(emReais(a.preco)),
     ...situacao(a, "Matrículas abertas"),
     detalhe: {
       lead: d.descricao?.trim() || "Preparação presencial do Quad com rotina estruturada e professores especialistas na banca.",
@@ -284,8 +308,8 @@ export async function buscarTurma(slug: string): Promise<Turma | null> {
 
 // ---------- Turma no formato da planilha (lib/turmas.ts) ----------
 
-// A vitrine ainda não tem as colunas da planilha (modalidade, edição, cargo, concurso, os dois horários, lote,
-// valor em centavos). Até o banco ter, elas saem do nome (colunasDaTurma). Quando a API mandar os campos,
+// A vitrine ainda não tem todas as colunas da planilha (edição, cargo, concurso, os dois horários); nível,
+// lote e valor em centavos já vêm da API. Até o banco ter, elas saem do nome (colunasDaTurma). Quando a API mandar os campos,
 // troca-se só esta função.
 function paraOferta(a: AtividadeDaVitrine): OfertaDaTurma {
   const d = a.detalhe ?? {};
@@ -302,11 +326,11 @@ function paraOferta(a: AtividadeDaVitrine): OfertaDaTurma {
     inicio: d.inicio ?? null,
     termino: d.fim ?? null,
     horarios: d.horaInicio && d.horaFim ? [{ inicio: d.horaInicio, fim: d.horaFim }] : [],
-    precoEmCentavos: a.preco === null ? null : a.preco * 100,
+    precoEmCentavos: a.preco,
     vagas: a.vagas && a.vagas > 0 ? { total: a.vagas, ocupadas: Math.min(a.vendidas ?? 0, a.vagas) } : null,
     descricao: d.descricao?.trim() || null,
     imagemUrl: a.imagemUrl,
-    lote: null,
+    lote: rotuloDoLote(a.lote),
     nomeOriginal: a.nome,
   };
 }
@@ -360,7 +384,7 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
     tag: [data && diaEMes(data), formato].filter(Boolean).join(" · "),
     nome: a.nome,
     desc,
-    preco: a.preco === null ? "Consulte" : gratuito ? "Gratuito" : precoEmTexto(a.preco),
+    preco: a.preco === null ? "Consulte" : gratuito ? "Gratuito" : precoEmTexto(emReais(a.preco)),
     ...situacao(a, "Inscrições abertas"),
     detalhe: {
       inicio: comHora(data, horaInicio),
@@ -415,7 +439,7 @@ function edicaoDoSimulado(a: AtividadeDaVitrine, ordem: number): { carreira: str
       // Estar na vitrine = à venda (com preço e vagas). "Esgotado" sai das vagas restantes.
       inscricao: "abertas",
       publicado: true,
-      presencial: { preco: a.preco, vagas: a.vagas, vagasRestantes: a.restantes, sku: a.id },
+      presencial: { preco: a.preco === null ? null : emReais(a.preco), vagas: a.vagas, vagasRestantes: a.restantes, sku: a.id },
     },
   };
 }
@@ -450,6 +474,7 @@ type ItemDaVitrine = {
   ofertadas: number | null;
   vendidas: number | null;
   restantes: number | null;
+  lote?: LoteDaVitrine | null;
   variacoes: { id: string; nome: string; ofertadas: number | null; vendidas: number | null; restantes: number | null }[];
 };
 
@@ -475,7 +500,7 @@ function paraMaterial(i: ItemDaVitrine): Produto {
     tag: kit ? "Kit · Impresso" : "Apostila · Impresso",
     nome: i.nome,
     desc: i.descricao ?? "",
-    preco: precoEmTexto(i.preco!),
+    preco: precoEmTexto(emReais(i.preco!)),
     // A API ainda não vende a versão digital (PDF): o material sai impresso, retirado no Quad.
     formatos: ["impresso"],
     esgotado,
@@ -506,7 +531,7 @@ function paraProdutoDaLoja(i: ItemDaVitrine): ProdutoDaLoja {
     categoria: categoriaDoNome(i.nome),
     nome: i.nome,
     descricao: i.descricao,
-    preco: i.preco,
+    preco: i.preco === null ? null : emReais(i.preco),
     estoque: i.restantes,
     imagemUrl: i.imagemUrl,
     variacoes:

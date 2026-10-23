@@ -45,7 +45,7 @@
 
 | 5.2 | Cupons de desconto | ✅ **Resolvido** (19/10/2026): simulação com o cupom, desconto calculado pela API, pagamento só com cupom e limite de tentativas. O checkout do site já usa | — |
 
-| 5.3–5.7 | Detalhes da compra (valores em reais, parcelas, chave pública, situação, inscrição gratuita) | Parcial (09/10/2026): parcelas e chave pública já vêm da API; preços em reais inteiros não comportam centavos (5.3) | Alta |
+| 5.3–5.7 | Detalhes da compra (valores em reais, parcelas, chave pública, situação, inscrição gratuita) | Parcial: parcelas e chave pública já vêm da API (09/10/2026); preços em centavos e lotes resolvidos em 23/10/2026 (5.3). Faltam juros (5.4), situações (5.6) e e-mails (5.8) | Alta |
 
 | 6.1 | CORS com o domínio do site | Configurar | Alta (antes do lançamento) |
 
@@ -466,6 +466,8 @@ Dúvidas para o backend (continuam abertas):
 - **Unidade de `precoEmReais`:** a vitrine traz esse campo como inteiro. É em centavos?
   - **Resposta (conferido em produção, 09/10/2026):** é em **reais inteiros** (turma "Patamo I" = 997, "Camisa Quad" = 40). **Problema:** um preço com centavos, como os materiais de R$ 49,90, não cabe. O mesmo vale para o carrinho (`precoUnitarioEmReais`, `totalEmReais`). **Pedido:** passar a usar centavos (`precoEmCentavos`), como já fazem o fechamento e o pagamento, ou confirmar que nenhum item terá centavos.
 - **Total em reais na compra:** `CompraResponse.total` usa `ValorResponse`, cuja moeda é só `QUAD_COINS` ou `DIAMANTES`. Para compras em reais, confirmar onde o site lê o total. Seria `pagamento.valorEmCentavos`?
+
+✅ **Resolvido em 23/10/2026.** `preco` da vitrine (item e atividade) e `precoUnitarioEmReais`, `subtotalEmReais` e `totalEmReais` do carrinho passaram a vir em **centavos** (o nome diz a moeda, não a unidade). Cada oferta traz também o `lote` vigente (`rotulo`, `preco`, `quantidade`, `restantesNoLote`, `total`). O site já converte e mostra o selo do lote quando a oferta tem mais de um. ⚠️ No lançamento, publicar o site junto com a API: um site antigo leria os centavos como reais (R$ 4.500 na garrafa de R$ 45).
 
 ### 5.4 Parcelas
 

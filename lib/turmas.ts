@@ -30,7 +30,7 @@ export type OfertaDaTurma = {
   vagas: { total: number; ocupadas: number } | null;
   descricao: string | null;
   imagemUrl: string | null;
-  lote: string | null; // "FINAL", "1", "2"…
+  lote: string | null; // o rótulo da API ("2º lote", "Lote final"), só quando a oferta tem mais de um lote
   // Nome que a API usa hoje, para quando a modalidade não pôde ser lida
   nomeOriginal: string;
 };
@@ -138,6 +138,8 @@ export function precoDaOferta(o: OfertaDaTurma) {
 // "FINAL" → "Lote final"; "2" → "2º lote"
 export function textoDoLote(lote: string | null) {
   if (!lote) return null;
+  // O rótulo da API já vem pronto ("Lote final", "2º lote").
+  if (/lote/i.test(lote)) return lote;
   if (/^\d+$/.test(lote)) return `${lote}º lote`;
   if (/^[uú]nico$/i.test(lote)) return "Lote único";
   return `Lote ${lote.toLowerCase()}`;
