@@ -8,7 +8,6 @@ import type { Carreira, Edicao } from "./simulados";
 import { formatarHora, precoSemCentavosZerados } from "./format";
 import { API_URL, lerErro } from "./http";
 import {
-  chaveDaTurma,
   ehNivelDaPmba,
   horarioDoDia,
   insigniaDaTurma,
@@ -311,6 +310,8 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     concurso: colunas.cargo || colunas.concurso ? seloDoCargoEConcurso(colunas.cargo, colunas.concurso) : undefined,
     turno: turnos || undefined,
     horario: horario || undefined,
+    edicao: colunas.edicao ?? undefined,
+    dataDeInicio: d.inicio ?? undefined,
     inicio: d.inicio ? `${diaBarraMes(d.inicio)}/${d.inicio.slice(0, 4)}` : undefined,
     imagem: a.imagemUrl ?? undefined,
     // Sem o tipo da API (Regular, Nivelamento...): a planilha da coordenação não tem essa coluna (decisão de 21/10/2026).
@@ -331,9 +332,12 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
 }
 
 // null = a API não respondeu. A página mostra um aviso em vez da lista.
+// Em ordem de número (RONDESP 1, 2, 3…); turma sem número (dado antigo) vai para o fim, pela data de início.
 export async function listarTurmas(): Promise<Turma[] | null> {
   try {
-    return (await listar("TURMA")).map(paraTurma);
+    return (await listar("TURMA"))
+      .map(paraTurma)
+      .sort((a, b) => (a.edicao ?? Infinity) - (b.edicao ?? Infinity) || (a.dataDeInicio ?? "9999").localeCompare(b.dataDeInicio ?? "9999"));
   } catch {
     return null;
   }
@@ -372,19 +376,13 @@ function paraOferta(a: AtividadeDaVitrine): OfertaDaTurma {
   };
 }
 
-// A turma do endereço e os outros turnos dela (as outras linhas da planilha com a mesma turma).
+// A turma do endereço. Cada turma tem um turno só e o seu próprio número (decisão de 23/10/2026, como o banco
+// numera: RONDESP 1 Manhã, RONDESP 2 Noite, RONDESP 3…); as outras turmas da modalidade são outras páginas.
 export async function buscarTurmaComTurnos(slug: string): Promise<{ turma: TurmaComTurnos; atual: OfertaDaTurma } | null> {
   const atividade = await buscar("TURMA", slug);
   if (!atividade) return null;
   const atual = paraOferta(atividade);
-  const chave = chaveDaTurma(atual);
-  let irmas: OfertaDaTurma[] = [];
-  try {
-    irmas = (await listar("TURMA")).map(paraOferta).filter((o) => o.id !== atual.id && chaveDaTurma(o) === chave);
-  } catch {
-    // Sem a lista, a página mostra só o turno do endereço.
-  }
-  return { turma: juntarTurnos([atual, ...irmas]), atual };
+  return { turma: juntarTurnos([atual]), atual };
 }
 
 // ---------- Eventos e simulados ----------

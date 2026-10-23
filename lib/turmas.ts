@@ -3,7 +3,8 @@ import { precoSemCentavosZerados } from "./format";
 // Turma no formato da planilha da coordenação (aba TURMAS), que vai ser igual à tabela do banco:
 // CATEGORIA, MODALIDADE, EDIÇÃO, CARGO, CONCURSO, TURNO, DATA DE INÍCIO, DATA DE TÉRMINO, HORA INÍCIO/FIM 01 e 02,
 // SALA, VALOR QUADCOINS, VALOR CENTAVOS, QTDE VAGAS QUADCOINS, QTDE VAGAS CENTAVOS, DESCRIÇÃO, IMAGEM, LOTE, SLUG.
-// Cada linha da planilha é UM turno; a página junta os turnos da mesma turma (mesma modalidade, edição, cargo e concurso).
+// Cada linha é UMA turma, com um turno e o seu próprio número: o banco numera em sequência na série (modalidade +
+// concurso), sem repetir o número entre turnos (RONDESP 1 Manhã, RONDESP 2 Noite, RONDESP 3…; decisão de 23/10/2026).
 // O site mostra só o lado em reais (valor e vagas em centavos); o lado em Quad Coins é do app.
 
 export type Turno = "MANHA" | "TARDE" | "NOITE" | "INTEGRAL";
@@ -99,12 +100,6 @@ const SIGLA_DO_CARGO: Record<string, string> = { SOLDADO: "SD" };
 export function seloDoCargoEConcurso(cargo: string | null, concurso: string | null) {
   const partes = [cargo && (SIGLA_DO_CARGO[cargo.toUpperCase()] ?? cargo.toUpperCase()), concurso?.toUpperCase()].filter(Boolean);
   return partes.length ? partes.join(" • ") : "Todos os concursos";
-}
-
-// Turmas iguais em turnos diferentes têm a mesma chave. Sem modalidade não dá para agrupar: cada uma fica sozinha.
-export function chaveDaTurma(o: OfertaDaTurma) {
-  if (!o.modalidade) return o.id;
-  return [o.modalidade, o.edicao ?? "", o.cargo ?? "", o.concurso ?? ""].join("|").toLowerCase();
 }
 
 export function juntarTurnos(ofertas: OfertaDaTurma[]): TurmaComTurnos {

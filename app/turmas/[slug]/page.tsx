@@ -28,13 +28,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function TurmaDetalhe({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [turma, comTurnos] = await Promise.all([buscarTurma(slug), buscarTurmaComTurnos(slug)]);
+  const [turma, comTurnos, todas] = await Promise.all([buscarTurma(slug), buscarTurmaComTurnos(slug), listarTurmas()]);
   if (!turma || !turma.detalhe || !comTurnos) notFound();
   // Turma renomeada: o id continua o mesmo, então leva ao endereço com o nome atual.
   if (turma.slug !== slug) redirect(`/turmas/${turma.slug}`);
   const d = turma.detalhe;
-  const { turma: grupo, atual } = comTurnos;
+  const { turma: grupo } = comTurnos;
   const modalidade = modalidades.find((m) => m.id === turma.modalidade);
+  // As outras turmas da mesma modalidade e do mesmo concurso (outros turnos e números), já na ordem do número.
+  const outras = (todas ?? []).filter((t) => t.slug !== turma.slug && t.modalidadeId === turma.modalidadeId && t.concurso === turma.concurso);
 
   return (
     <>
@@ -87,7 +89,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
               <span className="inline-flex items-center rounded-full bg-[#E6ECFF] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#1238C4]">
                 {seloDoCargoEConcurso(grupo.cargo, grupo.concurso)}
               </span>
-              <EscolhaDoTurno turma={grupo} inicial={atual.id} />
+              <EscolhaDoTurno turma={grupo} />
             </div>
           </div>
         </div>
@@ -107,6 +109,27 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
               </p>
             </div>
           </div>
+
+          {outras.length > 0 && (
+            <div className="rounded-[18px] border border-linha bg-white p-[clamp(28px,4vw,48px)]">
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-forte">Mesma modalidade</span>
+              <h2 className="mb-5 mt-2 font-display text-2xl font-extrabold tracking-[-0.02em]">Outras turmas {turma.modalidadeNome}</h2>
+              <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-3">
+                {outras.map((t) => (
+                  <li key={t.slug}>
+                    <Link
+                      href={`/turmas/${t.slug}`}
+                      className="flex h-full flex-col gap-1 rounded-[14px] border border-linha p-4 text-tinta transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-azul/45 hover:text-tinta"
+                    >
+                      <span className="font-display text-[17px] font-extrabold">{t.nome}</span>
+                      <span className="text-sm text-ardosia">{[t.turno, t.inicio && `início ${t.inicio}`].filter(Boolean).join(" · ")}</span>
+                      <span className="mt-1 font-display text-[15px] font-bold">{t.preco}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {modalidade && (
             <Link

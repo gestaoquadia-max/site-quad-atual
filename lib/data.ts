@@ -18,6 +18,9 @@ export type Turma = {
   turno?: string;
   // Os blocos de horário de um dia de aula ("8h às 9h30 · 9h40 às 11h").
   horario?: string;
+  // O número da turma na série (RONDESP 2 → 2) e o início em ISO ("2026-11-19"), para ordenar as listas.
+  edicao?: number;
+  dataDeInicio?: string;
   // "06/07/2026"
   inicio?: string;
   // Foto da turma cadastrada na API (capa da página da turma).
