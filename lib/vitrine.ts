@@ -45,11 +45,10 @@ type AtividadeDaVitrine = {
   detalhe: {
     // TURMA: TURMA ou ISOLADA (calendário de turma com nome próprio).
     tipo?: string | null;
-    // TURMA: o nível (NIVELAMENTO, INTERMEDIARIO, AVANCADO ou TODOS; REGULAR e QUESTOES nas turmas antigas).
+    // TURMA (desde a V123): o NOME da modalidade, que é um cadastro livre ("Rondesp", "Patamo", "Bope", "Core"…);
+    // nulo na turma de todas as modalidades. "Regular" e "Questões" são as legadas, das turmas antigas.
     // EVENTO e SIMULADO: PRESENCIAL ou ONLINE.
     modalidade?: string | null;
-    // TURMA: o apelido do nível ("Rondesp", "Patamo", "Bope", "Todos"); nulo nas modalidades antigas.
-    codinome?: string | null;
     turnos?: string[] | null;
     // TURMA: o edital que ela prepara, ou nulo (de todos os concursos). Cargo e órgão só saem com login.
     concursoId?: string | null;
@@ -206,17 +205,18 @@ function concursoDaTurma(nome: string, descricao: string) {
   return undefined;
 }
 
-// O nível vem da coluna `modalidade` (V116). Só as turmas antigas (REGULAR, QUESTOES) ainda o tiram do nome.
-const NIVEL_DA_API: Record<string, string> = { NIVELAMENTO: "RONDESP", INTERMEDIARIO: "PATAMO", AVANCADO: "BOPE" };
+// Modalidades legadas (inativas, só das turmas antigas): não dizem o nível, que nelas ainda sai do nome.
+const MODALIDADES_LEGADAS = ["regular", "questoes"];
 
-// MODALIDADE, EDIÇÃO, CARGO e CONCURSO da planilha. O nível vem da API; edição, cargo e concurso ainda não estão
-// na vitrine (pedido ao backend) e saem do nome no padrão "MODALIDADE EDIÇÃO - CARGO CONCURSO - TURNO".
+// MODALIDADE, EDIÇÃO, CARGO e CONCURSO da planilha. A modalidade vem da API (o nome do cadastro, em maiúsculas:
+// "RONDESP", "CORE"); edição, cargo e concurso ainda não estão na vitrine (pedido ao backend) e saem do nome no
+// padrão "MODALIDADE EDIÇÃO - CARGO CONCURSO - TURNO".
 function colunasDaTurma(a: AtividadeDaVitrine) {
   const colunas = colunasDoNome(a);
-  const modalidade = a.detalhe?.modalidade;
-  if (modalidade && NIVEL_DA_API[modalidade]) return { ...colunas, modalidade: NIVEL_DA_API[modalidade] };
-  // TODOS = turma sem nível: o nome não pode transformá-la numa turma RONDESP, PATAMO ou BOPE.
-  if (modalidade === "TODOS" && ehNivelDaPmba(colunas.modalidade)) return { ...colunas, modalidade: null };
+  const modalidade = a.detalhe?.modalidade?.trim();
+  if (modalidade && !MODALIDADES_LEGADAS.includes(slugDoNome(modalidade))) return { ...colunas, modalidade: modalidade.toUpperCase() };
+  // Sem modalidade = turma de todas: o nome não pode transformá-la numa turma RONDESP, PATAMO ou BOPE.
+  if (modalidade === null && ehNivelDaPmba(colunas.modalidade)) return { ...colunas, modalidade: null };
   return colunas;
 }
 

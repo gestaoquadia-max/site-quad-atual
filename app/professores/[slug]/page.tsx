@@ -58,7 +58,7 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
               </Link>
             </div>
           </div>
-          <div className="relative hidden h-[clamp(340px,32vw,480px)] self-end md:block">
+          <div className="relative hidden h-[clamp(340px,32vw,380px)] self-end md:block">
             {foto ? (
               <Image
                 src={foto}
