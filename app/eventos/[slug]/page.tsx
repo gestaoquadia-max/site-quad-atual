@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { idDoItem } from "@/lib/itens";
@@ -189,9 +190,17 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
                   <ul>
                     {d.professores.map((p) => (
                       <li key={p.nome} className="flex items-center gap-3 border-b border-white/[0.08] py-3.5 last:border-0 last:pb-0">
-                        <span className="grid h-[42px] w-[42px] flex-none place-items-center rounded-full bg-marinho-700 font-display text-sm font-extrabold">{p.iniciais || getIniciais(p.nome)}</span>
+                        <span className="relative grid h-[42px] w-[42px] flex-none place-items-center overflow-hidden rounded-full bg-marinho-700 font-display text-sm font-extrabold">
+                          {p.fotoUrl ? <Image src={p.fotoUrl} alt="" fill sizes="42px" className="object-cover" /> : p.iniciais || getIniciais(p.nome)}
+                        </span>
                         <span>
-                          <span className="block text-[15px] font-semibold">{p.nome}</span>
+                          {p.href ? (
+                            <Link href={p.href} className="block text-[15px] font-semibold text-white hover:text-azul-ceu">
+                              {p.nome}
+                            </Link>
+                          ) : (
+                            <span className="block text-[15px] font-semibold">{p.nome}</span>
+                          )}
                           <span className="block text-[13px] text-prata">{p.papel}</span>
                         </span>
                       </li>

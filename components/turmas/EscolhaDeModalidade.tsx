@@ -124,7 +124,7 @@ function CartaoDaTurma({ turma, titulo }: { turma: Turma; titulo: string }) {
   const situacao = SITUACAO[turma.status];
   const campos = [
     ["Início", turma.inicio],
-    ["Horário", undefined],
+    ["Horário", turma.horario],
   ] as const;
   const preco = turma.preco === "Consulte" ? undefined : turma.preco;
   return (

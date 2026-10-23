@@ -10,6 +10,7 @@ import { API_URL, lerErro } from "./http";
 import {
   chaveDaTurma,
   ehNivelDaPmba,
+  horarioDoDia,
   insigniaDaTurma,
   juntarTurnos,
   lerNomeDaTurma,
@@ -50,8 +51,12 @@ type AtividadeDaVitrine = {
     // EVENTO e SIMULADO: PRESENCIAL ou ONLINE.
     modalidade?: string | null;
     turnos?: string[] | null;
-    // TURMA: o edital que ela prepara, ou nulo (de todos os concursos). Cargo e órgão só saem com login.
-    concursoId?: string | null;
+    // Número anual na série (turma: modalidade + concurso; "Rondesp 2"). Nulo nas atividades antigas.
+    edicao?: number | null;
+    ano?: number | null;
+    // O edital que a atividade prepara ("SD/PMBA" em `rotulo`), ou nulo (de todos os concursos). Desde 23/10/2026.
+    concurso?: ConcursoDaVitrine | null;
+    sala?: { id: string; nome: string } | null;
     descricao?: string | null;
     // TURMA e EVENTO: datas ("2026-07-06"). SIMULADO: horas ("08:00:00"), com a data em `data`.
     inicio?: string | null;
@@ -59,10 +64,25 @@ type AtividadeDaVitrine = {
     data?: string | null;
     horaInicio?: string | null;
     horaFim?: string | null;
+    // TURMA: os blocos de horário de cada dia de aula e os dias da semana (SEGUNDA…).
+    horarios?: { inicio: string; fim: string }[] | null;
+    dias?: string[] | null;
+    // EVENTO: AULAO ou EVENTO; o parágrafo de apresentação; quem conduz.
+    especie?: string | null;
+    resumo?: string | null;
+    professores?: ProfessorDaAtividade[] | null;
     // EVENTO presencial fora do Quad (sede EXTERNA): onde fica. Nulo no evento do Quad e no online.
     endereco?: string | null;
+    // SIMULADO: os dias em que acontece (de 1 a 10) e o número de questões (0 = não informado).
+    janelas?: { data: string; inicio: string; fim: string }[] | null;
+    quantidadeDeQuestoes?: number | null;
   } | null;
 };
+
+type ConcursoDaVitrine = { id: string; codigo: string; nome: string; rotulo: string };
+
+// Um professor no cartão de uma atividade: a página dele é /professores/{slug}.
+type ProfessorDaAtividade = { id: string; nome: string; slug: string | null; fotoUrl: string | null };
 
 // O lote em reais que vale agora: o preço de agora e quanto resta a esse preço. Nulo sem lotes.
 type LoteDaVitrine = {
@@ -208,16 +228,31 @@ function concursoDaTurma(nome: string, descricao: string) {
 // Modalidades legadas (inativas, só das turmas antigas): não dizem o nível, que nelas ainda sai do nome.
 const MODALIDADES_LEGADAS = ["regular", "questoes"];
 
-// MODALIDADE, EDIÇÃO, CARGO e CONCURSO da planilha. A modalidade vem da API (o nome do cadastro, em maiúsculas:
-// "RONDESP", "CORE"); edição, cargo e concurso ainda não estão na vitrine (pedido ao backend) e saem do nome no
-// padrão "MODALIDADE EDIÇÃO - CARGO CONCURSO - TURNO".
+// MODALIDADE, EDIÇÃO, CARGO e CONCURSO da planilha, da API desde 23/10/2026: a modalidade é o nome do cadastro (em
+// maiúsculas: "RONDESP", "CORE"), a edição é o número na série, e cargo e concurso saem do rótulo do concurso
+// ("SD/PMBA"). Nas turmas antigas (sem edição, sem concurso, modalidade legada), o que faltar sai do nome no padrão
+// "MODALIDADE EDIÇÃO - CARGO CONCURSO - TURNO".
 function colunasDaTurma(a: AtividadeDaVitrine) {
+  const d = a.detalhe ?? {};
   const colunas = colunasDoNome(a);
-  const modalidade = a.detalhe?.modalidade?.trim();
-  if (modalidade && !MODALIDADES_LEGADAS.includes(slugDoNome(modalidade))) return { ...colunas, modalidade: modalidade.toUpperCase() };
+  const [cargo, orgao] = d.concurso?.rotulo?.split("/").map((p) => p.trim()) ?? [];
+  const daApi = {
+    ...colunas,
+    edicao: d.edicao ?? colunas.edicao,
+    cargo: cargo && orgao ? cargo : colunas.cargo,
+    concurso: cargo && orgao ? orgao : colunas.concurso,
+  };
+  const modalidade = d.modalidade?.trim();
+  if (modalidade && !MODALIDADES_LEGADAS.includes(slugDoNome(modalidade))) return { ...daApi, modalidade: modalidade.toUpperCase() };
   // Sem modalidade = turma de todas: o nome não pode transformá-la numa turma RONDESP, PATAMO ou BOPE.
-  if (modalidade === null && ehNivelDaPmba(colunas.modalidade)) return { ...colunas, modalidade: null };
-  return colunas;
+  if (modalidade === null && ehNivelDaPmba(colunas.modalidade)) return { ...daApi, modalidade: null };
+  return daApi;
+}
+
+// Os blocos de horário de um dia de aula; as atividades antigas mandavam só horaInicio/horaFim.
+function horariosDa(d: NonNullable<AtividadeDaVitrine["detalhe"]>) {
+  if (d.horarios?.length) return d.horarios;
+  return d.horaInicio && d.horaFim ? [{ inicio: d.horaInicio, fim: d.horaFim }] : [];
 }
 
 function colunasDoNome(a: AtividadeDaVitrine) {
@@ -244,6 +279,7 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
   const meses = d.inicio && d.fim ? mesesEntre(d.inicio, d.fim) : null;
   const duracao = meses === null ? null : meses === 1 ? "1 mês" : `${meses} meses`;
   const vagas = vagasDa(a);
+  const horario = horarioDoDia(horariosDa(d));
 
   const resumo = [
     turnos,
@@ -256,6 +292,7 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     d.inicio && { label: "Início", valor: diaEMes(d.inicio) },
     d.fim && { label: "Término", valor: diaEMes(d.fim) },
     turnos && { label: "Turno", valor: turnos },
+    horario && { label: "Horário", valor: horario },
     duracao && { label: "Duração", valor: duracao },
     vagas.vagasTotal !== undefined && {
       label: "Vagas restantes",
@@ -273,6 +310,7 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     modalidadeId: slugDoNome(colunas.modalidade ?? a.nome),
     concurso: colunas.cargo || colunas.concurso ? seloDoCargoEConcurso(colunas.cargo, colunas.concurso) : undefined,
     turno: turnos || undefined,
+    horario: horario || undefined,
     inicio: d.inicio ? `${diaBarraMes(d.inicio)}/${d.inicio.slice(0, 4)}` : undefined,
     imagem: a.imagemUrl ?? undefined,
     // Sem o tipo da API (Regular, Nivelamento...): a planilha da coordenação não tem essa coluna (decisão de 21/10/2026).
@@ -308,9 +346,8 @@ export async function buscarTurma(slug: string): Promise<Turma | null> {
 
 // ---------- Turma no formato da planilha (lib/turmas.ts) ----------
 
-// A vitrine ainda não tem todas as colunas da planilha (edição, cargo, concurso, os dois horários); nível,
-// lote e valor em centavos já vêm da API. Até o banco ter, elas saem do nome (colunasDaTurma). Quando a API mandar os campos,
-// troca-se só esta função.
+// Uma linha da planilha (um turno). Desde 23/10/2026 a vitrine traz todas as colunas (modalidade, edição, concurso,
+// horários, lote, valor em centavos); só as turmas antigas ainda completam pelo nome (colunasDaTurma).
 function paraOferta(a: AtividadeDaVitrine): OfertaDaTurma {
   const d = a.detalhe ?? {};
   const colunas = colunasDaTurma(a);
@@ -325,7 +362,7 @@ function paraOferta(a: AtividadeDaVitrine): OfertaDaTurma {
     turno: turno && ORDEM_DOS_TURNOS.includes(turno as Turno) ? (turno as Turno) : null,
     inicio: d.inicio ?? null,
     termino: d.fim ?? null,
-    horarios: d.horaInicio && d.horaFim ? [{ inicio: d.horaInicio, fim: d.horaFim }] : [],
+    horarios: horariosDa(d),
     precoEmCentavos: a.preco,
     vagas: a.vagas && a.vagas > 0 ? { total: a.vagas, ocupadas: Math.min(a.vendidas ?? 0, a.vagas) } : null,
     descricao: d.descricao?.trim() || null,
@@ -376,7 +413,9 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
       : gratuito && { label: "Inscrição", valor: "Gratuita", destaque: true },
   ].filter((s): s is { label: string; valor: string; destaque?: boolean } => Boolean(s));
 
-  const desc = [simulado ? "Simulado" : "Evento", data && diaBarraMes(data), horario, formato].filter(Boolean).join(" · ");
+  // AULAO ou EVENTO (corujão, gincana, palestra); sem a espécie (API antiga), "Evento".
+  const especie = simulado ? "Simulado" : d.especie === "AULAO" ? "Aulão" : "Evento";
+  const desc = [especie, data && diaBarraMes(data), horario, formato].filter(Boolean).join(" · ");
 
   return {
     slug: slugDa(a),
@@ -389,7 +428,7 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
     detalhe: {
       inicio: comHora(data, horaInicio),
       fim: comHora(dataFim, horaFim),
-      lead: d.descricao?.trim() || desc,
+      lead: d.resumo?.trim() || d.descricao?.trim() || desc,
       sobre: [],
       specs,
       programacao: [],
@@ -398,8 +437,18 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
         ? { nome: "Online", endereco: "O link de acesso fica na área do aluno de quem se inscrever." }
         : d.endereco
           ? { nome: "Fora do Quad", endereco: d.endereco }
-          : { nome: "Quad Concursos — Feira de Santana", endereco: "Feira de Santana — BA · Endereço completo enviado por e-mail após a inscrição" },
+            : {
+              nome: d.sala?.nome ? `Quad Concursos — ${d.sala.nome}` : "Quad Concursos — Feira de Santana",
+              endereco: "Feira de Santana — BA · Endereço completo enviado por e-mail após a inscrição",
+            },
       ...vagas,
+      professores: (d.professores ?? []).map((p) => ({
+        iniciais: "",
+        nome: p.nome,
+        papel: "Professor do Quad",
+        href: p.slug ? `/professores/${p.slug}` : undefined,
+        fotoUrl: p.fotoUrl ?? undefined,
+      })),
     },
   };
 }
@@ -426,14 +475,17 @@ export async function buscarEvento(slug: string): Promise<Evento | null> {
 // "Simulado 77 — Soldado PMBA". Sem esse padrão, o simulado entra em "Outros simulados".
 function edicaoDoSimulado(a: AtividadeDaVitrine, ordem: number): { carreira: string; edicao: Edicao } {
   const d = a.detalhe ?? {};
-  const numero = Number(a.nome.match(/simulado\s*(?:n[ºo°]?\s*)?(\d+)/i)?.[1] ?? ordem + 1);
-  const carreira = a.nome.split(/\s+[—–-]\s+/)[1]?.trim() || "Outros simulados";
+  // Edição e concurso vêm da API desde 23/10/2026; os simulados antigos (sem eles) ainda os tiram do nome
+  // ("Simulado 77 — Soldado PMBA").
+  const numero = d.edicao ?? Number(a.nome.match(/simulado\s*(?:n[ºo°]?\s*)?(\d+)/i)?.[1] ?? ordem + 1);
+  const carreira = d.concurso?.nome || a.nome.split(/\s+[—–-]\s+/)[1]?.trim() || "Outros simulados";
   const online = d.modalidade === "ONLINE";
   return {
     carreira,
     edicao: {
       numero,
-      data: d.data ?? null,
+      // O primeiro dia (as janelas vêm em ordem); a Central de Simulados mostra uma data por edição.
+      data: d.janelas?.[0]?.data ?? d.data ?? null,
       horario: d.inicio ? formatarHora(d.inicio) : null,
       local: online ? "Online" : "Quad Concursos",
       // Estar na vitrine = à venda (com preço e vagas). "Esgotado" sai das vagas restantes.
@@ -576,11 +628,12 @@ export async function buscarProdutoDaLoja(slug: string): Promise<ProdutoDaLoja |
 
 // ---------- Professores ----------
 
-// Resposta de /api/professores/vitrine em 21/10/2026 (sem login). Não tem slug: o endereço é o nome + id, como eram as
-// outras páginas antes do slug. A minibio é a coluna `graduacao` (decisão de 23/10/2026: o campo do cadastro serve a ela).
+// Resposta de /api/professores/vitrine (sem login). O slug (V125, 23/10/2026) é o endereço da página e não muda.
+// A minibio é a coluna `graduacao` (decisão de 23/10/2026: o campo do cadastro serve a ela).
 type ProfessorDaVitrine = {
   id: string;
   nome: string;
+  slug?: string | null;
   graduacao: string | null;
   materias: string[] | null;
   fotoUrl: string | null;
@@ -591,9 +644,8 @@ const FOTO_DO_SITE: Record<string, string> = { "Danilo Moura": "/images/professo
 
 function paraProfessor(p: ProfessorDaVitrine): Professor {
   const nome = p.nome.trim();
-  const slug = slugDoNome(nome);
   return {
-    slug: slug ? `${slug}-${p.id}` : p.id,
+    slug: slugDa({ id: p.id, nome, slug: p.slug }),
     nome,
     materia: (p.materias ?? []).join(" • "),
     bio: p.graduacao?.trim() || undefined,
@@ -611,9 +663,9 @@ export async function listarProfessores(): Promise<Professor[] | null> {
   }
 }
 
+// Pelo endereço da página: o slug da API ou, nos endereços antigos (nome + id), o id. A página redireciona.
 export async function buscarProfessor(slug: string): Promise<Professor | null> {
   const id = idDoSlug(slug);
-  if (!id) return null;
-  const professor = await lerDaVitrine<ProfessorDaVitrine>(`/api/professores/vitrine/${id}`);
+  const professor = await lerDaVitrine<ProfessorDaVitrine>(`/api/professores/vitrine/${id ?? `slug/${encodeURIComponent(slug)}`}`);
   return professor === NAO_ENCONTRADA ? null : paraProfessor(professor);
 }

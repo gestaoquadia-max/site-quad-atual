@@ -19,13 +19,8 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 1.2 | Produção: `CORS_ORIGENS` com o domínio do site e `COOKIES_DOMINIO` | Alta (antes do lançamento) |
 | 1.3 | Autorizar o domínio do site na conta do Pagar.me | Alta (antes do lançamento) |
 | 1.4 | Publicar a API e o site juntos (preços em centavos) | Alta (no lançamento) |
-| 2.1 | Vitrine: edição e ano | Alta |
-| 2.2 | Vitrine: cargo e órgão do concurso | Alta |
-| 2.3 | Vitrine: horário e dias da turma | Alta |
-| 2.4 | Vitrine: janelas do simulado | Média |
-| 2.5 | Vitrine: espécie do evento (aulão ou evento) | Média |
 | 2.6 | Vitrine: atividades gratuitas | Média |
-| 3 | Professores: slug, fotos e só os professores do site | Média |
+| 3 | Professores: fotos e só os professores do site | Média |
 | 4.1 | Verificação do celular por código ⚠️ | Alta |
 | 4.2 | `emailVerificado` e `telefoneVerificado` no cadastro do aluno | Alta |
 | 4.3 | Limite de tentativas no cadastro e no envio de código | Média |
@@ -33,7 +28,7 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 4.5 | Foto de perfil | Baixa |
 | 5.1 | Material digital (PDF) | Média |
 | 5.3 | Simulados: formatos de estudo e combos | Média |
-| 5.4 | Textos de venda e professores dos eventos | Média |
+| 5.4 | Textos de venda da turma e programação do evento | Média |
 | 6 | Sete perguntas que precisam de resposta | — |
 
 ---
@@ -68,39 +63,9 @@ Deve responder 200, com essa origem em `Access-Control-Allow-Origin` e `idempote
 
 ---
 
-## 2. Vitrine pública: o que o banco já tem e a rota pública não mostra
+## 2. Vitrine pública
 
-A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fonte do site para turmas, eventos, simulados e produtos, porque o visitante não tem login. Desde 22/10/2026 ela traz o `slug` e o nível da turma, e o site já usa. Os campos abaixo já existem no banco (V115 a V119), mas não saem na vitrine. Até chegarem, o site tira parte deles do nome da turma, o que quebra se o nome for cadastrado fora do padrão.
-
-### 2.1 Edição e ano
-
-**Por que o site precisa.** O título da turma é a modalidade mais a edição ("RONDESP 2"). Desde 23/10/2026 a modalidade é um cadastro e a vitrine manda o nome dela (`"Rondesp"`, ou nulo na turma de todas), e o site já usa; a edição, contada por modalidade e concurso, ainda não sai. Além disso, a página da turma junta os turnos da mesma turma (Manhã, Tarde, Noite) pela modalidade, edição e concurso. Hoje a edição sai do nome cadastrado ("RONDESP 2 - Soldado PMBA - Manhã").
-
-**O pedido.** `edicao` e `ano` na turma, no evento e no simulado.
-
-### 2.2 Cargo e órgão do concurso
-
-**Por que o site precisa.** A página `/turmas` separa as turmas em abas por cargo ("SD • PMBA", "CFO • PMBA", "IPC • PCBA"), e cada turma mostra esse selo. A vitrine traz só o `concursoId`, e `GET /api/concursos` exige login.
-
-**O pedido.** `cargo` e `orgao` (o rótulo "SD/PMBA") junto da turma, do evento e do simulado. Uma rota pública de concursos (código, nome, cargo e órgão) também resolve.
-
-### 2.3 Horário e dias da turma
-
-**Por que o site precisa.** O aluno escolhe o turno pelo horário. Hoje o cartão e a página da turma mostram "Horário: A confirmar".
-
-**O pedido.** `horarioInicial`, `horarioFim`, `horarioInicial2`, `horarioFim2` e `dias` (dias da semana) no detalhe da turma.
-
-### 2.4 Janelas do simulado
-
-**Por que o site precisa.** Um simulado pode acontecer em até dez dias (as janelas, V117), mas a vitrine ainda manda uma data só. A Central de Simulados mostraria só o primeiro dia.
-
-**O pedido.** A lista de janelas (data, início e fim de cada uma) no detalhe do simulado.
-
-### 2.5 Espécie do evento
-
-**Por que o site precisa.** A agenda separa aulões de eventos (corujão, gincana, palestra). O banco já tem a espécie (V118), mas a vitrine não mostra.
-
-**O pedido.** `especie` (AULAO ou EVENTO) no detalhe do evento.
+A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fonte do site para turmas, eventos, simulados e produtos, porque o visitante não tem login. Em 23/10/2026 ela ficou completa ("vitrine completa", PR #119), e o site já usa: modalidade, edição e ano, concurso (`rotulo` "SD/PMBA"), sala, horários e dias da turma, espécie, resumo e professores do evento, e janelas do simulado. As atividades antigas, sem edição ou concurso, ainda completam pelo nome. Falta:
 
 ### 2.6 Atividades gratuitas
 
@@ -112,9 +77,8 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 
 ## 3. Professores
 
-`GET /api/professores/vitrine` e `/{id}` já são públicos, e o site usa (home, página do professor, sitemap e autor do blog). A **minibio** é a coluna `graduacao` (decisão de 23/10/2026): o texto cadastrado ali aparece abaixo do nome do professor e no cartão da home, então o campo deve ser preenchido como uma apresentação curta (2 ou 3 linhas, até os 200 caracteres que a coluna aceita), não só o nome do curso. Faltam:
+`GET /api/professores/vitrine`, `/{id}` e `/slug/{slug}` já são públicos (o slug desde 23/10/2026, e o endereço do site é `/professores/danilo-moura`), e o site usa (home, página do professor, sitemap e autor do blog). A **minibio** é a coluna `graduacao` (decisão de 23/10/2026): o texto cadastrado ali aparece abaixo do nome do professor e no cartão da home, então o campo deve ser preenchido como uma apresentação curta (2 ou 3 linhas, até os 200 caracteres que a coluna aceita), não só o nome do curso. Faltam:
 
-- **`slug`** (ex.: `danilo-moura`). Hoje o endereço é o nome seguido do id (`/professores/danilo-moura-6cb5e8ae-…`), que é feio de divulgar. O slug deve seguir a regra das turmas: nasce do nome e não muda.
 - **Fotos:** nenhum professor tem `fotoUrl` no banco local. O site usa a foto que já tinha do Danilo enquanto isso.
 - **Só os professores do site:** "Danilo Mourão ribeiro" e "Davi" aparecem na vitrine local e parecem cadastros de teste. Em produção, a vitrine deve listar só os professores ativos que devem aparecer no site.
 
@@ -178,9 +142,9 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 
 **O pedido.** Os formatos de cada edição, com preço e vagas, e os combos.
 
-### 5.4 Textos de venda e professores dos eventos
+### 5.4 Textos de venda da turma e programação do evento
 
-**O problema.** A vitrine traz a descrição da turma, mas não os textos de venda (o que está incluso, a programação do evento) nem os professores de cada evento. As páginas escondem essas seções.
+**O problema.** A vitrine traz a descrição da turma e, desde 23/10/2026, o resumo e os professores de cada evento (o site já mostra "Quem conduz", com link para a página do professor). Ainda faltam o que está incluso na turma e a programação do evento (horário, título e descrição de cada parte). As páginas escondem essas seções.
 
 **O pedido.** Os campos descritos em [contrato-api-conteudo.md](contrato-api-conteudo.md). A grade de professores **da turma** não é necessária: a decisão de 21/10/2026 foi não mostrar.
 

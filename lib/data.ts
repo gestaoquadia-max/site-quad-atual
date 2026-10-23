@@ -16,6 +16,8 @@ export type Turma = {
   modalidadeNome: string;
   modalidadeId: string;  concurso?: string;
   turno?: string;
+  // Os blocos de horário de um dia de aula ("8h às 9h30 · 9h40 às 11h").
+  horario?: string;
   // "06/07/2026"
   inicio?: string;
   // Foto da turma cadastrada na API (capa da página da turma).
@@ -70,7 +72,8 @@ export type Evento = {
     fim?: string;
     vagasTotal?: number;
     vagasOcupadas?: number;
-    professores?: { iniciais: string; nome: string; papel: string }[];
+    // Quem conduz o evento (vitrine da API desde 23/10/2026); href = página do professor.
+    professores?: { iniciais: string; nome: string; papel: string; href?: string; fotoUrl?: string }[];
   };
 };
 
