@@ -65,6 +65,8 @@ test("logado, a turma do carrinho é reservada no servidor", async ({ page }) =>
   for (const lista of ["/turmas?m=rondesp", "/turmas?m=patamo", "/turmas?m=bope", "/turmas?cargo=ipc-pcba"]) {
     await page.goto(lista);
     const link = page.locator("main").getByRole("link", { name: "Conhecer e matricular" }).first();
+    // A lista aparece depois da hidratação: espera um pouco antes de concluir que não há turma.
+    await link.waitFor({ timeout: 5000 }).catch(() => {});
     if (await link.count()) {
       endereco = await link.getAttribute("href");
       break;
