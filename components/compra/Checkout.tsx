@@ -204,9 +204,20 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
       } else {
         // Recusado: outra tentativa é outro pagamento, com outra chave; as reservas são refeitas.
         chaveDoPagamento.current = null;
-        // Com dois cartões, a recusa vem na parte do cartão que falhou (pagamento.cartoes).
-        const recusa = fechamento.pagamento?.cartao?.recusa ?? fechamento.pagamento?.cartoes?.find((c) => c.recusa)?.recusa;
-        setErro(recusa?.mensagem ?? "O pagamento não foi aprovado e nada foi cobrado. Confira os dados ou escolha outra forma de pagamento.");
+        // A mensagem do Pagar.me é técnica ("Erro no sistema do banco…", código 9109): o aluno vê a nossa.
+        // Com dois cartões, a recusa vem na parte do cartão que falhou, e o outro é estornado (testado no sandbox). A API não
+        // devolve as partes na ordem do pedido: o cartão recusado se reconhece pelo valor (com valores iguais, não dá).
+        // A lista `cartoes` vem também na compra de um cartão só: quem decide a mensagem é a forma escolhida.
+        const recusa = fechamento.pagamento?.cartoes?.find((c) => c.recusa);
+        if (metodo === "DOIS_CARTOES" && recusa) {
+          const qual =
+            primeiroEmCentavos === segundoEmCentavos ? null : recusa.valorEmCentavos === primeiroEmCentavos ? "O 1º cartão" : recusa.valorEmCentavos === segundoEmCentavos ? "O 2º cartão" : null;
+          setErro(
+            `${qual ?? "Um dos cartões"} não foi aprovado, e nenhum dos dois foi cobrado. Confira os dados ${qual ? "desse cartão" : "dos cartões"}, use outro ou escolha outra forma de pagamento.`,
+          );
+        } else {
+          setErro("O cartão não foi aprovado e nada foi cobrado. Confira os dados do cartão, use outro ou pague com PIX.");
+        }
         setEnviando(false);
         refazer();
       }
