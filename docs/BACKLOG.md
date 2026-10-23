@@ -37,7 +37,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | 5 | Conteúdo via API | 4 | 11 | 5 |
 | 6 | Painel administrativo | 3 | 6 | 0 |
 | 7 | Carrinho | 1 | 7 | 4 |
-| 8 | Checkout e pagamento | 4 | 15 | 6 |
+| 8 | Checkout e pagamento | 4 | 15 | 10 |
 | 9 | SEO e performance | 2 | 8 | 8 |
 | 10 | Segurança e LGPD | 2 | 6 | 1 |
 | 11 | Analytics e marketing | 1 | 4 | 0 |
@@ -460,10 +460,10 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 | Tarefa | Status |
 |---|---|
-| Pagamento com cartão | EM ANDAMENTO |
-| Pagamento por PIX (QR Code e copia e cola) | EM ANDAMENTO |
-| Pagamento por boleto (linha digitável e PDF) | EM ANDAMENTO |
-| Parcelamento calculado pelo valor real | EM ANDAMENTO |
+| Pagamento com cartão | FEITO |
+| Pagamento por PIX (QR Code e copia e cola) | FEITO |
+| Pagamento por boleto (linha digitável e PDF) | NÃO SE APLICA |
+| Parcelamento calculado pelo valor real | FEITO |
 
 **Campos adicionais**
 - **Descrição:** Cobrança de verdade
@@ -476,7 +476,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 | Tarefa | Status |
 |---|---|
-| Registrar o pedido na API | EM ANDAMENTO |
+| Registrar o pedido na API | FEITO |
 | Liberar o acesso automaticamente após o pagamento | PENDENTE |
 | Validar cupons no backend (hoje estão no código) | FEITO |
 | E-mails de compra confirmada, boleto gerado e acesso liberado | PENDENTE |
