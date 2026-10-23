@@ -39,28 +39,25 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
     <>
       <section className="relative overflow-hidden bg-marinho-950 text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(45%_70%_at_78%_30%,rgba(0,107,255,0.3),transparent_70%)]" />
-        {/* Breadcrumb no topo, como nas outras páginas; o texto fica centrado na altura da foto, que se apoia no fundo. */}
-        <div className="conteiner relative grid gap-8 pt-[clamp(40px,5vw,64px)] md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
-          <div className="flex flex-col pb-[clamp(48px,6vw,88px)]">
-            <Trilha
-              itens={[{ rotulo: "Início", href: "/" }, { rotulo: "Professores", href: "/#professores" }, { rotulo: professor.nome }]}
-              className="mb-[clamp(28px,4vw,48px)]"
-            />
-            <div className="my-auto">
-              {professor.materia && <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">{professor.materia}</span>}
-              <h1 className="mb-5 mt-3 font-display text-[clamp(2.6rem,5.4vw,4.4rem)] font-extrabold leading-none tracking-[-0.045em]">{professor.nome}</h1>
-              {professor.bio && <p className="max-w-[560px] text-[clamp(16px,1.4vw,18px)] leading-[1.65] text-[#C9D5E5]">{professor.bio}</p>}
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link href="/turmas" className="btn-q btn-q-azul h-[52px] px-6 text-[15px]">
-                  Conhecer as turmas presenciais
-                </Link>
-                <Link href="/#professores" className="btn-q btn-q-contorno-escuro h-[52px] px-6 text-[15px]">
-                  Todos os professores
-                </Link>
-              </div>
+        {/* Breadcrumb numa faixa própria no topo; abaixo, texto e foto lado a lado, o texto centrado na altura da foto. */}
+        <div className="conteiner relative pt-[clamp(28px,4vw,48px)]">
+          <Trilha itens={[{ rotulo: "Início", href: "/" }, { rotulo: "Professores", href: "/#professores" }, { rotulo: professor.nome }]} />
+        </div>
+        <div className="conteiner relative grid items-center gap-x-10 md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+          <div className="py-[clamp(32px,4vw,56px)]">
+            {professor.materia && <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">{professor.materia}</span>}
+            <h1 className="mb-5 mt-3 font-display text-[clamp(2.6rem,5.4vw,4.4rem)] font-extrabold leading-none tracking-[-0.045em]">{professor.nome}</h1>
+            {professor.bio && <p className="max-w-[600px] text-[clamp(16px,1.4vw,18px)] leading-[1.65] text-[#C9D5E5]">{professor.bio}</p>}
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/turmas" className="btn-q btn-q-azul h-[52px] px-6 text-[15px]">
+                Conhecer as turmas presenciais
+              </Link>
+              <Link href="/#professores" className="btn-q btn-q-contorno-escuro h-[52px] px-6 text-[15px]">
+                Todos os professores
+              </Link>
             </div>
           </div>
-          <div className="relative hidden h-[clamp(380px,40vw,560px)] self-end md:block">
+          <div className="relative hidden h-[clamp(340px,32vw,480px)] self-end md:block">
             {foto ? (
               <Image
                 src={foto}
@@ -68,7 +65,7 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
                 fill
                 priority
                 sizes="(min-width: 1440px) 600px, 42vw"
-                className={recortada ? "object-contain object-bottom" : "rounded-t-[28px] object-cover object-top"}
+                className={recortada ? "object-contain object-[20%_100%]" : "rounded-t-[28px] object-cover object-top"}
               />
             ) : (
               <span aria-hidden="true" className="absolute inset-0 grid select-none place-items-center font-display text-[clamp(140px,16vw,240px)] font-extrabold text-white/[0.06]">
