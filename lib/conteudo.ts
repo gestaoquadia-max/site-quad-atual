@@ -69,7 +69,7 @@ export function bannersPublicados() {
 }
 
 // ---------- Modalidades das turmas presenciais ----------
-// As turmas da API ainda não têm o campo "modalidade" (docs/pedidos-backend.md).
+// Os textos de cada nível (perfil, método). O nível de cada turma vem da API, em `modalidade` (lib/vitrine.ts).
 export type Modalidade = {
   id: "rondesp" | "patamo" | "bope";
   nome: string;

@@ -28,7 +28,7 @@ export async function criarAluno(dados: {
   estado: string;
   pais: string;
   complemento?: string;
-  // Aceite dos termos (docs/pedidos-backend.md, item 2.7). Obrigatórios na API: sem eles, o cadastro dá 400.
+  // Aceite dos termos (atendido pelo backend em 13/10/2026). Obrigatórios na API: sem eles, o cadastro dá 400.
   aceiteTermos: boolean;
   versaoDosTermos: string;
 }): Promise<Aluno> {
@@ -53,7 +53,7 @@ export type Usuario = {
   telefone: string;
   status: string;
   tipo: string;
-  // Proposto ao backend (docs/pedidos-backend.md, item 2.6). Ausente = desconhecido.
+  // Proposto ao backend (docs/pedidos-backend.md, item 4.2). Ausente = desconhecido.
   emailVerificado?: boolean;
 };
 
@@ -65,7 +65,7 @@ export type MeuPerfil = Aluno & {
   email: string | null;
   telefone: string | null;
   cpf: string | null;
-  // Pedido ao backend (docs/pedidos-backend.md, item 2.6); ainda não vem.
+  // Pedido ao backend (docs/pedidos-backend.md, item 4.2); ainda não vem.
   emailVerificado?: boolean;
 };
 
@@ -167,7 +167,7 @@ export async function atualizarEndereco(id: string, dados: DadosDoEndereco): Pro
 }
 
 // Verificação do celular por código (cadastro e troca de telefone no perfil).
-// Formato proposto ao backend em docs/pedidos-backend.md, itens 2.5 e 2.6. Responde 404 enquanto não existir.
+// Formato proposto ao backend em docs/pedidos-backend.md, item 4.1. Responde 404 enquanto não existir.
 export type EnvioDeCodigo = { expiraEm: string; podeReenviarEm: string };
 
 export async function enviarCodigoDoCelular(telefone: string): Promise<EnvioDeCodigo> {

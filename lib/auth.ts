@@ -1,6 +1,6 @@
 import { API_URL, ErroDaApi, lerErro } from "./http";
 
-// Sessão em cookies (docs/pedidos-backend.md, 2.10). Com o cabeçalho X-Quad-Cliente: site, a API grava:
+// Sessão em cookies (entregue pelo backend em 21/10/2026). Com o cabeçalho X-Quad-Cliente: site, a API grava:
 // - quad_acesso e quad_renovacao: HttpOnly, nenhum script da página lê; o navegador os manda sozinho
 //   (credentials: "include");
 // - quad_sessao: só "1", sem segredo, legível aqui e no servidor do site (proxy.ts), para saber se há sessão.

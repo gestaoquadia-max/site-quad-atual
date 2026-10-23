@@ -1,7 +1,7 @@
 import { fetchAutenticado } from "./auth";
 import { lerErro } from "./http";
 
-// Compra em reais pelo carrinho do servidor (docs/pedidos-backend.md, 5.1):
+// Compra em reais pelo carrinho do servidor:
 // o site reserva cada item (30 min), simula o total com o cupom e fecha tudo numa cobrança só.
 // Todas as rotas exigem login.
 
