@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { idDoItem } from "@/lib/itens";
 import { esgotada, horarioDoDia, insigniaDaTurma, NOME_DO_TURNO, precoDaOferta, textoDoLote, type TurmaComTurnos } from "@/lib/turmas";
 import AviseMePeloWhatsApp from "../AviseMePeloWhatsApp";
@@ -18,9 +19,15 @@ function meses(inicio: string, termino: string) {
   return n === 1 ? "1 mês" : `${n} meses`;
 }
 
-// Ficha da turma (turno, datas e horário), vagas, preço e compra. Cada turma tem um turno só e o seu próprio número
-// (RONDESP 1 Manhã, RONDESP 2 Noite…): não há seletor de turno; as outras turmas da modalidade ficam na página.
-export default function EscolhaDoTurno({ turma }: { turma: TurmaComTurnos }) {
+// Um botão do seletor de turno: o turno desta turma (atual) ou o link para a turma daquele turno; sem turma, null.
+export type OpcaoDeTurno = { nome: string; href: string | null; atual: boolean };
+
+const BOTAO_DO_TURNO =
+  "inline-flex min-h-[46px] min-w-[96px] flex-col items-center justify-center rounded-[10px] border px-4 py-1.5 font-display text-[15px] font-bold leading-tight transition-colors";
+
+// Seletor de turno, ficha (datas e horário), vagas, preço e compra. Cada turma tem um turno só e o seu próprio número
+// (RONDESP 1 Manhã, RONDESP 2 Noite…): o seletor leva à página da turma do outro turno.
+export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurnos; turnos: OpcaoDeTurno[] }) {
   const oferta = turma.ofertas[0];
   const preco = precoDaOferta(oferta);
   const lote = textoDoLote(oferta.lote);
@@ -31,7 +38,6 @@ export default function EscolhaDoTurno({ turma }: { turma: TurmaComTurnos }) {
   const nomeDoTurno = oferta.turno ? NOME_DO_TURNO[oferta.turno] : null;
 
   const ficha = [
-    nomeDoTurno && { rotulo: "Turno", valor: nomeDoTurno },
     oferta.inicio && { rotulo: "Início", valor: data(oferta.inicio) },
     oferta.termino && { rotulo: "Término", valor: data(oferta.termino) },
     duracao && { rotulo: "Duração", valor: duracao },
@@ -40,6 +46,30 @@ export default function EscolhaDoTurno({ turma }: { turma: TurmaComTurnos }) {
 
   return (
     <>
+      <div className="mt-7">
+        <span id="rotulo-turno" className="text-[13px] font-semibold text-prata">
+          Turno{nomeDoTurno && <span className="text-white"> · {nomeDoTurno}</span>}
+        </span>
+        <nav aria-labelledby="rotulo-turno" className="mt-2.5 flex flex-wrap gap-2">
+          {turnos.map((t) =>
+            t.atual ? (
+              <span key={t.nome} aria-current="page" className={`${BOTAO_DO_TURNO} border-white bg-white text-marinho-950`}>
+                {t.nome}
+              </span>
+            ) : t.href ? (
+              <Link key={t.nome} href={t.href} className={`${BOTAO_DO_TURNO} border-white/20 bg-white/[0.04] text-white hover:border-azul-ceu hover:text-white`}>
+                {t.nome}
+              </Link>
+            ) : (
+              <span key={t.nome} className={`${BOTAO_DO_TURNO} cursor-not-allowed border-white/10 text-white/40`}>
+                {t.nome}
+                <span className="font-body text-[11px] font-medium">(Indisponível)</span>
+              </span>
+            ),
+          )}
+        </nav>
+      </div>
+
       {ficha.length > 0 && (
         <ul className="mt-7 border-t border-white/10">
           {ficha.map((f) => (

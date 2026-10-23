@@ -37,6 +37,14 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
   const modalidade = modalidades.find((m) => m.id === turma.modalidade);
   // As outras turmas da mesma modalidade e do mesmo concurso (outros turnos e números), já na ordem do número.
   const outras = (todas ?? []).filter((t) => t.slug !== turma.slug && t.modalidadeId === turma.modalidadeId && t.concurso === turma.concurso);
+  // Seletor de turno: cada turno leva a OUTRA turma (outro número, outra página) da mesma modalidade e concurso.
+  // Com mais de uma no mesmo turno, vai para a de menor número com vaga (a lista já vem na ordem do número).
+  const turnos = ["Manhã", "Tarde", "Noite"].map((nome) => {
+    if (nome === turma.turno) return { nome, href: null, atual: true };
+    const doTurno = outras.filter((t) => t.turno === nome);
+    const destino = doTurno.find((t) => t.status === "aberta") ?? doTurno[0];
+    return { nome, href: destino ? `/turmas/${destino.slug}` : null, atual: false };
+  });
 
   return (
     <>
@@ -89,7 +97,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
               <span className="inline-flex items-center rounded-full bg-[#E6ECFF] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#1238C4]">
                 {seloDoCargoEConcurso(grupo.cargo, grupo.concurso)}
               </span>
-              <EscolhaDoTurno turma={grupo} />
+              <EscolhaDoTurno turma={grupo} turnos={turnos} />
             </div>
           </div>
         </div>
