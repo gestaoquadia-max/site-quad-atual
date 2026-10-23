@@ -410,7 +410,8 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                         <li key={item.id} className="flex justify-between gap-3 border-b border-[#EEF2F7] py-2.5 text-sm">
                           <span className="min-w-0">
                             <span className="block font-semibold">
-                              {linha?.nome ?? item.nome}
+                              {/* O nome que o aluno viu no site ("RONDESP 1"); o da linha é o do cadastro ("Rondesp Manhã"). */}
+                              {item.nome}
                               {item.quantidade > 1 && ` × ${item.quantidade}`}
                             </span>
                             <span className="text-[12.5px] text-ardosia">
