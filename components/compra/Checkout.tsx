@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Barcode, CreditCard, PixLogo } from "@phosphor-icons/react";
+import { Cards, CreditCard, PixLogo } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart";
 import { ErroDaApi } from "@/lib/http";
@@ -16,13 +16,24 @@ import { CLASSE_DO_CAMPO, CLASSE_DO_ROTULO } from "../acesso/Campos";
 import { ehFisico, motivoDaIndisponibilidade, ROTULO_DO_TIPO } from "./Carrinho";
 import Etapas from "./Etapas";
 
-// Formas de pagamento e seus ícones (Phosphor, a mesma biblioteca para todos).
+// Formas de pagamento e seus ícones (Phosphor, a mesma biblioteca para todos). Sem boleto (decisão de 23/10/2026):
+// no lugar dele, a compra dividida em dois cartões, que a API aceita quando cartoesMaximos é 2 ou mais.
 const METODOS = [
   { id: "CARTAO", rotulo: "Cartão", Icone: CreditCard },
   { id: "PIX", rotulo: "PIX", Icone: PixLogo },
-  { id: "BOLETO", rotulo: "Boleto", Icone: Barcode },
+  { id: "DOIS_CARTOES", rotulo: "Dois cartões", Icone: Cards },
 ] as const;
 type Metodo = (typeof METODOS)[number]["id"];
+
+const CARTAO_VAZIO: DadosDoCartao = { numero: "", nome: "", validade: "", cvv: "" };
+
+// "1.234,56" ou "1234,5" → centavos (123456 e 123450). Vazio ou inválido → null.
+function centavosDoTexto(texto: string) {
+  const limpo = texto.replace(/[^\d,]/g, "");
+  if (!limpo) return null;
+  const [inteiro, decimal = ""] = limpo.split(",");
+  return Number(inteiro || "0") * 100 + Number((decimal + "00").slice(0, 2));
+}
 
 const CARTAO = "rounded-[18px] border border-linha bg-white p-6";
 const AVISO_DE_ERRO = "rounded-xl border border-[#F1C4C4] bg-[#FFF5F5] p-4 text-sm leading-[1.55] text-[#9B1C1C]";
@@ -78,7 +89,11 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
   const [config, setConfig] = useState<ConfiguracaoDoPagamento | null>(null);
   const [metodo, setMetodo] = useState<Metodo>("CARTAO");
   const [parcelas, setParcelas] = useState(1);
-  const [cartao, setCartao] = useState<DadosDoCartao>({ numero: "", nome: "", validade: "", cvv: "" });
+  const [cartao, setCartao] = useState<DadosDoCartao>(CARTAO_VAZIO);
+  // Dois cartões: o segundo cartão e quanto vai no primeiro (texto em reais; vazio = metade do total).
+  const [cartao2, setCartao2] = useState<DadosDoCartao>(CARTAO_VAZIO);
+  const [parcelas2, setParcelas2] = useState(1);
+  const [valorDoPrimeiro, setValorDoPrimeiro] = useState("");
   const [cupomDigitado, setCupomDigitado] = useState("");
   const [erroDoCupom, setErroDoCupom] = useState("");
   const [aplicandoCupom, setAplicandoCupom] = useState(false);
@@ -108,6 +123,10 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
   const temFisico = items.some(ehFisico);
   const pagamentoDisponivel = !!config?.disponivel;
   const maxParcelas = Math.max(1, config?.parcelasMaximas ?? 1);
+  const metodos = METODOS.filter((m) => m.id !== "DOIS_CARTOES" || (config?.cartoesMaximos ?? 1) >= 2);
+  const minimoPorCartao = config?.valorMinimoPorCartaoEmCentavos ?? 0;
+  const primeiroEmCentavos = centavosDoTexto(valorDoPrimeiro) ?? Math.ceil(total / 2);
+  const segundoEmCentavos = total - primeiroEmCentavos;
   const podePagar = !!pedido && !!simulacao && !temRecusado && !enviando && (gratuito || pagamentoDisponivel);
 
   async function aplicar(codigo: string | null) {
@@ -143,6 +162,31 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
         setEnviando(false);
         return setErro(e instanceof ErroDoCartao ? e.message : "Não foi possível validar o cartão.");
       }
+    } else if (metodo === "DOIS_CARTOES") {
+      const problema = problemaNoCartao(cartao) ?? problemaNoCartao(cartao2);
+      if (problema) return setErro(`${problemaNoCartao(cartao) ? "1º cartão" : "2º cartão"}: ${problema}`);
+      if (primeiroEmCentavos < minimoPorCartao || segundoEmCentavos < minimoPorCartao) {
+        return setErro(`Divida o valor de forma que cada cartão pague pelo menos ${emReais(Math.max(minimoPorCartao, 1))}.`);
+      }
+      if (!config?.chavePublica) return setErro(PAGAMENTO_INDISPONIVEL);
+      setEnviando(true);
+      try {
+        // Um token por cartão: o número de nenhum dos dois passa pelo nosso servidor.
+        const [token1, token2] = await Promise.all([tokenizarCartao(config.chavePublica, cartao), tokenizarCartao(config.chavePublica, cartao2)]);
+        dados = {
+          formaDePagamento: "CARTAO",
+          pagamento: {
+            cartoes: [
+              { token: token1, parcelas, valorEmCentavos: primeiroEmCentavos },
+              { token: token2, parcelas: parcelas2, valorEmCentavos: segundoEmCentavos },
+            ],
+          },
+          cupom: cupom ?? undefined,
+        };
+      } catch (e) {
+        setEnviando(false);
+        return setErro(e instanceof ErroDoCartao ? e.message : "Não foi possível validar os cartões.");
+      }
     } else {
       dados = { formaDePagamento: metodo, cupom: cupom ?? undefined };
     }
@@ -160,7 +204,9 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
       } else {
         // Recusado: outra tentativa é outro pagamento, com outra chave; as reservas são refeitas.
         chaveDoPagamento.current = null;
-        setErro(fechamento.pagamento?.cartao?.recusa?.mensagem ?? "O pagamento não foi aprovado e nada foi cobrado. Confira os dados ou escolha outra forma de pagamento.");
+        // Com dois cartões, a recusa vem na parte do cartão que falhou (pagamento.cartoes).
+        const recusa = fechamento.pagamento?.cartao?.recusa ?? fechamento.pagamento?.cartoes?.find((c) => c.recusa)?.recusa;
+        setErro(recusa?.mensagem ?? "O pagamento não foi aprovado e nada foi cobrado. Confira os dados ou escolha outra forma de pagamento.");
         setEnviando(false);
         refazer();
       }
@@ -214,7 +260,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                 <fieldset className={CARTAO} disabled={enviando}>
                   <legend className="px-1.5 font-display text-[17px] font-extrabold">Forma de pagamento</legend>
                   <div role="radiogroup" aria-label="Forma de pagamento" className="mt-1 grid grid-cols-[repeat(auto-fit,minmax(min(100%,150px),1fr))] gap-2.5">
-                    {METODOS.map(({ id, rotulo, Icone }) => {
+                    {metodos.map(({ id, rotulo, Icone }) => {
                       const marcado = metodo === id;
                       return (
                         <button
@@ -238,36 +284,8 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                   </div>
 
                   {metodo === "CARTAO" && (
-                    <div className="mt-5 grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-4">
-                      <CampoDoCartao
-                        rotulo="Número do cartão"
-                        placeholder="0000 0000 0000 0000"
-                        autoComplete="cc-number"
-                        valor={cartao.numero}
-                        aoMudar={(v) => setCartao((c) => ({ ...c, numero: formatarNumeroDoCartao(v) }))}
-                        className="col-span-full"
-                      />
-                      <CampoDoCartao rotulo="Validade" placeholder="MM/AA" autoComplete="cc-exp" valor={cartao.validade} aoMudar={(v) => setCartao((c) => ({ ...c, validade: formatarValidade(v) }))} />
-                      <CampoDoCartao rotulo="CVV" placeholder="123" autoComplete="cc-csc" valor={cartao.cvv} aoMudar={(v) => setCartao((c) => ({ ...c, cvv: v.replace(/\D/g, "").slice(0, 4) }))} />
-                      <CampoDoCartao
-                        rotulo="Nome impresso no cartão"
-                        placeholder="Como está no cartão"
-                        autoComplete="cc-name"
-                        valor={cartao.nome}
-                        aoMudar={(v) => setCartao((c) => ({ ...c, nome: v }))}
-                        className="col-span-full"
-                        texto
-                      />
-                      <label className="col-span-full flex flex-col gap-[7px]">
-                        <span className={CLASSE_DO_ROTULO}>Parcelamento</span>
-                        <select value={parcelas} onChange={(e) => setParcelas(Number(e.target.value))} className={CLASSE_DO_CAMPO}>
-                          {Array.from({ length: maxParcelas }, (_, i) => i + 1).map((n) => (
-                            <option key={n} value={n}>
-                              {n}x de {emReais(Math.ceil(total / n))}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
+                    <div className="mt-5">
+                      <CamposDoCartao cartao={cartao} setCartao={setCartao} parcelas={parcelas} setParcelas={setParcelas} maxParcelas={maxParcelas} valorEmCentavos={total} />
                     </div>
                   )}
                   {metodo === "PIX" && (
@@ -275,10 +293,46 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                       Ao confirmar, aparece o QR Code e o código PIX para copiar. O acesso é liberado assim que o pagamento é confirmado.
                     </p>
                   )}
-                  {metodo === "BOLETO" && (
-                    <p className="mt-5 rounded-xl bg-nevoa p-4 text-[14.5px] leading-[1.6] text-ardosia-escura">
-                      Ao confirmar, aparece a linha digitável e o PDF do boleto. A compensação leva de 1 a 2 dias úteis depois do pagamento.
-                    </p>
+                  {metodo === "DOIS_CARTOES" && (
+                    <div className="mt-5 flex flex-col gap-6">
+                      <p className="rounded-xl bg-nevoa p-4 text-[14.5px] leading-[1.6] text-ardosia-escura">
+                        Divida o total de <strong className="text-tinta">{emReais(total)}</strong> entre dois cartões. Escolha quanto vai no 1º cartão; o 2º fica com o restante, e cada um tem o seu parcelamento.
+                      </p>
+                      <section aria-labelledby="primeiro-cartao" className="flex flex-col gap-4">
+                        <div className="flex flex-wrap items-end justify-between gap-3">
+                          <h3 id="primeiro-cartao" className="font-display text-[15px] font-extrabold">
+                            1º cartão
+                          </h3>
+                          <label className="flex items-center gap-2.5">
+                            <span className={CLASSE_DO_ROTULO}>Valor neste cartão</span>
+                            <span className="relative">
+                              <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-ardosia">
+                                R$
+                              </span>
+                              <input
+                                inputMode="decimal"
+                                value={valorDoPrimeiro}
+                                placeholder={(Math.ceil(total / 2) / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                onChange={(e) => setValorDoPrimeiro(e.target.value.replace(/[^\d.,]/g, ""))}
+                                className={`${CLASSE_DO_CAMPO} w-[150px] pl-9 text-right`}
+                              />
+                            </span>
+                          </label>
+                        </div>
+                        <CamposDoCartao cartao={cartao} setCartao={setCartao} parcelas={parcelas} setParcelas={setParcelas} maxParcelas={maxParcelas} valorEmCentavos={Math.max(primeiroEmCentavos, 0)} />
+                      </section>
+                      <section aria-labelledby="segundo-cartao" className="flex flex-col gap-4 border-t border-linha pt-6">
+                        <div className="flex flex-wrap items-baseline justify-between gap-3">
+                          <h3 id="segundo-cartao" className="font-display text-[15px] font-extrabold">
+                            2º cartão
+                          </h3>
+                          <span className="text-[14.5px] text-ardosia-escura">
+                            Restante: <strong className="text-tinta">{emReais(Math.max(segundoEmCentavos, 0))}</strong>
+                          </span>
+                        </div>
+                        <CamposDoCartao cartao={cartao2} setCartao={setCartao2} parcelas={parcelas2} setParcelas={setParcelas2} maxParcelas={maxParcelas} valorEmCentavos={Math.max(segundoEmCentavos, 0)} />
+                      </section>
+                    </div>
                   )}
 
                   <div className="mt-4 flex items-center gap-2 text-[12.5px] text-ardosia">
@@ -324,7 +378,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                 aria-busy={enviando || undefined}
                 className="btn-q btn-q-azul h-14 w-full rounded-xl text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_12px_26px_-14px_rgba(0,107,255,1)] disabled:cursor-not-allowed disabled:bg-[#C9D3E0] disabled:shadow-none"
               >
-                {enviando ? "Processando…" : gratuito ? "Confirmar pedido" : metodo === "CARTAO" ? "Pagar com cartão" : metodo === "PIX" ? "Gerar PIX" : "Gerar boleto"}
+                {enviando ? "Processando…" : gratuito ? "Confirmar pedido" : metodo === "CARTAO" ? "Pagar com cartão" : metodo === "PIX" ? "Gerar PIX" : "Pagar com dois cartões"}
               </button>
             </form>
 
@@ -421,6 +475,57 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// Os campos de um cartão e o parcelamento do valor que ele paga (o total, ou a parte dele na compra em dois cartões).
+function CamposDoCartao({
+  cartao,
+  setCartao,
+  parcelas,
+  setParcelas,
+  maxParcelas,
+  valorEmCentavos,
+}: {
+  cartao: DadosDoCartao;
+  setCartao: React.Dispatch<React.SetStateAction<DadosDoCartao>>;
+  parcelas: number;
+  setParcelas: (n: number) => void;
+  maxParcelas: number;
+  valorEmCentavos: number;
+}) {
+  return (
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-4">
+      <CampoDoCartao
+        rotulo="Número do cartão"
+        placeholder="0000 0000 0000 0000"
+        autoComplete="cc-number"
+        valor={cartao.numero}
+        aoMudar={(v) => setCartao((c) => ({ ...c, numero: formatarNumeroDoCartao(v) }))}
+        className="col-span-full"
+      />
+      <CampoDoCartao rotulo="Validade" placeholder="MM/AA" autoComplete="cc-exp" valor={cartao.validade} aoMudar={(v) => setCartao((c) => ({ ...c, validade: formatarValidade(v) }))} />
+      <CampoDoCartao rotulo="CVV" placeholder="123" autoComplete="cc-csc" valor={cartao.cvv} aoMudar={(v) => setCartao((c) => ({ ...c, cvv: v.replace(/\D/g, "").slice(0, 4) }))} />
+      <CampoDoCartao
+        rotulo="Nome impresso no cartão"
+        placeholder="Como está no cartão"
+        autoComplete="cc-name"
+        valor={cartao.nome}
+        aoMudar={(v) => setCartao((c) => ({ ...c, nome: v }))}
+        className="col-span-full"
+        texto
+      />
+      <label className="col-span-full flex flex-col gap-[7px]">
+        <span className={CLASSE_DO_ROTULO}>Parcelamento</span>
+        <select value={parcelas} onChange={(e) => setParcelas(Number(e.target.value))} className={CLASSE_DO_CAMPO}>
+          {Array.from({ length: maxParcelas }, (_, i) => i + 1).map((n) => (
+            <option key={n} value={n}>
+              {n}x de {emReais(Math.ceil(valorEmCentavos / n))}
+            </option>
+          ))}
+        </select>
+      </label>
     </div>
   );
 }

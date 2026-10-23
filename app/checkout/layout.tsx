@@ -3,7 +3,7 @@ import { NAO_INDEXAR } from "@/lib/seo";
 // A página é um componente de cliente, que não pode exportar metadados; eles ficam aqui.
 export const metadata = {
   title: "Finalizar compra",
-  description: "Finalize sua compra no Quad Concursos com cartão de crédito, PIX ou boleto.",
+  description: "Finalize sua compra no Quad Concursos com cartão de crédito (em até dois cartões) ou PIX.",
   robots: NAO_INDEXAR,
 };
 

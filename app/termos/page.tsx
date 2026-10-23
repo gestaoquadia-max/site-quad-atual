@@ -66,9 +66,9 @@ export default function TermosPage() {
 
       <Secao titulo="4. Compras e pagamentos">
         <ul>
-          <li>Os pagamentos são processados pelo Pagar.me, por cartão de crédito, PIX ou boleto.</li>
+          <li>Os pagamentos são processados pelo Pagar.me, por cartão de crédito (em até dois cartões) ou PIX.</li>
           <li>O acesso ao que foi comprado é liberado depois da confirmação do pagamento pelo Pagar.me.</li>
-          <li>PIX e boleto têm prazo de vencimento; depois dele, a compra expira e a vaga pode ser liberada.</li>
+          <li>O PIX tem prazo de vencimento; depois dele, a compra expira e a vaga pode ser liberada.</li>
           <li>Preços, condições e cupons valem conforme informado no momento da compra.</li>
         </ul>
       </Secao>

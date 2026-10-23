@@ -75,7 +75,7 @@ export default function PrivacidadePage() {
         <p>Compartilhamos apenas o necessário, com parceiros que precisam dos dados para prestar o serviço:</p>
         <ul>
           <li>
-            <strong>Pagar.me</strong> (Stone), que processa os pagamentos por cartão, PIX e boleto.
+            <strong>Pagar.me</strong> (Stone), que processa os pagamentos por cartão e PIX.
           </li>
           <li>Provedores de hospedagem e armazenamento em nuvem onde o site, o sistema e os materiais ficam guardados.</li>
           <li>Serviços de envio de e-mail e de SMS ou WhatsApp, usados para códigos de verificação e avisos.</li>

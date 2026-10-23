@@ -21,10 +21,8 @@ const telas: Record<
   pendente: {
     titulo: "Aguardando pagamento",
     tom: "espera",
-    texto: (metodo) =>
-      metodo === "boleto"
-        ? "Seu pedido foi registrado e o boleto foi enviado para o seu e-mail. Ele vence em 3 dias úteis, e o acesso é liberado após a compensação (1 a 2 dias úteis depois do pagamento)."
-        : "Seu pedido foi registrado. Pague o PIX enviado para o seu e-mail; assim que o pagamento for confirmado, o acesso é liberado automaticamente na sua área do aluno.",
+    texto: () =>
+      "Seu pedido foi registrado. Pague o PIX enviado para o seu e-mail; assim que o pagamento for confirmado, o acesso é liberado automaticamente na sua área do aluno.",
     cta: { href: "/aluno", label: "Ir para a área do aluno" },
     limpar: true,
   },

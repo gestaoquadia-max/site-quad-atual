@@ -50,6 +50,8 @@ export type Fechamento = {
     pix: { codigo: string | null; imagemUrl: string | null; expiraEm: string | null } | null;
     boleto: { linhaDigitavel: string | null; url: string | null; pdf: string | null; venceEm: string | null } | null;
     cartao: { bandeira: string | null; ultimosDigitos: string | null; parcelas: number | null; recusa: { codigo: string; mensagem: string } | null } | null;
+    // Compra dividida em dois cartões: cada um com a parte que paga e a situação dele no provedor.
+    cartoes?: { bandeira: string | null; ultimosDigitos: string | null; parcelas: number | null; valorEmCentavos: number; situacaoNoProvedor: string | null; recusa: { codigo: string; mensagem: string } | null }[] | null;
   } | null;
 };
 
@@ -95,8 +97,10 @@ export function simular(cupom: string | null) {
 }
 
 export type DadosDoFechamento = {
-  formaDePagamento: "CARTAO" | "PIX" | "BOLETO" | "CUPOM";
-  pagamento?: { cartao: { token: string; parcelas: number } };
+  // O site não oferece boleto (decisão de 23/10/2026); a API ainda aceita.
+  formaDePagamento: "CARTAO" | "PIX" | "CUPOM";
+  // Um cartão (`cartao`) ou dois (`cartoes`, cada um com a parte que paga, em centavos; a soma é o total).
+  pagamento?: { cartao: { token: string; parcelas: number } } | { cartoes: { token: string; parcelas: number; valorEmCentavos: number }[] };
   cupom?: string;
 };
 

@@ -210,7 +210,7 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 
 1. **Carrinho sem login:** o visitante monta o carrinho sem conta, e o site manda os itens ao carrinho do servidor só depois do login. Está certo assim, ou o carrinho do servidor deveria aceitar visitante?
 2. **Variações:** além da camisa (tamanhos), quais itens vão ter variação?
-3. **Parcelas:** `GET /api/loja/pagamentos/configuracao` traz até 12 parcelas e `cartoesMaximos: 2`. Há juros? A partir de quantas parcelas, e quem paga (aluno ou Quad)? `cartoesMaximos` quer dizer que o aluno pode dividir a compra em dois cartões?
+3. **Parcelas:** `GET /api/loja/pagamentos/configuracao` traz até 12 parcelas. Há juros? A partir de quantas parcelas, e quem paga (aluno ou Quad)? (A compra em **dois cartões** já está no site desde 23/10/2026, pela lista `pagamento.cartoes`; o site **não oferece mais boleto**.)
 4. **Situações do pagamento:** qual a lista completa de situações do fechamento (paga, aguardando, recusada, expirada, estornada…)? O site trata hoje PAGA, AGUARDANDO e RECUSADA.
 5. **E-mails da compra:** compra confirmada, boleto gerado e acesso liberado já existem ou precisam ser criados?
 6. **Materiais diários:** os "materiais diários" das turmas são os de `/api/materiais` (por turma, matéria e tópico)? E falta um armazenamento de arquivos no ambiente local (bucket de teste ou MinIO) para testar o download, que hoje responde 503 "nenhum bucket foi configurado".
