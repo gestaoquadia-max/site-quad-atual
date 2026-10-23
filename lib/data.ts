@@ -134,15 +134,13 @@ export const aprovados: Aprovado[] = [
   },
 ];
 
-// Vem da vitrine de professores da API (lib/vitrine.ts). Ela ainda não tem minibio nem slug (pedidos ao backend):
-// sem bio, as páginas escondem o texto.
+// Vem da vitrine de professores da API (lib/vitrine.ts). A minibio é a coluna "graduação" do cadastro;
+// sem ela, as páginas escondem o texto.
 export type Professor = {
   slug: string;
   nome: string;
   materia: string;
   bio?: string;
-  bioCompleta?: string;
-  formacao: string[];
   fotoUrl?: string;
 };
 

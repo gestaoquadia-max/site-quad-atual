@@ -26,7 +26,7 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 2.4 | Vitrine: janelas do simulado | Média |
 | 2.5 | Vitrine: espécie do evento (aulão ou evento) | Média |
 | 2.6 | Vitrine: atividades gratuitas | Média |
-| 3 | Professores: minibio, slug, credenciais, fotos e só os professores do site | Média |
+| 3 | Professores: slug, fotos e só os professores do site | Média |
 | 4.1 | Verificação do celular por código ⚠️ | Alta |
 | 4.2 | `emailVerificado` e `telefoneVerificado` no cadastro do aluno | Alta |
 | 4.3 | Limite de tentativas no cadastro e no envio de código | Média |
@@ -126,11 +126,9 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 
 ## 3. Professores
 
-`GET /api/professores/vitrine` e `/{id}` já são públicos, e o site usa (home, página do professor, sitemap e autor do blog). Faltam:
+`GET /api/professores/vitrine` e `/{id}` já são públicos, e o site usa (home, página do professor, sitemap e autor do blog). A **minibio** é a coluna `graduacao` (decisão de 23/10/2026): o texto cadastrado ali aparece abaixo do nome do professor e no cartão da home, então o campo deve ser preenchido como uma apresentação curta (2 ou 3 linhas), não só o nome do curso. Faltam:
 
-- **`minibio`** (2 ou 3 linhas) e, se possível, uma **bio completa**. Sem elas, o cartão e a página do professor ficam só com nome, matérias e graduação.
 - **`slug`** (ex.: `danilo-moura`). Hoje o endereço é o nome seguido do id (`/professores/danilo-moura-6cb5e8ae-…`), que é feio de divulgar. O slug deve seguir a regra das turmas: nasce do nome e não muda.
-- **`credenciais`** em lista (ex.: "Ex-policial militar da PM-BA"). A seção "Credenciais" mostra hoje só a graduação.
 - **Fotos:** nenhum professor tem `fotoUrl` no banco local. O site usa a foto que já tinha do Danilo enquanto isso.
 - **Só os professores do site:** "Danilo Mourão ribeiro" e "Davi" aparecem na vitrine local e parecem cadastros de teste. Em produção, a vitrine deve listar só os professores ativos que devem aparecer no site.
 

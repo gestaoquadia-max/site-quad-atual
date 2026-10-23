@@ -576,8 +576,8 @@ export async function buscarProdutoDaLoja(slug: string): Promise<ProdutoDaLoja |
 
 // ---------- Professores ----------
 
-// Resposta de /api/professores/vitrine em 21/10/2026 (sem login). Não tem slug nem minibio: o endereço é o nome + id, como
-// eram as outras páginas antes do slug, e a bio fica de fora até o backend mandar.
+// Resposta de /api/professores/vitrine em 21/10/2026 (sem login). Não tem slug: o endereço é o nome + id, como eram as
+// outras páginas antes do slug. A minibio é a coluna `graduacao` (decisão de 23/10/2026: o campo do cadastro serve a ela).
 type ProfessorDaVitrine = {
   id: string;
   nome: string;
@@ -596,7 +596,7 @@ function paraProfessor(p: ProfessorDaVitrine): Professor {
     slug: slug ? `${slug}-${p.id}` : p.id,
     nome,
     materia: (p.materias ?? []).join(" • "),
-    formacao: p.graduacao?.trim() ? [p.graduacao.trim()] : [],
+    bio: p.graduacao?.trim() || undefined,
     fotoUrl: p.fotoUrl ?? FOTO_DO_SITE[nome],
   };
 }

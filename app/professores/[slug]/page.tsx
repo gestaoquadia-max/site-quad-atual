@@ -47,7 +47,7 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
             />
             {professor.materia && <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">{professor.materia}</span>}
             <h1 className="mb-5 mt-3 font-display text-[clamp(2.6rem,5.4vw,4.4rem)] font-extrabold leading-none tracking-[-0.045em]">{professor.nome}</h1>
-            {professor.bioCompleta && <p className="max-w-[560px] text-[clamp(16px,1.4vw,18px)] leading-[1.65] text-[#C9D5E5]">{professor.bioCompleta}</p>}
+            {professor.bio && <p className="max-w-[560px] text-[clamp(16px,1.4vw,18px)] leading-[1.65] text-[#C9D5E5]">{professor.bio}</p>}
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/turmas" className="btn-q btn-q-azul h-[52px] px-6 text-[15px]">
                 Conhecer as turmas presenciais
@@ -75,27 +75,6 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
           </div>
         </div>
       </section>
-
-      {professor.formacao.length > 0 && (
-        <section className="secao bg-nevoa">
-          <div className="conteiner">
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-forte">Formação e experiência</span>
-            <h2 className="titulo-secao mb-8 mt-2">Credenciais</h2>
-            <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-4">
-              {professor.formacao.map((item) => (
-                <li key={item} className="flex items-start gap-3 rounded-[18px] border border-linha bg-white p-5 text-[15.5px] font-semibold leading-[1.45] text-tinta">
-                  <span aria-hidden="true" className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-azul-palido text-azul-forte">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 12l5 5L20 7" />
-                    </svg>
-                  </span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      )}
 
       {outros.length > 0 && (
         <section className="secao bg-white">
