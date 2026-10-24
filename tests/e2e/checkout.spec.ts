@@ -144,5 +144,8 @@ test("comprar agora põe o item no carrinho e abre o checkout", async ({ page })
   if (await tamanhos.count()) await tamanhos.locator("[role=radio]:not([disabled])").first().click();
   await page.getByRole("button", { name: "Comprar agora" }).click();
   await expect(page).toHaveURL(/\/checkout$/);
+  // Sem login, o checkout pede para entrar; o item já está no carrinho.
+  await expect(page.getByRole("heading", { name: "Entre para finalizar a compra" })).toBeVisible();
+  await page.goto("/carrinho");
   await expect(page.locator("main").getByText(nome).first()).toBeVisible();
 });
