@@ -21,6 +21,9 @@ export const institucional = {
   // Usuário sem @, ex.: "quadconcursos"
   instagram: "quadconcursos",
   horarioAtendimento: "Segunda a sexta, das 8h às 21h · Sábado, das 8h às 12h",
+  // Termos de uso, item 5: o que vale para cancelar depois dos 7 dias do arrependimento (decisão do Quad). Texto
+  // corrido, ex.: "turmas podem ser canceladas até o início das aulas, com devolução de 80% do valor pago."
+  politicaDeCancelamento: "",
   // Foro escolhido pela assessoria jurídica para os Termos de uso
   foro: "Feira de Santana — BA",
 };

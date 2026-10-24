@@ -1,6 +1,6 @@
 import Link from "next/link";
 import PaginaInstitucional, { Dado, Secao } from "@/components/PaginaInstitucional";
-import { institucional } from "@/lib/institucional";
+import { formatarTelefoneFixoOuCelular, institucional, linkDoWhatsApp } from "@/lib/institucional";
 import { VERSAO_DOS_TERMOS_EXIBICAO } from "@/lib/termos";
 import { metadadosDaPagina } from "@/lib/seo";
 
@@ -34,8 +34,8 @@ export default function TermosPage() {
         <ul>
           <li>Os dados informados no cadastro precisam ser verdadeiros e mantidos atualizados.</li>
           <li>
-            Cada CPF, e-mail e celular pode estar em uma única conta. A conta é liberada depois da confirmação do celular,
-            e o e-mail deve ser confirmado pelo link enviado.
+            Cada CPF, e-mail e celular pode estar em uma única conta. O e-mail deve ser confirmado pelo link enviado e,
+            quando solicitado, o celular pelo código enviado por mensagem.
           </li>
           <li>
             A conta é pessoal e intransferível. Não compartilhe a sua senha: tudo o que for feito com o seu acesso é de sua
@@ -52,20 +52,32 @@ export default function TermosPage() {
             turma. O valor é referente ao período completo da turma.
           </li>
           <li>
-            <strong>Materiais:</strong> materiais em PDF e os materiais publicados nas turmas, acessados pela área do aluno.
+            <strong>Materiais:</strong> apostilas e kits impressos, retirados na sede do Quad, e os materiais publicados nas
+            turmas, acessados pela área do aluno.
+          </li>
+          <li>
+            <strong>Produtos da loja:</strong> camisas, canecas e outros itens do Quad, retirados na sede.
           </li>
           <li>
             <strong>Eventos e simulados:</strong> gratuitos ou pagos, presenciais ou online, sujeitos ao número de vagas.
           </li>
         </ul>
+        {/* Limitação de direito do consumidor: em destaque (CDC, art. 54, § 4º). */}
         <p>
-          O Quad se dedica a oferecer a melhor preparação, mas a aprovação em concurso depende de fatores que não estão sob
-          o nosso controle, como o desempenho do candidato e as regras de cada edital. Por isso, não garantimos aprovação.
+          <strong>
+            O Quad se dedica a oferecer a melhor preparação, mas a aprovação em concurso depende de fatores que não estão
+            sob o nosso controle, como o desempenho do candidato e as regras de cada edital. Por isso, não garantimos
+            aprovação.
+          </strong>
         </p>
       </Secao>
 
       <Secao titulo="4. Compras e pagamentos">
         <ul>
+          <li>
+            O preço, as vagas e as condições de cada turma, material, produto ou evento são informados na página dele, e o
+            valor total do pedido aparece antes do pagamento.
+          </li>
           <li>Os pagamentos são processados pelo Pagar.me, por cartão de crédito (em até dois cartões) ou PIX.</li>
           <li>O acesso ao que foi comprado é liberado depois da confirmação do pagamento pelo Pagar.me.</li>
           <li>O PIX tem prazo de vencimento; depois dele, a compra expira e a vaga pode ser liberada.</li>
@@ -75,13 +87,17 @@ export default function TermosPage() {
 
       <Secao titulo="5. Cancelamento e reembolso">
         <p>
-          Nas compras feitas pela internet, você pode desistir em até 7 dias a contar da compra, com devolução integral do
-          valor pago, conforme o artigo 49 do Código de Defesa do Consumidor.
+          Nas compras feitas pela internet, você pode desistir em até 7 dias, contados da compra ou, no caso de produtos
+          retirados na sede, do dia da retirada. O valor pago é devolvido integralmente, de imediato e corrigido, pela mesma
+          forma de pagamento, conforme o artigo 49 do Código de Defesa do Consumidor. Para desistir, fale com o atendimento
+          (veja o item 10).
         </p>
-        <p>
-          Depois desse prazo, as condições de cancelamento de cada turma ou evento são as informadas na sua página ou no
-          contrato de matrícula. Pedidos de cancelamento são feitos pelo atendimento.
-        </p>
+        {/* Política de cancelamento depois dos 7 dias: decisão do Quad (lib/institucional.ts). Vazia, o parágrafo some no site publicado. */}
+        {(i.politicaDeCancelamento || process.env.NODE_ENV === "development") && (
+          <p>
+            Depois desse prazo, o cancelamento segue esta política: <Dado valor={i.politicaDeCancelamento} campo="politicaDeCancelamento" />
+          </p>
+        )}
       </Secao>
 
       <Secao titulo="6. Uso dos materiais">
@@ -114,11 +130,21 @@ export default function TermosPage() {
       <Secao titulo="9. Mudanças nestes termos">
         <p>
           Estes termos podem ser atualizados. A data da versão em vigor aparece no topo da página; mudanças relevantes
-          serão avisadas no site ou por e-mail e, quando necessário, pediremos um novo aceite.
+          serão avisadas no site ou por e-mail e, quando necessário, pediremos um novo aceite. As mudanças não alteram as
+          condições das compras já feitas, que seguem os termos em vigor na data da compra.
         </p>
       </Secao>
 
-      <Secao titulo="10. Foro">
+      <Secao titulo="10. Atendimento">
+        <p>
+          Dúvidas, pedidos de cancelamento e reclamações podem ser enviados ao atendimento:
+          {i.whatsapp && <> WhatsApp <a href={linkDoWhatsApp(i.whatsapp)}>{formatarTelefoneFixoOuCelular(i.whatsapp)}</a>,</>}
+          {i.emailAtendimento && <> e-mail <a href={`mailto:${i.emailAtendimento}`}>{i.emailAtendimento}</a></>}
+          {i.horarioAtendimento && <> ({i.horarioAtendimento})</>}. Respondemos pelo mesmo canal.
+        </p>
+      </Secao>
+
+      <Secao titulo="11. Foro">
         <p>
           Fica eleito o foro da comarca de <Dado valor={i.foro} campo="foro" /> para resolver questões relacionadas a estes termos,
           sem prejuízo do direito do consumidor de recorrer ao foro do seu domicílio.

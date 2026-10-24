@@ -84,9 +84,17 @@ export default function PrivacidadePage() {
             <strong>ViaCEP</strong>, que recebe apenas o CEP digitado no cadastro, para preencher o endereço
             automaticamente.
           </li>
+          <li>
+            Ferramentas de análise de audiência e de anúncios (como Google e Meta), <strong>somente se você aceitar</strong>{" "}
+            esses cookies (item 5).
+          </li>
           <li>Autoridades públicas, quando houver obrigação legal ou ordem judicial.</li>
         </ul>
         <p>Não vendemos os seus dados pessoais.</p>
+        <p>
+          Alguns desses parceiros podem guardar dados em servidores fora do Brasil. Nesses casos, a transferência segue o
+          artigo 33 da LGPD: só é feita com parceiros que garantem, por contrato, o mesmo nível de proteção exigido aqui.
+        </p>
       </Secao>
 
       <Secao titulo="5. Cookies e armazenamento no navegador" id="cookies">
@@ -171,7 +179,8 @@ export default function PrivacidadePage() {
       <Secao titulo="10. Mudanças nesta política">
         <p>
           Podemos atualizar esta política para refletir mudanças no serviço ou na lei. A data da versão em vigor aparece no
-          topo da página; mudanças relevantes serão avisadas no site ou por e-mail.
+          topo da página; mudanças relevantes serão avisadas no site ou por e-mail, com destaque para o que mudou. Se a
+          mudança afetar algo que depende do seu consentimento, você poderá revogá-lo caso não concorde.
         </p>
       </Secao>
     </PaginaInstitucional>
