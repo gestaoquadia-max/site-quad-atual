@@ -4,21 +4,23 @@
 export const institucional = {
   nomeFantasia: "Quad Concursos",
   razaoSocial: "",
-  cnpj: "",
+  cnpj: "27.298.324/0001-04",
   cidade: "Feira de Santana — BA",
-  // Endereço completo da sede, ex.: "Rua X, 123 — Centro, Feira de Santana — BA, 44000-000"
-  endereco: "",
+  // Endereço da sede: rua e bairro, e CEP (separados para os dados estruturados do Google); o completo é montado abaixo.
+  logradouro: "Rua Leolinda Bacelar, 245 — Kalilândia",
+  cep: "44001-240",
+  endereco: "Rua Leolinda Bacelar, 245 — Kalilândia, Feira de Santana — BA, 44001-240",
   // Só dígitos com DDD, ex.: "75999990000". Número do atendimento informado na entrega do novo visual (out/2026).
   whatsapp: "75991884598",
-  telefone: "",
-  emailAtendimento: "",
+  telefone: "75981442124",
+  emailAtendimento: "suporte@quadconcursos.com.br",
   // Encarregado de dados (LGPD, art. 41): o nome tem de ser público, com o contato.
   encarregado: "",
   // E-mail do encarregado de dados (LGPD), para pedidos de acesso, correção ou exclusão de dados
   emailPrivacidade: "",
   // Usuário sem @, ex.: "quadconcursos"
-  instagram: "",
-  horarioAtendimento: "",
+  instagram: "quadconcursos",
+  horarioAtendimento: "Segunda a sexta, das 8h às 18h · Sábado, das 8h às 12h",
   // Foro escolhido pela assessoria jurídica para os Termos de uso
   foro: "",
 };

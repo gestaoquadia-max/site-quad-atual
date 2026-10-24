@@ -17,6 +17,9 @@ function Canal({ titulo, valor, campo, href, destaque = false }: { titulo: strin
   // No site publicado, canal sem dado não aparece.
   if (!valor && !emDesenvolvimento) return null;
   const externo = href?.startsWith("http");
+  // Valor longo sem espaço (e-mail): letra menor e, se ainda precisar quebrar, logo depois do "@".
+  const longo = valor.length > 22 && !valor.includes(" ");
+  const partes = valor.includes("@") && !valor.startsWith("@") ? valor.split("@") : null;
   return (
     <div className={`flex flex-col gap-2 rounded-[18px] border p-6 ${destaque ? "border-transparent bg-marinho-900 text-white" : "border-linha bg-white"}`}>
       <div className={`text-xs font-bold uppercase tracking-[0.12em] ${destaque ? "text-azul-ceu" : "text-azul-forte"}`}>{titulo}</div>
@@ -25,13 +28,20 @@ function Canal({ titulo, valor, campo, href, destaque = false }: { titulo: strin
           href={href}
           target={externo ? "_blank" : undefined}
           rel={externo ? "noopener noreferrer" : undefined}
-          className={`font-display text-xl font-extrabold underline-offset-4 hover:underline ${destaque ? "text-white hover:text-white" : "text-tinta hover:text-azul"}`}
+          className={`font-display ${longo ? "text-[17px]" : "text-xl"} font-extrabold underline-offset-4 [overflow-wrap:anywhere] hover:underline ${destaque ? "text-white hover:text-white" : "text-tinta hover:text-azul"}`}
         >
-          {valor}
+          {partes ? (
+            <>
+              {partes[0]}@<wbr />
+              {partes[1]}
+            </>
+          ) : (
+            valor
+          )}
           {externo && <span className="sr-only"> (abre em nova aba)</span>}
         </a>
       ) : (
-        <div className="font-display text-xl font-extrabold">
+        <div className="font-display text-xl font-extrabold [overflow-wrap:anywhere]">
           <Dado valor={valor} campo={campo} />
         </div>
       )}

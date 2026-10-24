@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PersonArmsSpread } from "@phosphor-icons/react/dist/ssr";
 import BotaoPreferenciasDeCookies from "./BotaoPreferenciasDeCookies";
 import BotaoWhatsApp from "./BotaoWhatsApp";
+import { institucional } from "@/lib/institucional";
 
 const NAVEGACAO = [
   ["Turmas Presenciais", "/turmas"],
@@ -50,7 +51,15 @@ export default function Footer() {
               >
                 <PersonArmsSpread size={20} weight="bold" aria-hidden="true" />
               </Link>
-              © {new Date().getFullYear()} Quad Concursos. Todos os direitos reservados.
+              <span>
+                © {new Date().getFullYear()} Quad Concursos. Todos os direitos reservados.
+                {/* Identificação do fornecedor no comércio eletrônico (Decreto 7.962/2013, art. 2º). */}
+                {(institucional.cnpj || institucional.endereco) && (
+                  <span className="mt-0.5 block">
+                    {[institucional.cnpj && `CNPJ ${institucional.cnpj}`, institucional.endereco].filter(Boolean).join(" · ")}
+                  </span>
+                )}
+              </span>
             </span>
             <nav aria-label="Institucional" className="flex flex-auto flex-wrap justify-end gap-x-[18px] gap-y-1">
               {INSTITUCIONAL.map(([rotulo, href]) => (

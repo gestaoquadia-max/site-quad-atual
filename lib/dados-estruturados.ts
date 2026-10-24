@@ -11,7 +11,8 @@ const IMAGEM = `${URL_DO_SITE}/opengraph-image`;
 function endereco() {
   return {
     "@type": "PostalAddress",
-    ...(institucional.endereco ? { streetAddress: institucional.endereco } : {}),
+    ...(institucional.logradouro ? { streetAddress: institucional.logradouro } : {}),
+    ...(institucional.cep ? { postalCode: institucional.cep } : {}),
     addressLocality: "Feira de Santana",
     addressRegion: "BA",
     addressCountry: "BR",
