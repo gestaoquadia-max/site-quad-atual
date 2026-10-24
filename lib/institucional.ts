@@ -20,7 +20,7 @@ export const institucional = {
   emailPrivacidade: "",
   // Usuário sem @, ex.: "quadconcursos"
   instagram: "quadconcursos",
-  horarioAtendimento: "Segunda a sexta, das 8h às 18h · Sábado, das 8h às 12h",
+  horarioAtendimento: "Segunda a sexta, das 8h às 21h · Sábado, das 8h às 12h",
   // Foro escolhido pela assessoria jurídica para os Termos de uso
   foro: "",
 };
