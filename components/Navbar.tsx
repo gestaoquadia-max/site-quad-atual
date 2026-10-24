@@ -55,7 +55,8 @@ function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): 
       href: "/turmas",
       label: "Turmas Presenciais",
       menu: {
-        items: turmas.map((t) => ({ href: `/turmas/${t.slug}`, nome: t.nome, meta: t.statusLabel, status: t.status })),
+        // O turno junto das vagas ("Manhã · 40 vagas restantes"): turmas da mesma modalidade se distinguem por ele.
+        items: turmas.map((t) => ({ href: `/turmas/${t.slug}`, nome: t.nome, meta: [t.turno, t.statusLabel].filter(Boolean).join(" · "), status: t.status })),
         featured: turmaDestaque
           ? {
               eyebrow: "Turma em destaque",
