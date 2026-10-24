@@ -8,7 +8,7 @@ import Trilha from "@/components/Trilha";
 import { metadadosDaPagina } from "@/lib/seo";
 
 // Foto recortada (sem fundo) usada no topo, pelo nome; quem não tem usa a foto do cadastro.
-const FOTO_DO_TOPO: Record<string, string> = { "Danilo Moura": "/images/danilo-hero.png" };
+const FOTO_DO_TOPO: Record<string, string> = { "Danilo Ribeiro Moura": "/images/danilo-hero.png" };
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts). Professor cadastrado depois do build é gerado na primeira visita.
 export const revalidate = 60;

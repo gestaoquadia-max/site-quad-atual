@@ -659,7 +659,7 @@ type ProfessorDaVitrine = {
 };
 
 // Fotos que o site já tinha enquanto o cadastro não tem foto. A foto da API, quando houver, vale mais.
-const FOTO_DO_SITE: Record<string, string> = { "Danilo Moura": "/images/professores/danilo.webp" };
+const FOTO_DO_SITE: Record<string, string> = { "Danilo Ribeiro Moura": "/images/professores/danilo.webp" };
 
 // A minibio é a graduação do cadastro. "Sem graduação" (o padrão do console) não é minibio: o site não mostra.
 // Várias linhas (uma formação por linha) viram uma frase: "Graduação em Direito · Pós em Direito Civil".
