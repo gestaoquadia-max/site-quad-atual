@@ -14,9 +14,12 @@ test("o seletor de turno leva à turma do outro turno", async ({ page }) => {
     const outro = seletor.getByRole("link").first();
     if (!(await outro.count())) continue;
     const titulo = (await page.getByRole("heading", { level: 1 }).textContent())!.trim();
-    const turno = (await outro.textContent())!.trim();
+    // O botão mostra o turno e, embaixo, a turma de destino ("Noite" / "RONDESP 2").
+    const [turno, destino] = (await outro.innerText()).split("
+").map((t) => t.trim());
     await outro.click();
     await expect(page.getByRole("heading", { level: 1 })).not.toHaveText(titulo);
+    if (destino) await expect(page.getByRole("heading", { level: 1 })).toHaveText(destino);
     await expect(page.getByRole("navigation", { name: /Turno/ }).locator('[aria-current="page"]')).toHaveText(turno);
     achou = true;
     break;
