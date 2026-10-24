@@ -14,6 +14,7 @@ export const metadata = metadadosDaPagina({
 export const revalidate = 60;
 
 // Todos os professores da vitrine da API, com os mesmos cartões da home; cada um leva à página dele.
+// No celular, duas colunas de cartões compactos; do tablet em diante, quantas couberem.
 export default async function ProfessoresPage() {
   const professores = await listarProfessores();
 
@@ -23,10 +24,10 @@ export default async function ProfessoresPage() {
       <section className="bg-marinho-950 pb-[clamp(56px,7vw,96px)] pt-[clamp(8px,2vw,24px)] text-white">
         <div className="conteiner">
           {professores && professores.length > 0 ? (
-            <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-5">
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(260px,1fr))] sm:gap-5">
               {professores.map((p) => (
                 <li key={p.slug}>
-                  <CartaoProfessor professor={p} />
+                  <CartaoProfessor professor={p} compacto />
                 </li>
               ))}
             </ul>

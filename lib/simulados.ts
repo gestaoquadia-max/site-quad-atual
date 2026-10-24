@@ -1,6 +1,7 @@
 // Central de Simulados do Quad (redesenho, out/2026): carreiras → edições → formatos → compra.
 // As carreiras e edições vêm da vitrine da API (listarCarreiras em lib/vitrine.ts); aqui ficam os tipos e as regras de venda.
 // A API ainda não tem PDF, plataforma, impresso nem combos por edição (docs/pedidos-backend.md, item 5.3): esses campos ficam vazios.
+import { precoSemCentavosZerados } from "./format";
 
 export type Inscricao = "a-confirmar" | "abertas" | "encerradas" | "esgotado";
 export type FormatoDeEstudo = "pdf" | "plataforma" | "impresso";
@@ -122,5 +123,5 @@ export function dataCurta(iso: string) {
 }
 
 export function precoOuACadastrar(preco: number | null) {
-  return preco == null ? "Valor a cadastrar" : preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  return preco == null ? "Valor a cadastrar" : precoSemCentavosZerados(preco);
 }

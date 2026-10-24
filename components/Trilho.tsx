@@ -104,7 +104,8 @@ export default function Trilho({
     <>
       <Reveal className="mb-[clamp(28px,3.4vw,40px)] flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
         <h2 className="titulo-secao flex-auto">{titulo}</h2>
-        <div className="flex items-center gap-[18px]">
+        {/* No celular, o link fica à esquerda e as setas à direita. */}
+        <div className="flex w-full items-center justify-between gap-[18px] sm:w-auto sm:justify-start">
           {link && (
             <Link href={link.href} className={`inline-flex min-h-[44px] items-center gap-2 whitespace-nowrap font-display text-[15px] font-bold ${cores.link}`}>
               {link.label}

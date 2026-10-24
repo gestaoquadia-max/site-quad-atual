@@ -127,16 +127,17 @@ export default function CartaoMaterial({ produto, indice }: { produto: Produto; 
         <div className="flex-1" />
         <div className="mt-[18px] flex flex-col gap-3.5 border-t border-white/[0.08] pt-4">
           <PrecoEmDestaque preco={produto.preco} />
-          <div className="flex gap-2">
+          {/* Cartão estreito (carrossel no celular): os botões passam para linhas próprias em vez de cortar. */}
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={adicionar}
               disabled={produto.esgotado}
-              className="btn-q btn-q-azul h-11 flex-1 px-3 text-[13.5px] disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-prata disabled:shadow-none"
+              className="btn-q btn-q-azul h-11 flex-[1_1_150px] px-3 text-[13.5px] disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-prata disabled:shadow-none"
             >
               {produto.esgotado ? "Esgotado" : "Adicionar ao carrinho"}
             </button>
-            <Link href={`/produtos/${produto.slug}`} className="btn-q btn-q-contorno-escuro h-11 px-3.5 text-[13.5px]">
+            <Link href={`/produtos/${produto.slug}`} className="btn-q btn-q-contorno-escuro h-11 flex-[1_1_80px] px-3.5 text-[13.5px]">
               Detalhes
             </Link>
           </div>

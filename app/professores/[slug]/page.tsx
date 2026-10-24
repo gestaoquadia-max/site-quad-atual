@@ -80,9 +80,14 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
       {outros.length > 0 && (
         <section className="secao bg-white">
           <div className="conteiner">
-            <h2 className="titulo-secao mb-8">Outros professores</h2>
+            <div className="mb-8 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+              <h2 className="titulo-secao">Outros professores</h2>
+              <Link href="/professores" className="font-display text-[15px] font-bold text-azul-forte hover:text-marinho-600">
+                Ver todos os professores →
+              </Link>
+            </div>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,280px),1fr))] gap-5">
-              {outros.map((p) => (
+              {outros.slice(0, 8).map((p) => (
                 <Link
                   key={p.slug}
                   href={`/professores/${p.slug}`}

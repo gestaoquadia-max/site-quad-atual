@@ -104,7 +104,7 @@ export default function AgendaDeEventos({ eventos }: { eventos: Evento[] | null 
           <div className="mb-[clamp(24px,3vw,36px)] flex flex-wrap items-end justify-between gap-4">
             <h2 className="titulo-secao">Próximos eventos</h2>
             {lista.length > 0 && (
-              <div role="group" aria-label="Situação" className="flex flex-wrap gap-2">
+              <div role="group" aria-label="Situação" className="sem-barra -mx-1 flex max-w-full gap-2 overflow-x-auto px-1 py-0.5 sm:flex-wrap sm:overflow-visible">
                 {FILTROS.map((f) => (
                   <button
                     key={f.valor}

@@ -14,7 +14,7 @@ export default function ListaDaLoja({ produtos }: { produtos: ProdutoDaLoja[] })
   return (
     <>
       {categorias.length > 1 && (
-        <div role="group" aria-label="Categorias" className="flex flex-wrap gap-2">
+        <div role="group" aria-label="Categorias" className="sem-barra -mx-1 flex max-w-full gap-2 overflow-x-auto px-1 py-0.5 sm:flex-wrap sm:overflow-visible">
           {[null, ...categorias.map((c) => c.id)].map((id) => {
             const ligado = categoria === id;
             return (

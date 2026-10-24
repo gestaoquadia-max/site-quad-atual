@@ -68,9 +68,9 @@ export default function CaixaDeInscricao({
       </div>
       {vagas && (
         <div className="mt-4">
-          <div className="mb-2 flex justify-between gap-3 text-[13px] text-prata">
+          <div className="mb-2 flex flex-wrap justify-between gap-x-3 gap-y-0.5 text-[13px] text-prata">
             <span>Inscrições confirmadas</span>
-            <strong className="font-semibold text-white">
+            <strong className="whitespace-nowrap font-semibold text-white">
               {vagas.ocupadas} de {vagas.total} vagas preenchidas
             </strong>
           </div>

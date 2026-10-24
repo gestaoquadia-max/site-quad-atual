@@ -200,7 +200,8 @@ function Filtro({ rotulo, opcoes, atual, onEscolher, todos }: {
       ligado ? "border-marinho-900 bg-marinho-900 text-white" : "border-[#D3DCE7] bg-white text-ardosia-escura hover:border-azul"
     }`;
   return (
-    <div role="group" aria-label={rotulo} className="flex flex-wrap gap-1.5">
+    // No celular, numa linha só que rola para o lado (sem sobrar um filtro sozinho embaixo).
+    <div role="group" aria-label={rotulo} className="sem-barra -mx-1 flex max-w-full gap-1.5 overflow-x-auto px-1 py-0.5 sm:flex-wrap sm:overflow-visible">
       <button type="button" aria-pressed={atual === null} onClick={() => onEscolher(null)} className={chip(atual === null)}>
         {todos}
       </button>

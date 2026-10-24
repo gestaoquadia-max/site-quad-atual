@@ -61,7 +61,7 @@ export default function Footer() {
                 )}
               </span>
             </span>
-            <nav aria-label="Institucional" className="flex flex-auto flex-wrap justify-end gap-x-[18px] gap-y-1">
+            <nav aria-label="Institucional" className="flex flex-auto flex-wrap justify-start gap-x-[18px] gap-y-1 sm:justify-end">
               {INSTITUCIONAL.map(([rotulo, href]) => (
                 <Link key={href} href={href} className="inline-flex min-h-8 items-center text-[12.5px] text-prata-escura transition-colors hover:text-white">
                   {rotulo}
