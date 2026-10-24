@@ -15,9 +15,9 @@ export const institucional = {
   telefone: "75981442124",
   emailAtendimento: "suporte@quadconcursos.com.br",
   // Encarregado de dados (LGPD, art. 41): o nome tem de ser público, com o contato.
-  encarregado: "",
+  encarregado: "Amanda Jennifer",
   // E-mail do encarregado de dados (LGPD), para pedidos de acesso, correção ou exclusão de dados
-  emailPrivacidade: "",
+  emailPrivacidade: "suporte@quadconcursos.com.br",
   // Usuário sem @, ex.: "quadconcursos"
   instagram: "quadconcursos",
   horarioAtendimento: "Segunda a sexta, das 8h às 21h · Sábado, das 8h às 12h",
