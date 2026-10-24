@@ -42,7 +42,7 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
         {/* Breadcrumb numa faixa própria no topo; abaixo, texto e foto lado a lado: o texto logo abaixo do breadcrumb e os
             botões embaixo, na altura em que a foto termina. */}
         <div className="conteiner relative pt-[clamp(28px,4vw,48px)]">
-          <Trilha itens={[{ rotulo: "Início", href: "/" }, { rotulo: "Professores", href: "/#professores" }, { rotulo: professor.nome }]} />
+          <Trilha itens={[{ rotulo: "Início", href: "/" }, { rotulo: "Professores", href: "/professores" }, { rotulo: professor.nome }]} />
         </div>
         <div className="conteiner relative grid items-start gap-x-10 md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <div className="flex flex-col self-stretch pb-[clamp(32px,4vw,56px)] pt-[clamp(24px,3vw,40px)]">
@@ -53,7 +53,7 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
               <Link href="/turmas" className="btn-q btn-q-azul h-[52px] px-6 text-[15px]">
                 Conhecer as turmas presenciais
               </Link>
-              <Link href="/#professores" className="btn-q btn-q-contorno-escuro h-[52px] px-6 text-[15px]">
+              <Link href="/professores" className="btn-q btn-q-contorno-escuro h-[52px] px-6 text-[15px]">
                 Todos os professores
               </Link>
             </div>

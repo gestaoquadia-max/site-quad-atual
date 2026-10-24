@@ -91,7 +91,7 @@ export default async function Home() {
 
       {!!professores?.length && (
         <Secao id="professores" className="bg-marinho-950 text-white" brilho="bg-[radial-gradient(45%_55%_at_0%_0%,rgba(0,107,255,0.16),transparent_70%)]">
-          <Trilho titulo="Conheça nossos professores" rotulo="Professores" tema="escuro" colunas={4}>
+          <Trilho titulo="Conheça nossos professores" link={{ href: "/professores", label: "Ver todos os professores" }} rotulo="Professores" tema="escuro" colunas={4}>
             {professores.map((p) => (
               <CartaoProfessor key={p.slug} professor={p} />
             ))}

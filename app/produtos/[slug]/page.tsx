@@ -70,6 +70,19 @@ export default async function ProdutoDetalhe({ params }: { params: Promise<{ slu
           </div>
         </div>
       </section>
+
+      {/* Bloco claro entre o topo escuro e o rodapé (que tem quase a mesma cor): convite para os outros materiais. */}
+      <section className="bg-white py-[clamp(56px,7vw,96px)]">
+        <div className="mx-auto flex max-w-[1200px] flex-wrap items-end justify-between gap-6 px-[clamp(20px,4vw,32px)]">
+          <div className="max-w-[640px]">
+            <h2 className="titulo-secao mb-3">Monte o seu material de estudo</h2>
+            <p className="text-[17px] leading-[1.6] text-ardosia">Apostilas e kits feitos para a banca, com retirada gratuita no Quad.</p>
+          </div>
+          <Link href="/produtos" className="btn-q btn-q-azul h-[54px] px-7 text-base">
+            Ver todos os materiais
+          </Link>
+        </div>
+      </section>
     </>
   );
 }

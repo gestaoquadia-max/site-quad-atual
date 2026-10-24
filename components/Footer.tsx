@@ -9,7 +9,7 @@ const NAVEGACAO = [
   ["Loja", "/loja"],
   ["Eventos", "/eventos"],
   ["Aprovados", "/aprovados"],
-  ["Professores", "/#professores"],
+  ["Professores", "/professores"],
 ];
 
 const INSTITUCIONAL = [
