@@ -42,7 +42,7 @@ test.describe("área do aluno (conta A)", () => {
   test("compras mostram só as feitas em reais, com valor e situação", async ({ page }) => {
     await page.goto("/aluno/compras");
     // A conta A acumula compras dos testes de pagamento no sandbox: confere que cada situação aparece, não quantas.
-    await expect(page.getByText("R$ 997,00")).toBeVisible();
+    await expect(page.getByText("R$ 997,00").first()).toBeVisible();
     await expect(page.getByText("Pago", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("Aguardando pagamento").first()).toBeVisible();
     await expect(page.getByRole("button", { name: "Copiar código PIX" }).first()).toBeVisible();
