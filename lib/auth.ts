@@ -43,6 +43,18 @@ export async function login(email: string, senha: string): Promise<void> {
   avisarMudanca();
 }
 
+// Entrada pelo Google numa conta que JÁ EXISTE (a API não cria conta por aqui): o idToken vem do botão do Google
+// (components/acesso/EntrarComGoogle.tsx), e a resposta é a mesma do login, com os cookies.
+export async function loginComGoogle(idToken: string): Promise<void> {
+  const res = await enviarParaAApi("/auth/google", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken }),
+  });
+  if (!res.ok) throw await lerErro(res, "Não foi possível entrar com o Google.");
+  avisarMudanca();
+}
+
 // Revoga a sessão na API, que também apaga os três cookies.
 export async function logout() {
   try {

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { idDoItem } from "@/lib/itens";
+import { precoSemCentavosZerados } from "@/lib/format";
 import { esgotada, faixasDosLotes, horarioDoDia, insigniaDaTurma, NOME_DO_TURNO, precoCheioDaOferta, precoDaOferta, textoDoLote, type TurmaComTurnos } from "@/lib/turmas";
 import AviseMePeloWhatsApp from "../AviseMePeloWhatsApp";
 import { useCart } from "@/lib/cart";
@@ -35,6 +36,9 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
   const preco = precoDaOferta(oferta);
   const precoCheio = precoCheioDaOferta(oferta);
   const faixas = faixasDosLotes(oferta);
+  // Barra por lote só enquanto há lote promocional em vigor (no último, o preço já é o cheio).
+  const lotes = oferta.lotes && oferta.lotes.some((l, i) => l.situacao === "VIGENTE" && i < oferta.lotes!.length - 1) ? oferta.lotes : null;
+  const totalDosLotes = lotes?.reduce((soma, l) => soma + l.quantidade, 0) || 1;
   const lote = textoDoLote(oferta.lote);
   const semVagas = esgotada(oferta);
   const duracao = oferta.inicio && oferta.termino ? meses(oferta.inicio, oferta.termino) : null;
@@ -104,7 +108,20 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
             aria-valuemax={100}
             aria-valuetext={`${oferta.vagas.ocupadas} de ${oferta.vagas.total} vagas preenchidas`}
           >
-            {faixas && !semVagas ? (
+            {lotes && !semVagas ? (
+              // Um pedaço por lote, do tamanho das suas vagas: esgotados em azul, o vigente com as vendidas em azul e as
+              // que restam em âmbar, os futuros vazios. Uma divisória marca onde o preço muda.
+              lotes.map((l, i) => {
+                const largura = (l.quantidade / totalDosLotes) * 100;
+                const vendidas = l.quantidade - l.restantes;
+                return (
+                  <div key={i} className={`flex h-full ${i > 0 ? "border-l-2 border-marinho-950" : ""}`} style={{ width: `${largura}%` }}>
+                    <div className="h-full bg-[linear-gradient(90deg,#2F86FF,#6FAEFF)]" style={{ width: `${(vendidas / l.quantidade) * 100}%` }} />
+                    {l.situacao === "VIGENTE" && <div className="h-full flex-1 bg-[#FFD27A] shadow-[0_0_10px_#FFD27A]" />}
+                  </div>
+                );
+              })
+            ) : faixas && !semVagas ? (
               // Por lote: vendidas (azul), as que ainda saem no preço atual (âmbar) e as dos próximos lotes (vazio).
               <>
                 <div className="h-full bg-[linear-gradient(90deg,#2F86FF,#6FAEFF)]" style={{ width: `${((faixas.anteriores + faixas.vendidasNoAtual) / faixas.total) * 100}%` }} />
@@ -115,8 +132,30 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
               <div className="h-full rounded-full bg-[linear-gradient(90deg,#2F86FF,#6FAEFF)]" style={{ width: `${pct}%` }} />
             )}
           </div>
-          {/* Legenda dos lotes: quanto ainda sai neste preço e quanto vem depois, a outro preço. */}
-          {faixas && !semVagas && oferta.loteAtual && (
+          {/* Legenda por lote: cada um com o preço e as vagas; o vigente em destaque, os esgotados riscados. */}
+          {lotes && !semVagas ? (
+            <ul className="mt-3 flex flex-col gap-1.5 text-[13px]">
+              {lotes.map((l, i) => (
+                <li key={i} className={`flex items-center justify-between gap-3 ${l.situacao === "VIGENTE" ? "font-semibold text-[#FFD27A]" : l.situacao === "ESGOTADO" ? "text-prata/60" : "text-prata"}`}>
+                  <span className="inline-flex items-center gap-2">
+                    <span aria-hidden="true" className={`h-2 w-2 flex-none rounded-full ${l.situacao === "VIGENTE" ? "bg-[#FFD27A]" : l.situacao === "ESGOTADO" ? "bg-azul-vivo" : "bg-white/25"}`} />
+                    <span className={l.situacao === "ESGOTADO" ? "line-through" : ""}>
+                      {l.rotulo} · {precoSemCentavosZerados(l.precoEmCentavos / 100)}
+                    </span>
+                  </span>
+                  <span className="whitespace-nowrap">
+                    {l.situacao === "ESGOTADO"
+                      ? "esgotado"
+                      : l.situacao === "VIGENTE"
+                        ? l.restantes === 1
+                          ? "resta 1 vaga neste preço"
+                          : `restam ${l.restantes} vagas neste preço`
+                        : `${l.quantidade} vagas`}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : faixas && !semVagas && oferta.loteAtual && (
             <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px]">
               <span className="inline-flex items-center gap-2 font-semibold text-[#FFD27A]">
                 <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#FFD27A]" />

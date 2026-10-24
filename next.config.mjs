@@ -12,13 +12,15 @@ const origemDaApi = API_URL ? new URL(API_URL).origin : "";
 const politicaDeConteudo = [
   "default-src 'self'",
   // 'unsafe-eval' só em desenvolvimento: o React usa eval para mostrar os erros. Em produção não precisa.
-  `script-src 'self' 'unsafe-inline'${emDesenvolvimento ? " 'unsafe-eval'" : ""}`,
-  "style-src 'self' 'unsafe-inline'",
+  // accounts.google.com: o botão "Entrar com o Google" (script, estilo e o quadro do botão).
+  `script-src 'self' 'unsafe-inline' https://accounts.google.com${emDesenvolvimento ? " 'unsafe-eval'" : ""}`,
+  "style-src 'self' 'unsafe-inline' https://accounts.google.com",
+  "frame-src https://accounts.google.com",
   // Imagens da API (S3) e fotos de aprovados vêm de outros endereços https.
   "img-src 'self' data: blob: https:",
   "font-src 'self'",
   // A API, a busca de endereço pelo CEP e a tokenização do cartão no Pagar.me (lib/pagarme.ts).
-  ["connect-src 'self'", origemDaApi, "https://viacep.com.br", "https://api.pagar.me"].filter(Boolean).join(" "),
+  ["connect-src 'self'", origemDaApi, "https://viacep.com.br", "https://api.pagar.me", "https://accounts.google.com"].filter(Boolean).join(" "),
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

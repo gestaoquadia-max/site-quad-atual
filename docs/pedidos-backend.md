@@ -3,7 +3,7 @@
 **De:** time do site (Next.js) · **Atualizado em:** 23/10/2026
 **Base:** testes na API local (`localhost:8080`) e leituras públicas da API de produção (`https://api.quadconcursos.com.br`).
 
-Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
+Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
 
 > **Banco compartilhado:** a API e o banco também atendem o **app Viver o Quad**. Toda mudança pedida aqui precisa considerar o impacto no app; os itens em que isso pesa estão marcados com ⚠️.
 
@@ -19,8 +19,8 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 1.2 | Produção: `CORS_ORIGENS` com o domínio do site e `COOKIES_DOMINIO` | Alta (antes do lançamento) |
 | 1.3 | Autorizar o domínio do site na conta do Pagar.me | Alta (antes do lançamento) |
 | 1.4 | Publicar a API e o site juntos (preços em centavos) | Alta (no lançamento) |
+| 1.5 | Entrada pelo Google: client ID do Quad no Google Cloud | Média |
 | 2.6 | Vitrine: atividades gratuitas | Média |
-| 2.7 | Vitrine: a lista de lotes (preço cheio e vagas de cada lote) | Alta |
 | 3 | Professores: fotos e só os professores do site | Média |
 | 4.1 | Verificação do celular por código ⚠️ | Alta |
 | 4.2 | `emailVerificado` e `telefoneVerificado` no cadastro do aluno | Alta |
@@ -62,6 +62,12 @@ Deve responder 200, com essa origem em `Access-Control-Allow-Origin` e `idempote
 
 **O pedido.** Combinar a publicação: API e site no mesmo momento.
 
+### 1.5 Entrada pelo Google
+
+**Entregue em 24/10/2026** (`POST /auth/google`, só para contas que já existem), e o site já tem o botão "Continuar com o Google" na tela de login. Falta configurar:
+- **Client ID do tipo Web** do projeto do Quad no Google Cloud: em `GOOGLE_CLIENT_IDS` na API (local e produção) e em `NEXT_PUBLIC_GOOGLE_CLIENT_ID` no site. Sem ele, a API responde 503 `ENTRADA_EXTERNA_DESLIGADA` e o site esconde o botão.
+- **Origens autorizadas** no mesmo client ID: `https://quadconcursos.com.br`, `https://www.quadconcursos.com.br` e `http://localhost:3000` (testes).
+
 ---
 
 ## 2. Vitrine pública
@@ -73,26 +79,6 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 **Por que o site precisa.** A vitrine só lista o que tem preço maior que zero. Um evento ou simulado gratuito não aparece no site, embora o site já saiba inscrever direto (`POST /api/inscricoes/eu`).
 
 **O pedido.** Listar também as atividades gratuitas abertas a inscrição (com `preco: 0`), ou uma rota pública própria para elas.
-
-### 2.7 A lista de lotes na vitrine
-
-**Por que o site precisa.** A regra é que o último lote é o preço cheio e os anteriores são promoção (decisão de 24/10/2026). O site quer mostrar duas coisas que dependem de todos os lotes, e não só do vigente:
-- **O preço promocional:** "De ~~R$ 1.197~~ por R$ 997", na página e no cartão da turma (e depois em eventos, simulados e loja). O preço cheio é o do último lote.
-- **As vagas de cada lote** dentro das vagas totais, para dar urgência: uma barra dividida em "1º lote (esgotado) · 2º lote: R$ 997, restam 12 · Lote final: R$ 1.197, 15 vagas".
-
-A vitrine manda só o lote **vigente** (`ordem`, `rotulo`, `preco`, `quantidade`, `restantesNoLote`, `total`). Com ele, o site já mostra a parte do lote atual e soma o resto num bloco só ("próximos lotes: 25 vagas"), mas não sabe o preço do último lote nem como as vagas se dividem entre os próximos.
-
-**O pedido.** Acrescentar à vitrine (turma, evento, simulado e item) a lista de lotes em reais, na ordem em que se vendem:
-
-```
-lotes: [
-  { ordem: 1, rotulo: "1º lote",    preco: 79700,  quantidade: 10, restantes: 0  },
-  { ordem: 2, rotulo: "2º lote",    preco: 99700,  quantidade: 15, restantes: 12 },
-  { ordem: 3, rotulo: "Lote final", preco: 119700, quantidade: 15, restantes: 15 }
-]
-```
-
-Os preços em centavos, como o resto da vitrine. O `lote` vigente pode continuar como está. Se for mais simples, um campo `precoCheio` no `lote` vigente resolve só o preço riscado (o site já lê `lote.precoCheio`), mas não as vagas de cada lote.
 
 ---
 

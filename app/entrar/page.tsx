@@ -8,6 +8,7 @@ import { ErroDaApi } from "@/lib/http";
 import { destinoAposLogin } from "@/lib/redirecionamento";
 import AbasDeAcesso, { LinkDeAcesso } from "@/components/acesso/AbasDeAcesso";
 import { AvisoDeErro, BotaoPrincipal, Campo, TituloDoFormulario } from "@/components/acesso/Campos";
+import EntrarComGoogle from "@/components/acesso/EntrarComGoogle";
 
 export default function EntrarPage() {
   const router = useRouter();
@@ -53,6 +54,7 @@ export default function EntrarPage() {
         <BotaoPrincipal type="submit" carregando={carregando} textoCarregando="Entrando…">
           Entrar
         </BotaoPrincipal>
+        <EntrarComGoogle aoEntrar={() => router.push(destinoAposLogin())} />
         <div className="mt-1.5 flex flex-col gap-3 rounded-[14px] border border-linha bg-white p-5">
           <span className="font-display text-base font-extrabold text-tinta">Ainda não tem conta?</span>
           <span className="text-sm leading-[1.5] text-ardosia">Cadastre-se para acessar seus materiais, turmas e eventos.</span>

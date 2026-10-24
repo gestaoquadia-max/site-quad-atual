@@ -38,6 +38,8 @@ export type OfertaDaTurma = {
   restantesNoLote: number | null;
   // O lote em vigor, quando a oferta tem mais de um: a barra de vagas se divide por lote.
   loteAtual: { ordem: number; total: number; quantidade: number; restantes: number } | null;
+  // Todos os lotes, em ordem, quando há mais de um: restantes = vagas que ainda saem naquele preço.
+  lotes: { rotulo: string; precoEmCentavos: number; quantidade: number; situacao: "ESGOTADO" | "VIGENTE" | "FUTURO"; restantes: number }[] | null;
   // Nome que a API usa hoje, para quando a modalidade não pôde ser lida
   nomeOriginal: string;
 };

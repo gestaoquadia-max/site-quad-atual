@@ -42,6 +42,8 @@ type AtividadeDaVitrine = {
   vendidas: number | null;
   restantes: number | null;
   lote: LoteDaVitrine | null;
+  // A sequência inteira dos lotes em reais, em ordem (desde 24/10/2026); [] sem lotes.
+  lotes?: LoteDaSequencia[] | null;
   detalhe: {
     // TURMA: TURMA ou ISOLADA (calendário de turma com nome próprio).
     tipo?: string | null;
@@ -97,6 +99,8 @@ type LoteDaVitrine = {
   // (docs/pedidos-backend.md); enquanto não vem, o site não mostra o preço riscado.
   precoCheio?: number | null;
 };
+
+type LoteDaSequencia = { ordem: number; rotulo: string; preco: number; quantidade: number; situacao: "ESGOTADO" | "VIGENTE" | "FUTURO" };
 
 type Pagina<T> = { conteudo: T[] };
 
@@ -392,6 +396,17 @@ function paraOferta(a: AtividadeDaVitrine): OfertaDaTurma {
     loteAtual:
       a.lote && a.lote.total > 1
         ? { ordem: a.lote.ordem, total: a.lote.total, quantidade: a.lote.quantidade, restantes: a.lote.restantesNoLote }
+        : null,
+    // Com mais de um lote: cada um com preço e vagas, para a barra por lote.
+    lotes:
+      (a.lotes?.length ?? 0) > 1
+        ? a.lotes!.map((l) => ({
+            rotulo: l.rotulo,
+            precoEmCentavos: l.preco,
+            quantidade: l.quantidade,
+            situacao: l.situacao,
+            restantes: l.situacao === "VIGENTE" ? (a.lote?.restantesNoLote ?? l.quantidade) : l.situacao === "FUTURO" ? l.quantidade : 0,
+          }))
         : null,
     nomeOriginal: a.nome,
   };
