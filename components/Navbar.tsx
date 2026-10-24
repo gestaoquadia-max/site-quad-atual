@@ -48,7 +48,12 @@ type LinkDoMenu = {
 // vira um convite para a página da lista.
 // Ponto de cada turma no menu: a cor do turno, na escala de azul das etiquetas dos cartões (manhã clara, noite
 // escura). Turma lotada fica com a cor da situação.
-const COR_DO_TURNO: Record<string, string> = { Manhã: "bg-[#CFE2FF]", Tarde: "bg-[#6FAEFF]", Noite: "bg-[#2F6BFF]" };
+// Com o mesmo brilho dos pontos dos outros menus.
+const COR_DO_TURNO: Record<string, string> = {
+  Manhã: "bg-[#CFE2FF] shadow-[0_0_8px_#CFE2FF]",
+  Tarde: "bg-[#6FAEFF] shadow-[0_0_8px_#6FAEFF]",
+  Noite: "bg-[#2F6BFF] shadow-[0_0_8px_#2F6BFF]",
+};
 
 function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): LinkDoMenu[] {
   const kit = materiais.find(ehKit);
