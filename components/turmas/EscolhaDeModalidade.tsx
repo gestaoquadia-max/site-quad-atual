@@ -120,6 +120,13 @@ function EtiquetaDoTurno({ turno }: { turno: string }) {
   );
 }
 
+// Os turnos das turmas, na ordem do dia (Manhã, Tarde, Noite), para os filtros da lista.
+const ORDEM_DO_DIA = ["Manhã", "Tarde", "Noite", "Integral"];
+function turnosEmOrdem(turmas: Turma[]) {
+  const presentes = new Set(turmas.map((t) => t.turno).filter((t): t is string => !!t));
+  return [...presentes].sort((a, b) => (ORDEM_DO_DIA.indexOf(a) + 1 || 99) - (ORDEM_DO_DIA.indexOf(b) + 1 || 99));
+}
+
 function CartaoDaTurma({ turma, titulo }: { turma: Turma; titulo: string }) {
   const situacao = SITUACAO[turma.status];
   const campos = [
@@ -237,7 +244,7 @@ export function abasDasTurmas(turmas: Turma[] | null) {
 // Turmas de um cargo sem níveis (fora da PMBA, ou da PMBA sem nível): filtro de turno e a lista.
 function TurmasDoCargo({ turmas, aba }: { turmas: Turma[]; aba: string }) {
   const [turno, setTurno] = useState<string | null>(null);
-  const turnos = [...new Set(turmas.map((t) => t.turno).filter((t): t is string => !!t))];
+  const turnos = turnosEmOrdem(turmas);
   const visiveis = turmas.filter((t) => !turno || t.turno === turno);
   return (
     <div className="flex flex-col gap-5">
@@ -285,7 +292,7 @@ export default function EscolhaDeModalidade({
   // Aba sem níveis com uma modalidade só: ela já vem escolhida.
   const atual = opcoes.find((m) => m.id === selecionada) ?? (!comNiveis && opcoes.length === 1 ? opcoes[0] : null);
   const daModalidade = doCargo.filter((t) => atual && t.modalidadeId === atual.id);
-  const turnos = [...new Set(daModalidade.map((t) => t.turno).filter((t): t is string => !!t))];
+  const turnos = turnosEmOrdem(daModalidade);
   const visiveis = daModalidade.filter((t) => !turno || t.turno === turno);
   // Turma da PMBA que não tem nível no nome: aparece embaixo, para não sumir.
   const doCargoSemNivel = comNiveis ? doCargo.filter((t) => !t.modalidade) : [];
