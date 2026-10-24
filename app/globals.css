@@ -19,6 +19,12 @@ body {
 
 @keyframes q-surgir { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @keyframes q-aparecer { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+/* Faixa de avisos do topo (components/NewsTicker.tsx): a faixa tem duas cópias, então -50% volta ao começo sem salto.
+   Pausa ao passar o mouse e para quem pede menos movimento (WCAG 2.2.2). */
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.animate-marquee { animation: marquee 88s linear infinite; }
+.group:hover .animate-marquee { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .animate-marquee { animation: none; } }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; scroll-behavior: auto !important; }
 }
