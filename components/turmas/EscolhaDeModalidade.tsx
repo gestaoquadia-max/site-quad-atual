@@ -153,7 +153,14 @@ function CartaoDaTurma({ turma, titulo }: { turma: Turma; titulo: string }) {
       </dl>
       <div className="flex flex-col items-stretch gap-2.5">
         <div className="flex items-baseline justify-between gap-3">
-          <span className="text-[11.5px] font-semibold uppercase tracking-[0.06em] text-ardosia">Valor</span>
+          {/* Preço promocional (lote atual mais barato que o último): o cheio vem riscado no lugar do rótulo. */}
+          {preco && turma.precoCheio ? (
+            <span className="text-[13px] text-ardosia">
+              De <s>{turma.precoCheio}</s> por
+            </span>
+          ) : (
+            <span className="text-[11.5px] font-semibold uppercase tracking-[0.06em] text-ardosia">Valor</span>
+          )}
           <span className={`font-display font-extrabold tracking-[-0.02em] ${preco ? "text-[26px] leading-none text-tinta" : "text-base text-ardosia"}`}>{preco ?? A_CONFIRMAR}</span>
         </div>
         {turma.status === "aberta" ? (

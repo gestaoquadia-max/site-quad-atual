@@ -32,6 +32,10 @@ export type OfertaDaTurma = {
   descricao: string | null;
   imagemUrl: string | null;
   lote: string | null; // o rótulo da API ("2º lote", "Lote final"), só quando a oferta tem mais de um lote
+  // Preço promocional: o preço cheio é o do ÚLTIMO lote. Só vem preenchido quando o lote atual é mais barato.
+  precoCheioEmCentavos: number | null;
+  // Quantas vagas ainda saem no preço atual, antes de virar o lote; só antes do último lote.
+  restantesNoLote: number | null;
   // Nome que a API usa hoje, para quando a modalidade não pôde ser lida
   nomeOriginal: string;
 };
@@ -126,6 +130,10 @@ export function horarioDoDia(horarios: OfertaDaTurma["horarios"]) {
   // Do início do 1º bloco ao fim do último (HORA INÍCIO 01 → HORA FIM 02): "8h às 11h", sem o intervalo do meio.
   if (horarios.length === 0) return "";
   return `${hora(horarios[0].inicio)} às ${hora(horarios[horarios.length - 1].fim)}`;
+}
+
+export function precoCheioDaOferta(o: OfertaDaTurma) {
+  return o.precoCheioEmCentavos === null ? null : precoSemCentavosZerados(o.precoCheioEmCentavos / 100);
 }
 
 export function precoDaOferta(o: OfertaDaTurma) {

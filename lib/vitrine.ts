@@ -93,6 +93,9 @@ type LoteDaVitrine = {
   restantesNoLote: number;
   // Quantos lotes a oferta tem.
   total: number;
+  // O preço do ÚLTIMO lote, em centavos: o preço cheio, de que o lote atual é a promoção. Pedido ao backend
+  // (docs/pedidos-backend.md); enquanto não vem, o site não mostra o preço riscado.
+  precoCheio?: number | null;
 };
 
 type Pagina<T> = { conteudo: T[] };
@@ -100,6 +103,17 @@ type Pagina<T> = { conteudo: T[] };
 // A API manda os preços em centavos; o site trabalha em reais (R$ 1.197 = 119700).
 function emReais(centavos: number) {
   return centavos / 100;
+}
+
+// Preço promocional: o lote atual mais barato que o último. null = sem promoção (lote único, último lote ou sem o dado).
+function precoCheioDa(a: { preco: number | null; lote?: LoteDaVitrine | null }) {
+  const cheio = a.lote?.precoCheio;
+  return cheio && a.preco !== null && cheio > a.preco ? cheio : null;
+}
+
+// Vagas no preço atual, antes de o lote virar: só faz sentido antes do último lote.
+function restantesNoLoteDa(lote: LoteDaVitrine | null | undefined) {
+  return lote && lote.ordem < lote.total ? lote.restantesNoLote : null;
 }
 
 // O selo de lote só faz sentido quando a oferta tem mais de um ("2º lote", "Lote final").
@@ -321,6 +335,7 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     desc: resumo.join(" · "),
     // A turma é cobrada pelo valor fechado da duração, nunca por mês (e o preço aparece sem a duração ao lado).
     preco: a.preco === null ? "Consulte" : precoEmTexto(emReais(a.preco)),
+    precoCheio: precoCheioDa(a) === null ? undefined : precoEmTexto(emReais(precoCheioDa(a)!)),
     ...situacao(a, "Matrículas abertas"),
     detalhe: {
       lead: d.descricao?.trim() || "Preparação presencial do Quad com rotina estruturada e professores especialistas na banca.",
@@ -372,6 +387,8 @@ function paraOferta(a: AtividadeDaVitrine): OfertaDaTurma {
     descricao: d.descricao?.trim() || null,
     imagemUrl: a.imagemUrl,
     lote: rotuloDoLote(a.lote),
+    precoCheioEmCentavos: precoCheioDa(a),
+    restantesNoLote: restantesNoLoteDa(a.lote),
     nomeOriginal: a.nome,
   };
 }

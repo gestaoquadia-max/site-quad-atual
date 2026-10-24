@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { idDoItem } from "@/lib/itens";
-import { esgotada, horarioDoDia, insigniaDaTurma, NOME_DO_TURNO, precoDaOferta, textoDoLote, type TurmaComTurnos } from "@/lib/turmas";
+import { esgotada, horarioDoDia, insigniaDaTurma, NOME_DO_TURNO, precoCheioDaOferta, precoDaOferta, textoDoLote, type TurmaComTurnos } from "@/lib/turmas";
 import AviseMePeloWhatsApp from "../AviseMePeloWhatsApp";
 import BotaoAdicionarAoCarrinho from "../BotaoAdicionarAoCarrinho";
 
@@ -30,6 +30,7 @@ const BOTAO_DO_TURNO =
 export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurnos; turnos: OpcaoDeTurno[] }) {
   const oferta = turma.ofertas[0];
   const preco = precoDaOferta(oferta);
+  const precoCheio = precoCheioDaOferta(oferta);
   const lote = textoDoLote(oferta.lote);
   const semVagas = esgotada(oferta);
   const duracao = oferta.inicio && oferta.termino ? meses(oferta.inicio, oferta.termino) : null;
@@ -103,7 +104,13 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
         </div>
       )}
 
-      <div className="mt-7 flex flex-wrap items-baseline gap-x-2 gap-y-2">
+      {/* Preço promocional: o do último lote, riscado, quando o lote atual é mais barato. */}
+      {precoCheio && preco && (
+        <p className="mt-7 text-[15px] text-prata">
+          De <s className="font-semibold">{precoCheio}</s> por
+        </p>
+      )}
+      <div className={`${precoCheio && preco ? "mt-1" : "mt-7"} flex flex-wrap items-baseline gap-x-2 gap-y-2`}>
         {preco ? (
           <>
             <span className="font-display text-lg font-bold text-prata">R$</span>
@@ -118,6 +125,12 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
           <span className="ml-1 inline-flex items-center rounded-full bg-[#FFF0D9] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#8A4B00]">{lote}</span>
         )}
       </div>
+      {/* Antes do último lote: quantas vagas ainda saem neste preço (o dado vem da API; as reservas não descontam). */}
+      {preco && !semVagas && oferta.restantesNoLote !== null && oferta.restantesNoLote > 0 && (
+        <p className="mt-2.5 text-[14px] font-semibold text-[#FFD27A]">
+          {oferta.restantesNoLote === 1 ? "Resta 1 vaga neste preço" : `Restam ${oferta.restantesNoLote} vagas neste preço`}
+        </p>
+      )}
       <p className="mt-2 text-[13px] text-prata">Valor fechado pela duração · Material didático incluso · Sem taxa de matrícula</p>
 
       <div className="mt-6 max-w-[420px]">

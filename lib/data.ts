@@ -18,6 +18,8 @@ export type Turma = {
   turno?: string;
   // Os blocos de horário de um dia de aula ("8h às 9h30 · 9h40 às 11h").
   horario?: string;
+  // Preço cheio (o do último lote), quando o lote atual é promocional: aparece riscado ao lado do preço.
+  precoCheio?: string;
   // O número da turma na série (RONDESP 2 → 2) e o início em ISO ("2026-11-19"), para ordenar as listas.
   edicao?: number;
   dataDeInicio?: string;
