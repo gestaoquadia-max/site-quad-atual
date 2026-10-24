@@ -38,12 +38,15 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
   // As outras turmas da mesma modalidade e do mesmo concurso (outros turnos e números), já na ordem do número.
   const outras = (todas ?? []).filter((t) => t.slug !== turma.slug && t.modalidadeId === turma.modalidadeId && t.concurso === turma.concurso);
   // Seletor de turno: cada turno leva a OUTRA turma (outro número, outra página) da mesma modalidade e concurso.
-  // Com mais de uma no mesmo turno, vai para a de menor número com vaga (a lista já vem na ordem do número).
+  // Com mais de uma no mesmo turno, vai para a que começa mais perto desta (o mesmo ciclo), preferindo as com vaga;
+  // as demais ficam em "Outras turmas". O botão mostra o número da turma de destino.
+  const distancia = (t: { dataDeInicio?: string }) =>
+    t.dataDeInicio && turma.dataDeInicio ? Math.abs(Date.parse(t.dataDeInicio) - Date.parse(turma.dataDeInicio)) : Infinity;
   const turnos = ["Manhã", "Tarde", "Noite"].map((nome) => {
-    if (nome === turma.turno) return { nome, href: null, atual: true };
-    const doTurno = outras.filter((t) => t.turno === nome);
+    if (nome === turma.turno) return { nome, href: null, atual: true, destino: null };
+    const doTurno = outras.filter((t) => t.turno === nome).sort((a, b) => distancia(a) - distancia(b));
     const destino = doTurno.find((t) => t.status === "aberta") ?? doTurno[0];
-    return { nome, href: destino ? `/turmas/${destino.slug}` : null, atual: false };
+    return { nome, href: destino ? `/turmas/${destino.slug}` : null, atual: false, destino: destino?.nome ?? null };
   });
 
   return (

@@ -20,7 +20,8 @@ function meses(inicio: string, termino: string) {
 }
 
 // Um botão do seletor de turno: o turno desta turma (atual) ou o link para a turma daquele turno; sem turma, null.
-export type OpcaoDeTurno = { nome: string; href: string | null; atual: boolean };
+// destino = o nome da turma para onde o botão leva ("RONDESP 2").
+export type OpcaoDeTurno = { nome: string; href: string | null; atual: boolean; destino: string | null };
 
 const BOTAO_DO_TURNO =
   "inline-flex min-h-[46px] min-w-[96px] flex-col items-center justify-center rounded-[10px] border px-4 py-1.5 font-display text-[15px] font-bold leading-tight transition-colors";
@@ -61,6 +62,7 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
             ) : t.href ? (
               <Link key={t.nome} href={t.href} className={`${BOTAO_DO_TURNO} border-white/20 bg-white/[0.04] text-white hover:border-azul-ceu hover:text-white`}>
                 {t.nome}
+                {t.destino && <span className="font-body text-[11px] font-medium text-prata">{t.destino}</span>}
               </Link>
             ) : (
               <span key={t.nome} className={`${BOTAO_DO_TURNO} cursor-not-allowed border-white/10 text-white/40`}>
