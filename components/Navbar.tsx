@@ -46,6 +46,10 @@ type LinkDoMenu = {
 
 // Turmas e eventos vêm da vitrine da API (lida no servidor, em app/layout.tsx). Sem nenhum aberto, o destaque
 // vira um convite para a página da lista.
+// Ponto de cada turma no menu: a cor do turno, na escala de azul das etiquetas dos cartões (manhã clara, noite
+// escura). Turma lotada fica com a cor da situação.
+const COR_DO_TURNO: Record<string, string> = { Manhã: "bg-[#CFE2FF]", Tarde: "bg-[#6FAEFF]", Noite: "bg-[#2F6BFF]" };
+
 function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): LinkDoMenu[] {
   const kit = materiais.find(ehKit);
   const turmaDestaque = turmas.find((t) => t.status === "aberta") ?? turmas[0];
@@ -56,7 +60,13 @@ function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): 
       label: "Turmas Presenciais",
       menu: {
         // O turno junto das vagas ("Manhã · 40 vagas restantes"): turmas da mesma modalidade se distinguem por ele.
-        items: turmas.map((t) => ({ href: `/turmas/${t.slug}`, nome: t.nome, meta: [t.turno, t.statusLabel].filter(Boolean).join(" · "), status: t.status })),
+        items: turmas.map((t) => ({
+          href: `/turmas/${t.slug}`,
+          nome: t.nome,
+          meta: [t.turno, t.statusLabel].filter(Boolean).join(" · "),
+          status: t.status,
+          corDoPonto: t.status === "encerrada" ? undefined : COR_DO_TURNO[t.turno ?? ""],
+        })),
         featured: turmaDestaque
           ? {
               eyebrow: "Turma em destaque",

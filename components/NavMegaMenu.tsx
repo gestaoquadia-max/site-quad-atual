@@ -12,6 +12,8 @@ export type MegaMenuItem = {
   nome: string;
   meta: string;
   status?: "aberta" | "breve" | "encerrada";
+  // Cor do ponto no lugar da cor da situação (ex.: o turno da turma). Classe Tailwind de fundo.
+  corDoPonto?: string;
 };
 
 export type MegaMenuFeatured = {
@@ -62,7 +64,7 @@ export default function NavMegaMenu({
               >
                 <span className="font-display text-[15px] font-bold tracking-[-0.01em]">{it.nome}</span>
                 <span className="flex items-center gap-2 text-[13px] text-prata">
-                  <span className={`h-1.5 w-1.5 flex-none rounded-full ${CORES_DO_PONTO[it.status ?? "breve"]}`} />
+                  <span className={`h-1.5 w-1.5 flex-none rounded-full ${it.corDoPonto ?? CORES_DO_PONTO[it.status ?? "breve"]}`} />
                   {it.meta}
                 </span>
               </LinkDoMenu>
