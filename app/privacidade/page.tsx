@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BotaoPreferenciasDeCookies from "@/components/BotaoPreferenciasDeCookies";
 import PaginaInstitucional, { Dado, Secao } from "@/components/PaginaInstitucional";
 import { institucional } from "@/lib/institucional";
 import { VERSAO_DOS_TERMOS_EXIBICAO } from "@/lib/termos";
@@ -88,19 +89,37 @@ export default function PrivacidadePage() {
         <p>Não vendemos os seus dados pessoais.</p>
       </Secao>
 
-      <Secao titulo="5. Cookies e armazenamento no navegador">
+      <Secao titulo="5. Cookies e armazenamento no navegador" id="cookies">
+        <p>Cookies são pequenos arquivos que o site guarda no seu navegador. Usamos três tipos:</p>
+        <ul>
+          <li>
+            <strong>Essenciais</strong> (sempre ativos, porque sem eles o site não funciona): os cookies que mantêm você
+            conectado à área do aluno com segurança (<code>quad_acesso</code>, <code>quad_renovacao</code> e{" "}
+            <code>quad_sessao</code>) e o registro dos itens do seu carrinho e da sua escolha sobre cookies, guardados no
+            próprio navegador.
+          </li>
+          <li>
+            <strong>Análise de audiência</strong> (só com o seu consentimento): medem visitas e uso das páginas, de forma
+            agregada, para melhorarmos o site.
+          </li>
+          <li>
+            <strong>Marketing</strong> (só com o seu consentimento): medem o resultado dos nossos anúncios e mostram anúncios
+            do Quad em outras plataformas.
+          </li>
+        </ul>
         <p>
-          O site guarda no seu navegador o necessário para funcionar: o seu acesso à área do aluno e os itens do seu
-          carrinho. Ferramentas de medição de audiência e de anúncios só serão usadas com o seu consentimento, pedido no
-          primeiro acesso.
+          No primeiro acesso, você escolhe o que aceita. Você pode recusar os cookies opcionais sem perder nenhuma
+          funcionalidade do site, e pode mudar a sua escolha a qualquer momento:{" "}
+          <BotaoPreferenciasDeCookies className="font-semibold text-azul-forte underline underline-offset-2" />.
         </p>
       </Secao>
 
       <Secao titulo="6. Por quanto tempo guardamos">
         <p>
           Guardamos os seus dados enquanto a sua conta estiver ativa e, depois disso, pelo tempo exigido por lei — por
-          exemplo, os registros fiscais e de pagamento pelos prazos previstos na legislação. Passados esses prazos, os dados
-          são excluídos ou tornados anônimos.
+          exemplo, os registros fiscais e de pagamento pelos prazos previstos na legislação, e os registros de acesso ao site
+          (data, hora e endereço IP) por 6 meses, como determina o Marco Civil da Internet (Lei 12.965/2014, art. 15).
+          Passados esses prazos, os dados são excluídos ou tornados anônimos.
         </p>
       </Secao>
 
@@ -112,11 +131,17 @@ export default function PrivacidadePage() {
           <li>anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em desacordo com a lei;</li>
           <li>portabilidade dos dados a outro fornecedor;</li>
           <li>eliminação dos dados tratados com base no seu consentimento e revogação desse consentimento;</li>
-          <li>informação sobre com quem compartilhamos os seus dados.</li>
+          <li>informação sobre com quem compartilhamos os seus dados;</li>
+          <li>informação sobre a possibilidade de não dar o consentimento e sobre o que acontece se você não der.</li>
         </ul>
         <p>
+          Os pedidos são atendidos sem custo. Se não estiver satisfeito com a resposta, você também pode reclamar à
+          Autoridade Nacional de Proteção de Dados (ANPD) ou aos órgãos de defesa do consumidor.
+        </p>
+        <p>
           Parte dos seus dados pode ser vista e alterada diretamente na <Link href="/aluno/perfil">área do aluno</Link>.
-          Para os demais pedidos, escreva para o nosso encarregado de dados:{" "}
+          Para os demais pedidos, escreva para o nosso encarregado de dados
+          {i.encarregado ? `, ${i.encarregado}` : <Dado valor="" campo="encarregado" />}:{" "}
           {i.emailPrivacidade ? (
             <a href={`mailto:${i.emailPrivacidade}`}>
               {i.emailPrivacidade}

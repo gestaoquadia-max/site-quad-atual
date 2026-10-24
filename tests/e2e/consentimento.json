@@ -1,0 +1,11 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:3000",
+      "localStorage": [
+        { "name": "quad-consentimento-cookies", "value": "{\"analise\":false,\"marketing\":false,\"decididoEm\":\"2026-10-24T00:00:00.000Z\",\"versao\":1}" }
+      ]
+    }
+  ]
+}

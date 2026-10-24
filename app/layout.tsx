@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SoNoSite from "@/components/SoNoSite";
 import AvisoDoCarrinho from "@/components/AvisoDoCarrinho";
+import AvisoDeCookies from "@/components/AvisoDeCookies";
 import { OuvinteDoBrilho } from "@/components/Brilho";
 import { CartProvider } from "@/lib/cart";
 import { UsuarioProvider } from "@/lib/usuario";
@@ -65,6 +66,7 @@ export default async function RootLayout({
               <Footer />
             </SoNoSite>
             <AvisoDoCarrinho />
+            <AvisoDeCookies />
             <OuvinteDoBrilho />
           </UsuarioProvider>
         </CartProvider>

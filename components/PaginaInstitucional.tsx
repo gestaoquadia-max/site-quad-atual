@@ -15,9 +15,9 @@ export function Dado({ valor, campo }: { valor: string; campo: string }) {
   );
 }
 
-export function Secao({ titulo, children }: { titulo: string; children: ReactNode }) {
+export function Secao({ titulo, id, children }: { titulo: string; id?: string; children: ReactNode }) {
   return (
-    <section className="border-t border-[#EEF2F7] pt-7 first:border-0 first:pt-0">
+    <section id={id} className="scroll-mt-28 border-t border-[#EEF2F7] pt-7 first:border-0 first:pt-0">
       <h2 className="mb-3 font-display text-[22px] font-extrabold tracking-[-0.02em]">{titulo}</h2>
       <div className="space-y-3 text-base leading-[1.75] text-ardosia-escura [&_a]:font-semibold [&_a]:text-azul-forte [&_a]:underline [&_a]:underline-offset-2 [&_li]:ml-5 [&_li]:list-disc [&_li]:pl-1 [&_ul]:space-y-1.5">
         {children}

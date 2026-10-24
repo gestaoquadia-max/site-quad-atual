@@ -15,6 +15,9 @@ export default defineConfig({
     // Usa o Chrome já instalado no computador, sem baixar navegadores extras.
     channel: "chrome",
     trace: "retain-on-failure",
+    // Começa com a escolha de cookies já feita (só os essenciais), para o aviso não cobrir o que os testes clicam.
+    // O aviso tem o teste próprio (tests/e2e/cookies.spec.ts), que começa sem essa escolha.
+    storageState: "tests/e2e/consentimento.json",
     screenshot: "only-on-failure",
   },
   // Sobe o site se ele não estiver rodando; se o `npm run dev` já estiver ligado, usa o que está.

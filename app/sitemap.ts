@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { URL_DO_SITE } from "@/lib/seo";
 import { listarEventos, listarMateriais, listarProdutosDaLoja, listarProfessores, listarTurmas } from "@/lib/vitrine";
 
-const PAGINAS_FIXAS = ["/", "/turmas", "/produtos", "/simulados", "/eventos", "/mentorias", "/loja", "/aprovados", "/professores", "/sobre", "/contato", "/termos", "/privacidade", "/entrar", "/cadastro"];
+const PAGINAS_FIXAS = ["/", "/turmas", "/produtos", "/simulados", "/eventos", "/mentorias", "/loja", "/aprovados", "/professores", "/sobre", "/contato", "/termos", "/privacidade", "/acessibilidade", "/entrar", "/cadastro"];
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts): turmas e eventos novos entram sem precisar publicar o site de novo.
 export const revalidate = 60;

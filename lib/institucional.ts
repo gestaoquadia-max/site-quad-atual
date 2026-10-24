@@ -12,6 +12,8 @@ export const institucional = {
   whatsapp: "75991884598",
   telefone: "",
   emailAtendimento: "",
+  // Encarregado de dados (LGPD, art. 41): o nome tem de ser público, com o contato.
+  encarregado: "",
   // E-mail do encarregado de dados (LGPD), para pedidos de acesso, correção ou exclusão de dados
   emailPrivacidade: "",
   // Usuário sem @, ex.: "quadconcursos"

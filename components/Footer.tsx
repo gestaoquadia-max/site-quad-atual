@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { PersonArmsSpread } from "@phosphor-icons/react/dist/ssr";
+import BotaoPreferenciasDeCookies from "./BotaoPreferenciasDeCookies";
 import BotaoWhatsApp from "./BotaoWhatsApp";
 
 const NAVEGACAO = [
@@ -17,6 +19,7 @@ const INSTITUCIONAL = [
   ["Contato", "/contato"],
   ["Termos de uso", "/termos"],
   ["Privacidade", "/privacidade"],
+  ["Acessibilidade", "/acessibilidade"],
 ];
 
 export default function Footer() {
@@ -37,13 +40,25 @@ export default function Footer() {
             </nav>
           </div>
           <div className="mt-[22px] flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-white/[0.08] pb-5 pt-4">
-            <span className="text-[12.5px] text-prata-escura">© {new Date().getFullYear()} Quad Concursos. Todos os direitos reservados.</span>
+            <span className="flex items-center gap-3 text-[12.5px] text-prata-escura">
+              {/* Símbolo de acessibilidade em destaque (Lei 13.146/2015, art. 63, § 1º). */}
+              <Link
+                href="/acessibilidade"
+                aria-label="Acessibilidade do site"
+                title="Acessibilidade"
+                className="grid h-8 w-8 flex-none place-items-center rounded-full bg-azul text-white transition-colors hover:bg-azul-vivo"
+              >
+                <PersonArmsSpread size={20} weight="bold" aria-hidden="true" />
+              </Link>
+              © {new Date().getFullYear()} Quad Concursos. Todos os direitos reservados.
+            </span>
             <nav aria-label="Institucional" className="flex flex-auto flex-wrap justify-end gap-x-[18px] gap-y-1">
               {INSTITUCIONAL.map(([rotulo, href]) => (
                 <Link key={href} href={href} className="inline-flex min-h-8 items-center text-[12.5px] text-prata-escura transition-colors hover:text-white">
                   {rotulo}
                 </Link>
               ))}
+              <BotaoPreferenciasDeCookies className="inline-flex min-h-8 items-center text-[12.5px] text-prata-escura transition-colors hover:text-white" />
             </nav>
           </div>
         </div>
