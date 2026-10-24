@@ -132,3 +132,17 @@ test("produto da loja vai para o carrinho com o tamanho, a quantidade e a retira
   await expect(page.getByRole("heading", { name: "Entrega dos produtos físicos" })).toBeVisible();
   await expect(page.getByRole("radio", { name: /Retirar no Quad/ })).toHaveAttribute("aria-checked", "true");
 });
+
+test("comprar agora põe o item no carrinho e abre o checkout", async ({ page }) => {
+  await page.goto("/loja");
+  const produto = page.locator('main a[href^="/loja/"]').first();
+  test.skip((await produto.count()) === 0, "A vitrine da API não tem produto da loja agora.");
+  await produto.click();
+  await expect(page).toHaveURL(/\/loja\/.+/);
+  const nome = (await page.getByRole("heading", { level: 1 }).textContent())!.trim();
+  const tamanhos = page.getByRole("radiogroup", { name: "Tamanho" });
+  if (await tamanhos.count()) await tamanhos.locator("[role=radio]:not([disabled])").first().click();
+  await page.getByRole("button", { name: "Comprar agora" }).click();
+  await expect(page).toHaveURL(/\/checkout$/);
+  await expect(page.locator("main").getByText(nome).first()).toBeVisible();
+});

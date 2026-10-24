@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ProdutoDaLoja } from "@/lib/conteudo";
 import { useCart } from "@/lib/cart";
+import BotoesDeCompra from "../BotoesDeCompra";
 import { precoSemCentavosZerados } from "@/lib/format";
 
 const MAXIMO = 20;
@@ -119,14 +120,7 @@ export default function CompraDoProdutoDaLoja({ produto }: { produto: ProdutoDaL
         </span>
       </div>
 
-      <button
-        type="button"
-        onClick={adicionar}
-        disabled={!preco || esgotado}
-        className="btn-q btn-q-azul h-14 w-full rounded-xl text-[16.5px] shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_14px_30px_-14px_rgba(0,107,255,1)] disabled:cursor-not-allowed disabled:bg-[#C9D3E0] disabled:shadow-none"
-      >
-        {esgotado ? "Esgotado" : !preco ? "Preço a confirmar" : "Adicionar ao carrinho"}
-      </button>
+      <BotoesDeCompra adicionar={adicionar} desabilitado={!preco || esgotado} rotuloDesabilitado={esgotado ? "Esgotado" : "Preço a confirmar"} tema="claro" />
     </>
   );
 }

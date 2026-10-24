@@ -4,7 +4,8 @@ import Link from "next/link";
 import { idDoItem } from "@/lib/itens";
 import { esgotada, faixasDosLotes, horarioDoDia, insigniaDaTurma, NOME_DO_TURNO, precoCheioDaOferta, precoDaOferta, textoDoLote, type TurmaComTurnos } from "@/lib/turmas";
 import AviseMePeloWhatsApp from "../AviseMePeloWhatsApp";
-import BotaoAdicionarAoCarrinho from "../BotaoAdicionarAoCarrinho";
+import { useCart } from "@/lib/cart";
+import BotoesDeCompra from "../BotoesDeCompra";
 
 const MESES = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
 
@@ -30,6 +31,7 @@ const BOTAO_DO_TURNO =
 // (RONDESP 1 Manhã, RONDESP 2 Noite…): o seletor leva à página da turma do outro turno.
 export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurnos; turnos: OpcaoDeTurno[] }) {
   const oferta = turma.ofertas[0];
+  const { addItem } = useCart();
   const preco = precoDaOferta(oferta);
   const precoCheio = precoCheioDaOferta(oferta);
   const faixas = faixasDosLotes(oferta);
@@ -157,17 +159,18 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
 
       <div className="mt-6 max-w-[420px]">
         {preco && !semVagas ? (
-          <BotaoAdicionarAoCarrinho
-            item={{
-              id: idDoItem("turma", oferta.slug),
-              tipo: "turma",
-              nome: turma.nome,
-              tag: [nomeDoTurno, turma.cargo, turma.concurso].filter(Boolean).join(" · "),
-              preco,
-              alvo: { atividade: { tipo: "TURMA", id: oferta.id } },
-              imagem: insigniaDaTurma(turma.modalidade) ?? undefined,
-            }}
-            className="h-14 w-full rounded-xl text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_16px_36px_-14px_rgba(0,107,255,1)] hover:-translate-y-0.5"
+          <BotoesDeCompra
+            adicionar={() =>
+              addItem({
+                id: idDoItem("turma", oferta.slug),
+                tipo: "turma",
+                nome: turma.nome,
+                tag: [nomeDoTurno, turma.cargo, turma.concurso].filter(Boolean).join(" · "),
+                preco,
+                alvo: { atividade: { tipo: "TURMA", id: oferta.id } },
+                imagem: insigniaDaTurma(turma.modalidade) ?? undefined,
+              })
+            }
           />
         ) : (
           <AviseMePeloWhatsApp

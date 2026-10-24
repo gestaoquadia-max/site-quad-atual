@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Produto } from "@/lib/data";
 import { useCart } from "@/lib/cart";
 import { idDoItem } from "@/lib/itens";
+import BotoesDeCompra from "../BotoesDeCompra";
 import { formatosDo } from "@/lib/materiais";
 
 type Formato = "digital" | "impresso";
@@ -57,9 +58,11 @@ export default function CompraDoMaterial({ produto }: { produto: Produto }) {
           {temMoeda ? produto.preco.slice(3) : produto.preco}
         </span>
       </div>
-      <button
-        type="button"
-        onClick={() =>
+      <BotoesDeCompra
+        className="mt-6 max-w-[420px]"
+        desabilitado={produto.esgotado}
+        rotuloDesabilitado="Esgotado"
+        adicionar={() =>
           addItem({
             id: `${idDoItem("produto", produto.slug)}${formato === "impresso" ? ":impresso" : ""}`,
             tipo: "produto",
@@ -70,11 +73,7 @@ export default function CompraDoMaterial({ produto }: { produto: Produto }) {
             alvo: produto.idNaApi ? { itemId: produto.idNaApi } : undefined,
           })
         }
-        disabled={produto.esgotado}
-        className="btn-q btn-q-azul mt-6 h-14 w-full max-w-[420px] rounded-xl text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.24),0_16px_36px_-14px_rgba(0,107,255,1)] hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-prata disabled:shadow-none"
-      >
-        {produto.esgotado ? "Esgotado" : "Adicionar ao carrinho"}
-      </button>
+      />
     </>
   );
 }
