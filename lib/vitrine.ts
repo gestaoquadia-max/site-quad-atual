@@ -389,6 +389,10 @@ function paraOferta(a: AtividadeDaVitrine): OfertaDaTurma {
     lote: rotuloDoLote(a.lote),
     precoCheioEmCentavos: precoCheioDa(a),
     restantesNoLote: restantesNoLoteDa(a.lote),
+    loteAtual:
+      a.lote && a.lote.total > 1
+        ? { ordem: a.lote.ordem, total: a.lote.total, quantidade: a.lote.quantidade, restantes: a.lote.restantesNoLote }
+        : null,
     nomeOriginal: a.nome,
   };
 }

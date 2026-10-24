@@ -36,6 +36,8 @@ export type OfertaDaTurma = {
   precoCheioEmCentavos: number | null;
   // Quantas vagas ainda saem no preço atual, antes de virar o lote; só antes do último lote.
   restantesNoLote: number | null;
+  // O lote em vigor, quando a oferta tem mais de um: a barra de vagas se divide por lote.
+  loteAtual: { ordem: number; total: number; quantidade: number; restantes: number } | null;
   // Nome que a API usa hoje, para quando a modalidade não pôde ser lida
   nomeOriginal: string;
 };
@@ -130,6 +132,18 @@ export function horarioDoDia(horarios: OfertaDaTurma["horarios"]) {
   // Do início do 1º bloco ao fim do último (HORA INÍCIO 01 → HORA FIM 02): "8h às 11h", sem o intervalo do meio.
   if (horarios.length === 0) return "";
   return `${hora(horarios[0].inicio)} às ${hora(horarios[horarios.length - 1].fim)}`;
+}
+
+// As vagas da turma em quatro partes, na ordem da barra: lotes anteriores (esgotados), vendidas no lote atual, as que
+// ainda saem no preço atual e as dos próximos lotes. Só com o lote atual (oferta de mais de um lote).
+export function faixasDosLotes(o: OfertaDaTurma) {
+  if (!o.vagas || !o.loteAtual) return null;
+  const { total, ocupadas } = o.vagas;
+  const restantesNoAtual = Math.max(0, Math.min(o.loteAtual.restantes, o.loteAtual.quantidade));
+  const vendidasNoAtual = o.loteAtual.quantidade - restantesNoAtual;
+  const anteriores = Math.max(0, Math.min(total, ocupadas - vendidasNoAtual));
+  const seguintes = Math.max(0, total - anteriores - o.loteAtual.quantidade);
+  return { total, anteriores, vendidasNoAtual, restantesNoAtual, seguintes };
 }
 
 export function precoCheioDaOferta(o: OfertaDaTurma) {

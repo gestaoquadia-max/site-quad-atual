@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { idDoItem } from "@/lib/itens";
-import { esgotada, horarioDoDia, insigniaDaTurma, NOME_DO_TURNO, precoCheioDaOferta, precoDaOferta, textoDoLote, type TurmaComTurnos } from "@/lib/turmas";
+import { esgotada, faixasDosLotes, horarioDoDia, insigniaDaTurma, NOME_DO_TURNO, precoCheioDaOferta, precoDaOferta, textoDoLote, type TurmaComTurnos } from "@/lib/turmas";
 import AviseMePeloWhatsApp from "../AviseMePeloWhatsApp";
 import BotaoAdicionarAoCarrinho from "../BotaoAdicionarAoCarrinho";
 
@@ -31,6 +31,7 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
   const oferta = turma.ofertas[0];
   const preco = precoDaOferta(oferta);
   const precoCheio = precoCheioDaOferta(oferta);
+  const faixas = faixasDosLotes(oferta);
   const lote = textoDoLote(oferta.lote);
   const semVagas = esgotada(oferta);
   const duracao = oferta.inicio && oferta.termino ? meses(oferta.inicio, oferta.termino) : null;
@@ -91,7 +92,7 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
             </strong>
           </div>
           <div
-            className="h-2 overflow-hidden rounded-full bg-white/10"
+            className="flex h-2.5 overflow-hidden rounded-full bg-white/10"
             role="progressbar"
             aria-label="Vagas preenchidas"
             aria-valuenow={pct}
@@ -99,8 +100,33 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
             aria-valuemax={100}
             aria-valuetext={`${oferta.vagas.ocupadas} de ${oferta.vagas.total} vagas preenchidas`}
           >
-            <div className="h-full rounded-full bg-[linear-gradient(90deg,#2F86FF,#6FAEFF)]" style={{ width: `${pct}%` }} />
+            {faixas && !semVagas ? (
+              // Por lote: vendidas (azul), as que ainda saem no preço atual (âmbar) e as dos próximos lotes (vazio).
+              <>
+                <div className="h-full bg-[linear-gradient(90deg,#2F86FF,#6FAEFF)]" style={{ width: `${((faixas.anteriores + faixas.vendidasNoAtual) / faixas.total) * 100}%` }} />
+                <div className="h-full bg-[#FFD27A] shadow-[0_0_10px_#FFD27A]" style={{ width: `${(faixas.restantesNoAtual / faixas.total) * 100}%` }} />
+                {faixas.seguintes > 0 && <div className="h-full flex-1 border-l-2 border-marinho-950" />}
+              </>
+            ) : (
+              <div className="h-full rounded-full bg-[linear-gradient(90deg,#2F86FF,#6FAEFF)]" style={{ width: `${pct}%` }} />
+            )}
           </div>
+          {/* Legenda dos lotes: quanto ainda sai neste preço e quanto vem depois, a outro preço. */}
+          {faixas && !semVagas && oferta.loteAtual && (
+            <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px]">
+              <span className="inline-flex items-center gap-2 font-semibold text-[#FFD27A]">
+                <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#FFD27A]" />
+                {lote ?? `${oferta.loteAtual.ordem}º lote`}:{" "}
+                {faixas.restantesNoAtual === 1 ? "resta 1 vaga neste preço" : `restam ${faixas.restantesNoAtual} vagas neste preço`}
+              </span>
+              {faixas.seguintes > 0 && (
+                <span className="inline-flex items-center gap-2 text-prata">
+                  <span aria-hidden="true" className="h-2 w-2 rounded-full bg-white/25" />
+                  Próximos lotes: {faixas.seguintes} vagas, com preço maior
+                </span>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -125,12 +151,6 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
           <span className="ml-1 inline-flex items-center rounded-full bg-[#FFF0D9] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#8A4B00]">{lote}</span>
         )}
       </div>
-      {/* Antes do último lote: quantas vagas ainda saem neste preço (o dado vem da API; as reservas não descontam). */}
-      {preco && !semVagas && oferta.restantesNoLote !== null && oferta.restantesNoLote > 0 && (
-        <p className="mt-2.5 text-[14px] font-semibold text-[#FFD27A]">
-          {oferta.restantesNoLote === 1 ? "Resta 1 vaga neste preço" : `Restam ${oferta.restantesNoLote} vagas neste preço`}
-        </p>
-      )}
       <p className="mt-2 text-[13px] text-prata">Valor fechado pela duração · Material didático incluso · Sem taxa de matrícula</p>
 
       <div className="mt-6 max-w-[420px]">
