@@ -3,7 +3,7 @@
 // aparece marcado como pendente para não ser esquecido.
 export const institucional = {
   nomeFantasia: "Quad Concursos",
-  razaoSocial: "",
+  razaoSocial: "PROJETO QUADRIVIUM LTDA",
   cnpj: "27.298.324/0001-04",
   cidade: "Feira de Santana — BA",
   // Endereço da sede: rua e bairro, e CEP (separados para os dados estruturados do Google); o completo é montado abaixo.
