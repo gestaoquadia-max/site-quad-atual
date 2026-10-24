@@ -22,7 +22,7 @@ export const institucional = {
   instagram: "quadconcursos",
   horarioAtendimento: "Segunda a sexta, das 8h às 21h · Sábado, das 8h às 12h",
   // Foro escolhido pela assessoria jurídica para os Termos de uso
-  foro: "",
+  foro: "Feira de Santana — BA",
 };
 
 export function linkDoWhatsApp(numero: string) {

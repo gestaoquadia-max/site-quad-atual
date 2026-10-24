@@ -120,7 +120,7 @@ export default function TermosPage() {
 
       <Secao titulo="10. Foro">
         <p>
-          Fica eleito o foro de <Dado valor={i.foro} campo="foro" /> para resolver questões relacionadas a estes termos,
+          Fica eleito o foro da comarca de <Dado valor={i.foro} campo="foro" /> para resolver questões relacionadas a estes termos,
           sem prejuízo do direito do consumidor de recorrer ao foro do seu domicílio.
         </p>
       </Secao>
