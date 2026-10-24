@@ -136,19 +136,6 @@ export function horarioDoDia(horarios: OfertaDaTurma["horarios"]) {
   return `${hora(horarios[0].inicio)} às ${hora(horarios[horarios.length - 1].fim)}`;
 }
 
-// As vagas da turma em quatro partes, na ordem da barra: lotes anteriores (esgotados), vendidas no lote atual, as que
-// ainda saem no preço atual e as dos próximos lotes. Só enquanto há um lote promocional em vigor: no último lote o
-// preço já é o cheio, e a barra volta a ser a de vagas (destacar "restam N neste preço" seria urgência falsa).
-export function faixasDosLotes(o: OfertaDaTurma) {
-  if (!o.vagas || !o.loteAtual || o.loteAtual.ordem >= o.loteAtual.total) return null;
-  const { total, ocupadas } = o.vagas;
-  const restantesNoAtual = Math.max(0, Math.min(o.loteAtual.restantes, o.loteAtual.quantidade));
-  const vendidasNoAtual = o.loteAtual.quantidade - restantesNoAtual;
-  const anteriores = Math.max(0, Math.min(total, ocupadas - vendidasNoAtual));
-  const seguintes = Math.max(0, total - anteriores - o.loteAtual.quantidade);
-  return { total, anteriores, vendidasNoAtual, restantesNoAtual, seguintes };
-}
-
 export function precoCheioDaOferta(o: OfertaDaTurma) {
   return o.precoCheioEmCentavos === null ? null : precoSemCentavosZerados(o.precoCheioEmCentavos / 100);
 }
