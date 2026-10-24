@@ -20,7 +20,7 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 1.3 | Autorizar o domínio do site na conta do Pagar.me | Alta (antes do lançamento) |
 | 1.4 | Publicar a API e o site juntos (preços em centavos) | Alta (no lançamento) |
 | 2.6 | Vitrine: atividades gratuitas | Média |
-| 2.7 | Vitrine: preço cheio (o do último lote), para o preço promocional | Alta |
+| 2.7 | Vitrine: a lista de lotes (preço cheio e vagas de cada lote) | Alta |
 | 3 | Professores: fotos e só os professores do site | Média |
 | 4.1 | Verificação do celular por código ⚠️ | Alta |
 | 4.2 | `emailVerificado` e `telefoneVerificado` no cadastro do aluno | Alta |
@@ -74,17 +74,25 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 
 **O pedido.** Listar também as atividades gratuitas abertas a inscrição (com `preco: 0`), ou uma rota pública própria para elas.
 
-### 2.7 Preço cheio (o do último lote)
+### 2.7 A lista de lotes na vitrine
 
-**Por que o site precisa.** O preço promocional é o lote atual mais barato que o último (decisão de 24/10/2026: o preço cheio é sempre o do último lote). O site quer mostrar "De ~~R$ 1.197~~ por R$ 997", na página e no cartão da turma (e depois em eventos, simulados e loja). A vitrine manda só o lote **vigente** (`ordem`, `rotulo`, `preco`, `quantidade`, `restantesNoLote`, `total`), sem o preço do último lote, e o site não tem como calculá-lo.
+**Por que o site precisa.** A regra é que o último lote é o preço cheio e os anteriores são promoção (decisão de 24/10/2026). O site quer mostrar duas coisas que dependem de todos os lotes, e não só do vigente:
+- **O preço promocional:** "De ~~R$ 1.197~~ por R$ 997", na página e no cartão da turma (e depois em eventos, simulados e loja). O preço cheio é o do último lote.
+- **As vagas de cada lote** dentro das vagas totais, para dar urgência: uma barra dividida em "1º lote (esgotado) · 2º lote: R$ 997, restam 12 · Lote final: R$ 1.197, 15 vagas".
 
-**O pedido.** Acrescentar ao `lote` da vitrine (turma, evento, simulado e item) o preço do último lote, em centavos:
+A vitrine manda só o lote **vigente** (`ordem`, `rotulo`, `preco`, `quantidade`, `restantesNoLote`, `total`). Com ele, o site já mostra a parte do lote atual e soma o resto num bloco só ("próximos lotes: 25 vagas"), mas não sabe o preço do último lote nem como as vagas se dividem entre os próximos.
+
+**O pedido.** Acrescentar à vitrine (turma, evento, simulado e item) a lista de lotes em reais, na ordem em que se vendem:
 
 ```
-lote: { ordem: 1, rotulo: "1º lote", preco: 99700, quantidade: 20, restantesNoLote: 20, total: 2, precoCheio: 119700 }
+lotes: [
+  { ordem: 1, rotulo: "1º lote",    preco: 79700,  quantidade: 10, restantes: 0  },
+  { ordem: 2, rotulo: "2º lote",    preco: 99700,  quantidade: 15, restantes: 12 },
+  { ordem: 3, rotulo: "Lote final", preco: 119700, quantidade: 15, restantes: 15 }
+]
 ```
 
-No último lote (e no lote único), `precoCheio` é igual a `preco`. **O site já lê o campo** (`lote.precoCheio`): assim que ele vier, o preço riscado aparece sozinho. O aviso "Restam 20 vagas neste preço" já funciona com o `restantesNoLote`.
+Os preços em centavos, como o resto da vitrine. O `lote` vigente pode continuar como está. Se for mais simples, um campo `precoCheio` no `lote` vigente resolve só o preço riscado (o site já lê `lote.precoCheio`), mas não as vagas de cada lote.
 
 ---
 
