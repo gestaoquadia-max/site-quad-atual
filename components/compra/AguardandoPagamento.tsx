@@ -3,12 +3,27 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ErroDaApi } from "@/lib/http";
-import { buscarFechamento, conferirPagamento, emReais, type Fechamento } from "@/lib/loja";
+import { buscarFechamento, conferirPagamento, emReais, type Fechamento, type SituacaoDoPagamento } from "@/lib/loja";
 import { rotaComDestino } from "@/lib/redirecionamento";
 import { useSessaoAtiva } from "@/lib/usuario";
 import Etapas from "./Etapas";
 
 const INTERVALO_DA_CONSULTA_MS = 5000;
+
+// O pedido que já não espera pagamento, por situação. Estornada é a única em que houve cobrança (e devolução).
+const FIM_DO_PEDIDO: Partial<Record<SituacaoDoPagamento, { titulo: string; texto: string }>> = {
+  EXPIRADA: { titulo: "O prazo para pagar venceu", texto: "Nada foi cobrado e as vagas foram liberadas. Se ainda quiser os itens, faça o pedido de novo." },
+  RECUSADA: { titulo: "O pagamento não foi aprovado", texto: "Nada foi cobrado. Confira os dados de pagamento ou tente outra forma de pagamento." },
+  CANCELADA: { titulo: "Este pedido foi cancelado", texto: "Nada foi cobrado. Se ainda quiser os itens, faça o pedido de novo." },
+  ESTORNADA: {
+    titulo: "O valor deste pedido foi devolvido",
+    texto: "O pagamento foi estornado. No cartão, a devolução aparece na fatura conforme o prazo do banco; no PIX, volta para a conta de origem.",
+  },
+};
+
+function fimDoPedido(situacao: SituacaoDoPagamento) {
+  return FIM_DO_PEDIDO[situacao] ?? { titulo: "Este pedido não está mais ativo", texto: "Se ainda quiser os itens, faça o pedido de novo." };
+}
 
 function dataEHora(iso: string) {
   return new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
@@ -124,9 +139,9 @@ export default function AguardandoPagamento({ id }: { id: string }) {
     conteudo = (
       <Cartao>
         <h1 className="mb-3 font-display text-[clamp(1.8rem,3.6vw,2.4rem)] font-extrabold tracking-[-0.03em]">
-          {fechamento.situacao === "EXPIRADA" ? "O prazo para pagar venceu" : "Este pedido não está mais ativo"}
+          {fimDoPedido(fechamento.situacao).titulo}
         </h1>
-        <p className="text-[15.5px] leading-[1.6] text-ardosia">Nada foi cobrado. Se ainda quiser os itens, faça o pedido de novo.</p>
+        <p className="text-[15.5px] leading-[1.6] text-ardosia">{fimDoPedido(fechamento.situacao).texto}</p>
         <Link href="/" className="btn-q btn-q-azul mt-7 h-12 px-[22px] text-[15px]">
           Voltar ao início
         </Link>

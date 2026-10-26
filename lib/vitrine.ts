@@ -624,7 +624,8 @@ function paraProdutoDaLoja(i: ItemDaVitrine): ProdutoDaLoja {
       i.variacoes.length > 0
         ? [
             {
-              nome: "Tamanho",
+              // A API não diz o que a variação é: em roupa é o tamanho; nos demais itens, "Opção" (cor, modelo…).
+              nome: categoriaDoNome(i.nome) === "camisas" ? "Tamanho" : "Opção",
               opcoes: i.variacoes.map((v) => v.nome),
               esgotadas: i.variacoes.filter((v) => v.restantes !== null && v.restantes <= 0).map((v) => v.nome),
               ids: Object.fromEntries(i.variacoes.map((v) => [v.nome, v.id])),

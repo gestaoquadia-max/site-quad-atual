@@ -29,7 +29,10 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 5.1 | Material digital (PDF) | Média |
 | 5.3 | Simulados: formatos de estudo e combos | Média |
 | 5.4 | Textos de venda da turma e programação do evento | Média |
-| 6 | Sete perguntas que precisam de resposta | — |
+| 6.1 | Juros do parcelamento pagos pelo aluno, com a tabela na API | Alta |
+| 6.2 | E-mails da compra (confirmada, aguardando PIX, acesso liberado) | Alta |
+| 6.3 | Armazenamento de arquivos no ambiente local (endereço do S3 configurável) | Média |
+| 6.4 | Aprovados, depoimentos em vídeo e blog pela API | Baixa |
 
 ---
 
@@ -152,15 +155,42 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 
 ---
 
-## 6. Perguntas que precisam de resposta
+## 6. Respostas do Quad e o que elas pedem (26/10/2026)
 
-1. **Carrinho sem login:** o visitante monta o carrinho sem conta, e o site manda os itens ao carrinho do servidor só depois do login. Está certo assim, ou o carrinho do servidor deveria aceitar visitante?
-2. **Variações:** além da camisa (tamanhos), quais itens vão ter variação?
-3. **Parcelas:** `GET /api/loja/pagamentos/configuracao` traz até 12 parcelas. Há juros? A partir de quantas parcelas, e quem paga (aluno ou Quad)? (A compra em **dois cartões** já está no site desde 23/10/2026, pela lista `pagamento.cartoes`; o site **não oferece mais boleto**.)
-4. **Situações do pagamento:** qual a lista completa de situações do fechamento (paga, aguardando, recusada, expirada, estornada…)? O site trata hoje PAGA, AGUARDANDO e RECUSADA.
-5. **E-mails da compra:** compra confirmada, boleto gerado e acesso liberado já existem ou precisam ser criados?
-6. **Materiais diários:** os "materiais diários" das turmas são os de `/api/materiais` (por turma, matéria e tópico)? E falta um armazenamento de arquivos no ambiente local (bucket de teste ou MinIO) para testar o download, que hoje responde 503 "nenhum bucket foi configurado".
-7. **Conteúdo institucional:** aprovados, depoimentos em vídeo e blog vão vir da API ou de um sistema de conteúdo à parte?
+As sete perguntas foram respondidas. Três não pedem nada ao backend:
+- **Carrinho sem login:** o visitante monta o carrinho sem conta e só precisa entrar para finalizar. É como o site já funciona.
+- **Variações:** podem existir em qualquer item, não só na camisa. O site já aceita variação em qualquer produto da loja (chama de "Tamanho" na roupa e "Opção" nos demais).
+- **Situações do pagamento:** paga, aguardando, recusada, expirada, cancelada e estornada, que são as da API (`SituacaoDaCompra`). O site trata todas.
+
+As outras quatro viram pedidos:
+
+### 6.1 Juros do parcelamento pagos pelo aluno
+
+**Decisão do Quad:** o aluno paga os juros em qualquer parcelamento (2x em diante); à vista (1x) não tem juros.
+
+**Situação hoje:** a API cobra o total da compra em qualquer número de parcelas (`DadosDoCartao`: "o total cobrado é o total da compra"). Ou seja, hoje o parcelamento sai **sem juros para o aluno**, e o site mostra "12x de R$ 99,75" sem juros, o que é verdade enquanto isso não mudar.
+
+**O pedido.**
+- Aplicar os juros do parcelamento ao valor cobrado, de acordo com a taxa definida pelo Quad.
+- Informar no site, antes do pagamento, o valor de cada parcela e o total com juros: a tabela por número de parcelas em `GET /api/loja/pagamentos/configuracao` (ou na simulação). O Código de Defesa do Consumidor (art. 52) exige mostrar a taxa de juros e o total a pagar antes da compra.
+- Quando a tabela vier, o site troca o "12x de R$ 99,75" pelo valor com juros e mostra a taxa e o total.
+
+### 6.2 E-mails da compra
+
+**Resposta:** ainda não existem. **O pedido:** criar os e-mails de **compra confirmada** (com o que foi comprado e o valor), **PIX aguardando pagamento** (com o código e o prazo) e **acesso liberado** (turma, material ou evento disponível na área do aluno). O boleto saiu do site, então não precisa do e-mail de boleto.
+
+### 6.3 Armazenamento de arquivos no ambiente local
+
+**Situação:** no ambiente local, o download de materiais responde 503 "nenhum bucket foi configurado". A API só fala com o S3 da AWS: o endereço do serviço não é configurável (`ConfiguracaoDoArmazemDeMateriais` cria o cliente só com a região), então um armazenamento de teste local (MinIO, compatível com o S3) não funciona sem mudança no código.
+
+**O pedido.** Uma propriedade opcional com o endereço do S3 (por exemplo `api.materiais.endpoint`, vazia em produção) e o modo de caminho (`forcePathStyle`) ligado quando ela existir. Com isso, o ambiente local usa um MinIO em Docker e produção continua na AWS sem mudar nada. A alternativa é um bucket de teste na própria AWS, com credenciais de teste.
+
+### 6.4 Aprovados, depoimentos em vídeo e blog
+
+**Resposta:** vão vir da API. **O pedido**, quando o Quad quiser publicar:
+- **Aprovados:** nome, foto, concurso, colocação, turma e ano, e um depoimento curto, numa rota pública.
+- **Depoimentos em vídeo:** título e link do vídeo (YouTube ou arquivo).
+- **Blog:** título, slug, resumo, texto, autor (professor), categoria, imagem de capa e data de publicação. O blog está fora do ar no site desde 23/10/2026 e volta quando a API tiver os artigos.
 
 ---
 
