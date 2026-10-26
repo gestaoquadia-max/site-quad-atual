@@ -3,7 +3,7 @@
 **De:** time do site (Next.js) · **Atualizado em:** 23/10/2026
 **Base:** testes na API local (`localhost:8080`) e leituras públicas da API de produção (`https://api.quadconcursos.com.br`).
 
-Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
+Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: limite de tentativas por rota, lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
 
 > **Banco compartilhado:** a API e o banco também atendem o **app Viver o Quad**. Toda mudança pedida aqui precisa considerar o impacto no app; os itens em que isso pesa estão marcados com ⚠️.
 
@@ -24,7 +24,6 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 3 | Professores: fotos e só os professores do site | Média |
 | 4.1 | Verificação do celular por código ⚠️ | Alta |
 | 4.2 | `emailVerificado` e `telefoneVerificado` no cadastro do aluno | Alta |
-| 4.3 | Limite de tentativas no cadastro e no envio de código | Média |
 | 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
 | 4.5 | Foto de perfil | Baixa |
 | 5.1 | Material digital (PDF) | Média |
@@ -109,6 +108,8 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 
 **⚠️ App Viver o Quad:** o bloqueio não pode atingir as contas que já existem (hoje nenhuma tem o celular verificado), senão todos os alunos do app ficam bloqueados. Sugestão: marcar `telefoneVerificado = true` nas contas existentes, ou bloquear só as contas criadas depois da mudança.
 
+**Limite:** as rotas de envio de código precisam entrar nos limites por minuto da API (`GruposPorRota`), como o cadastro e a disponibilidade já estão. Cada SMS custa.
+
 **A decidir:** qual serviço envia o SMS ou WhatsApp, e se o mesmo número pode estar em duas contas (`TELEFONE_EM_USO`).
 
 ### 4.2 `emailVerificado` e `telefoneVerificado` no cadastro do aluno
@@ -116,12 +117,6 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 **Por que o site precisa.** O site lê o aluno em `GET /api/alunos/eu`. Com esses dois campos, ele sabe quando mostrar o alerta "confirme seu e-mail" em "Meu perfil" e quando levar o aluno à verificação do celular (item 4.1).
 
 **O pedido.** Incluir os dois booleanos na resposta de `GET /api/alunos/eu`.
-
-### 4.3 Limite de tentativas
-
-**Por que o site precisa.** O login (5 erros por e-mail) e o cupom já têm limite. O cadastro (`POST /api/alunos`), a consulta de disponibilidade (`POST /api/usuarios/disponibilidade`) e o envio de código (item 4.1) não têm. Sem limite, um robô pode criar contas em massa, descobrir quais e-mails e CPFs estão cadastrados ou disparar SMS sem parar (e cada SMS custa).
-
-**O pedido.** Limite por IP e por conta nessas três rotas, respondendo 429 com o tempo de espera.
 
 ### 4.4 `GET /api/usuarios/eu` para conta sem cadastro de aluno (prioridade baixa)
 
