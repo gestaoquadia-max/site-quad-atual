@@ -464,6 +464,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Pagamento por PIX (QR Code e copia e cola) | FEITO |
 | Pagamento por boleto (linha digitável e PDF) | NÃO SE APLICA |
 | Parcelamento calculado pelo valor real | FEITO |
+| Acréscimo do parcelamento pago pelo aluno (taxa e total antes de pagar) | PENDENTE |
 
 **Campos adicionais**
 - **Descrição:** Cobrança de verdade

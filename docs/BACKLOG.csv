@@ -104,6 +104,7 @@
 "8";"CHECKOUT E PAGAMENTO";"2";"INTEGRAÇÃO COM O PAGAR.ME";"Pagamento por PIX (QR Code e copia e cola)";"FEITO";"CONCLUÍDA";"";"";"";"Descrição";"Cobrança de verdade";"Alta";"Pagar.me · Backend"
 "8";"CHECKOUT E PAGAMENTO";"2";"INTEGRAÇÃO COM O PAGAR.ME";"Pagamento por boleto (linha digitável e PDF)";"NÃO SE APLICA";"CONCLUÍDA";"";"";"";"Descrição";"Cobrança de verdade";"Alta";"Pagar.me · Backend"
 "8";"CHECKOUT E PAGAMENTO";"2";"INTEGRAÇÃO COM O PAGAR.ME";"Parcelamento calculado pelo valor real";"FEITO";"CONCLUÍDA";"";"";"";"Descrição";"Cobrança de verdade";"Alta";"Pagar.me · Backend"
+"8";"CHECKOUT E PAGAMENTO";"2";"INTEGRAÇÃO COM O PAGAR.ME";"Acréscimo do parcelamento pago pelo aluno (taxa e total antes de pagar)";"PENDENTE";"CONCLUÍDA";"";"";"";"Descrição";"Cobrança de verdade";"Alta";"Pagar.me · Backend"
 "8";"CHECKOUT E PAGAMENTO";"3";"PEDIDO E LIBERAÇÃO DE ACESSO";"Registrar o pedido na API";"FEITO";"EM ANDAMENTO";"";"";"";"Descrição";"O que acontece depois que o aluno paga";"Alta";"Backend · Etapa 8, Bloco 2"
 "8";"CHECKOUT E PAGAMENTO";"3";"PEDIDO E LIBERAÇÃO DE ACESSO";"Liberar o acesso automaticamente após o pagamento";"FEITO";"EM ANDAMENTO";"";"";"";"Descrição";"O que acontece depois que o aluno paga";"Alta";"Backend · Etapa 8, Bloco 2"
 "8";"CHECKOUT E PAGAMENTO";"3";"PEDIDO E LIBERAÇÃO DE ACESSO";"Validar cupons no backend (hoje estão no código)";"FEITO";"EM ANDAMENTO";"";"";"";"Descrição";"O que acontece depois que o aluno paga";"Alta";"Backend · Etapa 8, Bloco 2"
