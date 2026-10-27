@@ -21,8 +21,8 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 1.4 | Publicar a API e o site juntos (preços em centavos) | Alta (no lançamento) |
 | 1.5 | Entrada pelo Google: client ID do Quad no Google Cloud | Média |
 | 3 | Professores: fotos e só os professores do site | Média |
-| 4.1 | Verificação do celular por código ⚠️ | Alta |
-| 4.2 | `emailVerificado` e `telefoneVerificado` no cadastro do aluno | Alta |
+| 4.1 | Verificação do celular por código ⚠️ (pronta no backend, publicação adiada) | Alta |
+| 4.2 | `telefoneVerificado` no cadastro do aluno (o do e-mail já veio) | Alta |
 | 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
 | 4.5 | Foto de perfil | Baixa |
 | 5.1 | Material digital (PDF) | Média |
@@ -90,6 +90,8 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 
 ### 4.1 Verificação do celular por código ⚠️
 
+> **27/10/2026:** segundo o backend, a verificação já existe, mas **não vai ser publicada agora**, para não travar os testes. Ela ainda não está no repositório da API (nem no `main`, nem nas branches do GitHub). Quando entrar, o site liga o passo 3 do cadastro e a troca de telefone às rotas abaixo.
+
 **Por que o site precisa.** Decisão de 02/10/2026: o celular é o único dado obrigatório para liberar a conta; o e-mail é confirmado depois, por link (isso já funciona). As telas do site estão prontas: o passo 3 do cadastro e a troca de telefone em "Meu perfil" pedem o código. Enquanto as rotas não existem, o passo 3 deixa o aluno seguir sem verificar.
 
 **Rotas:**
@@ -113,6 +115,8 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 **Por que o site precisa.** O site lê o aluno em `GET /api/alunos/eu`. Com esses dois campos, ele sabe quando mostrar o alerta "confirme seu e-mail" em "Meu perfil" e quando levar o aluno à verificação do celular (item 4.1).
 
 **O pedido.** Incluir os dois booleanos na resposta de `GET /api/alunos/eu`.
+
+> **27/10/2026:** o e-mail está atendido. `GET /api/alunos/eu` devolve `emailVerificadoEm` (data, ou nulo se o aluno nunca confirmou), e o site já usa esse campo para o alerta de "Meu perfil". Falta o do celular (`telefoneVerificado` ou `telefoneVerificadoEm`), que vem junto com o item 4.1.
 
 ### 4.4 `GET /api/usuarios/eu` para conta sem cadastro de aluno (prioridade baixa)
 

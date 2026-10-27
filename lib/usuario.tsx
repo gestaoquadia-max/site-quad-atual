@@ -43,7 +43,7 @@ async function carregarUsuarioAtual(): Promise<UsuarioAtual> {
       email: a.email ?? null,
       telefone: a.telefone ?? null,
       cpf: a.cpf ?? null,
-      emailVerificado: a.emailVerificado ?? null,
+      emailVerificado: a.emailVerificadoEm === undefined ? null : a.emailVerificadoEm !== null,
       dadosDaContaDisponiveis: !!a.nomeCompleto,
       podeEditarCadastro: !!a.nomeCompleto,
       aluno: a,
