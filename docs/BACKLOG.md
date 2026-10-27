@@ -356,7 +356,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 | Tarefa | Status |
 |---|---|
-| Cache das páginas para não consultar a API a cada visita | PENDENTE |
+| Cache das páginas para não consultar a API a cada visita | FEITO |
 | Imagens guardadas em nuvem, fora do código | PENDENTE |
 
 **Campos adicionais**
