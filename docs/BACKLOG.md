@@ -173,7 +173,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 |---|---|
 | Links da Tutory em cada curso online | PENDENTE |
 | Fotos reais nas galerias | PENDENTE |
-| Revisar textos de exemplo (datas de 2025, nomes, vagas) | PENDENTE |
+| Revisar textos de exemplo (datas de 2025, nomes, vagas) | FEITO |
 | Botão de WhatsApp para atendimento | FEITO |
 
 **Campos adicionais**
@@ -548,7 +548,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 |---|---|
 | Termos e política de privacidade publicados | PENDENTE |
 | Aviso de consentimento de cookies | FEITO |
-| Canal para o aluno pedir exclusão ou cópia dos dados | PENDENTE |
+| Canal para o aluno pedir exclusão ou cópia dos dados | FEITO |
 
 **Campos adicionais**
 - **Descrição:** Obrigações legais com os dados dos alunos
