@@ -1,11 +1,17 @@
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
+import { institucional } from "@/lib/institucional";
 import { metadadosDaPagina } from "@/lib/seo";
+
+// ", desde 2013" quando o ano de fundação estiver confirmado em lib/institucional.ts; senão, nada.
+function desde(separador: string) {
+  return institucional.anoDeFundacao ? `${separador}desde ${institucional.anoDeFundacao}` : "";
+}
 
 export const metadata = metadadosDaPagina({
   titulo: "Sobre o Quad",
   descricao:
-    "Conheça a história, a missão e os valores do Quad Concursos, preparação para concursos militares em Feira de Santana, Bahia, desde 2013.",
+    `Conheça a história, a missão e os valores do Quad Concursos, preparação para concursos militares em Feira de Santana, Bahia${desde(", ")}.`,
   caminho: "/sobre",
 });
 
@@ -21,7 +27,7 @@ const valores = [
 export default function SobrePage() {
   return (
     <>
-      <PageHeader eyebrow="Quem somos" title="Sobre o Quad" desc="Preparação séria para quem quer vestir a farda. Feira de Santana, Bahia — desde 2013." />
+      <PageHeader eyebrow="Quem somos" title="Sobre o Quad" desc={`Preparação séria para quem quer vestir a farda. Feira de Santana, Bahia${desde(" — ")}.`} />
 
       <section className="bg-white py-[clamp(56px,7vw,104px)]">
         <div className="conteiner grid gap-[clamp(28px,5vw,80px)] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">

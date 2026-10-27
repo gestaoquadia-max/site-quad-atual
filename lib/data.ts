@@ -89,6 +89,8 @@ export type Aprovado = {
   ano: string;
   depoimento: string;
   fotoUrl?: string;
+  // Depoimento ilustrativo do protótipo: aparece com o selo "Exemplo ilustrativo" até ser trocado por um real, autorizado.
+  exemplo?: boolean;
 };
 
 export const aprovados: Aprovado[] = [
@@ -99,6 +101,7 @@ export const aprovados: Aprovado[] = [
     ano: "2024",
     depoimento:
       "O que fez diferença foi estudar só o que a banca realmente cobra. Os simulados quinzenais foram praticamente a prova em si.",
+    exemplo: true,
   },
   {
     nome: "Rafael Andrade",
@@ -107,6 +110,7 @@ export const aprovados: Aprovado[] = [
     ano: "2024",
     depoimento:
       "Depois de duas tentativas sozinho, entrei no Quad e em um ciclo só consegui minha aprovação. A rotina estruturada foi essencial.",
+    exemplo: true,
   },
   {
     nome: "Camila Torres",
@@ -115,6 +119,7 @@ export const aprovados: Aprovado[] = [
     ano: "2024",
     depoimento:
       "A correção individual das discursivas foi o diferencial. Consegui evoluir minha escrita em poucos meses de treino direcionado.",
+    exemplo: true,
   },
   {
     nome: "Diego Farias",
@@ -123,6 +128,7 @@ export const aprovados: Aprovado[] = [
     ano: "2023",
     depoimento:
       "Vim de fora de Feira de Santana só pra estudar presencial no Quad. Valeu cada quilômetro rodado nas aulas de sábado.",
+    exemplo: true,
   },
   {
     nome: "Beatriz Souza",
@@ -131,6 +137,7 @@ export const aprovados: Aprovado[] = [
     ano: "2023",
     depoimento:
       "Comecei do zero em Direito e Português. O acompanhamento próximo dos professores me deu segurança até o dia da prova.",
+    exemplo: true,
   },
   {
     nome: "Thiago Almeida",
@@ -139,6 +146,7 @@ export const aprovados: Aprovado[] = [
     ano: "2023",
     depoimento:
       "O treinamento físico orientado aos sábados fez toda diferença no TAF. Cheguei preparado tanto na prova teórica quanto na prática.",
+    exemplo: true,
   },
 ];
 

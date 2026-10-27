@@ -26,6 +26,10 @@ export const institucional = {
   politicaDeCancelamento: "",
   // Foro escolhido pela assessoria jurídica para os Termos de uso
   foro: "Feira de Santana — BA",
+  // Ano de fundação ("desde ...") e total de aprovados ("+800"): só aparecem no site depois de confirmados pelo Quad
+  // (decisão de 27/10/2026). Vazios, as frases saem sem eles. Ex.: anoDeFundacao: "2013", totalDeAprovados: 800.
+  anoDeFundacao: "",
+  totalDeAprovados: 0,
 };
 
 export function linkDoWhatsApp(numero: string) {

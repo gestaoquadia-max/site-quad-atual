@@ -31,7 +31,7 @@ export function dadosDaOrganizacao() {
     logo: `${URL_DO_SITE}/apple-icon`,
     image: IMAGEM,
     description: DESCRICAO_DO_SITE,
-    foundingDate: "2013",
+    ...(institucional.anoDeFundacao ? { foundingDate: institucional.anoDeFundacao } : {}),
     address: endereco(),
     ...(telefone ? { telephone: `+55${telefone.replace(/\D/g, "")}` } : {}),
     ...(institucional.emailAtendimento ? { email: institucional.emailAtendimento } : {}),

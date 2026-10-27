@@ -3,12 +3,21 @@ import Link from "next/link";
 import { aprovados, type Aprovado } from "@/lib/data";
 import { getIniciais } from "@/lib/format";
 import PageHeader from "@/components/PageHeader";
+import { SeloExemplo } from "@/components/home/Cartoes";
+import { institucional } from "@/lib/institucional";
 import { metadadosDaPagina } from "@/lib/seo";
+
+// "Mais de 800 alunos aprovados desde 2013." só com os números confirmados em lib/institucional.ts; senão, nada.
+function totalDeAprovados(antes: string, depois = "") {
+  const { totalDeAprovados: total, anoDeFundacao: ano } = institucional;
+  if (!total) return "";
+  return `${antes}Mais de ${total} alunos aprovados${ano ? ` desde ${ano}` : ""}.${depois}`;
+}
 
 export const metadata = metadadosDaPagina({
   titulo: "Aprovados",
   descricao:
-    "Histórias de alunos do Quad Concursos aprovados na PM-BA, no CFO e em outras forças de segurança. Mais de 800 aprovados desde 2013.",
+    `Histórias de alunos do Quad Concursos aprovados na PM-BA, no CFO e em outras forças de segurança.${totalDeAprovados(" ")}`,
   caminho: "/aprovados",
 });
 
@@ -22,6 +31,11 @@ function CartaoComDepoimento({ aprovado }: { aprovado: Aprovado }) {
           {aprovado.fotoUrl ? <Image src={aprovado.fotoUrl} alt="" fill sizes="64px" className="object-cover" /> : getIniciais(aprovado.nome)}
         </span>
         <div className="min-w-0">
+          {aprovado.exemplo && (
+            <span className="mb-1.5 block">
+              <SeloExemplo />
+            </span>
+          )}
           <h2 className="font-display text-lg font-extrabold leading-tight">{aprovado.nome}</h2>
           <p className="mt-0.5 text-[13.5px] text-ardosia">
             {aprovado.turma} · {aprovado.ano}
@@ -39,7 +53,11 @@ function CartaoComDepoimento({ aprovado }: { aprovado: Aprovado }) {
 export default function AprovadosPage() {
   return (
     <>
-      <PageHeader eyebrow="Histórias reais" title="Aprovados" desc="Mais de 800 alunos aprovados desde 2013. Conheça quem já vestiu a farda com o método Quad." />
+      <PageHeader
+        eyebrow="Quad Aprovado"
+        title="Aprovados"
+        desc={`${totalDeAprovados("", " ")}Conheça quem já vestiu a farda com o método Quad.`}
+      />
       <section className="bg-nevoa py-[clamp(48px,6vw,88px)]">
         <div className="conteiner">
           <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,340px),1fr))] gap-5">

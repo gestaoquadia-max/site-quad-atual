@@ -2,12 +2,16 @@
 
 import { useState } from "react";
 import type { Evento, Turma } from "@/lib/data";
+import { institucional } from "@/lib/institucional";
 
 type Aviso = { rotulo: string; texto: string };
 
 // Avisos sem nada aberto na vitrine.
 const AVISOS_FIXOS: Aviso[] = [
-  { rotulo: "Quad Concursos", texto: "Preparação para concursos militares em Feira de Santana desde 2013" },
+  {
+    rotulo: "Quad Concursos",
+    texto: `Preparação para concursos militares em Feira de Santana${institucional.anoDeFundacao ? ` desde ${institucional.anoDeFundacao}` : ""}`,
+  },
   { rotulo: "Simulados", texto: "Simulados do Quad — presenciais, individuais e combos" },
   { rotulo: "Turmas", texto: "Novas turmas presenciais em breve — acompanhe a agenda" },
 ];

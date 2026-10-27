@@ -3,7 +3,7 @@
 // `exemplo: true` = registro ilustrativo, que aparece no site com o selo "Exemplo ilustrativo".
 
 // ---------- Banners do carrossel da Home ----------
-// tipo "danilo": composição institucional feita no próprio site (foto do Danilo + "+800 aprovados").
+// tipo "danilo": composição institucional feita no próprio site (foto do Danilo + total de aprovados, quando confirmado).
 // tipo "imagem": arte da designer. Sem arte ainda (imagem vazia), mostra o título sobre o fundo escuro.
 export type Banner = {
   id: string;

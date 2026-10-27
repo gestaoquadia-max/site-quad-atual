@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { institucional } from "@/lib/institucional";
 import { SIMBOLO_DATA_URL } from "@/lib/marca";
 
 // Imagem que aparece quando alguém compartilha um link do site (WhatsApp, Instagram, Facebook, LinkedIn).
@@ -32,7 +33,9 @@ export default function OpengraphImage() {
           <div style={{ fontSize: 28, color: "#B8C0CC", marginTop: 28 }}>
             Turmas presenciais · Materiais · Simulados
           </div>
-          <div style={{ fontSize: 24, color: "#8B95A3", marginTop: 10 }}>Feira de Santana · Bahia · desde 2013</div>
+          <div style={{ fontSize: 24, color: "#8B95A3", marginTop: 10 }}>
+            Feira de Santana · Bahia{institucional.anoDeFundacao ? ` · desde ${institucional.anoDeFundacao}` : ""}
+          </div>
         </div>
       </div>
     ),

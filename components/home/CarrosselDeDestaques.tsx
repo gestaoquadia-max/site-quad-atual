@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import type { Banner } from "@/lib/conteudo";
+import { institucional } from "@/lib/institucional";
 
 const INTERVALO_MS = 6000;
 
@@ -47,7 +48,7 @@ const TITULO_PRINCIPAL = (
 
 const MASCARA_DA_FOTO = "linear-gradient(180deg,#000 72%,transparent 98%)";
 
-// Composição institucional: Danilo, "+800 aprovados" e a chamada principal. Uma versão para o computador e outra para o celular.
+// Composição institucional: Danilo, "+N aprovados" (só com o total confirmado em lib/institucional.ts) e a chamada principal. Uma versão para o computador e outra para o celular.
 function SlideDanilo({ banner, primeiro }: { banner: Banner; primeiro: boolean }) {
   return (
     <>
@@ -91,14 +92,16 @@ function SlideDanilo({ banner, primeiro }: { banner: Banner; primeiro: boolean }
                 <div className="font-display text-[15px] font-bold tracking-[0.02em]">Danilo Moura</div>
                 <div className="mt-[3px] text-[12.5px] text-[#B4C1D3]">Fundador do Quad Concursos</div>
               </div>
-              <div className="pointer-events-auto relative ml-auto rounded-2xl border border-[rgba(111,174,255,0.22)] bg-[rgba(11,28,51,0.94)] px-6 pb-5 pt-[18px] shadow-[0_30px_60px_-24px_rgba(0,0,0,0.9),0_0_0_1px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.06)]">
-                <div aria-hidden="true" className="absolute left-5 right-5 top-[-1px] h-px bg-[linear-gradient(90deg,transparent,#4D9BFF,transparent)]" />
-                <div className="flex items-start font-display font-extrabold leading-[0.86] tracking-[-0.05em] [font-variant-numeric:tabular-nums]">
-                  <span className="mr-0.5 text-[clamp(34px,3.6vw,46px)] text-azul-vivo">+</span>
-                  <span className="text-[clamp(56px,6vw,80px)] text-white">800</span>
+              {institucional.totalDeAprovados > 0 && (
+                <div className="pointer-events-auto relative ml-auto rounded-2xl border border-[rgba(111,174,255,0.22)] bg-[rgba(11,28,51,0.94)] px-6 pb-5 pt-[18px] shadow-[0_30px_60px_-24px_rgba(0,0,0,0.9),0_0_0_1px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.06)]">
+                  <div aria-hidden="true" className="absolute left-5 right-5 top-[-1px] h-px bg-[linear-gradient(90deg,transparent,#4D9BFF,transparent)]" />
+                  <div className="flex items-start font-display font-extrabold leading-[0.86] tracking-[-0.05em] [font-variant-numeric:tabular-nums]">
+                    <span className="mr-0.5 text-[clamp(34px,3.6vw,46px)] text-azul-vivo">+</span>
+                    <span className="text-[clamp(56px,6vw,80px)] text-white">{institucional.totalDeAprovados}</span>
+                  </div>
+                  <div className="mt-2.5 font-display text-[13px] font-extrabold uppercase tracking-[0.32em] text-prata-clara">Aprovados</div>
                 </div>
-                <div className="mt-2.5 font-display text-[13px] font-extrabold uppercase tracking-[0.32em] text-prata-clara">Aprovados</div>
-              </div>
+              )}
             </div>
           </div>
         </div>

@@ -145,6 +145,11 @@ export function CartaoAprovado({ aprovado }: { aprovado: Aprovado }) {
           {getIniciais(aprovado.nome)}
         </div>
         {aprovado.fotoUrl && <Image src={aprovado.fotoUrl} alt={aprovado.nome} fill sizes="240px" className="object-cover" />}
+        {aprovado.exemplo && (
+          <span className="absolute left-2 top-2">
+            <SeloExemplo />
+          </span>
+        )}
       </div>
       <div className="flex flex-1 flex-col justify-center p-[clamp(16px,2.6vw,28px)]">
         <span className="inline-flex items-center gap-1.5 self-start rounded-md bg-azul py-[5px] pl-2 pr-2.5 text-[11px] font-bold uppercase tracking-[0.1em] text-white">
