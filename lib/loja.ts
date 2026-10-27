@@ -46,7 +46,9 @@ export type Fechamento = {
   compras: { id: string; item: { nome: string; variacao: { nome: string } | null }; quantidade: number }[];
   pagamento: {
     forma: "CARTAO" | "PIX" | "BOLETO" | "CUPOM" | "QUAD_COINS";
+    // O cobrado, já com o acréscimo do parcelamento, que vem também à parte (zero no PIX e à vista).
     valorEmCentavos: number;
+    acrescimoEmCentavos?: number;
     pix: { codigo: string | null; imagemUrl: string | null; expiraEm: string | null } | null;
     boleto: { linhaDigitavel: string | null; url: string | null; pdf: string | null; venceEm: string | null } | null;
     cartao: { bandeira: string | null; ultimosDigitos: string | null; parcelas: number | null; recusa: { codigo: string; mensagem: string } | null } | null;
@@ -76,6 +78,16 @@ export function buscarConfiguracaoDoPagamento() {
   return chamar<ConfiguracaoDoPagamento>("/api/loja/pagamentos/configuracao", "Não foi possível carregar as formas de pagamento.");
 }
 
+// Opções de parcelamento de um valor, com o acréscimo de cada uma (desde 27/10/2026 o aluno paga o acréscimo do
+// parcelado: 1x sem acréscimo; de 2x em diante, 3% "por dentro"). O site nunca recalcula: mostra estas opções e
+// manda o acréscimo da escolhida em acrescimoVistoEmCentavos; se a conta da API for outra, ela recusa (422 ACRESCIMO_DIVERGENTE).
+export type OpcaoDeParcelamento = { parcelas: number; acrescimoEmCentavos: number; totalEmCentavos: number; parcelaEmCentavos: number };
+export type ParcelasDoValor = { parcelasMaximas: number; parcelasSemAcrescimo: number; acrescimoEmBps: number; opcoes: OpcaoDeParcelamento[] };
+
+export function buscarParcelas(totalEmCentavos: number) {
+  return chamar<ParcelasDoValor>(`/api/loja/pagamentos/parcelas?totalEmCentavos=${totalEmCentavos}`, "Não foi possível calcular as parcelas.");
+}
+
 export function esvaziarCarrinhoDoServidor() {
   return chamar<void>("/api/loja/carrinho/eu", "Não foi possível preparar o seu pedido.", { method: "DELETE" });
 }
@@ -100,7 +112,11 @@ export type DadosDoFechamento = {
   // O site não oferece boleto (decisão de 23/10/2026); a API ainda aceita.
   formaDePagamento: "CARTAO" | "PIX" | "CUPOM";
   // Um cartão (`cartao`) ou dois (`cartoes`, cada um com a parte que paga, em centavos; a soma é o total).
-  pagamento?: { cartao: { token: string; parcelas: number } } | { cartoes: { token: string; parcelas: number; valorEmCentavos: number }[] };
+  // acrescimoVistoEmCentavos: o acréscimo do parcelamento que a tela mostrou (no cartão único, dentro de `cartao`;
+  // nos dois cartões, a soma das duas partes, ao lado de `cartoes`).
+  pagamento?:
+    | { cartao: { token: string; parcelas: number; acrescimoVistoEmCentavos: number } }
+    | { cartoes: { token: string; parcelas: number; valorEmCentavos: number }[]; acrescimoVistoEmCentavos: number };
   cupom?: string;
 };
 

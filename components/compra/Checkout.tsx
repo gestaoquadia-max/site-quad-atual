@@ -6,7 +6,16 @@ import { Cards, CreditCard, PixLogo } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart";
 import { ErroDaApi } from "@/lib/http";
-import { buscarConfiguracaoDoPagamento, emReais, fecharCarrinho, type ConfiguracaoDoPagamento, type DadosDoFechamento } from "@/lib/loja";
+import {
+  buscarConfiguracaoDoPagamento,
+  buscarParcelas,
+  emReais,
+  fecharCarrinho,
+  type ConfiguracaoDoPagamento,
+  type DadosDoFechamento,
+  type OpcaoDeParcelamento,
+  type ParcelasDoValor,
+} from "@/lib/loja";
 import { ErroDoCartao, formatarNumeroDoCartao, formatarValidade, problemaNoCartao, tokenizarCartao, type DadosDoCartao } from "@/lib/pagarme";
 import { rotaComDestino } from "@/lib/redirecionamento";
 import type { Carreira } from "@/lib/simulados";
@@ -38,6 +47,32 @@ function centavosDoTexto(texto: string) {
 const CARTAO = "rounded-[18px] border border-linha bg-white p-6";
 const AVISO_DE_ERRO = "rounded-xl border border-[#F1C4C4] bg-[#FFF5F5] p-4 text-sm leading-[1.55] text-[#9B1C1C]";
 const PAGAMENTO_INDISPONIVEL = "O pagamento online está indisponível no momento. Tente mais tarde ou fale com o nosso atendimento pelo WhatsApp.";
+
+// As opções de parcelamento de um valor, lidas da API com o acréscimo de cada uma. null enquanto carrega (ou se a
+// leitura falhar): aí só o 1x, que nunca tem acréscimo, pode ser pago. Espera o aluno parar de digitar o valor do 1º cartão.
+function useParcelas(valorEmCentavos: number, ativo: boolean) {
+  const [lidas, setLidas] = useState<{ valor: number; tabela: ParcelasDoValor } | null>(null);
+  useEffect(() => {
+    if (!ativo || valorEmCentavos <= 0) return;
+    let cancelado = false;
+    const espera = setTimeout(() => {
+      buscarParcelas(valorEmCentavos)
+        .then((tabela) => !cancelado && setLidas({ valor: valorEmCentavos, tabela }))
+        .catch(() => {});
+    }, 300);
+    return () => {
+      cancelado = true;
+      clearTimeout(espera);
+    };
+  }, [valorEmCentavos, ativo]);
+  return lidas?.valor === valorEmCentavos ? lidas.tabela : null;
+}
+
+// O acréscimo das parcelas escolhidas: zero no 1x; null quando as opções ainda não chegaram.
+function acrescimoDe(tabela: ParcelasDoValor | null, parcelas: number) {
+  if (parcelas <= 1) return 0;
+  return tabela?.opcoes.find((o) => o.parcelas === parcelas)?.acrescimoEmCentavos ?? null;
+}
 
 function horaCurta(iso: string) {
   return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -128,6 +163,15 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
   const primeiroEmCentavos = centavosDoTexto(valorDoPrimeiro) ?? Math.ceil(total / 2);
   const segundoEmCentavos = total - primeiroEmCentavos;
   const podePagar = !!pedido && !!simulacao && !temRecusado && !enviando && (gratuito || pagamentoDisponivel);
+  const parcelando = logado && !gratuito && pagamentoDisponivel;
+  const opcoesDoTotal = useParcelas(total, parcelando && metodo === "CARTAO");
+  const opcoesDoPrimeiro = useParcelas(primeiroEmCentavos, parcelando && metodo === "DOIS_CARTOES");
+  const opcoesDoSegundo = useParcelas(segundoEmCentavos, parcelando && metodo === "DOIS_CARTOES");
+  // O acréscimo que a tela está mostrando, e que vai no pedido para a API conferir (null = parcelas ainda calculando).
+  const acrescimo1 = acrescimoDe(metodo === "CARTAO" ? opcoesDoTotal : opcoesDoPrimeiro, parcelas);
+  const acrescimo2 = acrescimoDe(opcoesDoSegundo, parcelas2);
+  const acrescimo =
+    gratuito || metodo === "PIX" ? 0 : metodo === "CARTAO" ? acrescimo1 : acrescimo1 === null || acrescimo2 === null ? null : acrescimo1 + acrescimo2;
 
   async function aplicar(codigo: string | null) {
     setErroDoCupom("");
@@ -148,6 +192,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
     if (!podePagar) return;
     setErro("");
     let dados: DadosDoFechamento;
+    if (acrescimo === null) return setErro("Aguarde o cálculo das parcelas e confirme de novo.");
     if (gratuito) {
       dados = { formaDePagamento: "CUPOM", cupom: cupom ?? undefined };
     } else if (metodo === "CARTAO") {
@@ -157,7 +202,11 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
       setEnviando(true);
       try {
         const tokenDoCartao = await tokenizarCartao(config.chavePublica, cartao);
-        dados = { formaDePagamento: "CARTAO", pagamento: { cartao: { token: tokenDoCartao, parcelas } }, cupom: cupom ?? undefined };
+        dados = {
+          formaDePagamento: "CARTAO",
+          pagamento: { cartao: { token: tokenDoCartao, parcelas, acrescimoVistoEmCentavos: acrescimo } },
+          cupom: cupom ?? undefined,
+        };
       } catch (e) {
         setEnviando(false);
         return setErro(e instanceof ErroDoCartao ? e.message : "Não foi possível validar o cartão.");
@@ -180,6 +229,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
               { token: token1, parcelas, valorEmCentavos: primeiroEmCentavos },
               { token: token2, parcelas: parcelas2, valorEmCentavos: segundoEmCentavos },
             ],
+            acrescimoVistoEmCentavos: acrescimo,
           },
           cupom: cupom ?? undefined,
         };
@@ -296,7 +346,15 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
 
                   {metodo === "CARTAO" && (
                     <div className="mt-5">
-                      <CamposDoCartao cartao={cartao} setCartao={setCartao} parcelas={parcelas} setParcelas={setParcelas} maxParcelas={maxParcelas} valorEmCentavos={total} />
+                      <CamposDoCartao
+                        cartao={cartao}
+                        setCartao={setCartao}
+                        parcelas={parcelas}
+                        setParcelas={setParcelas}
+                        maxParcelas={maxParcelas}
+                        valorEmCentavos={total}
+                        opcoes={opcoesDoTotal}
+                      />
                     </div>
                   )}
                   {metodo === "PIX" && (
@@ -330,7 +388,15 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                             </span>
                           </label>
                         </div>
-                        <CamposDoCartao cartao={cartao} setCartao={setCartao} parcelas={parcelas} setParcelas={setParcelas} maxParcelas={maxParcelas} valorEmCentavos={Math.max(primeiroEmCentavos, 0)} />
+                        <CamposDoCartao
+                          cartao={cartao}
+                          setCartao={setCartao}
+                          parcelas={parcelas}
+                          setParcelas={setParcelas}
+                          maxParcelas={maxParcelas}
+                          valorEmCentavos={Math.max(primeiroEmCentavos, 0)}
+                          opcoes={opcoesDoPrimeiro}
+                        />
                       </section>
                       <section aria-labelledby="segundo-cartao" className="flex flex-col gap-4 border-t border-linha pt-6">
                         <div className="flex flex-wrap items-baseline justify-between gap-3">
@@ -341,7 +407,15 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                             Restante: <strong className="text-tinta">{emReais(Math.max(segundoEmCentavos, 0))}</strong>
                           </span>
                         </div>
-                        <CamposDoCartao cartao={cartao2} setCartao={setCartao2} parcelas={parcelas2} setParcelas={setParcelas2} maxParcelas={maxParcelas} valorEmCentavos={Math.max(segundoEmCentavos, 0)} />
+                        <CamposDoCartao
+                          cartao={cartao2}
+                          setCartao={setCartao2}
+                          parcelas={parcelas2}
+                          setParcelas={setParcelas2}
+                          maxParcelas={maxParcelas}
+                          valorEmCentavos={Math.max(segundoEmCentavos, 0)}
+                          opcoes={opcoesDoSegundo}
+                        />
                       </section>
                     </div>
                   )}
@@ -469,10 +543,17 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                     </div>
                   )}
 
+                  {!!acrescimo && (
+                    <div className="flex items-center justify-between gap-3 border-b border-[#EEF2F7] py-2.5 text-sm">
+                      <span className="text-ardosia-escura">Acréscimo do parcelamento</span>
+                      <span className="whitespace-nowrap font-semibold [font-variant-numeric:tabular-nums]">+ {emReais(acrescimo)}</span>
+                    </div>
+                  )}
+
                   <div className="mt-3.5 flex items-baseline justify-between">
                     <span className="font-semibold">Total</span>
                     <span className="font-display text-[26px] font-extrabold tracking-[-0.03em] [font-variant-numeric:tabular-nums]">
-                      {gratuito ? "Gratuito" : simulacao ? emReais(total) : "—"}
+                      {gratuito ? "Gratuito" : simulacao ? emReais(total + (acrescimo ?? 0)) : "—"}
                     </span>
                   </div>
                   {pedido?.expiraEm && pedido.linhas.size > 0 && (
@@ -499,6 +580,7 @@ function CamposDoCartao({
   setParcelas,
   maxParcelas,
   valorEmCentavos,
+  opcoes,
 }: {
   cartao: DadosDoCartao;
   setCartao: React.Dispatch<React.SetStateAction<DadosDoCartao>>;
@@ -506,7 +588,15 @@ function CamposDoCartao({
   setParcelas: (n: number) => void;
   maxParcelas: number;
   valorEmCentavos: number;
+  // As opções da API, com o acréscimo; null enquanto calcula (aí só o 1x aparece).
+  opcoes: ParcelasDoValor | null;
 }) {
+  const lista: OpcaoDeParcelamento[] = opcoes
+    ? opcoes.opcoes.filter((o) => o.parcelas <= maxParcelas)
+    : [{ parcelas: 1, acrescimoEmCentavos: 0, totalEmCentavos: valorEmCentavos, parcelaEmCentavos: valorEmCentavos }];
+  const comAcrescimo = lista.some((o) => o.acrescimoEmCentavos > 0);
+  // 300 pontos-base → "3%"; 250 → "2,5%". A taxa vem da API, como o resto (CDC, art. 52: mostrar a taxa e o total).
+  const taxa = opcoes ? `${(opcoes.acrescimoEmBps / 100).toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%` : "";
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,200px),1fr))] gap-4">
       <CampoDoCartao
@@ -530,13 +620,24 @@ function CamposDoCartao({
       />
       <label className="col-span-full flex flex-col gap-[7px]">
         <span className={CLASSE_DO_ROTULO}>Parcelamento</span>
-        <select value={parcelas} onChange={(e) => setParcelas(Number(e.target.value))} className={CLASSE_DO_CAMPO}>
-          {Array.from({ length: maxParcelas }, (_, i) => i + 1).map((n) => (
-            <option key={n} value={n}>
-              {n}x de {emReais(Math.ceil(valorEmCentavos / n))}
+        <select
+          value={lista.some((o) => o.parcelas === parcelas) ? parcelas : 1}
+          onChange={(e) => setParcelas(Number(e.target.value))}
+          className={CLASSE_DO_CAMPO}
+        >
+          {lista.map((o) => (
+            <option key={o.parcelas} value={o.parcelas}>
+              {o.parcelas}x de {emReais(o.parcelaEmCentavos)}
+              {o.acrescimoEmCentavos > 0 ? ` (total ${emReais(o.totalEmCentavos)})` : " sem acréscimo"}
             </option>
           ))}
         </select>
+        {comAcrescimo && (
+          <span className="text-[12.5px] leading-[1.5] text-ardosia">
+            À vista, sem acréscimo. Do 2x em diante, há um acréscimo de {taxa} do parcelamento no cartão, já incluído nas parcelas e no
+            total.
+          </span>
+        )}
       </label>
     </div>
   );

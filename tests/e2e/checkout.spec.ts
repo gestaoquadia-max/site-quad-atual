@@ -149,3 +149,32 @@ test("comprar agora põe o item no carrinho e abre o checkout", async ({ page })
   await page.goto("/carrinho");
   await expect(page.locator("main").getByText(nome).first()).toBeVisible();
 });
+
+// Desde 27/10/2026 o parcelado tem acréscimo, calculado pela API: o site mostra as opções dela, sem refazer a conta.
+test("o parcelamento mostra o acréscimo da API e o total do pedido acompanha a escolha", async ({ page }) => {
+  await entrar(page, CONTA_A);
+  await adicionarUmMaterial(page);
+  await page.goto("/checkout");
+  const resumo = page.getByRole("complementary").filter({ hasText: "Pedido" });
+  await expect(resumo.getByText(/Itens reservados para você até/)).toBeVisible();
+  const pagar = page.getByRole("button", { name: "Pagar com cartão" });
+  try {
+    test.skip(await page.getByText("O pagamento online está indisponível no momento.", { exact: false }).isVisible(), "Pagar.me desligado na API");
+    const parcelas = page.getByLabel("Parcelamento");
+    await expect(parcelas.locator("option").first()).toHaveText(/^1x de R\$\s[\d.,]+ sem acréscimo$/);
+    await expect(parcelas.locator("option")).toHaveCount(12);
+    await parcelas.selectOption("3");
+    await expect(resumo.getByText("Acréscimo do parcelamento")).toBeVisible();
+    const total = await parcelas.locator("option:checked").innerText();
+    const totalDaOpcao = total.match(/total (R\$\s[\d.,]+)/)?.[1];
+    expect(totalDaOpcao).toBeTruthy();
+    await expect(resumo.getByText(totalDaOpcao!)).toBeVisible();
+    await parcelas.selectOption("1");
+    await expect(resumo.getByText("Acréscimo do parcelamento")).toHaveCount(0);
+    await expect(pagar).toBeEnabled();
+  } finally {
+    await page.evaluate(async (api) => {
+      await fetch(`${api}/api/loja/carrinho/eu`, { method: "DELETE", credentials: "include", headers: { "X-Quad-Cliente": "site" } });
+    }, process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080");
+  }
+});

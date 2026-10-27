@@ -3,7 +3,7 @@
 **De:** time do site (Next.js) · **Atualizado em:** 27/10/2026
 **Base:** testes na API local (`localhost:8080`) e leituras públicas da API de produção (`https://api.quadconcursos.com.br`).
 
-Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: atividades gratuitas na vitrine e matrícula gratuita em turma, limite de tentativas por rota, lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
+Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: acréscimo do parcelamento pago pelo aluno, atividades gratuitas na vitrine e matrícula gratuita em turma, limite de tentativas por rota, lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
 
 > **Banco compartilhado:** a API e o banco também atendem o **app Viver o Quad**. Toda mudança pedida aqui precisa considerar o impacto no app; os itens em que isso pesa estão marcados com ⚠️.
 
@@ -29,7 +29,6 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 5.1 | Material digital (PDF) | Média |
 | 5.3 | Simulados: formatos de estudo e combos | Média |
 | 5.4 | Textos de venda da turma e programação do evento | Média |
-| 6.1 | Juros do parcelamento pagos pelo aluno, com a tabela na API | Alta |
 | 6.2 | E-mails da compra (confirmada, aguardando PIX, acesso liberado) | Alta |
 | 6.3 | Armazenamento de arquivos no ambiente local (endereço do S3 configurável) | Média |
 | 6.4 | Aprovados, depoimentos em vídeo e blog pela API | Baixa |
@@ -194,17 +193,6 @@ As sete perguntas foram respondidas. Três não pedem nada ao backend:
 - **Situações do pagamento:** paga, aguardando, recusada, expirada, cancelada e estornada, que são as da API (`SituacaoDaCompra`). O site trata todas.
 
 As outras quatro viram pedidos:
-
-### 6.1 Juros do parcelamento pagos pelo aluno
-
-**Decisão do Quad:** o aluno paga os juros em qualquer parcelamento (2x em diante); à vista (1x) não tem juros.
-
-**Situação hoje:** a API cobra o total da compra em qualquer número de parcelas (`DadosDoCartao`: "o total cobrado é o total da compra"). Ou seja, hoje o parcelamento sai **sem juros para o aluno**, e o site mostra "12x de R$ 99,75" sem juros, o que é verdade enquanto isso não mudar.
-
-**O pedido.**
-- Aplicar os juros do parcelamento ao valor cobrado, de acordo com a taxa definida pelo Quad.
-- Informar no site, antes do pagamento, o valor de cada parcela e o total com juros: a tabela por número de parcelas em `GET /api/loja/pagamentos/configuracao` (ou na simulação). O Código de Defesa do Consumidor (art. 52) exige mostrar a taxa de juros e o total a pagar antes da compra.
-- Quando a tabela vier, o site troca o "12x de R$ 99,75" pelo valor com juros e mostra a taxa e o total.
 
 ### 6.2 E-mails da compra
 

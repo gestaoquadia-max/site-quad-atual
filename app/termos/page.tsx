@@ -79,6 +79,10 @@ export default function TermosPage() {
             valor total do pedido aparece antes do pagamento.
           </li>
           <li>Os pagamentos são processados pelo Pagar.me, por cartão de crédito (em até dois cartões) ou PIX.</li>
+          <li>
+            No PIX e no cartão à vista, não há acréscimo. No cartão parcelado (de 2 a 12 vezes), há um acréscimo pelo
+            parcelamento. O valor de cada parcela e o total a pagar aparecem antes da confirmação.
+          </li>
           <li>O acesso ao que foi comprado é liberado depois da confirmação do pagamento pelo Pagar.me.</li>
           <li>O PIX tem prazo de vencimento; depois dele, a compra expira e a vaga pode ser liberada.</li>
           <li>Preços, condições e cupons valem conforme informado no momento da compra.</li>
