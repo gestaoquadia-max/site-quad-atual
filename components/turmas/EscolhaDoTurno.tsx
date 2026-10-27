@@ -7,6 +7,7 @@ import { esgotada, horarioDoDia, insigniaDaTurma, NOME_DO_TURNO, precoCheioDaOfe
 import AviseMePeloWhatsApp from "../AviseMePeloWhatsApp";
 import { useCart } from "@/lib/cart";
 import BotoesDeCompra from "../BotoesDeCompra";
+import MatriculaGratuita from "./MatriculaGratuita";
 
 const MESES = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
 
@@ -127,7 +128,9 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
         </p>
       )}
       <div className={`${precoCheio && preco ? "mt-1" : "mt-7"} flex flex-wrap items-baseline gap-x-2 gap-y-2`}>
-        {preco ? (
+        {oferta.gratuita ? (
+          <span className="font-display text-[clamp(40px,4.6vw,52px)] font-extrabold leading-none tracking-[-0.035em]">Gratuito</span>
+        ) : preco ? (
           <>
             <span className="font-display text-lg font-bold text-prata">R$</span>
             <span className="font-display text-[clamp(44px,5vw,56px)] font-extrabold leading-none tracking-[-0.035em] [font-variant-numeric:tabular-nums]">
@@ -141,10 +144,14 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
           <span className="ml-1 inline-flex items-center rounded-full bg-[#FFF0D9] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#8A4B00]">{lote}</span>
         )}
       </div>
-      <p className="mt-2 text-[13px] text-prata">Valor fechado pela duração · Material didático incluso · Sem taxa de matrícula</p>
+      <p className="mt-2 text-[13px] text-prata">
+        {oferta.gratuita ? "Turma gratuita · Matrícula direta pela sua conta" : "Valor fechado pela duração · Material didático incluso · Sem taxa de matrícula"}
+      </p>
 
       <div className="mt-6 max-w-[420px]">
-        {preco && !semVagas ? (
+        {oferta.gratuita ? (
+          <MatriculaGratuita turmaId={oferta.id} />
+        ) : preco && !semVagas ? (
           <BotoesDeCompra
             adicionar={() =>
               addItem({

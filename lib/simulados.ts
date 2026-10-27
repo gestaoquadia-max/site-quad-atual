@@ -123,5 +123,5 @@ export function dataCurta(iso: string) {
 }
 
 export function precoOuACadastrar(preco: number | null) {
-  return preco == null ? "Valor a cadastrar" : precoSemCentavosZerados(preco);
+  return preco == null ? "Valor a cadastrar" : preco === 0 ? "Gratuito" : precoSemCentavosZerados(preco);
 }

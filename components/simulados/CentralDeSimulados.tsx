@@ -1,8 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
+import { ErroDaApi } from "@/lib/http";
+import { inscreverSeDeGraca } from "@/lib/loja";
+import { rotaComDestino } from "@/lib/redirecionamento";
+import { useSessaoAtiva } from "@/lib/usuario";
 import {
   comboAVenda,
   dataCurta,
@@ -157,6 +162,9 @@ export default function CentralDeSimulados({
 }) {
   const carreiras = recebidas ?? [];
   const { addItem } = useCart();
+  const router = useRouter();
+  const caminho = usePathname();
+  const sessaoAtiva = useSessaoAtiva();
   const [modo, setModo] = useState<Modo>(modoInicial);
   const [idDaCarreira, setIdDaCarreira] = useState(carreiraInicial ?? carreiras[0]?.id ?? "");
   const [selecionada, setSelecionada] = useState<number | null>(null);
@@ -233,7 +241,21 @@ export default function CentralDeSimulados({
     addItem(item);
   }
 
-  function inscreverPresencial(e: EdicaoComSituacao) {
+  async function inscreverPresencial(e: EdicaoComSituacao) {
+    // Edição gratuita: inscrição direta pela conta (POST /api/inscricoes/eu), sem carrinho.
+    if (e.presencial?.preco === 0) {
+      const validacao = validarCompra(carreiras, carreira.id, e.numero, "presencial");
+      if (!validacao.ok) return setAviso(validacao.motivo);
+      if (!sessaoAtiva) return router.push(rotaComDestino("/entrar", `${caminho}${window.location.search}`));
+      setAviso(null);
+      try {
+        await inscreverSeDeGraca("SIMULADO", e.presencial.sku);
+        router.push("/checkout/confirmacao?status=inscricao");
+      } catch (erro) {
+        setAviso(erro instanceof ErroDaApi ? erro.message : "Não foi possível fazer a inscrição. Verifique sua internet e tente novamente.");
+      }
+      return;
+    }
     comprar(
       {
         id: `simulado:${carreira.id}:${e.numero}:presencial`,

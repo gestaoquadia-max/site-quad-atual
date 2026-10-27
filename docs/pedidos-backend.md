@@ -1,9 +1,9 @@
 # Pedidos para o backend — Site do Quad Concursos
 
-**De:** time do site (Next.js) · **Atualizado em:** 23/10/2026
+**De:** time do site (Next.js) · **Atualizado em:** 27/10/2026
 **Base:** testes na API local (`localhost:8080`) e leituras públicas da API de produção (`https://api.quadconcursos.com.br`).
 
-Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: limite de tentativas por rota, lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
+Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: atividades gratuitas na vitrine e matrícula gratuita em turma, limite de tentativas por rota, lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
 
 > **Banco compartilhado:** a API e o banco também atendem o **app Viver o Quad**. Toda mudança pedida aqui precisa considerar o impacto no app; os itens em que isso pesa estão marcados com ⚠️.
 
@@ -20,7 +20,6 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 1.3 | Autorizar o domínio do site na conta do Pagar.me | Alta (antes do lançamento) |
 | 1.4 | Publicar a API e o site juntos (preços em centavos) | Alta (no lançamento) |
 | 1.5 | Entrada pelo Google: client ID do Quad no Google Cloud | Média |
-| 2.6 | Vitrine: atividades gratuitas | Média |
 | 3 | Professores: fotos e só os professores do site | Média |
 | 4.1 | Verificação do celular por código ⚠️ | Alta |
 | 4.2 | `emailVerificado` e `telefoneVerificado` no cadastro do aluno | Alta |
@@ -74,13 +73,7 @@ Deve responder 200, com essa origem em `Access-Control-Allow-Origin` e `idempote
 
 ## 2. Vitrine pública
 
-A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fonte do site para turmas, eventos, simulados e produtos, porque o visitante não tem login. Em 23/10/2026 ela ficou completa ("vitrine completa", PR #119), e o site já usa: modalidade, edição e ano, concurso (`rotulo` "SD/PMBA"), sala, horários e dias da turma, espécie, resumo e professores do evento, e janelas do simulado. As atividades antigas, sem edição ou concurso, ainda completam pelo nome. Falta:
-
-### 2.6 Atividades gratuitas
-
-**Por que o site precisa.** A vitrine só lista o que tem preço maior que zero. Um evento ou simulado gratuito não aparece no site, embora o site já saiba inscrever direto (`POST /api/inscricoes/eu`).
-
-**O pedido.** Listar também as atividades gratuitas abertas a inscrição (com `preco: 0`), ou uma rota pública própria para elas.
+A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fonte do site para turmas, eventos, simulados e produtos, porque o visitante não tem login. Em 23/10/2026 ela ficou completa ("vitrine completa", PR #119), e o site já usa: modalidade, edição e ano, concurso (`rotulo` "SD/PMBA"), sala, horários e dias da turma, espécie, resumo e professores do evento, e janelas do simulado. As atividades antigas, sem edição ou concurso, ainda completam pelo nome. Desde 27/10/2026 a vitrine também lista as atividades gratuitas (`gratuita: true`, sem preço, vagas e lote), e o site inscreve direto: evento e simulado por `POST /api/inscricoes/eu`, turma por `POST /api/matriculas/eu`. Nada pendente nesta seção.
 
 ---
 

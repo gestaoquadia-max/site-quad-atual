@@ -27,6 +27,8 @@ export type OfertaDaTurma = {
   // Os dois blocos de aula do dia (HORA INÍCIO/FIM 01 e 02); o segundo é opcional.
   horarios: { inicio: string; fim: string }[];
   precoEmCentavos: number | null;
+  // De graça: matrícula direta (POST /api/matriculas/eu), sem carrinho.
+  gratuita: boolean;
   // Vagas do lado em reais (QTDE VAGAS CENTAVOS); null = sem limite.
   vagas: { total: number; ocupadas: number } | null;
   descricao: string | null;
@@ -141,6 +143,7 @@ export function precoCheioDaOferta(o: OfertaDaTurma) {
 }
 
 export function precoDaOferta(o: OfertaDaTurma) {
+  if (o.gratuita) return "Gratuito";
   return o.precoEmCentavos === null ? null : precoSemCentavosZerados(o.precoEmCentavos / 100);
 }
 

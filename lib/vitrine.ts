@@ -42,6 +42,8 @@ type AtividadeDaVitrine = {
   vendidas: number | null;
   restantes: number | null;
   lote: LoteDaVitrine | null;
+  // De graça (desde 26/10/2026): preço, vagas e lote vêm nulos. Turma: matrícula direta; evento e simulado: inscrição.
+  gratuita?: boolean;
   // A sequência inteira dos lotes em reais, em ordem (desde 24/10/2026); [] sem lotes.
   lotes?: LoteDaSequencia[] | null;
   detalhe: {
@@ -338,7 +340,7 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     nome: nomeDaTurma({ ...colunas, nomeOriginal: a.nome }),
     desc: resumo.join(" · "),
     // A turma é cobrada pelo valor fechado da duração, nunca por mês (e o preço aparece sem a duração ao lado).
-    preco: a.preco === null ? "Consulte" : precoEmTexto(emReais(a.preco)),
+    preco: a.gratuita ? "Gratuito" : a.preco === null ? "Consulte" : precoEmTexto(emReais(a.preco)),
     precoCheio: precoCheioDa(a) === null ? undefined : precoEmTexto(emReais(precoCheioDa(a)!)),
     ...situacao(a, "Matrículas abertas"),
     detalhe: {
@@ -386,7 +388,8 @@ function paraOferta(a: AtividadeDaVitrine): OfertaDaTurma {
     inicio: d.inicio ?? null,
     termino: d.fim ?? null,
     horarios: horariosDa(d),
-    precoEmCentavos: a.preco,
+    precoEmCentavos: a.gratuita ? 0 : a.preco,
+    gratuita: !!a.gratuita,
     vagas: a.vagas && a.vagas > 0 ? { total: a.vagas, ocupadas: Math.min(a.vendidas ?? 0, a.vagas) } : null,
     descricao: d.descricao?.trim() || null,
     imagemUrl: a.imagemUrl,
@@ -434,7 +437,7 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
   const formato = rotulo(FORMATO, d.modalidade) || "Presencial";
   const online = d.modalidade === "ONLINE";
   const horario = horaInicio ? [formatarHora(horaInicio), horaFim && formatarHora(horaFim)].filter(Boolean).join("–") : "";
-  const gratuito = a.preco === 0;
+  const gratuito = !!a.gratuita || a.preco === 0;
   const vagas = vagasDa(a);
   const comHora = (dia: string | null, hora: string | null) => (dia && hora ? `${dia.slice(0, 10)}T${hora.slice(0, 5)}:00-03:00` : undefined);
 
@@ -457,7 +460,7 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
     tag: [data && diaEMes(data), formato].filter(Boolean).join(" · "),
     nome: a.nome,
     desc,
-    preco: a.preco === null ? "Consulte" : gratuito ? "Gratuito" : precoEmTexto(emReais(a.preco)),
+    preco: gratuito ? "Gratuito" : a.preco === null ? "Consulte" : precoEmTexto(emReais(a.preco)),
     ...situacao(a, "Inscrições abertas"),
     detalhe: {
       inicio: comHora(data, horaInicio),
@@ -525,7 +528,7 @@ function edicaoDoSimulado(a: AtividadeDaVitrine, ordem: number): { carreira: str
       // Estar na vitrine = à venda (com preço e vagas). "Esgotado" sai das vagas restantes.
       inscricao: "abertas",
       publicado: true,
-      presencial: { preco: a.preco === null ? null : emReais(a.preco), vagas: a.vagas, vagasRestantes: a.restantes, sku: a.id },
+      presencial: { preco: a.gratuita ? 0 : a.preco === null ? null : emReais(a.preco), vagas: a.vagas, vagasRestantes: a.restantes, sku: a.id },
     },
   };
 }

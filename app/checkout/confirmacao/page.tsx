@@ -4,7 +4,7 @@ import LimparCarrinho from "./LimparCarrinho";
 import Etapas from "@/components/compra/Etapas";
 import { NOME_DO_SITE, resumir } from "@/lib/seo";
 
-type Status = "aprovado" | "pendente" | "recusado" | "inscricao";
+type Status = "aprovado" | "pendente" | "recusado" | "inscricao" | "matricula";
 
 const telas: Record<
   Status,
@@ -37,9 +37,16 @@ const telas: Record<
   inscricao: {
     titulo: "Inscrição confirmada",
     tom: "sucesso",
-    texto: () => "Sua inscrição está garantida. Enviamos os detalhes para o seu e-mail.",
+    texto: () => "Sua inscrição está garantida. Os detalhes ficam na sua área do aluno.",
     cta: { href: "/aluno/eventos", label: "Ver meus eventos" },
     limpar: true,
+  },
+  matricula: {
+    titulo: "Matrícula confirmada",
+    tom: "sucesso",
+    texto: () => "Você está matriculado na turma. Horários, materiais e avisos ficam na sua área do aluno.",
+    cta: { href: "/aluno/turmas", label: "Ver minhas turmas" },
+    limpar: false,
   },
 };
 

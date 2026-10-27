@@ -129,6 +129,14 @@ export function inscreverSeDeGraca(tipo: "EVENTO" | "SIMULADO", atividadeId: str
   });
 }
 
+// Matrícula do próprio aluno numa turma GRATUITA (a paga passa pela Loja: 422 TURMA_PAGA).
+export function matricularSeDeGraca(turmaId: string) {
+  return chamar<{ id: string }>("/api/matriculas/eu", "Não foi possível fazer a matrícula.", {
+    method: "POST",
+    body: JSON.stringify({ turmaId }),
+  });
+}
+
 export function emReais(centavos: number) {
   return (centavos / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
