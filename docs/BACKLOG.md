@@ -668,6 +668,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Turmas por modalidade (RONDESP, PATAMO e BOPE) com filtros | EM ANDAMENTO |
 | Página da turma no novo visual | EM ANDAMENTO |
 | Lista de interessados (tela pronta, aguardando backend) | EM ANDAMENTO |
+| Atividades gratuitas: matrícula e inscrição direta pela conta | FEITO |
 
 **Campos adicionais**
 - **Prioridade:** Alta
