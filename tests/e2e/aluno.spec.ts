@@ -55,3 +55,22 @@ test("meus eventos mostra a inscrição do aluno (conta B)", async ({ page }) =>
   await expect(page.getByText("Evento de teste (Claude)")).toBeVisible();
   await expect(page.getByText("Inscrito")).toBeVisible();
 });
+
+test("aluno pede a exclusão da conta com a senha e desiste em seguida (conta B)", async ({ page }) => {
+  await entrar(page, CONTA_B);
+  await page.goto("/aluno/perfil");
+  const cancelar = page.getByRole("button", { name: "Cancelar a exclusão" });
+  await page.getByRole("button", { name: "Pedir a exclusão da conta" }).click();
+  await expect(page.getByText("Com a exclusão, você perde:")).toBeVisible();
+  await page.getByLabel("Digite a sua senha para confirmar").fill(CONTA_B.senha);
+  try {
+    await page.getByRole("button", { name: "Excluir minha conta" }).click();
+    await expect(page.getByText(/Sua conta será excluída em \d{2}\/\d{2}\/\d{4}/)).toBeVisible();
+  } finally {
+    // Desiste sempre, para a conta de teste não ser excluída.
+    await cancelar.click();
+    await expect(page.getByText("Pedido cancelado. Sua conta continua normalmente.")).toBeVisible();
+  }
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Pedir a exclusão da conta" })).toBeVisible();
+});

@@ -8,9 +8,14 @@ import {
   atualizarEndereco,
   atualizarMeuNome,
   buscarEnderecoDoUsuario,
+  buscarExclusaoDaConta,
+  cancelarExclusaoDaConta,
+  pedirExclusaoDaConta,
   reenviarConfirmacaoDeEmail,
   type Endereco,
+  type ExclusaoDaConta,
 } from "@/lib/api";
+import { institucional } from "@/lib/institucional";
 import { buscarEnderecoPorCep, formatarCep, UFS } from "@/lib/endereco";
 import { formatarCpf, formatarTelefone } from "@/lib/format";
 import { ErroDaApi } from "@/lib/http";
@@ -52,6 +57,7 @@ export default function PerfilConteudo() {
       <DadosPessoais key={usuario.id} usuario={usuario} onSalvo={recarregar} />
       <EnderecoDoAluno usuarioId={usuario.id} />
       <TrocarSenha usuarioId={usuario.id} />
+      <CopiaEExclusao />
     </div>
   );
 }
@@ -560,6 +566,176 @@ function TrocarSenha({ usuarioId }: { usuarioId: string }) {
       <button type="button" onClick={trocar} disabled={salvando} className={classeBotao}>
         {salvando ? "Alterando..." : "Alterar senha"}
       </button>
+    </Cartao>
+  );
+}
+
+// "2026-11-26T15:00:00Z" → "26/11/2026"; "2026-11-26" (LocalDate) → "26/11/2026"
+function dataDoBrasil(texto: string) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) return texto.split("-").reverse().join("/");
+  return new Date(texto).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+}
+
+// Direitos do titular (LGPD, art. 18): cópia dos dados pelo e-mail do encarregado e exclusão da conta pela API.
+// A exclusão espera 30 dias, com a conta funcionando, e pode ser cancelada até lá.
+function CopiaEExclusao() {
+  const [exclusao, setExclusao] = useState<ExclusaoDaConta | null>(null);
+  const [falhou, setFalhou] = useState(false);
+  const [confirmando, setConfirmando] = useState(false);
+  const [senha, setSenha] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [erro, setErro] = useState("");
+  const [aviso, setAviso] = useState("");
+
+  useEffect(() => {
+    let cancelado = false;
+    buscarExclusaoDaConta()
+      .then((e) => !cancelado && setExclusao(e))
+      .catch(() => !cancelado && setFalhou(true));
+    return () => {
+      cancelado = true;
+    };
+  }, []);
+
+  async function pedir() {
+    if (!senha) return setErro("Digite a sua senha para confirmar.");
+    setErro("");
+    setEnviando(true);
+    try {
+      setExclusao(await pedirExclusaoDaConta(senha));
+      setSenha("");
+      setConfirmando(false);
+      setAviso("Pedido registrado. Enviamos a data da exclusão para o seu e-mail.");
+    } catch (e) {
+      setErro(e instanceof ErroDaApi && e.status === 422 ? "Senha incorreta." : mensagemDoErro(e));
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  async function cancelar() {
+    setErro("");
+    setEnviando(true);
+    try {
+      await cancelarExclusaoDaConta();
+      setExclusao((e) => e && { ...e, agendadaPara: null });
+      setAviso("Pedido cancelado. Sua conta continua normalmente.");
+    } catch (e) {
+      setErro(mensagemDoErro(e));
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  const c = exclusao?.consequencias;
+  const perdas = c
+    ? [
+        ...c.matriculasEmCurso.map((m) => `Matrícula na turma ${m.nome}, que vai até ${dataDoBrasil(m.fimEm)}`),
+        ...c.inscricoesFuturas.map((i) => `Inscrição em ${i.nome} (${dataDoBrasil(i.quando)})`),
+        ...c.comprasNoBalcao.map((b) => `${b.item}, ainda não retirado no Quad (sem reembolso automático)`),
+        ...(c.saldoQuadCoins > 0 ? [`Saldo de ${c.saldoQuadCoins} Quad Coins`] : []),
+      ]
+    : [];
+
+  return (
+    <Cartao eyebrow="Privacidade" titulo="Cópia e exclusão dos dados">
+      <p className="mb-4 text-[14.5px] leading-[1.6] text-ardosia">
+        Para receber uma cópia dos seus dados ou corrigir algum deles, escreva para{" "}
+        <a
+          href={`mailto:${institucional.emailPrivacidade}?subject=${encodeURIComponent("Pedido sobre os meus dados (LGPD)")}`}
+          className="font-semibold text-azul-forte underline underline-offset-2"
+        >
+          {institucional.emailPrivacidade}
+        </a>{" "}
+        a partir do e-mail da sua conta.
+      </p>
+
+      <h3 className="mb-2 mt-6 font-display text-base font-bold">Excluir minha conta</h3>
+      {aviso && <Aviso tipo="sucesso">{aviso}</Aviso>}
+      {erro && <Aviso tipo="erro">{erro}</Aviso>}
+
+      {falhou ? (
+        <p className="text-[14.5px] leading-[1.6] text-ardosia">
+          Não foi possível consultar agora. Se quiser excluir a conta, escreva para {institucional.emailPrivacidade}.
+        </p>
+      ) : !exclusao ? (
+        <div role="status" aria-label="Carregando" className="h-12 animate-pulse rounded-[10px] bg-[#EEF2F7]" />
+      ) : exclusao.agendadaPara ? (
+        <>
+          <Aviso tipo="info">
+            Sua conta será excluída em <strong>{dataDoBrasil(exclusao.agendadaPara)}</strong>. Até lá ela continua funcionando, e você
+            pode desistir.
+          </Aviso>
+          <button type="button" onClick={cancelar} disabled={enviando} className={`${classeBotaoContorno} w-full`}>
+            {enviando ? "Cancelando..." : "Cancelar a exclusão"}
+          </button>
+        </>
+      ) : !confirmando ? (
+        <>
+          <p className="mb-4 text-[14.5px] leading-[1.6] text-ardosia">
+            A exclusão acontece 30 dias depois do pedido, e você pode desistir até lá. Depois disso, seus dados pessoais são apagados e
+            a conta não pode ser recuperada. Os registros que a lei obriga a guardar, como os de compras, ficam pelo prazo legal.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setConfirmando(true);
+              setAviso("");
+            }}
+            className={`${classeBotaoContorno} w-full hover:border-[#C0392B] hover:text-[#9B1C1C]`}
+          >
+            Pedir a exclusão da conta
+          </button>
+        </>
+      ) : (
+        <>
+          {perdas.length > 0 && (
+            <div className="mb-4 rounded-[10px] border border-[#F1C4C4] bg-[#FFF5F5] px-3.5 py-3 text-[13.5px] leading-[1.5] text-[#9B1C1C]">
+              <p className="mb-1.5 font-semibold">Com a exclusão, você perde:</p>
+              <ul className="list-disc pl-5">
+                {perdas.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <label className={classeLabel} htmlFor="senha-exclusao">
+            Digite a sua senha para confirmar
+          </label>
+          <input
+            id="senha-exclusao"
+            type="password"
+            autoComplete="current-password"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && pedir()}
+            disabled={enviando}
+            className={classeInput}
+          />
+          <div className="flex flex-wrap gap-2.5">
+            <button
+              type="button"
+              onClick={pedir}
+              disabled={enviando}
+              className="btn-q h-12 flex-1 bg-[#B42318] px-4 text-[15px] text-white hover:bg-[#912018] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {enviando ? "Enviando..." : "Excluir minha conta"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setConfirmando(false);
+                setSenha("");
+                setErro("");
+              }}
+              disabled={enviando}
+              className={classeBotaoContorno}
+            >
+              Voltar
+            </button>
+          </div>
+        </>
+      )}
     </Cartao>
   );
 }

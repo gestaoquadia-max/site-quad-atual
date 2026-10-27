@@ -125,6 +125,40 @@ export async function alterarSenha(id: string, senhaAtual: string, novaSenha: st
   }
 }
 
+// Exclusão da conta pelo titular (LGPD). A conta continua funcionando até agendadaPara (30 dias depois do pedido),
+// e o pedido pode ser cancelado até lá. Depois, a API anonimiza a conta. As consequências são aviso, não recusa.
+export type ExclusaoDaConta = {
+  agendadaPara: string | null;
+  consequencias: {
+    matriculasEmCurso: { turmaId: string; nome: string; fimEm: string }[];
+    comprasNoBalcao: { compraId: string; item: string }[];
+    inscricoesFuturas: { tipo: "EVENTO" | "SIMULADO"; nome: string; quando: string }[];
+    saldoQuadCoins: number;
+  };
+};
+
+export async function buscarExclusaoDaConta(): Promise<ExclusaoDaConta> {
+  const res = await fetchAutenticado("/api/alunos/eu/exclusao");
+  if (!res.ok) throw await lerErro(res, "Não foi possível consultar a exclusão da conta.");
+  return res.json();
+}
+
+// Senha errada: 422 SENHA_ATUAL_INCORRETA; depois da 5ª falha, 429 TROCA_DE_SENHA_BLOQUEADA. Pedir de novo devolve a mesma data.
+export async function pedirExclusaoDaConta(senha: string): Promise<ExclusaoDaConta> {
+  const res = await fetchAutenticado("/api/alunos/eu/exclusao", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ senha }),
+  });
+  if (!res.ok) throw await lerErro(res, "Não foi possível pedir a exclusão da conta.");
+  return res.json();
+}
+
+export async function cancelarExclusaoDaConta(): Promise<void> {
+  const res = await fetchAutenticado("/api/alunos/eu/exclusao/cancelamento", { method: "POST" });
+  if (!res.ok) throw await lerErro(res, "Não foi possível cancelar a exclusão da conta.");
+}
+
 export type Endereco = {
   id: string;
   usuarioId: string;

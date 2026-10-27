@@ -147,8 +147,9 @@ export default function PrivacidadePage() {
           Autoridade Nacional de Proteção de Dados (ANPD) ou aos órgãos de defesa do consumidor.
         </p>
         <p>
-          Parte dos seus dados pode ser vista e alterada diretamente na <Link href="/aluno/perfil">área do aluno</Link>.
-          Para os demais pedidos, escreva para o nosso encarregado de dados
+          Parte dos seus dados pode ser vista e alterada diretamente na <Link href="/aluno/perfil">área do aluno</Link>,
+          onde você também pode pedir a exclusão da conta: ela acontece 30 dias depois do pedido, e você pode desistir até
+          lá. Para os demais pedidos, escreva para o nosso encarregado de dados
           {i.encarregado ? `, ${i.encarregado}` : <Dado valor="" campo="encarregado" />}:{" "}
           {i.emailPrivacidade ? (
             <a href={`mailto:${i.emailPrivacidade}`}>
