@@ -23,6 +23,7 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 3 | Professores: fotos e só os professores do site | Média |
 | 4.1 | Verificação do celular por código ⚠️ (pronta no backend, publicação adiada) | Alta |
 | 4.2 | `telefoneVerificado` no cadastro do aluno (o do e-mail já veio) | Alta |
+| 4.6 | Conferir o CPF na Receita no cadastro (cpfcnpj.com.br) | Média |
 | 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
 | 4.5 | Foto de perfil | Baixa |
 | 5.1 | Material digital (PDF) | Média |
@@ -117,6 +118,39 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 **O pedido.** Incluir os dois booleanos na resposta de `GET /api/alunos/eu`.
 
 > **27/10/2026:** o e-mail está atendido. `GET /api/alunos/eu` devolve `emailVerificadoEm` (data, ou nulo se o aluno nunca confirmou), e o site já usa esse campo para o alerta de "Meu perfil". Falta o do celular (`telefoneVerificado` ou `telefoneVerificadoEm`), que vem junto com o item 4.1.
+
+### 4.6 Conferir o CPF na Receita no cadastro (cpfcnpj.com.br)
+
+**Por que o site precisa.** Hoje o site e a API só conferem os dígitos verificadores do CPF. Um CPF que não existe, de pessoa falecida ou de outra pessoa passa no cadastro. O Quad quer usar o serviço **cpfcnpj.com.br** (documentação: `https://www.cpfcnpj.com.br/dev/`) para conferir na Receita.
+
+**Por que tem de ser na API, e não no site.** A consulta é `GET https://api.cpfcnpj.com.br/{token}/{pacote}/{cpf}`, com o **token no endereço**, e o token só funciona a partir do **IP de origem cadastrado** no painel deles. Fora desse IP, a resposta é o erro `1000`. A API na AWS sai por um IP fixo; o site, numa hospedagem como a Vercel, não tem IP fixo. Além disso, o token no navegador deixaria qualquer pessoa gastar os créditos do Quad.
+
+**O pedido.**
+- No `POST` do cadastro de aluno (e, se fizer sentido, na rota de disponibilidade), depois de conferir os dígitos, consultar o CPF **uma vez** e recusar:
+  - `CPF_NAO_ENCONTRADO`: o serviço respondeu `102` (CPF válido, mas não existe na Receita; não consome crédito);
+  - `CPF_NAO_CONFERE`: o nome da Receita não bate com o nome digitado. Comparar sem acento, sem maiúsculas e sem espaços duplicados, e aceitar quando o primeiro e o último nome batem, para não barrar quem abreviou o nome do meio;
+  - `CPF_IRREGULAR`: situação cadastral diferente de regular (falecido, cancelado, suspenso), só se o pacote escolhido trouxer a situação.
+- **Se o serviço falhar** (erros `1005`, `1006`, `1007`, `1008`, tempo esgotado ou sem créditos, `1001`): **deixar o cadastro seguir** e registrar no log, para um problema do fornecedor não impedir matrículas. Marcar a conta como "CPF não conferido" para conferir depois.
+- **Guardar só o resultado** (conferido em, pacote e `consultaID`), nunca o nome da mãe, o endereço ou o PDF do comprovante. O CPF já é guardado hoje.
+- Entrar nos limites por minuto da API (`GruposPorRota`), junto com o cadastro.
+
+**Pacotes (preço por consulta, out/2026).** O cadastro do site não pede data de nascimento, então a conferência é pelo nome:
+
+| Pacote | Devolve | Preço | Serve para |
+|---|---|---|---|
+| `1` CPF A | Nome completo | R$ 0,17 | CPF existe e é da pessoa (sugerido) |
+| `26` CPF D Simplificado | Nome, nascimento e situação cadastral | R$ 0,37 | O mesmo, mais barrar CPF de falecido ou cancelado |
+| `8` CPF D | Nome, nascimento, situação, óbito e comprovante | R$ 0,41 | Quando precisar do comprovante da Receita |
+
+**Regras do fornecedor que afetam a integração:**
+- tempo limite de **60 segundos** (a média é de 2 s), porque com tempo menor o crédito pode ser cobrado sem a resposta chegar;
+- sem plano, **2 consultas por segundo** a partir de 31/10/2026 (erro `1007`); o plano Start dá 10 por segundo;
+- o mesmo CPF consultado 3 vezes em menos de 1 minuto fica bloqueado por 1 minuto (erro `1003`);
+- TLS 1.3, e o firewall precisa liberar os IPs da Cloudflare.
+
+**Para testar:** o token de testes público da documentação (`5ae973d7a997af13f0aaf2bf60e65803`) devolve só dados fictícios e não precisa de IP. O token de produção é criado pelo Quad no painel deles (API → Tokens), já com o IP da API, e fica numa variável de ambiente.
+
+**LGPD.** Mandar o CPF para o fornecedor é compartilhamento de dado pessoal: a política de privacidade do site passa a citar a conferência na Receita por um prestador, com a finalidade de evitar fraude (o site atualiza o texto quando a conferência entrar).
 
 ### 4.4 `GET /api/usuarios/eu` para conta sem cadastro de aluno (prioridade baixa)
 
