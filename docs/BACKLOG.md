@@ -156,7 +156,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Tarefa | Status |
 |---|---|
 | Sobre o Quad | FEITO |
-| Contato | EM ANDAMENTO |
+| Contato | FEITO |
 | Termos de uso (com revisão jurídica) | EM ANDAMENTO |
 | Política de privacidade (com revisão jurídica) | EM ANDAMENTO |
 
@@ -423,8 +423,8 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Carrinho salvo no navegador, com quantidade, remover e total | FEITO |
 | Identificar os itens pelo tipo e slug, não pelo nome | FEITO |
 | Botão de compra da página de detalhe coloca o item no carrinho antes do checkout | FEITO |
-| Inscrição em evento gratuito sem passar pelo checkout | EM ANDAMENTO |
-| Registrar a inscrição gratuita na API | EM ANDAMENTO |
+| Inscrição em evento gratuito sem passar pelo checkout | FEITO |
+| Registrar a inscrição gratuita na API | FEITO |
 | Conferir preço e vagas no servidor antes de pagar | FEITO |
 | Carrinho salvo na conta do aluno (melhoria futura) | PENDENTE |
 
@@ -477,7 +477,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Tarefa | Status |
 |---|---|
 | Registrar o pedido na API | FEITO |
-| Liberar o acesso automaticamente após o pagamento | PENDENTE |
+| Liberar o acesso automaticamente após o pagamento | FEITO |
 | Validar cupons no backend (hoje estão no código) | FEITO |
 | E-mails de compra confirmada, boleto gerado e acesso liberado | PENDENTE |
 
@@ -547,7 +547,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Tarefa | Status |
 |---|---|
 | Termos e política de privacidade publicados | PENDENTE |
-| Aviso de consentimento de cookies | PENDENTE |
+| Aviso de consentimento de cookies | FEITO |
 | Canal para o aluno pedir exclusão ou cópia dos dados | PENDENTE |
 
 **Campos adicionais**
@@ -563,7 +563,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 |---|---|
 | API aceitando chamadas só do domínio do site, com HTTPS | PENDENTE |
 | Cabeçalhos de segurança no site | FEITO |
-| Limite de tentativas no login e no cadastro | PENDENTE |
+| Limite de tentativas no login e no cadastro | FEITO |
 
 **Campos adicionais**
 - **Descrição:** Proteção do site e da API contra uso indevido
@@ -665,8 +665,8 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 | Tarefa | Status |
 |---|---|
-| Turmas por modalidade (RONDESP, PATAMO e BOPE) com filtros | EM ANDAMENTO |
-| Página da turma no novo visual | EM ANDAMENTO |
+| Turmas por modalidade (RONDESP, PATAMO e BOPE) com filtros | FEITO |
+| Página da turma no novo visual | FEITO |
 | Lista de interessados (tela pronta, aguardando backend) | EM ANDAMENTO |
 | Atividades gratuitas: matrícula e inscrição direta pela conta | FEITO |
 
