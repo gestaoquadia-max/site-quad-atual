@@ -176,6 +176,8 @@ As outras quatro viram pedidos:
 
 **Resposta:** ainda não existem. **O pedido:** criar os e-mails de **compra confirmada** (com o que foi comprado e o valor), **PIX aguardando pagamento** (com o código e o prazo) e **acesso liberado** (turma, material ou evento disponível na área do aluno). O boleto saiu do site, então não precisa do e-mail de boleto.
 
+**Modelos prontos (27/10/2026):** em [`docs/modelos-de-email.md`](modelos-de-email.md) estão os seis e-mails (PIX aguardando, compra confirmada, PIX vencido, devolução, inscrição gratuita e matrícula gratuita), com assunto, texto, HTML, variáveis e o momento de cada um, no mesmo formato da `MensagemDeConfirmacao`.
+
 ### 6.3 Armazenamento de arquivos no ambiente local
 
 **Situação:** no ambiente local, o download de materiais responde 503 "nenhum bucket foi configurado". A API só fala com o S3 da AWS: o endereço do serviço não é configurável (`ConfiguracaoDoArmazemDeMateriais` cria o cliente só com a região), então um armazenamento de teste local (MinIO, compatível com o S3) não funciona sem mudança no código.

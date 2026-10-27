@@ -14,7 +14,7 @@ const telas: Record<
     titulo: "Pagamento aprovado",
     tom: "sucesso",
     texto: () =>
-      "Sua compra está confirmada. Enviamos os detalhes para o seu e-mail e o acesso já está liberado na sua área do aluno.",
+      "Sua compra está confirmada e o acesso já está liberado na sua área do aluno.",
     cta: { href: "/aluno", label: "Ir para a área do aluno" },
     limpar: true,
   },
@@ -22,7 +22,7 @@ const telas: Record<
     titulo: "Aguardando pagamento",
     tom: "espera",
     texto: () =>
-      "Seu pedido foi registrado. Pague o PIX enviado para o seu e-mail; assim que o pagamento for confirmado, o acesso é liberado automaticamente na sua área do aluno.",
+      "Seu pedido foi registrado. Pague o PIX pela página do pedido; assim que o pagamento for confirmado, o acesso é liberado automaticamente na sua área do aluno.",
     cta: { href: "/aluno", label: "Ir para a área do aluno" },
     limpar: true,
   },
