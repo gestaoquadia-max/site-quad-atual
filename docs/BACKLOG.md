@@ -157,8 +157,8 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 |---|---|
 | Sobre o Quad | FEITO |
 | Contato | FEITO |
-| Termos de uso (com revisão jurídica) | EM ANDAMENTO |
-| Política de privacidade (com revisão jurídica) | EM ANDAMENTO |
+| Termos de uso (com revisão jurídica) | FEITO |
+| Política de privacidade (com revisão jurídica) | FEITO |
 
 **Campos adicionais**
 - **Descrição:** As quatro páginas existem e estão ligadas ao rodapé (`/sobre`, `/contato`, `/termos`, `/privacidade`). Sobre usa o conteúdo da base institucional. Contato, Termos e Privacidade leem os dados da empresa de `lib/institucional.ts` (CNPJ, endereço, WhatsApp, e-mails, foro), que ainda precisam ser preenchidos; termos e privacidade são minutas que precisam de revisão jurídica
