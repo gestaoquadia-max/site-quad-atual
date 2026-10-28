@@ -326,7 +326,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Tarefa | Status |
 |---|---|
 | Turmas pela API (com vagas ocupadas em tempo real) | FEITO |
-| Materiais PDF pela API (com preço) | EM ANDAMENTO |
+| Materiais PDF pela API (com preço) | FEITO |
 | Eventos pela API (com vagas) | FEITO |
 
 **Campos adicionais**
