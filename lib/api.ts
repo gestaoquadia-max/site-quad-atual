@@ -331,6 +331,17 @@ export async function baixarArquivoDoMaterial(id: string): Promise<Blob> {
   return res.blob();
 }
 
+// O PDF do material digital comprado: sempre o arquivo ATUAL (a errata substitui), e só com a compra paga
+// (409 DOWNLOAD_SO_DA_COMPRA_PAGA; o estorno corta o acesso). Vale para o dono da compra.
+export async function baixarMaterialComprado(compraId: string): Promise<Blob> {
+  const res = await fetchAutenticado(`/api/loja/compras/${compraId}/arquivo`);
+  if (res.status === 503) {
+    throw new ErroDaApi(503, "O arquivo está indisponível no momento. Tente novamente em alguns minutos.");
+  }
+  if (!res.ok) throw await lerErro(res, "Não foi possível baixar o arquivo.");
+  return res.blob();
+}
+
 export async function marcarMaterialComoVisto(id: string): Promise<void> {
   await fetchAutenticado(`/api/materiais/${id}/visto`, { method: "POST" });
 }
@@ -359,7 +370,8 @@ export type FormaDePagamento = "QUAD_COINS" | "DIAMANTES" | "CARTAO" | "PIX" | "
 
 export type Compra = {
   id: string;
-  item: { id: string; nome: string; tipo: string };
+  // plataforma: IMPRESSO ou DIGITAL no material, congelada na compra; nula fora do material.
+  item: { id: string; nome: string; tipo: string; plataforma?: "IMPRESSO" | "DIGITAL" | null };
   quantidade: number;
   formaDePagamento: FormaDePagamento;
   situacao: "CRIADA" | "AGUARDANDO_PAGAMENTO" | "PAGA" | "RECUSADA" | "EXPIRADA" | "CANCELADA" | "ESTORNADA";

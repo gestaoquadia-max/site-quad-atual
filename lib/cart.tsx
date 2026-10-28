@@ -43,8 +43,9 @@ const CartContext = createContext<CartContextValue | null>(null);
 const STORAGE_KEY = "quad-carrinho";
 
 // Materiais e produtos da loja podem ir em mais de uma unidade; turmas, eventos e simulados, não.
-export function temQuantidade(item: Pick<CartItem, "tipo">) {
-  return item.tipo === "produto" || item.tipo === "loja";
+// O material digital (PDF) sai um por aluno: a API recusa quantidade maior (QUANTIDADE_UNICA_NO_DIGITAL).
+export function temQuantidade(item: Pick<CartItem, "tipo" | "formato">) {
+  return (item.tipo === "produto" && item.formato !== "digital") || item.tipo === "loja";
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {

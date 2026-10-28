@@ -45,7 +45,7 @@ export type Produto = {
   nome: string;
   desc: string;
   preco: string;
-  // Formatos à venda. Da API vem só "impresso" (tipo MODULOS, retirada no Quad); a versão digital ainda não existe lá.
+  // Formatos à venda. Da API vem um só por item (tipo MATERIAL): "digital" (PDF, baixado no site) ou "impresso" (retirada no Quad).
   formatos?: ("digital" | "impresso")[];
   esgotado?: boolean;
   detalhe?: {

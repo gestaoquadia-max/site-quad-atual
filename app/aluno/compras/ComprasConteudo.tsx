@@ -3,8 +3,10 @@
 import { useState } from "react";
 import EstadoLista from "@/components/EstadoLista";
 import { CLASSE_DO_BOTAO_PEQUENO, CLASSE_DO_CARTAO, Etiqueta } from "@/components/aluno/CabecalhoDoAluno";
-import { listarMinhasComprasEmReais, type Compra } from "@/lib/api";
+import { baixarMaterialComprado, listarMinhasComprasEmReais, type Compra } from "@/lib/api";
+import { salvarArquivo } from "@/lib/download";
 import { formatarData, formatarValor } from "@/lib/format";
+import { ErroDaApi } from "@/lib/http";
 import { useCarregar } from "@/lib/useCarregar";
 import { useCarregandoUsuario, useUsuarioAtual } from "@/lib/usuario";
 
@@ -84,6 +86,37 @@ function PagamentoPendente({ compra }: { compra: Compra }) {
   return null;
 }
 
+// O material digital (PDF) se baixa pela própria compra paga; o nome do arquivo é o do material.
+function BaixarPdf({ compra }: { compra: Compra }) {
+  const [baixando, setBaixando] = useState(false);
+  const [erro, setErro] = useState("");
+
+  async function baixar() {
+    setErro("");
+    setBaixando(true);
+    try {
+      salvarArquivo(await baixarMaterialComprado(compra.id), `${compra.item.nome}.pdf`);
+    } catch (e) {
+      setErro(e instanceof ErroDaApi ? e.message : "Não foi possível baixar. Verifique sua internet e tente novamente.");
+    } finally {
+      setBaixando(false);
+    }
+  }
+
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-3">
+      <button type="button" onClick={baixar} disabled={baixando} className={CLASSE_DO_BOTAO_PEQUENO}>
+        {baixando ? "Baixando..." : "Baixar PDF"}
+      </button>
+      {erro && (
+        <span role="alert" className="text-[13px] text-[#B42323]">
+          {erro}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default function ComprasConteudo() {
   const usuario = useUsuarioAtual();
   const carregandoUsuario = useCarregandoUsuario();
@@ -125,6 +158,7 @@ export default function ComprasConteudo() {
                 </div>
               </div>
               {c.situacao === "AGUARDANDO_PAGAMENTO" && <PagamentoPendente compra={c} />}
+              {c.situacao === "PAGA" && c.item.plataforma === "DIGITAL" && <BaixarPdf compra={c} />}
             </div>
           );
         })}

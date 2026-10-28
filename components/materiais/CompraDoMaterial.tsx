@@ -10,7 +10,7 @@ import { formatosDo } from "@/lib/materiais";
 type Formato = "digital" | "impresso";
 
 const OPCOES: { valor: Formato; rotulo: string; dica: string }[] = [
-  { valor: "digital", rotulo: "Digital", dica: "Acesso na área do aluno" },
+  { valor: "digital", rotulo: "Digital (PDF)", dica: "Download na área do aluno" },
   { valor: "impresso", rotulo: "Impresso", dica: "Retirada no Quad, sem custo" },
 ];
 
@@ -27,30 +27,42 @@ export default function CompraDoMaterial({ produto }: { produto: Produto }) {
         <div id="formato-do-material" className="mb-2.5 text-[13px] font-semibold text-white">
           Formato
         </div>
-        <div role="radiogroup" aria-labelledby="formato-do-material" className="grid max-w-[420px] grid-cols-2 gap-2.5">
-          {disponiveis.map((o) => {
-            const marcado = formato === o.valor;
-            return (
-              <button
-                key={o.valor}
-                type="button"
-                role="radio"
-                aria-checked={marcado}
-                onClick={() => setFormato(o.valor)}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3.5 text-left transition-colors ${
-                  marcado ? "border-[1.5px] border-azul-vivo bg-azul/[0.14]" : "border border-white/[0.14] bg-white/[0.03] hover:border-white/30"
-                }`}
-              >
-                <span className={`h-[18px] w-[18px] flex-none rounded-full ${marcado ? "border-[5px] border-azul-vivo bg-white" : "border-[1.5px] border-[#6B7C94]"}`} />
-                <span className="flex flex-col gap-0.5">
-                  <span className="font-display text-[15px] font-bold">{o.rotulo}</span>
-                  <span className="text-[12.5px] text-prata">{o.dica}</span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
-        <p className="mt-2.5 text-[12.5px] text-prata">O envio do impresso pelo correio, com frete calculado pelo CEP, chega em breve.</p>
+        {/* Da API vem um formato por item: aí não há o que escolher, e o formato aparece só como informação. */}
+        {disponiveis.length === 1 ? (
+          <p className="text-[15px] text-[#DCE4EF]">
+            <strong className="font-display font-bold text-white">{disponiveis[0].rotulo}</strong> · {disponiveis[0].dica}
+          </p>
+        ) : (
+          <div role="radiogroup" aria-labelledby="formato-do-material" className="grid max-w-[420px] grid-cols-2 gap-2.5">
+            {disponiveis.map((o) => {
+              const marcado = formato === o.valor;
+              return (
+                <button
+                  key={o.valor}
+                  type="button"
+                  role="radio"
+                  aria-checked={marcado}
+                  onClick={() => setFormato(o.valor)}
+                  className={`flex items-center gap-3 rounded-xl px-4 py-3.5 text-left transition-colors ${
+                    marcado ? "border-[1.5px] border-azul-vivo bg-azul/[0.14]" : "border border-white/[0.14] bg-white/[0.03] hover:border-white/30"
+                  }`}
+                >
+                  <span className={`h-[18px] w-[18px] flex-none rounded-full ${marcado ? "border-[5px] border-azul-vivo bg-white" : "border-[1.5px] border-[#6B7C94]"}`} />
+                  <span className="flex flex-col gap-0.5">
+                    <span className="font-display text-[15px] font-bold">{o.rotulo}</span>
+                    <span className="text-[12.5px] text-prata">{o.dica}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+        {formato === "impresso" && (
+          <p className="mt-2.5 text-[12.5px] text-prata">O envio do impresso pelo correio, com frete calculado pelo CEP, chega em breve.</p>
+        )}
+        {formato === "digital" && (
+          <p className="mt-2.5 text-[12.5px] text-prata">Depois do pagamento, o PDF fica em Minhas compras, na área do aluno. Cada conta compra uma vez.</p>
+        )}
       </div>
       <div className="mt-7 flex items-baseline gap-2">
         {temMoeda && <span className="font-display text-lg font-bold text-prata">R$</span>}
@@ -67,7 +79,7 @@ export default function CompraDoMaterial({ produto }: { produto: Produto }) {
             id: `${idDoItem("produto", produto.slug)}${formato === "impresso" ? ":impresso" : ""}`,
             tipo: "produto",
             nome: produto.nome,
-            tag: formato === "impresso" ? "Impresso · Retirar no Quad" : "Digital",
+            tag: formato === "impresso" ? "Impresso · Retirar no Quad" : "PDF · Download na área do aluno",
             preco: produto.preco,
             formato,
             alvo: produto.idNaApi ? { itemId: produto.idNaApi } : undefined,

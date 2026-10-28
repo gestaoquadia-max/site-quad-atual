@@ -74,7 +74,7 @@ export default function CartaoMaterial({ produto, indice }: { produto: Produto; 
       id: `${idDoItem("produto", produto.slug)}${impresso ? ":impresso" : ""}`,
       tipo: "produto",
       nome: produto.nome,
-      tag: impresso ? "Impresso · Retirar no Quad" : "Digital",
+      tag: impresso ? "Impresso · Retirar no Quad" : "PDF · Download na área do aluno",
       preco: produto.preco,
       formato,
       alvo: produto.idNaApi ? { itemId: produto.idNaApi } : undefined,

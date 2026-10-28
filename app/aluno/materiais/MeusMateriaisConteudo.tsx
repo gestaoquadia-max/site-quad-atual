@@ -9,6 +9,7 @@ import {
   marcarMaterialComoVisto,
   type MaterialDaTurma,
 } from "@/lib/api";
+import { salvarArquivo } from "@/lib/download";
 import { ErroDaApi } from "@/lib/http";
 import { formatarData } from "@/lib/format";
 import { useCarregar } from "@/lib/useCarregar";
@@ -30,17 +31,6 @@ function formatarTamanho(bytes: number | null) {
   if (!bytes) return "";
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
   return `${(bytes / (1024 * 1024)).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} MB`;
-}
-
-function salvarArquivo(blob: Blob, nome: string) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = nome;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
 }
 
 export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: string | null }) {

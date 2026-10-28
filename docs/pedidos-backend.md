@@ -3,7 +3,7 @@
 **De:** time do site (Next.js) · **Atualizado em:** 27/10/2026
 **Base:** testes na API local (`localhost:8080`) e leituras públicas da API de produção (`https://api.quadconcursos.com.br`).
 
-Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: acréscimo do parcelamento pago pelo aluno, atividades gratuitas na vitrine e matrícula gratuita em turma, limite de tentativas por rota, lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
+Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: material digital em PDF à venda, acréscimo do parcelamento pago pelo aluno, atividades gratuitas na vitrine e matrícula gratuita em turma, limite de tentativas por rota, lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
 
 > **Banco compartilhado:** a API e o banco também atendem o **app Viver o Quad**. Toda mudança pedida aqui precisa considerar o impacto no app; os itens em que isso pesa estão marcados com ⚠️.
 
@@ -26,7 +26,6 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 4.6 | Conferir o CPF na Receita no cadastro (cpfcnpj.com.br) | Média |
 | 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
 | 4.5 | Foto de perfil | Baixa |
-| 5.1 | Material digital (PDF) | Média |
 | 5.3 | Simulados: formatos de estudo e combos | Média |
 | 5.4 | Textos de venda da turma e programação do evento | Média |
 | 6.2 | E-mails da compra (confirmada, aguardando PIX, acesso liberado) | Alta |
@@ -165,12 +164,6 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 
 ## 5. Produtos que a API ainda não cobre
 
-### 5.1 Material digital (PDF)
-
-**O problema.** Não existe tipo de item para o material em PDF. Hoje todo material entra como impresso (`MODULOS`, retirada no Quad), e a opção "Digital" do site fica sem venda.
-
-**O pedido.** Um tipo de item digital vendido em reais, com o arquivo liberado em "Meus materiais" (`GET /api/materiais/eu`) depois do pagamento. Hoje o item digital só se vende em Quad Coins.
-
 ### 5.3 Simulados: formatos de estudo e combos
 
 **O problema.** A Central de Simulados do site vende cada edição em formatos de estudo (presencial, PDF, plataforma, impresso) e em combos de várias edições. A API só tem o simulado presencial.
@@ -202,7 +195,7 @@ As outras quatro viram pedidos:
 
 ### 6.3 Armazenamento de arquivos no ambiente local
 
-**Situação:** no ambiente local, o download de materiais responde 503 "nenhum bucket foi configurado". A API só fala com o S3 da AWS: o endereço do serviço não é configurável (`ConfiguracaoDoArmazemDeMateriais` cria o cliente só com a região), então um armazenamento de teste local (MinIO, compatível com o S3) não funciona sem mudança no código.
+**Situação:** no ambiente local, o download de materiais responde 503 "nenhum bucket foi configurado". Desde 28/10/2026 isso vale também para o **material digital da loja** (o PDF fica no mesmo bucket, sob `loja/itens/`): localmente não dá para enviar o PDF nem baixar o comprado, e o PDF sem arquivo não entra na vitrine. Para testar a venda, o site precisou marcar um arquivo fictício direto no banco local. A API só fala com o S3 da AWS: o endereço do serviço não é configurável (`ConfiguracaoDoArmazemDeMateriais` cria o cliente só com a região), então um armazenamento de teste local (MinIO, compatível com o S3) não funciona sem mudança no código.
 
 **O pedido.** Uma propriedade opcional com o endereço do S3 (por exemplo `api.materiais.endpoint`, vazia em produção) e o modo de caminho (`forcePathStyle`) ligado quando ela existir. Com isso, o ambiente local usa um MinIO em Docker e produção continua na AWS sem mudar nada. A alternativa é um bucket de teste na própria AWS, com credenciais de teste.
 

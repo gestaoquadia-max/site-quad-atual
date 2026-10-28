@@ -555,9 +555,17 @@ type ItemDaVitrine = {
   nome: string;
   // Único entre os itens; não muda se o nome mudar (V119).
   slug?: string | null;
-  // MODULOS = material impresso entregue no balcão; OUTROS = produto da loja. MENTORIA e SKIN são do app.
-  tipo: "MODULOS" | "EXCURSOES" | "TREINAMENTO_TAF" | "MENTORIA" | "OUTROS" | "SKIN";
+  // MATERIAL = material didático, impresso (retirada no balcão) ou digital (PDF baixado no site), em `material.plataforma`.
+  // Era MODULOS até a V132 (27/10/2026): a API de produção ainda pode responder o nome antigo até ser atualizada.
+  // OUTROS = produto da loja. MENTORIA e SKIN são do app.
+  tipo: "MATERIAL" | "MODULOS" | "EXCURSOES" | "TREINAMENTO_TAF" | "MENTORIA" | "OUTROS" | "SKIN";
   descricao: string | null;
+  // Só no material: categoria, concurso (nulo = todos) e plataforma. O digital não tem estoque (restantes nulo) e sai um por aluno.
+  material?: {
+    categoria: { id: string; nome: string } | null;
+    concurso: ConcursoDaVitrine | null;
+    plataforma: "IMPRESSO" | "DIGITAL";
+  } | null;
   imagemUrl: string | null;
   preco: number | null;
   ofertadas: number | null;
@@ -580,25 +588,31 @@ async function listarItens(): Promise<ItemDaVitrine[]> {
   return pagina === NAO_ENCONTRADA ? [] : pagina.conteudo.filter((i) => i.preco != null && i.preco > 0).reverse();
 }
 
+const ehMaterial = (i: ItemDaVitrine) => i.tipo === "MATERIAL" || i.tipo === "MODULOS";
+
+// Cada item da API é um formato só: o PDF e o impresso de uma mesma apostila são itens separados, com preço próprio.
 function paraMaterial(i: ItemDaVitrine): Produto {
   const kit = /\bkit\b|combo/i.test(i.nome);
-  const esgotado = i.restantes !== null && i.restantes <= 0;
+  const digital = i.material?.plataforma === "DIGITAL";
+  // O digital não esgota (restantes nulo); o impresso acaba com o estoque.
+  const esgotado = !digital && i.restantes !== null && i.restantes <= 0;
+  const concurso = i.material?.concurso?.rotulo;
   return {
     slug: slugDa(i),
     idNaApi: i.id,
-    tag: kit ? "Kit · Impresso" : "Apostila · Impresso",
+    tag: `${kit ? "Kit" : i.material?.categoria?.nome ?? "Apostila"} · ${digital ? "PDF" : "Impresso"}`,
     nome: i.nome,
     desc: i.descricao ?? "",
     preco: precoEmTexto(emReais(i.preco!)),
-    // A API ainda não vende a versão digital (PDF): o material sai impresso, retirado no Quad.
-    formatos: ["impresso"],
+    formatos: [digital ? "digital" : "impresso"],
     esgotado,
     detalhe: {
       lead: i.descricao ?? "",
       specs: [
-        { label: "Formato", valor: "Impresso" },
-        { label: "Entrega", valor: "Retirada no Quad" },
-        ...(i.restantes !== null ? [{ label: "Disponíveis", valor: esgotado ? "Esgotado" : String(i.restantes), destaque: true }] : []),
+        { label: "Formato", valor: digital ? "Digital (PDF)" : "Impresso" },
+        { label: "Entrega", valor: digital ? "Download na área do aluno" : "Retirada no Quad" },
+        ...(concurso ? [{ label: "Concurso", valor: concurso }] : []),
+        ...(!digital && i.restantes !== null ? [{ label: "Disponíveis", valor: esgotado ? "Esgotado" : String(i.restantes), destaque: true }] : []),
       ],
       sumario: [],
     },
@@ -640,7 +654,7 @@ function paraProdutoDaLoja(i: ItemDaVitrine): ProdutoDaLoja {
 
 export async function listarMateriais(): Promise<Produto[] | null> {
   try {
-    return (await listarItens()).filter((i) => i.tipo === "MODULOS").map(paraMaterial);
+    return (await listarItens()).filter(ehMaterial).map(paraMaterial);
   } catch {
     return null;
   }
@@ -648,7 +662,7 @@ export async function listarMateriais(): Promise<Produto[] | null> {
 
 export async function buscarMaterial(slug: string): Promise<Produto | null> {
   const item = await buscarItem(slug);
-  return item?.tipo === "MODULOS" ? paraMaterial(item) : null;
+  return item && ehMaterial(item) ? paraMaterial(item) : null;
 }
 
 export async function listarProdutosDaLoja(): Promise<ProdutoDaLoja[] | null> {
