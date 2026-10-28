@@ -1,0 +1,12 @@
+# Fora do envio à Vercel: segredos locais, dependências, builds e testes.
+.env*
+!.env.example
+node_modules
+.next
+.claude
+.painel-quad.json
+playwright
+playwright-report
+test-results
+tests
+tsconfig.tsbuildinfo

@@ -34,7 +34,8 @@ export default function OpengraphImage() {
             Turmas presenciais · Materiais · Simulados
           </div>
           <div style={{ fontSize: 24, color: "#8B95A3", marginTop: 10 }}>
-            Feira de Santana · Bahia{institucional.anoDeFundacao ? ` · desde ${institucional.anoDeFundacao}` : ""}
+            {/* Um texto só: o ImageResponse não aceita dois nós dentro de um div sem display flex. */}
+            {`Feira de Santana · Bahia${institucional.anoDeFundacao ? ` · desde ${institucional.anoDeFundacao}` : ""}`}
           </div>
         </div>
       </div>

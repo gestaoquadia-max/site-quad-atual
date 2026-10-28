@@ -9,7 +9,7 @@ import AvisoDeCookies from "@/components/AvisoDeCookies";
 import { OuvinteDoBrilho } from "@/components/Brilho";
 import { CartProvider } from "@/lib/cart";
 import { UsuarioProvider } from "@/lib/usuario";
-import { DESCRICAO_DO_SITE, NOME_DO_SITE, URL_DO_SITE } from "@/lib/seo";
+import { DESCRICAO_DO_SITE, NAO_INDEXAR, NOME_DO_SITE, SITE_DE_TESTE, URL_DO_SITE } from "@/lib/seo";
 import { listarEventos, listarMateriais, listarTurmas } from "@/lib/vitrine";
 
 // Títulos em Manrope e textos em Inter (novo visual). As classes font-display e font-body apontam para elas.
@@ -35,6 +35,7 @@ export const metadata: Metadata = {
   },
   // Imagem grande ao compartilhar (a imagem em si vem de app/opengraph-image.tsx).
   twitter: { card: "summary_large_image" },
+  ...(SITE_DE_TESTE ? { robots: NAO_INDEXAR } : {}),
 };
 
 export default async function RootLayout({

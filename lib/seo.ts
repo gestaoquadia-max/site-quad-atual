@@ -5,6 +5,9 @@ export const NOME_DO_SITE = "Quad Concursos";
 // Endereço público do site, base dos links absolutos (compartilhamento, sitemap e endereço canônico).
 export const URL_DO_SITE = (process.env.NEXT_PUBLIC_SITE_URL || "https://quadconcursos.com.br").replace(/\/$/, "");
 
+// Publicado em outro endereço (ex.: teste.quadconcursos.com.br): o site inteiro fica fora dos buscadores.
+export const SITE_DE_TESTE = !["https://quadconcursos.com.br", "https://www.quadconcursos.com.br"].includes(URL_DO_SITE);
+
 export const DESCRICAO_DO_SITE =
   "Cursos presenciais, materiais e treinamento direto ao ponto para quem quer entrar nas forças de segurança. Feira de Santana, Bahia.";
 

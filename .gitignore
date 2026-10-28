@@ -16,3 +16,6 @@ out
 
 # Ligação deste projeto com a demanda no Painel Quad (usada pelo robô do Claude Code)
 /.painel-quad.json
+
+# Vercel
+.vercel
