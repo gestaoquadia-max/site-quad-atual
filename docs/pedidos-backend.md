@@ -22,8 +22,7 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 1.5 | Entrada pelo Google: client ID do Quad no Google Cloud | Média |
 | 2.7 | Imagens: medida mínima, proporção e formato no envio pelo console (hoje corta em 560 × 560 e salva em JPG) | Alta (antes do lançamento) |
 | 3 | Professores: fotos e só os professores do site | Média |
-| 4.1 | Verificação do celular por código ⚠️ (pronta no backend, publicação adiada) | Alta |
-| 4.2 | `telefoneVerificadoEm` no cadastro do aluno (o do e-mail já veio) | Alta |
+| 4.1 | Verificação do celular por código ⚠️ (atendido em 29/10; falta confirmar o Twilio em produção) | Alta |
 | 4.6 | Conferir o CPF na Receita no cadastro (cpfcnpj.com.br) | Média |
 | 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
 | 4.5 | Foto de perfil | Baixa |
@@ -125,6 +124,16 @@ Além disso, nada impede o envio de uma imagem pequena ou fora de proporção, q
 ## 4. Conta do aluno
 
 ### 4.1 Verificação do celular por código ⚠️
+
+> **29/10/2026: atendido (PR #131, Twilio Verify) e o site já está adaptado ao formato do backend**, que é diferente do proposto abaixo:
+> - `PUT /auth/telefone` `{ telefone }` troca o número, **só enquanto ele não foi verificado** (o verificado só a coordenação troca: `TELEFONE_JA_VERIFICADO`);
+> - `POST /auth/telefone/verificacao`, sem corpo, manda o código ao número da conta e responde `{ validadeEmMinutos, reenvioEmSegundos }`;
+> - `POST /auth/telefone/verificacao/confirmacao` `{ codigo }` confirma; `GET /api/alunos/eu` traz `telefoneVerificadoEm`;
+> - **nada é bloqueado** sem a verificação (sem o 403 `CELULAR_NAO_VERIFICADO`).
+>
+> No site: passo 3 do cadastro, `/confirmar-celular` e "Meu perfil" (troca do número não verificado; o verificado leva ao WhatsApp da coordenação). Sem o Twilio configurado (`VERIFICACAO_DE_TELEFONE_INDISPONIVEL`), o site deixa o aluno seguir. **Falta:** confirmar que a produção roda essa versão, com `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET` e `TWILIO_VERIFY_SERVICE_SID`. Na conta de teste do Twilio, o SMS só chega aos números cadastrados nela.
+>
+> O texto abaixo é o pedido original, mantido como histórico.
 
 > **27/10/2026:** segundo o backend, a verificação já existe, mas **não vai ser publicada agora**, para não travar os testes. Ela ainda não está no repositório da API (nem no `main`, nem nas branches do GitHub). Quando entrar, o site liga o passo 3 do cadastro e a troca de telefone às rotas abaixo.
 

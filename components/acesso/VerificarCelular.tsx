@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { confirmarCodigoDoCelular, enviarCodigoDoCelular } from "@/lib/api";
+import { confirmarCodigoDoCelular, enviarCodigoPara } from "@/lib/api";
 import { formatarTelefone } from "@/lib/format";
 import { ErroDaApi } from "@/lib/http";
 import { AvisoDeErro, AvisoInformativo, BotaoPrincipal, Campo } from "@/components/acesso/Campos";
@@ -48,6 +48,8 @@ export default function VerificarCelular({
   onPular: () => void;
 }) {
   const [telefone, setTelefone] = useState(telefoneInicial);
+  // O número que a conta tem na API agora (muda quando o aluno corrige o número antes do envio).
+  const [telefoneDaConta, setTelefoneDaConta] = useState(telefoneInicial);
   // Sem número conhecido (ex.: a API não deixou ler o cadastro), o campo já abre para digitar.
   const [editandoNumero, setEditandoNumero] = useState(!telefoneInicial);
   const [codigoEnviadoPara, setCodigoEnviadoPara] = useState<string | null>(null);
@@ -69,6 +71,8 @@ export default function VerificarCelular({
 
   function tratarErro(e: unknown) {
     if (e instanceof ErroDaApi && e.codigo === "INDISPONIVEL") return setIndisponivel(true);
+    // O número já estava verificado (outra aba, outro aparelho): não há o que confirmar.
+    if (e instanceof ErroDaApi && e.codigo === "TELEFONE_JA_VERIFICADO") return onConfirmado();
     setErro(e instanceof ErroDaApi ? e.message : "Não foi possível conectar. Verifique sua internet e tente novamente.");
   }
 
@@ -77,9 +81,10 @@ export default function VerificarCelular({
     setErro("");
     setCarregando(true);
     try {
-      const envio = await enviarCodigoDoCelular(telefone);
-      const podeReenviar = Date.parse(envio.podeReenviarEm);
-      setReenviarEm(Number.isNaN(podeReenviar) ? Date.now() + ESPERA_PADRAO_REENVIO_MS : podeReenviar);
+      // O código vai ao número da conta: se o aluno corrigiu o número, ele é trocado antes do envio.
+      const envio = await enviarCodigoPara(telefone, telefoneDaConta);
+      setTelefoneDaConta(telefone);
+      setReenviarEm(Date.now() + (envio.reenvioEmSegundos > 0 ? envio.reenvioEmSegundos * 1000 : ESPERA_PADRAO_REENVIO_MS));
       setAgora(Date.now());
       setCodigoEnviadoPara(telefone);
       setEditandoNumero(false);

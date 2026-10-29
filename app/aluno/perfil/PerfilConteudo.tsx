@@ -13,13 +13,13 @@ import {
   buscarExclusaoDaConta,
   cancelarExclusaoDaConta,
   confirmarCodigoDoCelular,
-  enviarCodigoDoCelular,
+  enviarCodigoPara,
   pedirExclusaoDaConta,
   reenviarConfirmacaoDeEmail,
   type Endereco,
   type ExclusaoDaConta,
 } from "@/lib/api";
-import { institucional } from "@/lib/institucional";
+import { institucional, linkDoWhatsApp } from "@/lib/institucional";
 import { buscarEnderecoPorCep, formatarCep, UFS } from "@/lib/endereco";
 import { formatarCpf, formatarTelefone } from "@/lib/format";
 import { ErroDaApi } from "@/lib/http";
@@ -198,7 +198,7 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
       </div>
       {usuario.telefoneVerificado === false && !mostrarTrocaTelefone && <AlertaCelularNaoVerificado />}
       {mostrarTrocaTelefone && (
-        <TrocaDeTelefone telefoneAtual={usuario.telefone} atualJaConfirmado={usuario.telefoneVerificado !== false} onTrocado={onSalvo} />
+        <TrocaDeTelefone telefoneAtual={usuario.telefone} atualJaConfirmado={usuario.telefoneVerificado === true} onTrocado={onSalvo} />
       )}
 
       {erro && <Aviso tipo="erro">{erro}</Aviso>}
@@ -273,9 +273,8 @@ function AlertaEmailNaoVerificado() {
   );
 }
 
-// Ordem da troca: o aluno digita o número novo, o código é enviado para esse número novo e,
-// depois de confirmado, o telefone é trocado. O número atual continua valendo até a confirmação.
-// O mesmo número só pode ser enviado de novo quando ainda não foi confirmado (a API aceita nesse caso).
+// Regra da API (29/10/2026): o aluno só troca o número que AINDA NÃO verificou (PUT /auth/telefone); o verificado,
+// só a coordenação. Ordem: o número novo é gravado, o código vai para ele e a confirmação o marca como verificado.
 function TrocaDeTelefone({
   telefoneAtual,
   atualJaConfirmado,
@@ -285,6 +284,23 @@ function TrocaDeTelefone({
   atualJaConfirmado: boolean;
   onTrocado: () => void;
 }) {
+  if (atualJaConfirmado) {
+    return (
+      <div className="mb-4 rounded-xl border border-linha bg-nevoa p-4 text-[13.5px] leading-relaxed text-ardosia-escura">
+        Seu telefone já está confirmado. Para trocar por outro número, fale com a coordenação pelo{" "}
+        <a href={linkDoWhatsApp(institucional.whatsapp)} target="_blank" rel="noopener noreferrer" className="font-semibold text-azul-forte underline underline-offset-4">
+          WhatsApp
+        </a>
+        .
+      </div>
+    );
+  }
+  return <TrocaDeTelefoneNaoVerificado telefoneAtual={telefoneAtual} onTrocado={onTrocado} />;
+}
+
+function TrocaDeTelefoneNaoVerificado({ telefoneAtual, onTrocado }: { telefoneAtual: string | null; onTrocado: () => void }) {
+  // O número que a conta tem na API agora: muda assim que o novo é gravado, antes do código.
+  const [telefoneDaConta, setTelefoneDaConta] = useState(telefoneAtual);
   const [novoTelefone, setNovoTelefone] = useState("");
   const [codigoEnviadoPara, setCodigoEnviadoPara] = useState<string | null>(null);
   const [codigo, setCodigo] = useState("");
@@ -295,7 +311,6 @@ function TrocaDeTelefone({
   const [indisponivel, setIndisponivel] = useState(false);
   const [trocadoPara, setTrocadoPara] = useState<string | null>(null);
   const digitos = novoTelefone.replace(/\D/g, "");
-  const igualAoAtual = atualJaConfirmado && !!telefoneAtual && digitos === telefoneAtual.replace(/\D/g, "");
 
   // Contagem regressiva do "Reenviar código".
   useEffect(() => {
@@ -315,9 +330,9 @@ function TrocaDeTelefone({
     setErro("");
     setCarregando(true);
     try {
-      const envio = await enviarCodigoDoCelular(novoTelefone);
-      const podeReenviar = Date.parse(envio.podeReenviarEm);
-      setReenviarEm(Number.isNaN(podeReenviar) ? Date.now() + 60_000 : podeReenviar);
+      const envio = await enviarCodigoPara(novoTelefone, telefoneDaConta);
+      setTelefoneDaConta(novoTelefone);
+      setReenviarEm(Date.now() + (envio.reenvioEmSegundos > 0 ? envio.reenvioEmSegundos : 60) * 1000);
       setAgora(Date.now());
       setCodigoEnviadoPara(novoTelefone);
       setCodigo("");
@@ -398,16 +413,14 @@ function TrocaDeTelefone({
             disabled={carregando}
             className={`${classeInput} mb-2 bg-white`}
           />
-          {igualAoAtual && <p className="mb-2 text-[13px] text-[#9B1C1C]">Esse já é o seu telefone atual.</p>}
           <p className="mb-3 text-[13px] leading-relaxed text-ardosia-escura">
-            Vamos enviar um código para o <strong>número novo</strong>. A troca só vale depois que você digitar esse
-            código; até lá, o número atual continua cadastrado.
+            O número novo passa a ser o da sua conta e recebe um código por SMS. Digite o código para confirmá-lo.
           </p>
           {erro && <Aviso tipo="erro">{erro}</Aviso>}
           <button
             type="button"
             onClick={enviarCodigo}
-            disabled={indisponivel || carregando || igualAoAtual || digitos.length < 10}
+            disabled={indisponivel || carregando || digitos.length < 10}
             className={`${classeBotaoContorno} w-full`}
           >
             {carregando ? "Enviando..." : "Enviar código para o novo número"}

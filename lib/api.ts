@@ -202,40 +202,52 @@ export async function atualizarEndereco(id: string, dados: DadosDoEndereco): Pro
   return res.json();
 }
 
-// Verificação do celular por código (cadastro e troca de telefone no perfil).
-// Formato proposto ao backend em docs/pedidos-backend.md, item 4.1. Responde 404 enquanto não existir.
-export type EnvioDeCodigo = { expiraEm: string; podeReenviarEm: string };
+// Verificação do celular por SMS (Twilio Verify, PR #131 da API, 29/10/2026): cadastro, /confirmar-celular e troca
+// de telefone no perfil. O código vai sempre ao número DA CONTA; trocar o número é outra rota, e só vale enquanto ele
+// não foi verificado (o verificado só a coordenação troca: TELEFONE_JA_VERIFICADO). Nada é barrado sem a verificação.
+// Sem as rotas (404) ou sem o Twilio configurado (VERIFICACAO_DE_TELEFONE_INDISPONIVEL), o site deixa seguir sem verificar.
+export type EnvioDeCodigo = { validadeEmMinutos: number; reenvioEmSegundos: number };
 
-export async function enviarCodigoDoCelular(telefone: string): Promise<EnvioDeCodigo> {
-  const res = await fetchAutenticado("/api/usuarios/eu/telefone/verificacao", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ novoTelefone: telefone }),
-  });
-
+async function falhaDaVerificacao(res: Response, mensagemPadrao: string) {
   if (res.status === 404 || res.status === 405) {
-    throw new ErroDaApi(res.status, "A verificação do celular ainda não está disponível.", "INDISPONIVEL");
+    return new ErroDaApi(res.status, "A verificação do celular ainda não está disponível.", "INDISPONIVEL");
   }
-  if (!res.ok) {
-    throw await lerErro(res, "Não foi possível enviar o código.");
-  }
+  const erro = await lerErro(res, mensagemPadrao);
+  return erro.codigo === "VERIFICACAO_DE_TELEFONE_INDISPONIVEL" ? new ErroDaApi(erro.status, erro.message, "INDISPONIVEL") : erro;
+}
 
+// Troca o número da conta, ainda não verificado. Devolve o número gravado, só com dígitos.
+export async function trocarTelefoneNaoVerificado(telefone: string): Promise<string> {
+  const res = await fetchAutenticado("/auth/telefone", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ telefone }),
+  });
+  if (!res.ok) throw await falhaDaVerificacao(res, "Não foi possível trocar o telefone.");
+  return (await res.json()).telefone;
+}
+
+// Envia o código por SMS ao número que a conta tem agora (202).
+export async function enviarCodigoDoCelular(): Promise<EnvioDeCodigo> {
+  const res = await fetchAutenticado("/auth/telefone/verificacao", { method: "POST" });
+  if (!res.ok) throw await falhaDaVerificacao(res, "Não foi possível enviar o código.");
   return res.json();
 }
 
 export async function confirmarCodigoDoCelular(codigo: string): Promise<void> {
-  const res = await fetchAutenticado("/api/usuarios/eu/telefone/confirmacao", {
+  const res = await fetchAutenticado("/auth/telefone/verificacao/confirmacao", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ codigo }),
   });
+  if (!res.ok) throw await falhaDaVerificacao(res, "Não foi possível confirmar o código.");
+}
 
-  if (res.status === 404 || res.status === 405) {
-    throw new ErroDaApi(res.status, "A verificação do celular ainda não está disponível.", "INDISPONIVEL");
-  }
-  if (!res.ok) {
-    throw await lerErro(res, "Não foi possível confirmar o código.");
-  }
+// Troca o número (quando é outro) e manda o código para ele.
+export async function enviarCodigoPara(telefone: string, telefoneDaConta: string | null): Promise<EnvioDeCodigo> {
+  const digitos = telefone.replace(/\D/g, "");
+  if (digitos !== (telefoneDaConta ?? "").replace(/\D/g, "")) await trocarTelefoneNaoVerificado(telefone);
+  return enviarCodigoDoCelular();
 }
 
 // Reenvia o e-mail com o link de confirmação. Formato proposto ao backend (item 2.6). Responde 404 enquanto não existir.
