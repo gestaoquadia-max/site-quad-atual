@@ -1,6 +1,6 @@
 # Pedidos para o backend — Site do Quad Concursos
 
-**De:** time do site (Next.js) · **Atualizado em:** 27/10/2026
+**De:** time do site (Next.js) · **Atualizado em:** 29/10/2026
 **Base:** testes na API local (`localhost:8080`) e leituras públicas da API de produção (`https://api.quadconcursos.com.br`).
 
 Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: material digital em PDF à venda, acréscimo do parcelamento pago pelo aluno, atividades gratuitas na vitrine e matrícula gratuita em turma, limite de tentativas por rota, lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
@@ -20,6 +20,7 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 1.3 | Autorizar o domínio do site na conta do Pagar.me | Alta (antes do lançamento) |
 | 1.4 | Publicar a API e o site juntos (preços em centavos) | Alta (no lançamento) |
 | 1.5 | Entrada pelo Google: client ID do Quad no Google Cloud | Média |
+| 2.7 | Imagens: medida mínima, proporção e formato no envio pelo console (hoje corta em 560 × 560 e salva em JPG) | Alta (antes do lançamento) |
 | 3 | Professores: fotos e só os professores do site | Média |
 | 4.1 | Verificação do celular por código ⚠️ (pronta no backend, publicação adiada) | Alta |
 | 4.2 | `telefoneVerificadoEm` no cadastro do aluno (o do e-mail já veio) | Alta |
@@ -72,7 +73,42 @@ Deve responder 200, com essa origem em `Access-Control-Allow-Origin` e `idempote
 
 ## 2. Vitrine pública
 
-A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fonte do site para turmas, eventos, simulados e produtos, porque o visitante não tem login. Em 23/10/2026 ela ficou completa ("vitrine completa", PR #119), e o site já usa: modalidade, edição e ano, concurso (`rotulo` "SD/PMBA"), sala, horários e dias da turma, espécie, resumo e professores do evento, e janelas do simulado. As atividades antigas, sem edição ou concurso, ainda completam pelo nome. Desde 27/10/2026 a vitrine também lista as atividades gratuitas (`gratuita: true`, sem preço, vagas e lote), e o site inscreve direto: evento e simulado por `POST /api/inscricoes/eu`, turma por `POST /api/matriculas/eu`. Nada pendente nesta seção.
+A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fonte do site para turmas, eventos, simulados e produtos, porque o visitante não tem login. Em 23/10/2026 ela ficou completa ("vitrine completa", PR #119), e o site já usa: modalidade, edição e ano, concurso (`rotulo` "SD/PMBA"), sala, horários e dias da turma, espécie, resumo e professores do evento, e janelas do simulado. As atividades antigas, sem edição ou concurso, ainda completam pelo nome. Desde 27/10/2026 a vitrine também lista as atividades gratuitas (`gratuita: true`, sem preço, vagas e lote), e o site inscreve direto: evento e simulado por `POST /api/inscricoes/eu`, turma por `POST /api/matriculas/eu`.
+
+### 2.7 Imagens: medida mínima, proporção e formato no envio pelo console
+
+**O problema (conferido em 29/10/2026).** O console salva as imagens das turmas **cortadas em quadrado de 560 × 560 e em JPG**. Isso causa duas falhas no site:
+- **Corte:** a capa da página da turma é vertical (4:5) e preenche o quadro, então o brasão quadrado aparece ampliado e cortado nas laterais e embaixo.
+- **Transparência:** o JPG não guarda transparência, então um PNG de fundo transparente feito pela designer chega ao site com fundo branco.
+
+Além disso, nada impede o envio de uma imagem pequena ou fora de proporção, que fica borrada ou mal cortada.
+
+**O pedido.**
+1. **Validar no envio** (no console e na API, que é quem grava) a medida mínima e a proporção de cada tipo de imagem, conforme a tabela abaixo. Imagem fora da regra é recusada com uma mensagem que diga a medida enviada e a esperada. Por exemplo: "A imagem tem 560 × 560 px. A capa da turma precisa ter pelo menos 800 × 1000 px, na proporção 4:5 (vertical)."
+2. **Não cortar em quadrado.** O corte, quando houver, respeita a proporção de cada tipo. Imagem acima do lado máximo é **reduzida** para o tamanho recomendado em vez de recusada.
+3. **Manter PNG ou WebP quando o arquivo tiver transparência.** Só converter para JPG (ou WebP) quando não tiver.
+
+**Medidas por tipo de imagem.** O mínimo é cerca de 1,5 vez o maior tamanho em que a imagem aparece na tela, para não borrar em telas de alta densidade. O recomendado é o dobro.
+
+| Imagem | Onde aparece no site | Proporção | Recomendado | Mínimo (recusar abaixo) | Proporção aceita (largura ÷ altura) |
+|---|---|---|---|---|---|
+| Capa da turma (`imagemUrl` da atividade) | Página da turma (até 520 × 650) | 4:5 vertical | 1080 × 1350 | 800 × 1000 | 0,75 a 0,85 |
+| Produto da loja (`imagemUrl` do item) | Página do produto (até 640 × 640) e cartão (320) | 1:1 | 1200 × 1200 | 800 × 800 | 0,95 a 1,05 |
+| Foto do professor (`fotoUrl`, item 3) | Cartão (320 × 400) e topo da página do professor | 4:5 vertical | 1080 × 1350 | 800 × 1000 | 0,75 a 0,85 |
+| Arte do evento e do simulado (quando houver) | Cartão e página do evento | 1:1 | 1080 × 1080 | 800 × 800 | 0,95 a 1,05 |
+| Foto do aprovado (item 6.4) | Cartão de aprovados (240) | 1:1 | 600 × 600 | 480 × 480 | 0,95 a 1,05 |
+| Capa do artigo do blog (item 6.4) | Lista e destaque do blog (até 440) | 3:2 deitada | 1200 × 800 | 900 × 600 | 1,45 a 1,55 |
+
+**Regras que valem para todas:**
+- formatos JPG, PNG ou WebP;
+- até 5 MB por arquivo;
+- lado máximo de 4000 px (acima disso, reduzir).
+
+**Enquadramento (vale mostrar como dica no console, ao lado do campo de envio):**
+- **Capa da turma:** no celular, a capa aparece cortada em formato deitado (16:10), então o brasão ou o texto precisa ficar no **centro** da imagem.
+- **Foto do professor:** no topo da página, a foto é cortada mantendo a parte de cima, então o rosto precisa ficar no **terço superior**.
+
+**Imagens atuais:** as capas já cadastradas (560 × 560) não passam na regra nova. A validação vale só para envios novos; as atuais continuam aparecendo até serem trocadas.
 
 ---
 
