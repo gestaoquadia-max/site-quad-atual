@@ -225,8 +225,10 @@ function Filtro({ rotulo, opcoes, atual, onEscolher, todos }: {
 }
 
 // Uma aba por cargo ("SD • PMBA", "CFO • PMBA", "IPC • PCBA"…), no formato do selo da página da turma.
-// Decisão de 29/10/2026: só aparecem os concursos com turma cadastrada (nada de aba vazia), nesta ordem; os demais
-// vêm depois. As da PMBA têm níveis (RONDESP, PATAMO, BOPE).
+// Decisão de 29/10/2026: os três principais (Soldado e CFO da PMBA e Investigador da PCBA) aparecem sempre; os demais
+// só com turma cadastrada, nesta ordem e depois os desconhecidos. Sem turma, a aba oferece a lista de interesse.
+// As da PMBA têm níveis (RONDESP, PATAMO, BOPE).
+const ABAS_FIXAS = ["SD • PMBA", "CFO • PMBA", "IPC • PCBA"];
 const ORDEM_DAS_ABAS = ["SD • PMBA", "CFO • PMBA", "CFS • PMBA", "SD • BMBA", "IPC • PCBA"];
 const SEM_CARGO = "Outras";
 
@@ -257,11 +259,9 @@ export function idDaAba(aba: string) {
 
 export function abasDasTurmas(turmas: Turma[] | null) {
   const cadastradas = [...new Set((turmas ?? []).map(abaDa))];
-  const conhecidas = ORDEM_DAS_ABAS.filter((a) => cadastradas.includes(a));
+  const conhecidas = ORDEM_DAS_ABAS.filter((a) => ABAS_FIXAS.includes(a) || cadastradas.includes(a));
   const outras = cadastradas.filter((a) => !ORDEM_DAS_ABAS.includes(a) && a !== SEM_CARGO).sort((a, b) => Number(ehDaPmba(b)) - Number(ehDaPmba(a)) || a.localeCompare(b));
-  const abas = [...conhecidas, ...outras, ...(cadastradas.includes(SEM_CARGO) ? [SEM_CARGO] : [])];
-  // Sem nenhuma turma (ou com a API fora do ar), a página abre na PMBA, com os níveis e o aviso de lista de interesse.
-  return abas.length ? abas : [ORDEM_DAS_ABAS[0]];
+  return [...conhecidas, ...outras, ...(cadastradas.includes(SEM_CARGO) ? [SEM_CARGO] : [])];
 }
 
 // Turmas de um cargo sem níveis (fora da PMBA, ou da PMBA sem nível): filtro de turno e a lista.
