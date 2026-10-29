@@ -112,7 +112,19 @@ export async function fetchAutenticado(caminho: string, init: RequestInit = {}):
     res = await enviarParaAApi(caminho, init);
     if (res.status === 401) await logout();
   }
+  if (res.status === 403) await levarAVerificacaoDoCelular(res);
   return res;
+}
+
+// Conta com o celular ainda não confirmado: a API responde 403 CELULAR_NAO_VERIFICADO (pedido 4.1) e o aluno
+// vai para /confirmar-celular, voltando depois para a página onde estava. Lê uma cópia: o corpo segue para quem chamou.
+async function levarAVerificacaoDoCelular(res: Response) {
+  const aqui = window.location.pathname;
+  if (aqui === "/confirmar-celular" || aqui === "/cadastro") return;
+  const corpo = await res.clone().json().catch(() => null);
+  if (corpo?.codigo !== "CELULAR_NAO_VERIFICADO") return;
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- função fora de componente, sem o router do Next
+  window.location.assign(`/confirmar-celular?redirect=${encodeURIComponent(aqui + window.location.search)}`);
 }
 
 // Recuperação de senha (rotas públicas). O e-mail traz o link /redefinir-senha?token=...

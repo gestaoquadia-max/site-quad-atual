@@ -8,14 +8,48 @@ import { AvisoDeErro, AvisoInformativo, BotaoPrincipal, Campo } from "@/componen
 
 const ESPERA_PADRAO_REENVIO_MS = 60_000;
 
+// Os 6 números do código, grandes e espaçados. Também usado na troca de telefone em "Meu perfil".
+export function CampoDoCodigo({ id, valor, aoMudar, disabled }: { id: string; valor: string; aoMudar: (v: string) => void; disabled?: boolean }) {
+  return (
+    <div className="flex flex-col gap-[7px]">
+      <label htmlFor={id} className="text-[13.5px] font-semibold text-tinta">
+        Código
+      </label>
+      <input
+        id={id}
+        inputMode="numeric"
+        autoComplete="one-time-code"
+        value={valor}
+        onChange={(e) => aoMudar(e.target.value.replace(/\D/g, "").slice(0, 6))}
+        placeholder="000000"
+        maxLength={6}
+        disabled={disabled}
+        className="h-[60px] w-full rounded-[10px] border border-linha-forte bg-white text-center font-display text-2xl font-bold tracking-[0.5em] text-tinta outline-none transition-[border-color,box-shadow] placeholder:text-[#C3CCD8] focus:border-azul focus:shadow-[0_0_0_4px_rgba(0,107,255,0.15)]"
+      />
+    </div>
+  );
+}
+
 const classeLink =
   "text-sm font-semibold text-azul-forte underline-offset-4 transition-colors hover:text-azul hover:underline disabled:cursor-not-allowed disabled:text-ardosia disabled:no-underline";
 
-// Passo 3 do cadastro: a conta só é liberada depois de confirmar o celular.
+// Passo 3 do cadastro e página /confirmar-celular: a conta só é liberada depois de confirmar o celular.
 // O código é enviado só quando o aluno pede (evita SMS duplicado e permite corrigir o número antes).
-export default function VerificarCelular({ telefoneInicial, onConcluir }: { telefoneInicial: string; onConcluir: () => void }) {
+// onConfirmado: código certo. onPular: a API ainda não tem a verificação, e o aluno segue sem ela.
+export default function VerificarCelular({
+  telefoneInicial,
+  textoInicial,
+  onConfirmado,
+  onPular,
+}: {
+  telefoneInicial: string;
+  textoInicial: string;
+  onConfirmado: () => void;
+  onPular: () => void;
+}) {
   const [telefone, setTelefone] = useState(telefoneInicial);
-  const [editandoNumero, setEditandoNumero] = useState(false);
+  // Sem número conhecido (ex.: a API não deixou ler o cadastro), o campo já abre para digitar.
+  const [editandoNumero, setEditandoNumero] = useState(!telefoneInicial);
   const [codigoEnviadoPara, setCodigoEnviadoPara] = useState<string | null>(null);
   const [codigo, setCodigo] = useState("");
   const [reenviarEm, setReenviarEm] = useState(0);
@@ -63,7 +97,7 @@ export default function VerificarCelular({ telefoneInicial, onConcluir }: { tele
     setCarregando(true);
     try {
       await confirmarCodigoDoCelular(codigo);
-      onConcluir();
+      onConfirmado();
     } catch (e) {
       tratarErro(e);
       setCarregando(false);
@@ -74,10 +108,9 @@ export default function VerificarCelular({ telefoneInicial, onConcluir }: { tele
     return (
       <div className="flex flex-col gap-4">
         <AvisoInformativo>
-          Sua conta foi criada. A confirmação do celular por código ainda não está disponível; por enquanto, você pode continuar e
-          confirmar depois.
+          A confirmação do celular por código ainda não está disponível. Por enquanto, você pode continuar e confirmar depois.
         </AvisoInformativo>
-        <BotaoPrincipal type="button" onClick={onConcluir}>
+        <BotaoPrincipal type="button" onClick={onPular}>
           Continuar
         </BotaoPrincipal>
       </div>
@@ -103,7 +136,7 @@ export default function VerificarCelular({ telefoneInicial, onConcluir }: { tele
             para liberar sua conta.
           </>
         ) : (
-          <>Sua conta foi criada. Para liberá-la, vamos enviar um código por SMS para o seu celular.</>
+          textoInicial
         )}
       </p>
 
@@ -127,24 +160,7 @@ export default function VerificarCelular({ telefoneInicial, onConcluir }: { tele
         </div>
       )}
 
-      {digitandoCodigo && (
-        <div className="flex flex-col gap-[7px]">
-          <label htmlFor="verificar-codigo" className="text-[13.5px] font-semibold text-tinta">
-            Código
-          </label>
-          <input
-            id="verificar-codigo"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            value={codigo}
-            onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
-            placeholder="000000"
-            maxLength={6}
-            disabled={carregando}
-            className="h-[60px] w-full rounded-[10px] border border-linha-forte bg-white text-center font-display text-2xl font-bold tracking-[0.5em] text-tinta outline-none transition-[border-color,box-shadow] placeholder:text-[#C3CCD8] focus:border-azul focus:shadow-[0_0_0_4px_rgba(0,107,255,0.15)]"
-          />
-        </div>
-      )}
+      {digitandoCodigo && <CampoDoCodigo id="verificar-codigo" valor={codigo} aoMudar={setCodigo} disabled={carregando} />}
 
       {erro && <AvisoDeErro>{erro}</AvisoDeErro>}
 

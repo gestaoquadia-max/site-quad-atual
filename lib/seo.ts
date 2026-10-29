@@ -12,7 +12,7 @@ export const DESCRICAO_DO_SITE =
   "Cursos presenciais, materiais e treinamento direto ao ponto para quem quer entrar nas forças de segurança. Feira de Santana, Bahia.";
 
 // Fora dos buscadores: bloqueados no robots.txt e marcados com NAO_INDEXAR nas próprias páginas.
-export const CAMINHOS_PRIVADOS = ["/aluno", "/carrinho", "/checkout", "/esqueci-senha", "/redefinir-senha", "/confirmar-email"];
+export const CAMINHOS_PRIVADOS = ["/aluno", "/carrinho", "/checkout", "/esqueci-senha", "/redefinir-senha", "/confirmar-email", "/confirmar-celular"];
 
 export const NAO_INDEXAR: Metadata["robots"] = { index: false, follow: false };
 

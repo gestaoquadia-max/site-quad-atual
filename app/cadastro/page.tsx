@@ -12,7 +12,8 @@ import { destinoAposLogin, lerDestinoAposLogin, rotaComDestino } from "@/lib/red
 import { VERSAO_DOS_TERMOS } from "@/lib/termos";
 import AbasDeAcesso, { LinkDeAcesso } from "@/components/acesso/AbasDeAcesso";
 import { AvisoDeErro, BotaoPrincipal, Campo, Seletor, TituloDoFormulario } from "@/components/acesso/Campos";
-import VerificarCelular from "./VerificarCelular";
+import TelaDeResultado from "@/components/acesso/TelaDeResultado";
+import VerificarCelular from "@/components/acesso/VerificarCelular";
 
 // Campos do passo 1; um erro da API em algum deles leva o usuário de volta para lá.
 const CAMPOS_PASSO_1 = ["nome", "email", "senha", "cpf", "telefone"];
@@ -49,6 +50,7 @@ function capitalizar(texto: string) {
 export default function CadastroPage() {
   const router = useRouter();
   const [passo, setPasso] = useState(1);
+  const [celularConfirmado, setCelularConfirmado] = useState(false);
   const [nome, setNome] = useState("");
   const [sobrenome, setSobrenome] = useState("");
   const [cpf, setCpf] = useState("");
@@ -237,6 +239,22 @@ export default function CadastroPage() {
     </span>
   );
 
+  if (celularConfirmado) {
+    return (
+      <TelaDeResultado
+        tom="sucesso"
+        titulo="Celular confirmado"
+        acoes={
+          <BotaoPrincipal type="button" onClick={() => router.push(destinoAposLogin())}>
+            Continuar
+          </BotaoPrincipal>
+        }
+      >
+        Pronto! Sua conta está liberada. Você já pode acessar suas turmas, materiais e compras.
+      </TelaDeResultado>
+    );
+  }
+
   return (
     <>
       {passo < 3 && <AbasDeAcesso atual="/cadastro" />}
@@ -343,7 +361,14 @@ export default function CadastroPage() {
           </form>
         )}
 
-        {passo === 3 && <VerificarCelular telefoneInicial={telefone} onConcluir={() => router.push(destinoAposLogin())} />}
+        {passo === 3 && (
+          <VerificarCelular
+            telefoneInicial={telefone}
+            textoInicial="Sua conta foi criada. Para liberá-la, vamos enviar um código por SMS para o seu celular."
+            onConfirmado={() => setCelularConfirmado(true)}
+            onPular={() => router.push(destinoAposLogin())}
+          />
+        )}
 
         {passo < 3 && (
           <p className="text-center text-sm text-ardosia">

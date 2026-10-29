@@ -13,6 +13,8 @@ export type UsuarioAtual = {
   cpf: string | null;
   // null = o backend ainda não informa se o e-mail foi verificado.
   emailVerificado: boolean | null;
+  // null = o backend ainda não informa se o celular foi confirmado.
+  telefoneVerificado: boolean | null;
   // false quando os dados da conta (nome completo, e-mail, telefone) não vieram. Aí o nome exibido é o de guerra,
   // que é um conceito do app Viver o Quad: só serve de último recurso, nunca é mostrado como tal no site.
   dadosDaContaDisponiveis: boolean;
@@ -44,6 +46,7 @@ async function carregarUsuarioAtual(): Promise<UsuarioAtual> {
       telefone: a.telefone ?? null,
       cpf: a.cpf ?? null,
       emailVerificado: a.emailVerificadoEm === undefined ? null : a.emailVerificadoEm !== null,
+      telefoneVerificado: a.telefoneVerificadoEm === undefined ? null : a.telefoneVerificadoEm !== null,
       dadosDaContaDisponiveis: !!a.nomeCompleto,
       podeEditarCadastro: !!a.nomeCompleto,
       aluno: a,
@@ -58,6 +61,7 @@ async function carregarUsuarioAtual(): Promise<UsuarioAtual> {
     telefone: null,
     cpf: null,
     emailVerificado: null,
+    telefoneVerificado: null,
     dadosDaContaDisponiveis: false,
     podeEditarCadastro: false,
     aluno: null,

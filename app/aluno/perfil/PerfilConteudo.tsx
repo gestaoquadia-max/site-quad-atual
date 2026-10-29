@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { ListaErro } from "@/components/EstadoLista";
+import { CampoDoCodigo } from "@/components/acesso/VerificarCelular";
 import {
   alterarSenha,
   atualizarCadastro,
@@ -10,6 +12,8 @@ import {
   buscarEnderecoDoUsuario,
   buscarExclusaoDaConta,
   cancelarExclusaoDaConta,
+  confirmarCodigoDoCelular,
+  enviarCodigoDoCelular,
   pedirExclusaoDaConta,
   reenviarConfirmacaoDeEmail,
   type Endereco,
@@ -157,6 +161,7 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
 
       <label className={classeLabel} htmlFor="perfil-email">
         E-mail
+        {usuario.emailVerificado && <SeloConfirmado />}
       </label>
       <input
         id="perfil-email"
@@ -173,6 +178,7 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
 
       <label className={classeLabel} htmlFor="perfil-telefone">
         Telefone
+        {usuario.telefoneVerificado && <SeloConfirmado />}
       </label>
       <div className="mb-4 flex gap-2">
         <input
@@ -190,7 +196,10 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
           Alterar
         </button>
       </div>
-      {mostrarTrocaTelefone && <TrocaDeTelefone telefoneAtual={usuario.telefone} />}
+      {usuario.telefoneVerificado === false && !mostrarTrocaTelefone && <AlertaCelularNaoVerificado />}
+      {mostrarTrocaTelefone && (
+        <TrocaDeTelefone telefoneAtual={usuario.telefone} atualJaConfirmado={usuario.telefoneVerificado !== false} onTrocado={onSalvo} />
+      )}
 
       {erro && <Aviso tipo="erro">{erro}</Aviso>}
       {salvo && <Aviso tipo="sucesso">Dados atualizados.</Aviso>}
@@ -200,6 +209,29 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
       </button>
       <p className="mt-3 text-center text-[13px] text-ardosia">CPF e e-mail não podem ser alterados por aqui.</p>
     </Cartao>
+  );
+}
+
+function SeloConfirmado() {
+  return (
+    <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-[#E3F3EA] px-2 py-0.5 align-middle text-[11.5px] font-bold text-[#13774A]">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M5 12.5l4.5 4.5L19 7.5" />
+      </svg>
+      Confirmado
+    </span>
+  );
+}
+
+function AlertaCelularNaoVerificado() {
+  return (
+    <div role="alert" className="mb-4 rounded-[10px] border border-[#F0DDA0] bg-[#FFF8E5] px-3.5 py-3 text-[13.5px] text-[#7A5A00]">
+      <p className="mb-2 font-semibold">Seu celular ainda não foi confirmado.</p>
+      <p className="mb-2.5 leading-relaxed">Confirme com o código que enviamos por SMS para liberar todos os recursos da sua conta.</p>
+      <Link href="/confirmar-celular?redirect=%2Faluno%2Fperfil" className="font-semibold underline underline-offset-4">
+        Confirmar agora
+      </Link>
+    </div>
   );
 }
 
@@ -243,39 +275,146 @@ function AlertaEmailNaoVerificado() {
 
 // Ordem da troca: o aluno digita o número novo, o código é enviado para esse número novo e,
 // depois de confirmado, o telefone é trocado. O número atual continua valendo até a confirmação.
-function TrocaDeTelefone({ telefoneAtual }: { telefoneAtual: string | null }) {
+// O mesmo número só pode ser enviado de novo quando ainda não foi confirmado (a API aceita nesse caso).
+function TrocaDeTelefone({
+  telefoneAtual,
+  atualJaConfirmado,
+  onTrocado,
+}: {
+  telefoneAtual: string | null;
+  atualJaConfirmado: boolean;
+  onTrocado: () => void;
+}) {
   const [novoTelefone, setNovoTelefone] = useState("");
+  const [codigoEnviadoPara, setCodigoEnviadoPara] = useState<string | null>(null);
+  const [codigo, setCodigo] = useState("");
+  const [reenviarEm, setReenviarEm] = useState(0);
+  const [agora, setAgora] = useState(() => Date.now());
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState("");
+  const [indisponivel, setIndisponivel] = useState(false);
+  const [trocadoPara, setTrocadoPara] = useState<string | null>(null);
   const digitos = novoTelefone.replace(/\D/g, "");
-  const igualAoAtual = !!telefoneAtual && digitos === telefoneAtual.replace(/\D/g, "");
+  const igualAoAtual = atualJaConfirmado && !!telefoneAtual && digitos === telefoneAtual.replace(/\D/g, "");
+
+  // Contagem regressiva do "Reenviar código".
+  useEffect(() => {
+    if (!reenviarEm) return;
+    const id = setInterval(() => setAgora(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [reenviarEm]);
+  const segundosParaReenviar = Math.max(0, Math.ceil((reenviarEm - agora) / 1000));
+
+  function tratarErro(e: unknown) {
+    if (e instanceof ErroDaApi && e.codigo === "INDISPONIVEL") return setIndisponivel(true);
+    setErro(mensagemDoErro(e));
+  }
+
+  async function enviarCodigo() {
+    if (digitos.length < 10) return setErro("Telefone incompleto. Inclua o DDD.");
+    setErro("");
+    setCarregando(true);
+    try {
+      const envio = await enviarCodigoDoCelular(novoTelefone);
+      const podeReenviar = Date.parse(envio.podeReenviarEm);
+      setReenviarEm(Number.isNaN(podeReenviar) ? Date.now() + 60_000 : podeReenviar);
+      setAgora(Date.now());
+      setCodigoEnviadoPara(novoTelefone);
+      setCodigo("");
+    } catch (e) {
+      tratarErro(e);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  async function confirmar() {
+    if (codigo.length !== 6) return setErro("Digite os 6 números do código.");
+    setErro("");
+    setCarregando(true);
+    try {
+      await confirmarCodigoDoCelular(codigo);
+      setTrocadoPara(codigoEnviadoPara);
+      onTrocado();
+    } catch (e) {
+      tratarErro(e);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  if (trocadoPara) {
+    return (
+      <Aviso tipo="sucesso">
+        Celular confirmado. O seu telefone agora é <strong>{trocadoPara}</strong>.
+      </Aviso>
+    );
+  }
+
+  const linkPequeno = "text-[13px] font-semibold text-azul-forte underline-offset-4 hover:underline disabled:cursor-not-allowed disabled:text-ardosia disabled:no-underline";
 
   return (
     <div className="mb-4 rounded-xl border border-linha bg-nevoa p-4">
-      <label className={classeLabel} htmlFor="perfil-telefone-novo">
-        Novo telefone
-      </label>
-      <input
-        id="perfil-telefone-novo"
-        inputMode="numeric"
-        value={novoTelefone}
-        onChange={(e) => setNovoTelefone(formatarTelefone(e.target.value))}
-        placeholder="(75) 99999-0000"
-        maxLength={15}
-        className={`${classeInput} mb-2 bg-white`}
-      />
-      {igualAoAtual && <p className="mb-2 text-[13px] text-[#9B1C1C]">Esse já é o seu telefone atual.</p>}
-      <p className="mb-3 text-[13px] leading-relaxed text-ardosia-escura">
-        Vamos enviar um código para o <strong>número novo</strong>. A troca só vale depois que você digitar esse
-        código; até lá, o número atual continua cadastrado.
-      </p>
-      <button
-        type="button"
-        disabled
-        title="O envio do código ainda não está disponível"
-        className={`${classeBotaoContorno} w-full`}
-      >
-        Enviar código para o novo número
-      </button>
-      <p className="mt-2 text-center text-[13px] text-ardosia">O envio do código ainda não está disponível.</p>
+      {codigoEnviadoPara ? (
+        <>
+          <p className="mb-3 text-[13.5px] leading-relaxed text-ardosia-escura">
+            Enviamos um código de 6 números por SMS para <strong className="text-tinta">{codigoEnviadoPara}</strong>. Digite-o abaixo
+            para confirmar a troca.
+          </p>
+          <CampoDoCodigo id="perfil-codigo" valor={codigo} aoMudar={setCodigo} disabled={carregando} />
+          {erro && <div className="mt-3"><Aviso tipo="erro">{erro}</Aviso></div>}
+          <button type="button" onClick={confirmar} disabled={carregando} className={classeBotao}>
+            {carregando ? "Confirmando..." : "Confirmar código"}
+          </button>
+          <div className="mt-3 flex justify-between gap-3">
+            <button type="button" onClick={enviarCodigo} disabled={carregando || segundosParaReenviar > 0} className={linkPequeno}>
+              {segundosParaReenviar > 0 ? `Reenviar código em ${segundosParaReenviar}s` : "Reenviar código"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setCodigoEnviadoPara(null);
+                setErro("");
+              }}
+              disabled={carregando}
+              className={linkPequeno}
+            >
+              Corrigir número
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <label className={classeLabel} htmlFor="perfil-telefone-novo">
+            Novo telefone
+          </label>
+          <input
+            id="perfil-telefone-novo"
+            inputMode="numeric"
+            value={novoTelefone}
+            onChange={(e) => setNovoTelefone(formatarTelefone(e.target.value))}
+            placeholder="(75) 99999-0000"
+            maxLength={15}
+            disabled={carregando}
+            className={`${classeInput} mb-2 bg-white`}
+          />
+          {igualAoAtual && <p className="mb-2 text-[13px] text-[#9B1C1C]">Esse já é o seu telefone atual.</p>}
+          <p className="mb-3 text-[13px] leading-relaxed text-ardosia-escura">
+            Vamos enviar um código para o <strong>número novo</strong>. A troca só vale depois que você digitar esse
+            código; até lá, o número atual continua cadastrado.
+          </p>
+          {erro && <Aviso tipo="erro">{erro}</Aviso>}
+          <button
+            type="button"
+            onClick={enviarCodigo}
+            disabled={indisponivel || carregando || igualAoAtual || digitos.length < 10}
+            className={`${classeBotaoContorno} w-full`}
+          >
+            {carregando ? "Enviando..." : "Enviar código para o novo número"}
+          </button>
+          {indisponivel && <p className="mt-2 text-center text-[13px] text-ardosia">O envio do código ainda não está disponível.</p>}
+        </>
+      )}
     </div>
   );
 }

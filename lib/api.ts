@@ -67,6 +67,8 @@ export type MeuPerfil = Aluno & {
   cpf: string | null;
   // Quando o aluno confirmou o e-mail; null = nunca confirmou. Ausente = API antiga, sem o campo.
   emailVerificadoEm?: string | null;
+  // O mesmo para o celular (pedido ao backend, itens 4.1 e 4.2). Ausente = API sem a verificação do celular.
+  telefoneVerificadoEm?: string | null;
 };
 
 // Responde 409 CADASTRO_DE_ALUNO_AUSENTE para contas que não são de aluno (professor, administrador).

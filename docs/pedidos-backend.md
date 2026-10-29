@@ -22,7 +22,7 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 1.5 | Entrada pelo Google: client ID do Quad no Google Cloud | Média |
 | 3 | Professores: fotos e só os professores do site | Média |
 | 4.1 | Verificação do celular por código ⚠️ (pronta no backend, publicação adiada) | Alta |
-| 4.2 | `telefoneVerificado` no cadastro do aluno (o do e-mail já veio) | Alta |
+| 4.2 | `telefoneVerificadoEm` no cadastro do aluno (o do e-mail já veio) | Alta |
 | 4.6 | Conferir o CPF na Receita no cadastro (cpfcnpj.com.br) | Média |
 | 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
 | 4.5 | Foto de perfil | Baixa |
@@ -90,6 +90,16 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 ### 4.1 Verificação do celular por código ⚠️
 
 > **27/10/2026:** segundo o backend, a verificação já existe, mas **não vai ser publicada agora**, para não travar os testes. Ela ainda não está no repositório da API (nem no `main`, nem nas branches do GitHub). Quando entrar, o site liga o passo 3 do cadastro e a troca de telefone às rotas abaixo.
+
+> **29/10/2026: as telas do site estão todas prontas** e só esperam as rotas abaixo para funcionar (testadas com as respostas simuladas):
+> - **Passo 3 do cadastro:** envia o código, confere e mostra "Celular confirmado".
+> - **`/confirmar-celular`** (página nova): quando qualquer rota responde **403 `CELULAR_NAO_VERIFICADO`**, o site leva o aluno para cá (`/confirmar-celular?redirect=/pagina-de-onde-veio`). Depois de confirmar, ele volta para onde estava. Para isso, **`GET /api/alunos/eu` e as duas rotas do telefone precisam continuar liberadas** para a conta sem o celular confirmado; se `/api/alunos/eu` também for bloqueada, o aluno precisa digitar o número de novo.
+> - **Meu perfil:** selo "Confirmado" ao lado do e-mail e do telefone, aviso "Seu celular ainda não foi confirmado" com o link "Confirmar agora" e a troca de telefone completa (código para o número novo, reenvio depois de 60 s e "Celular confirmado" no fim).
+> - **`/confirmar-email?token=…`:** já existia; ganhou as telas de "E-mail confirmado" e "Link inválido ou vencido".
+>
+> **Links que a API deve usar nos envios:** o e-mail de confirmação aponta para `{endereço do site}/confirmar-email?token={TOKEN}`, e o de senha para `{endereço do site}/redefinir-senha?token={TOKEN}`. O endereço do site vem de uma variável de ambiente: `https://teste.quadconcursos.com.br` no teste e `https://quadconcursos.com.br` no oficial. O SMS do celular leva **só o código** (6 números), sem link.
+>
+> **Campo pedido:** `telefoneVerificadoEm` (data, ou nulo se nunca confirmou) em `GET /api/alunos/eu`, igual ao `emailVerificadoEm`.
 
 **Por que o site precisa.** Decisão de 02/10/2026: o celular é o único dado obrigatório para liberar a conta; o e-mail é confirmado depois, por link (isso já funciona). As telas do site estão prontas: o passo 3 do cadastro e a troca de telefone em "Meu perfil" pedem o código. Enquanto as rotas não existem, o passo 3 deixa o aluno seguir sem verificar.
 
