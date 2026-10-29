@@ -52,9 +52,18 @@ const DESCRICAO_DO_CONCURSO: Record<string, { titulo: string; subtitulo: string 
   Outras: { titulo: "Outros concursos", subtitulo: "Demais turmas presenciais" },
 };
 
-// Imagem (brasão) de cada concurso, pelo id da aba ("sd-pmba"): arquivos em public/images/concursos/.
-// Sem imagem, o espaço mostra as iniciais do concurso.
-const IMAGEM_DO_CONCURSO: Record<string, string> = {};
+// Brasão de cada concurso, pelo id da aba ("sd-pmba"): PNG transparente de 192 × 192 em public/images/brasoes-concursos/.
+// Sem brasão, o espaço mostra as iniciais do concurso.
+const BRASOES = "/images/brasoes-concursos";
+const IMAGEM_DO_CONCURSO: Record<string, string> = {
+  "sd-pmba": `${BRASOES}/pmba.png`,
+  "cfo-pmba": `${BRASOES}/cfo.png`,
+  "cfs-pmba": `${BRASOES}/sgto.png`,
+  "sgt-pmba": `${BRASOES}/sgto.png`,
+  "sd-bmba": `${BRASOES}/bmba.png`,
+  "sd-cbmba": `${BRASOES}/bmba.png`,
+  "ipc-pcba": `${BRASOES}/civil.png`,
+};
 
 function ImagemDoConcurso({ aba }: { aba: string }) {
   const imagem = IMAGEM_DO_CONCURSO[idDaAba(aba)];
