@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const professor = await buscarProfessor(slug);
   if (!professor) return {};
-  const descricao = professor.bio ?? `${professor.nome}, professor do Quad Concursos${professor.materia ? ` (${professor.materia})` : ""}.`;
+  const descricao = professor.bio ?? `${professor.nome}, professor do Quad Concursos${professor.materias.length ? ` (${professor.materias.join(", ")})` : ""}.`;
   return metadadosDaPagina({ titulo: professor.nome, descricao, caminho: `/professores/${professor.slug}` });
 }
 
@@ -46,7 +46,9 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
         </div>
         <div className="conteiner relative grid items-start gap-x-10 md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <div className="flex flex-col self-stretch pb-[clamp(32px,4vw,56px)] pt-[clamp(24px,3vw,40px)]">
-            {professor.materia && <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">{professor.materia}</span>}
+            {professor.materias.length > 0 && (
+              <span className="text-xs font-bold uppercase leading-[1.7] tracking-[0.14em] text-azul-ceu">{professor.materias.join(" • ")}</span>
+            )}
             <h1 className="mb-5 mt-3 font-display text-[clamp(2.6rem,5.4vw,4.4rem)] font-extrabold leading-none tracking-[-0.045em]">{professor.nome}</h1>
             {professor.bio && <p className="max-w-[600px] text-[clamp(16px,1.4vw,18px)] leading-[1.65] text-[#C9D5E5]">{professor.bio}</p>}
             <div className="mt-8 flex flex-wrap gap-3 md:mt-auto md:pt-8">

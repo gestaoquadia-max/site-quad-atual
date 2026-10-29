@@ -155,7 +155,9 @@ export const aprovados: Aprovado[] = [
 export type Professor = {
   slug: string;
   nome: string;
+  // A principal (a primeira do cadastro): vai nos cartões. A página do professor mostra todas, em `materias`.
   materia: string;
+  materias: string[];
   bio?: string;
   fotoUrl?: string;
 };

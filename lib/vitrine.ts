@@ -704,10 +704,12 @@ function minibioDa(graduacao: string | null) {
 
 function paraProfessor(p: ProfessorDaVitrine): Professor {
   const nome = p.nome.trim();
+  const materias = (p.materias ?? []).map((m) => m.trim()).filter(Boolean);
   return {
     slug: slugDa({ id: p.id, nome, slug: p.slug }),
     nome,
-    materia: (p.materias ?? []).join(" • "),
+    materia: materias[0] ?? "",
+    materias,
     bio: minibioDa(p.graduacao),
     fotoUrl: p.fotoUrl ?? FOTO_DO_SITE[nome],
   };
