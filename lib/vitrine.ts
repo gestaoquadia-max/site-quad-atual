@@ -219,9 +219,15 @@ function situacao(a: AtividadeDaVitrine, abertaLabel: string): Pick<Turma, "stat
   return { status: "aberta", statusLabel: abertaLabel };
 }
 
+// Lugares já tomados: o que a API não tem mais a oferecer. O `restantes` dela desconta as vendas E as reservas em
+// carrinhos (LugaresNaMoeda), o mesmo número do menu e da barra de avisos; `vendidas` sozinho ignora os carrinhos.
+function ocupadasDa(a: AtividadeDaVitrine, vagas: number) {
+  return a.restantes !== null ? vagas - Math.min(a.restantes, vagas) : Math.min(a.vendidas ?? 0, vagas);
+}
+
 function vagasDa(a: AtividadeDaVitrine) {
   if (a.vagas === null || a.vagas <= 0) return {};
-  return { vagasTotal: a.vagas, vagasOcupadas: Math.min(a.vendidas ?? 0, a.vagas) };
+  return { vagasTotal: a.vagas, vagasOcupadas: ocupadasDa(a, a.vagas) };
 }
 
 // ---------- Turmas ----------
@@ -390,7 +396,7 @@ function paraOferta(a: AtividadeDaVitrine): OfertaDaTurma {
     horarios: horariosDa(d),
     precoEmCentavos: a.gratuita ? 0 : a.preco,
     gratuita: !!a.gratuita,
-    vagas: a.vagas && a.vagas > 0 ? { total: a.vagas, ocupadas: Math.min(a.vendidas ?? 0, a.vagas) } : null,
+    vagas: a.vagas && a.vagas > 0 ? { total: a.vagas, ocupadas: ocupadasDa(a, a.vagas) } : null,
     descricao: d.descricao?.trim() || null,
     imagemUrl: a.imagemUrl,
     lote: rotuloDoLote(a.lote),
