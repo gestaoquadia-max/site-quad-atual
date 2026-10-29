@@ -225,12 +225,21 @@ function Filtro({ rotulo, opcoes, atual, onEscolher, todos }: {
 }
 
 // Uma aba por cargo ("SD • PMBA", "CFO • PMBA", "IPC • PCBA"…), no formato do selo da página da turma.
-// As da PMBA aparecem sempre e têm níveis (RONDESP, PATAMO, BOPE); as outras surgem conforme as turmas cadastradas.
-const ABAS_FIXAS = ["SD • PMBA", "CFO • PMBA"];
+// Decisão de 29/10/2026: os cinco concursos do Quad aparecem sempre, mesmo sem turma (aí a aba oferece a lista de
+// interesse pelo WhatsApp). As da PMBA têm níveis (RONDESP, PATAMO, BOPE); outros concursos surgem com as turmas.
+const ABAS_FIXAS = ["SD • PMBA", "CFO • PMBA", "CFS • PMBA", "SD • BMBA", "IPC • PCBA"];
 const SEM_CARGO = "Outras";
 
+// Outros jeitos de cadastrar o mesmo concurso caem na aba fixa dele, sem criar um cartão repetido.
+const MESMA_ABA: Record<string, string> = {
+  "SGT • PMBA": "CFS • PMBA",
+  "SARGENTO • PMBA": "CFS • PMBA",
+  "SD • CBMBA": "SD • BMBA",
+  "INVESTIGADOR • PCBA": "IPC • PCBA",
+};
+
 function abaDa(t: Turma) {
-  return t.concurso ?? SEM_CARGO;
+  return t.concurso ? (MESMA_ABA[t.concurso] ?? t.concurso) : SEM_CARGO;
 }
 
 function ehDaPmba(aba: string) {
@@ -356,7 +365,7 @@ export default function EscolhaDeModalidade({
                 </span>
               </nav>
               <h1 className="mb-[18px] font-display text-[clamp(2.4rem,5vw,4.2rem)] font-extrabold leading-[1.02] tracking-[-0.04em] [text-wrap:balance]">
-                {comNiveis ? "Escolha o seu nível de preparação" : aba === SEM_CARGO ? "Outras turmas presenciais" : `Turmas ${aba}`}
+                {comNiveis ? "Escolha o seu nível de preparação" : aba === SEM_CARGO ? "Outras turmas presenciais" : `Turmas ${DESCRICAO_DO_CONCURSO[aba]?.titulo ?? aba}`}
               </h1>
               <p className="max-w-[520px] text-[clamp(16px,1.4vw,18px)] leading-[1.6] text-[#B4C1D3] [text-wrap:pretty]">
                 {comNiveis
