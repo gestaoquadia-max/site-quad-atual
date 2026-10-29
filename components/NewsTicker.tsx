@@ -30,8 +30,8 @@ function montarAvisos(turmas: Turma[], eventos: Evento[]): Aviso[] {
 
 const REPETICOES = 4;
 
-// Texto em movimento precisa poder ser pausado (WCAG 2.2.2): botão de pausa, pausa ao passar o mouse e parado
-// para quem pede menos movimento no sistema. Leitores de tela recebem a lista uma vez só, sem a animação.
+// Texto em movimento precisa poder ser pausado (WCAG 2.2.2): botão de pausa e pausa ao passar o mouse. Com
+// "menos movimento" no sistema, rola mais devagar (app/globals.css). Leitores de tela recebem a lista uma vez só, sem a animação.
 export default function NewsTicker({ turmas, eventos }: { turmas: Turma[]; eventos: Evento[] }) {
   const [pausado, setPausado] = useState(false);
   const noticias = montarAvisos(turmas, eventos);
@@ -64,7 +64,7 @@ export default function NewsTicker({ turmas, eventos }: { turmas: Turma[]; event
         onClick={() => setPausado((v) => !v)}
         aria-pressed={pausado}
         aria-label={pausado ? "Retomar os avisos" : "Pausar os avisos"}
-        className="absolute right-0 top-0 flex h-full items-center bg-azul-forte px-2.5 text-[10px] font-bold text-white motion-reduce:hidden"
+        className="absolute right-0 top-0 flex h-full items-center bg-azul-forte px-2.5 text-[10px] font-bold text-white"
       >
         {pausado ? "▶" : "❚❚"}
       </button>
