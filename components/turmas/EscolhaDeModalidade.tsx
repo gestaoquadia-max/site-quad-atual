@@ -68,9 +68,11 @@ const IMAGEM_DO_CONCURSO: Record<string, string> = {
 function ImagemDoConcurso({ aba }: { aba: string }) {
   const imagem = IMAGEM_DO_CONCURSO[idDaAba(aba)];
   if (imagem) return <Image src={imagem} alt="" width={48} height={48} className="h-12 w-12 flex-none object-contain" />;
+  // "Outros concursos" não tem brasão: o cartão fica só com o texto.
+  if (aba === SEM_CARGO) return null;
   return (
     <span aria-hidden="true" className="grid h-12 w-12 flex-none place-items-center rounded-full border border-white/15 bg-white/[0.06] font-display text-[13px] font-extrabold tracking-[0.02em] text-azul-ceu">
-      {aba === SEM_CARGO ? "+" : aba.split(" • ")[0].slice(0, 3)}
+      {aba.split(" • ")[0].slice(0, 3)}
     </span>
   );
 }
