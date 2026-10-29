@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Evento, Turma } from "@/lib/data";
 import { institucional } from "@/lib/institucional";
+import { noticiasDaBarra } from "@/lib/noticias";
 
 type Aviso = { rotulo: string; texto: string };
 
@@ -16,8 +17,10 @@ const AVISOS_FIXOS: Aviso[] = [
   { rotulo: "Turmas", texto: "Novas turmas presenciais em breve — acompanhe a agenda" },
 ];
 
-// Enquanto a barra não é editável (Etapa 5, Bloco 3), os avisos saem das turmas e eventos abertos na vitrine da API.
+// Primeiro as notícias de concursos (lib/noticias.ts); sem nenhuma, as turmas e eventos abertos na vitrine da API.
 function montarAvisos(turmas: Turma[], eventos: Evento[]): Aviso[] {
+  const noticias = noticiasDaBarra();
+  if (noticias.length > 0) return noticias;
   const avisos: Aviso[] = [
     // O turno (começo do resumo) separa turmas de mesmo nome, como as duas "Core".
     ...turmas
