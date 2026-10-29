@@ -1,8 +1,17 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { temSessao } from "./auth";
 import { parsePreco } from "./format";
-import type { Alvo } from "./loja";
+import { esvaziarCarrinhoDoServidor, type Alvo } from "./loja";
+
+// As vagas e o estoque só são reservados no servidor ao abrir o checkout (lib/usePedido.ts), por 30 minutos. Mudar o
+// carrinho fora dele libera essas reservas na hora, senão a vaga continua presa para os outros alunos; ao voltar
+// ao checkout, ele reserva de novo o que estiver no carrinho. No checkout, quem cuida disso é o próprio usePedido.
+function liberarReservasDoServidor() {
+  if (!temSessao() || window.location.pathname.startsWith("/checkout")) return;
+  esvaziarCarrinhoDoServidor().catch(() => {});
+}
 
 export type CartItem = {
   id: string;
@@ -87,11 +96,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   function removeItem(id: string) {
     setItems((prev) => prev.filter((i) => i.id !== id));
+    liberarReservasDoServidor();
   }
 
   function updateQuantidade(id: string, quantidade: number) {
     if (quantidade < 1) return;
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, quantidade } : i)));
+    liberarReservasDoServidor();
   }
 
   const clear = useCallback(() => setItems([]), []);
