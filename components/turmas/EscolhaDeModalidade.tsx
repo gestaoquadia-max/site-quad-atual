@@ -381,7 +381,10 @@ export default function EscolhaDeModalidade({
                       type="button"
                       aria-pressed={ligada}
                       onClick={() => trocarAba(a)}
-                      className={`flex min-h-[76px] items-center gap-3 rounded-[12px] border px-3.5 py-3 text-left transition-colors ${
+                      // Sem brasão ("Outros concursos"), o texto fica centralizado no cartão.
+                      className={`flex min-h-[76px] items-center gap-3 rounded-[12px] border px-3.5 py-3 transition-colors ${
+                        a === SEM_CARGO ? "justify-center text-center" : "text-left"
+                      } ${
                         ligada ? "border-azul-vivo bg-azul/[0.18] shadow-[0_0_0_3px_rgba(0,107,255,0.16)]" : "border-white/10 bg-white/[0.03] hover:border-white/25"
                       }`}
                     >
