@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Moon, Sun, SunHorizon, type Icon } from "@phosphor-icons/react";
-import { useRef, useState } from "react";
+import { Children, useCallback, useEffect, useRef, useState } from "react";
 import type { Turma } from "@/lib/data";
 import { modalidades } from "@/lib/conteudo";
 import AviseMe from "../AviseMePeloWhatsApp";
@@ -25,15 +25,21 @@ type OpcaoDeModalidade = {
 
 function opcoesDaAba(aba: string, doCargo: Turma[], comNiveis: boolean): OpcaoDeModalidade[] {
   if (comNiveis) return modalidades.map((m) => ({ ...m }));
+  // "Todos os concursos": os três níveis da PMBA e, depois, as modalidades dos outros concursos.
+  if (aba === TODOS) {
+    const niveis = modalidades.map((m) => m.id as string);
+    return [...modalidades.map((m) => ({ ...m })), ...opcoesDaAba(SEM_CARGO, doCargo.filter((t) => !niveis.includes(t.modalidadeId)), false)];
+  }
   const porId = new Map<string, Turma[]>();
   for (const t of doCargo) porId.set(t.modalidadeId, [...(porId.get(t.modalidadeId) ?? []), t]);
   return [...porId.values()].map((turmas) => {
     const abertas = turmas.filter((t) => t.status === "aberta").length;
+    const concurso = aba === SEM_CARGO ? turmas[0].concurso : aba;
     return {
       id: turmas[0].modalidadeId,
       nome: turmas[0].modalidadeNome,
       insignia: turmas[0].insignia,
-      resumo: `Turma presencial para ${aba === SEM_CARGO ? "o seu concurso" : aba}. ${
+      resumo: `Turma presencial para ${concurso ?? "o seu concurso"}. ${
         abertas === 0 ? "Sem matrículas abertas no momento." : abertas === 1 ? "1 turma com matrículas abertas." : `${abertas} turmas com matrículas abertas.`
       }`,
     };
@@ -42,6 +48,7 @@ function opcoesDaAba(aba: string, doCargo: Turma[], comNiveis: boolean): OpcaoDe
 
 // Nome por extenso e órgão de cada concurso, para a caixa "Para qual concurso". Concurso fora da lista aparece com o rótulo.
 const DESCRICAO_DO_CONCURSO: Record<string, { titulo: string; subtitulo: string }> = {
+  Todos: { titulo: "Todos os concursos", subtitulo: "Todas as turmas presenciais" },
   "SD • PMBA": { titulo: "Soldado PMBA", subtitulo: "Polícia Militar da Bahia" },
   "CFO • PMBA": { titulo: "CFO PMBA", subtitulo: "Curso de Formação de Oficiais" },
   "CFS • PMBA": { titulo: "Sargento PMBA", subtitulo: "Curso de Formação de Sargentos" },
@@ -68,8 +75,8 @@ const IMAGEM_DO_CONCURSO: Record<string, string> = {
 function ImagemDoConcurso({ aba }: { aba: string }) {
   const imagem = IMAGEM_DO_CONCURSO[idDaAba(aba)];
   if (imagem) return <Image src={imagem} alt="" width={48} height={48} className="h-12 w-12 flex-none object-contain" />;
-  // "Outros concursos" não tem brasão: o cartão fica só com o texto.
-  if (aba === SEM_CARGO) return null;
+  // "Todos os concursos" e "Outros concursos" não têm brasão: o cartão fica só com o texto.
+  if (aba === TODOS || aba === SEM_CARGO) return null;
   return (
     <span aria-hidden="true" className="grid h-12 w-12 flex-none place-items-center rounded-full border border-white/15 bg-white/[0.06] font-display text-[13px] font-extrabold tracking-[0.02em] text-azul-ceu">
       {aba.split(" • ")[0].slice(0, 3)}
@@ -90,6 +97,131 @@ function SetaParaBaixo() {
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
+  );
+}
+
+const ESPACO_ENTRE_CARTOES = 24;
+const INTERVALO_DA_FAIXA_MS = 5000;
+
+function SetaDaFaixa({ direcao }: { direcao: "anterior" | "proximo" }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d={direcao === "anterior" ? "M10 3L5 8l5 5" : "M6 3l5 5-5 5"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+const DURACAO_DO_DESLIZE_MS = 650;
+
+// Leva a faixa até `alvo` quadro a quadro, com aceleração no começo e freio no fim. Feito à mão porque o navegador
+// ignora o "smooth" quando o sistema pede menos movimento, e a decisão de 29/10/2026 é que a faixa deslize sempre.
+// O encaixe dos cartões (snap) fica desligado durante o deslize, senão ele puxaria a faixa de volta a cada quadro.
+function deslizar(el: HTMLElement, alvo: number) {
+  const inicio = el.scrollLeft;
+  const distancia = alvo - inicio;
+  if (Math.abs(distancia) < 1) return;
+  const comeco = performance.now();
+  el.style.scrollSnapType = "none";
+  const passo = (agora: number) => {
+    const t = Math.min(1, (agora - comeco) / DURACAO_DO_DESLIZE_MS);
+    const suave = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    el.scrollLeft = inicio + distancia * suave;
+    if (t < 1) requestAnimationFrame(passo);
+    else el.style.scrollSnapType = "";
+  };
+  requestAnimationFrame(passo);
+}
+
+// Os cartões de modalidade: até três, em grade; com mais, numa faixa que rola para o lado (três por vez no computador,
+// um e pouco no celular), com setas e passagem automática a cada 5 s. A passagem para com o mouse ou o foco em cima
+// e com a aba escondida; no fim da faixa, volta ao começo.
+function FaixaDeModalidades({ rolavel, className, children }: { rolavel: boolean; className: string; children: React.ReactNode }) {
+  const faixa = useRef<HTMLDivElement>(null);
+  const [emUso, setEmUso] = useState(false);
+  const [limites, setLimites] = useState({ inicio: true, fim: false });
+
+  const medir = useCallback(() => {
+    const el = faixa.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setLimites((l) => {
+      const novo = { inicio: el.scrollLeft <= 8, fim: el.scrollLeft >= max - 8 };
+      return l.inicio === novo.inicio && l.fim === novo.fim ? l : novo;
+    });
+  }, []);
+
+  const rolar = useCallback((direcao: 1 | -1, voltarAoComeco = false) => {
+    const el = faixa.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    const cartao = el.firstElementChild?.getBoundingClientRect().width ?? 300;
+    const alvo =
+      voltarAoComeco && el.scrollLeft >= max - 8 ? 0 : Math.max(0, Math.min(max, el.scrollLeft + direcao * (cartao + ESPACO_ENTRE_CARTOES)));
+    deslizar(el, alvo);
+  }, []);
+
+  useEffect(() => {
+    const el = faixa.current;
+    if (!rolavel || !el) return;
+    medir();
+    el.addEventListener("scroll", medir, { passive: true });
+    const observador = new ResizeObserver(medir);
+    observador.observe(el);
+    return () => {
+      el.removeEventListener("scroll", medir);
+      observador.disconnect();
+    };
+  }, [rolavel, medir]);
+
+  useEffect(() => {
+    // Passa também com "menos movimento" no sistema (como a barra de avisos, decisão de 29/10/2026).
+    if (!rolavel || emUso) return;
+    const temporizador = setInterval(() => {
+      if (document.visibilityState !== "hidden") rolar(1, true);
+    }, INTERVALO_DA_FAIXA_MS);
+    return () => clearInterval(temporizador);
+  }, [rolavel, emUso, rolar]);
+
+  if (!rolavel) {
+    return <div className={`grid grid-cols-[repeat(auto-fit,minmax(min(100%,250px),1fr))] gap-[clamp(16px,1.6vw,24px)] ${className}`}>{children}</div>;
+  }
+
+  const classeDaSeta = (desativada: boolean) =>
+    `grid h-11 w-11 place-items-center rounded-xl border border-white/20 text-white transition-colors hover:border-azul-ceu hover:bg-azul/[0.12] ${desativada ? "pointer-events-none opacity-35" : ""}`;
+
+  return (
+    <div
+      className={className}
+      onMouseEnter={() => setEmUso(true)}
+      onMouseLeave={() => setEmUso(false)}
+      onFocus={() => setEmUso(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setEmUso(false);
+      }}
+      onTouchStart={() => setEmUso(true)}
+    >
+      <div className="mb-4 flex justify-end gap-2">
+        <button type="button" aria-label="Modalidades anteriores" disabled={limites.inicio} onClick={() => rolar(-1)} className={classeDaSeta(limites.inicio)}>
+          <SetaDaFaixa direcao="anterior" />
+        </button>
+        <button type="button" aria-label="Próximas modalidades" disabled={limites.fim} onClick={() => rolar(1)} className={classeDaSeta(limites.fim)}>
+          <SetaDaFaixa direcao="proximo" />
+        </button>
+      </div>
+      {/* Respiro em volta: o cartão sobe 3 px ao passar o mouse e o escolhido tem um anel de 4 px, que o corte da faixa esconderia. */}
+      <div
+        ref={faixa}
+        role="region"
+        aria-label="Modalidades das turmas"
+        tabIndex={0}
+        className="sem-barra -m-2 grid snap-x snap-mandatory grid-flow-col items-stretch overflow-x-auto overscroll-x-contain p-2 [scroll-padding-inline:8px]"
+        style={{ gridAutoColumns: `min(86%, calc((100% - ${2 * ESPACO_ENTRE_CARTOES}px) / 3))`, gap: ESPACO_ENTRE_CARTOES }}
+      >
+        {Children.map(children, (cartao) => (
+          <div className="flex min-w-0 snap-start [&>*]:flex-1">{cartao}</div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -137,7 +269,8 @@ function turnosEmOrdem(turmas: Turma[]) {
   return [...presentes].sort((a, b) => (ORDEM_DO_DIA.indexOf(a) + 1 || 99) - (ORDEM_DO_DIA.indexOf(b) + 1 || 99));
 }
 
-function CartaoDaTurma({ turma, titulo }: { turma: Turma; titulo: string }) {
+// `concurso`: só em "Todos os concursos", onde a mesma modalidade junta turmas de concursos diferentes.
+function CartaoDaTurma({ turma, titulo, concurso }: { turma: Turma; titulo: string; concurso?: string | null }) {
   const situacao = SITUACAO[turma.status];
   const campos = [
     ["Início", turma.inicio],
@@ -153,6 +286,11 @@ function CartaoDaTurma({ turma, titulo }: { turma: Turma; titulo: string }) {
           <span className={`inline-flex h-6 items-center whitespace-nowrap rounded-full px-[9px] text-[11px] font-bold uppercase tracking-[0.06em] ${situacao.cor}`}>
             {turma.status === "aberta" && turma.statusLabel !== "Matrículas abertas" ? turma.statusLabel : situacao.rotulo}
           </span>
+          {concurso && (
+            <span className="inline-flex h-6 items-center whitespace-nowrap rounded-full bg-azul-palido px-[9px] text-[11px] font-bold uppercase tracking-[0.06em] text-azul-forte">
+              {concurso}
+            </span>
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <h4 className="font-display text-[19px] font-extrabold leading-[1.2] tracking-[-0.01em]">{titulo}</h4>
@@ -232,6 +370,8 @@ function Filtro({ rotulo, opcoes, atual, onEscolher, todos }: {
 const ABAS_FIXAS = ["SD • PMBA", "CFO • PMBA", "IPC • PCBA"];
 const ORDEM_DAS_ABAS = ["SD • PMBA", "CFO • PMBA", "CFS • PMBA", "SD • BMBA", "IPC • PCBA"];
 const SEM_CARGO = "Outras";
+// Primeira aba, aberta ao entrar na página: as modalidades e turmas de todos os concursos juntas.
+const TODOS = "Todos";
 
 // Outros jeitos de cadastrar o mesmo concurso caem na aba fixa dele, sem criar um cartão repetido.
 const MESMA_ABA: Record<string, string> = {
@@ -262,8 +402,9 @@ export function abasDasTurmas(turmas: Turma[] | null) {
   const cadastradas = [...new Set((turmas ?? []).map(abaDa))];
   const conhecidas = ORDEM_DAS_ABAS.filter((a) => ABAS_FIXAS.includes(a) || cadastradas.includes(a));
   const outras = cadastradas.filter((a) => !ORDEM_DAS_ABAS.includes(a) && a !== SEM_CARGO).sort((a, b) => Number(ehDaPmba(b)) - Number(ehDaPmba(a)) || a.localeCompare(b));
-  // "Outros concursos" fica sempre por último, com ou sem turma.
-  return [...conhecidas, ...outras, SEM_CARGO];
+  // "Todos os concursos" vem primeiro. Decisão de 29/10/2026: sem aba "Outros concursos"; as turmas sem concurso
+  // aparecem só em "Todos".
+  return [TODOS, ...conhecidas, ...outras];
 }
 
 // Turmas de um cargo sem níveis (fora da PMBA, ou da PMBA sem nível): filtro de turno e a lista.
@@ -310,7 +451,7 @@ export default function EscolhaDeModalidade({
   const topo = useRef<HTMLElement>(null);
 
   const comNiveis = ehDaPmba(aba);
-  const doCargo = (turmas ?? []).filter((t) => abaDa(t) === aba);
+  const doCargo = (turmas ?? []).filter((t) => aba === TODOS || abaDa(t) === aba);
   const opcoes = opcoesDaAba(aba, doCargo, comNiveis);
   // Aba sem níveis com uma modalidade só: ela já vem escolhida.
   const atual = opcoes.find((m) => m.id === selecionada) ?? (!comNiveis && opcoes.length === 1 ? opcoes[0] : null);
@@ -325,9 +466,12 @@ export default function EscolhaDeModalidade({
     setAba(nova);
     setTurno(null);
     const url = new URL(window.location.href);
-    url.searchParams.set("cargo", idDaAba(nova));
-    // Os níveis valem para as duas abas da PMBA; a modalidade de outro cargo, não.
-    if (ehDaPmba(nova) && ehDaPmba(aba) && selecionada) url.searchParams.set("m", selecionada);
+    // "Todos os concursos" é a página sem ?cargo=.
+    if (nova === TODOS) url.searchParams.delete("cargo");
+    else url.searchParams.set("cargo", idDaAba(nova));
+    // Os níveis valem para as abas da PMBA e para "Todos"; a modalidade de outro cargo, não.
+    const comOsNiveis = (a: string) => a === TODOS || ehDaPmba(a);
+    if (comOsNiveis(nova) && comOsNiveis(aba) && selecionada) url.searchParams.set("m", selecionada);
     else {
       url.searchParams.delete("m");
       setSelecionada(null);
@@ -370,10 +514,12 @@ export default function EscolhaDeModalidade({
                 </span>
               </nav>
               <h1 className="mb-[18px] font-display text-[clamp(2.4rem,5vw,4.2rem)] font-extrabold leading-[1.02] tracking-[-0.04em] [text-wrap:balance]">
-                {comNiveis ? "Escolha o seu nível de preparação" : aba === SEM_CARGO ? "Outras turmas presenciais" : `Turmas ${DESCRICAO_DO_CONCURSO[aba]?.titulo ?? aba}`}
+                {comNiveis || aba === TODOS ? "Escolha o seu nível de preparação" : aba === SEM_CARGO ? "Outras turmas presenciais" : `Turmas ${DESCRICAO_DO_CONCURSO[aba]?.titulo ?? aba}`}
               </h1>
               <p className="max-w-[520px] text-[clamp(16px,1.4vw,18px)] leading-[1.6] text-[#B4C1D3] [text-wrap:pretty]">
-                {comNiveis
+                {aba === TODOS
+                  ? "As modalidades de todos os concursos, cada uma pensada para um momento diferente dos seus estudos."
+                  : comNiveis
                   ? `Três modalidades, cada uma pensada para um momento diferente dos seus estudos.`
                   : "Turma presencial com rotina estruturada, simulados nos moldes da banca e acompanhamento do seu desempenho."}
               </p>
@@ -397,7 +543,7 @@ export default function EscolhaDeModalidade({
                       onClick={() => trocarAba(a)}
                       // Sem brasão ("Outros concursos"), o texto fica centralizado no cartão.
                       className={`flex min-h-[76px] items-center gap-3 rounded-[12px] border px-3.5 py-3 transition-colors ${
-                        a === SEM_CARGO ? "justify-center text-center" : "text-left"
+                        a === TODOS || a === SEM_CARGO ? "justify-center text-center" : "text-left"
                       } ${
                         ligada ? "border-azul-vivo bg-azul/[0.18] shadow-[0_0_0_3px_rgba(0,107,255,0.16)]" : "border-white/10 bg-white/[0.03] hover:border-white/25"
                       }`}
@@ -416,10 +562,10 @@ export default function EscolhaDeModalidade({
 
           {opcoes.length > 0 && (
           // Com uma ou duas modalidades, os cartões ficam do tamanho dos da PMBA (um terço da largura), sem esticar.
-          <div
-            className={`mt-[clamp(40px,5vw,72px)] grid grid-cols-[repeat(auto-fit,minmax(min(100%,250px),1fr))] gap-[clamp(16px,1.6vw,24px)] ${
-              opcoes.length === 1 ? "max-w-[440px]" : opcoes.length === 2 ? "max-w-[900px]" : ""
-            }`}
+          // Com mais de três, rolam para o lado (FaixaDeModalidades), três por vez.
+          <FaixaDeModalidades
+            rolavel={opcoes.length > 3}
+            className={`mt-[clamp(40px,5vw,72px)] ${opcoes.length === 1 ? "max-w-[440px]" : opcoes.length === 2 ? "max-w-[900px]" : ""}`}
           >
             {opcoes.map((m) => {
               const ligada = atual?.id === m.id;
@@ -457,7 +603,7 @@ export default function EscolhaDeModalidade({
                 </button>
               );
             })}
-          </div>
+          </FaixaDeModalidades>
           )}
         </div>
       </section>
@@ -482,7 +628,7 @@ export default function EscolhaDeModalidade({
                 <div className="flex items-center gap-4">
                   <InsigniaDaTurma insignia={atual.insignia} tamanho={84} sizes="84px" className="h-[84px] w-[84px] flex-none" />
                   <div className="flex flex-col gap-1">
-                    <span className="text-[11.5px] font-bold uppercase tracking-[0.14em] text-azul-ceu">{atual.nivel ?? aba}</span>
+                    <span className="text-[11.5px] font-bold uppercase tracking-[0.14em] text-azul-ceu">{atual.nivel ?? (aba === TODOS ? "Turma presencial" : aba)}</span>
                     <span className="font-display text-[28px] font-extrabold tracking-[0.02em]">{atual.nome}</span>
                   </div>
                 </div>
@@ -527,7 +673,7 @@ export default function EscolhaDeModalidade({
                 </div>
 
                 {visiveis.length > 0 ? (
-                  visiveis.map((t) => <CartaoDaTurma key={t.slug} turma={t} titulo={t.nome} />)
+                  visiveis.map((t) => <CartaoDaTurma key={t.slug} turma={t} titulo={t.nome} concurso={aba === TODOS ? t.concurso : undefined} />)
                 ) : (
                   <div className="flex flex-col items-start gap-3 rounded-2xl border border-linha bg-white p-[clamp(24px,3vw,36px)]">
                     <span className="inline-flex h-[26px] items-center rounded-full bg-[#EEF2F7] px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">Sem oferta no momento</span>
