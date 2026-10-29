@@ -1,14 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Moon, Sun, SunHorizon, type Icon } from "@phosphor-icons/react";
 import { useRef, useState } from "react";
 import type { Turma } from "@/lib/data";
-import { modalidades, type Modalidade } from "@/lib/conteudo";
+import { modalidades } from "@/lib/conteudo";
 import AviseMe from "../AviseMePeloWhatsApp";
 import InsigniaDaTurma from "./InsigniaDaTurma";
 
-type IdDaModalidade = Modalidade["id"];
 
 // Cartão de modalidade da aba: na PMBA, os três níveis (com perfil, método e barra teoria/questões); nas outras abas,
 // as modalidades das turmas daquele cargo ("INVESTIGADOR"), só com insígnia, nome e resumo.
@@ -40,24 +40,31 @@ function opcoesDaAba(aba: string, doCargo: Turma[], comNiveis: boolean): OpcaoDe
   });
 }
 
-const PERGUNTAS: { modalidade: IdDaModalidade; rotulo: string; explicacao: string }[] = [
-  {
-    modalidade: "rondesp",
-    rotulo: "Quero começar ou fortalecer minha base.",
-    explicacao: "Você quer aprender os conteúdos desde a base, com aulas teóricas e questões de fixação.",
-  },
-  {
-    modalidade: "patamo",
-    rotulo: "Já estudei e preciso consolidar os assuntos.",
-    explicacao: "Você já tem algum conhecimento e quer consolidar os conteúdos, equilibrando teoria e resolução de questões.",
-  },
-  {
-    modalidade: "bope",
-    rotulo: "Tenho uma boa base e quero focar em questões.",
-    explicacao:
-      "Você já tem uma base e quer intensificar o treino com resolução de questões, revisão e aprimoramento do desempenho.",
-  },
-];
+// Nome por extenso e órgão de cada concurso, para a caixa "Para qual concurso". Concurso fora da lista aparece com o rótulo.
+const DESCRICAO_DO_CONCURSO: Record<string, { titulo: string; subtitulo: string }> = {
+  "SD • PMBA": { titulo: "Soldado PMBA", subtitulo: "Polícia Militar da Bahia" },
+  "CFO • PMBA": { titulo: "CFO PMBA", subtitulo: "Curso de Formação de Oficiais" },
+  "CFS • PMBA": { titulo: "Sargento PMBA", subtitulo: "Curso de Formação de Sargentos" },
+  "SGT • PMBA": { titulo: "Sargento PMBA", subtitulo: "Curso de Formação de Sargentos" },
+  "SD • BMBA": { titulo: "Soldado BMBA", subtitulo: "Corpo de Bombeiros Militar" },
+  "SD • CBMBA": { titulo: "Soldado BMBA", subtitulo: "Corpo de Bombeiros Militar" },
+  "IPC • PCBA": { titulo: "Investigador PCBA", subtitulo: "Polícia Civil da Bahia" },
+  Outras: { titulo: "Outros concursos", subtitulo: "Demais turmas presenciais" },
+};
+
+// Imagem (brasão) de cada concurso, pelo id da aba ("sd-pmba"): arquivos em public/images/concursos/.
+// Sem imagem, o espaço mostra as iniciais do concurso.
+const IMAGEM_DO_CONCURSO: Record<string, string> = {};
+
+function ImagemDoConcurso({ aba }: { aba: string }) {
+  const imagem = IMAGEM_DO_CONCURSO[idDaAba(aba)];
+  if (imagem) return <Image src={imagem} alt="" width={48} height={48} className="h-12 w-12 flex-none object-contain" />;
+  return (
+    <span aria-hidden="true" className="grid h-12 w-12 flex-none place-items-center rounded-full border border-white/15 bg-white/[0.06] font-display text-[13px] font-extrabold tracking-[0.02em] text-azul-ceu">
+      {aba === SEM_CARGO ? "+" : aba.split(" • ")[0].slice(0, 3)}
+    </span>
+  );
+}
 
 const SITUACAO: Record<Turma["status"], { rotulo: string; cor: string }> = {
   aberta: { rotulo: "Matrículas abertas", cor: "bg-[#EEF2F7] text-[#4A5A70]" },
@@ -71,14 +78,6 @@ function SetaParaBaixo() {
   return (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function SetaParaDireita() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -281,7 +280,6 @@ export default function EscolhaDeModalidade({
   const abas = abasDasTurmas(turmas);
   const [aba, setAba] = useState<string>(() => abas.find((a) => idDaAba(a) === cargoInicial) ?? abas[0]);
   const [selecionada, setSelecionada] = useState<string | null>(inicial);
-  const [resposta, setResposta] = useState<number | null>(null);
   const [turno, setTurno] = useState<string | null>(null);
   const secaoDasTurmas = useRef<HTMLElement>(null);
   const topo = useRef<HTMLElement>(null);
@@ -289,7 +287,6 @@ export default function EscolhaDeModalidade({
   const comNiveis = ehDaPmba(aba);
   const doCargo = (turmas ?? []).filter((t) => abaDa(t) === aba);
   const opcoes = opcoesDaAba(aba, doCargo, comNiveis);
-  const sugerida = resposta === null ? null : opcoes.find((m) => m.id === PERGUNTAS[resposta].modalidade) ?? null;
   // Aba sem níveis com uma modalidade só: ela já vem escolhida.
   const atual = opcoes.find((m) => m.id === selecionada) ?? (!comNiveis && opcoes.length === 1 ? opcoes[0] : null);
   const daModalidade = doCargo.filter((t) => atual && t.modalidadeId === atual.id);
@@ -347,24 +344,6 @@ export default function EscolhaDeModalidade({
                   Turmas presenciais
                 </span>
               </nav>
-              <div role="group" aria-label="Cargo" className="sem-barra -mx-1 mb-7 flex max-w-full gap-1.5 overflow-x-auto px-1 py-1">
-                {abas.map((a) => {
-                  const ligada = aba === a;
-                  return (
-                    <button
-                      key={a}
-                      type="button"
-                      aria-pressed={ligada}
-                      onClick={() => trocarAba(a)}
-                      className={`h-11 flex-none whitespace-nowrap rounded-[10px] border px-4 font-display text-[15px] font-bold transition-colors ${
-                        ligada ? "border-white bg-white text-marinho-950" : "border-white/15 bg-white/[0.04] text-white hover:border-azul-ceu"
-                      }`}
-                    >
-                      {a}
-                    </button>
-                  );
-                })}
-              </div>
               <h1 className="mb-[18px] font-display text-[clamp(2.4rem,5vw,4.2rem)] font-extrabold leading-[1.02] tracking-[-0.04em] [text-wrap:balance]">
                 {comNiveis ? "Escolha o seu nível de preparação" : aba === SEM_CARGO ? "Outras turmas presenciais" : `Turmas ${aba}`}
               </h1>
@@ -375,50 +354,36 @@ export default function EscolhaDeModalidade({
               </p>
             </div>
 
-            {comNiveis && (
+            {/* Escolha do concurso: cada um com o seu brasão (ou as iniciais), nome por extenso e órgão. */}
             <div className="relative rounded-[18px] border border-[rgba(111,174,255,0.2)] bg-[rgba(11,28,51,0.9)] p-[clamp(22px,2.4vw,30px)] shadow-[0_30px_60px_-30px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.05)]">
-              <h2 id="pergunta-modalidade" className="mb-4 font-display text-xl font-extrabold tracking-[-0.02em]">
-                Qual preparação combina com você?
+              <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">Turmas presenciais</span>
+              <h2 id="escolha-do-concurso" className="mb-5 mt-1.5 font-display text-[clamp(20px,1.8vw,24px)] font-extrabold leading-[1.15] tracking-[-0.02em]">
+                Para qual concurso você quer se preparar?
               </h2>
-              <div role="radiogroup" aria-labelledby="pergunta-modalidade" className="flex flex-col gap-2">
-                {PERGUNTAS.map((p, i) => {
-                  const marcada = resposta === i;
+              <div role="group" aria-labelledby="escolha-do-concurso" className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,200px),1fr))] gap-2.5">
+                {abas.map((a) => {
+                  const ligada = aba === a;
+                  const descricao = DESCRICAO_DO_CONCURSO[a];
                   return (
                     <button
-                      key={p.modalidade}
+                      key={a}
                       type="button"
-                      role="radio"
-                      aria-checked={marcada}
-                      onClick={() => setResposta(i)}
-                      className={`flex min-h-[52px] items-center gap-3 rounded-[11px] px-4 py-3 text-left text-[15px] font-medium transition-colors ${
-                        marcada ? "border border-azul-vivo bg-azul/[0.18] text-white" : "border border-white/10 bg-white/[0.03] text-[#DCE4EF] hover:border-white/25"
+                      aria-pressed={ligada}
+                      onClick={() => trocarAba(a)}
+                      className={`flex min-h-[76px] items-center gap-3 rounded-[12px] border px-3.5 py-3 text-left transition-colors ${
+                        ligada ? "border-azul-vivo bg-azul/[0.18] shadow-[0_0_0_3px_rgba(0,107,255,0.16)]" : "border-white/10 bg-white/[0.03] hover:border-white/25"
                       }`}
                     >
-                      <span className={`h-[18px] w-[18px] flex-none rounded-full transition-all ${marcada ? "border-[5px] border-azul-vivo bg-white" : "border-[1.5px] border-[#6B7C94]"}`} />
-                      <span>{p.rotulo}</span>
+                      <ImagemDoConcurso aba={a} />
+                      <span className="flex min-w-0 flex-col gap-0.5">
+                        <span className="font-display text-[16.5px] font-extrabold leading-tight text-white">{descricao?.titulo ?? a}</span>
+                        {descricao && <span className="text-[12.5px] leading-snug text-[#9FB0C7]">{descricao.subtitulo}</span>}
+                      </span>
                     </button>
                   );
                 })}
               </div>
-              {sugerida && resposta !== null && (
-                <>
-                  <div className="mt-4 grid animate-[q-surgir_240ms_ease_both] grid-cols-[72px_minmax(0,1fr)] items-center gap-4 rounded-[14px] border border-[rgba(111,174,255,0.28)] bg-[linear-gradient(135deg,rgba(0,107,255,0.16),rgba(0,107,255,0.04))] p-4">
-                    <InsigniaDaTurma insignia={sugerida.insignia} tamanho={72} sizes="72px" className="h-[72px] w-[72px]" />
-                    <div className="flex flex-col gap-1.5" aria-live="polite">
-                      <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-azul-ceu">Modalidade sugerida</span>
-                      <span className="font-display text-[22px] font-extrabold tracking-[-0.01em]">{sugerida.nome}</span>
-                      <span className="text-sm leading-[1.5] text-prata-clara [text-wrap:pretty]">{PERGUNTAS[resposta].explicacao}</span>
-                      <button type="button" onClick={() => escolher(sugerida.id, true)} className="btn-q btn-q-azul mt-1 h-10 self-start rounded-[9px] px-4 text-sm">
-                        Ver turmas {sugerida.nome}
-                        <SetaParaDireita />
-                      </button>
-                    </div>
-                  </div>
-                  <p className="mt-3 text-[12.5px] text-[#8FA0B8]">A sugestão ajuda na escolha, mas você pode conhecer e selecionar qualquer modalidade.</p>
-                </>
-              )}
             </div>
-            )}
           </div>
 
           {opcoes.length > 0 && (
@@ -444,9 +409,6 @@ export default function EscolhaDeModalidade({
                   }`}
                 >
                   <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[clamp(110px,10vw,140px)] aspect-square w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(47,134,255,0.34),rgba(0,107,255,0.10)_60%,transparent)]" />
-                  {sugerida?.id === m.id && (
-                    <span className="absolute right-4 top-4 whitespace-nowrap rounded-full bg-azul px-2.5 py-[5px] text-[11px] font-bold uppercase tracking-[0.1em]">Sugerida para você</span>
-                  )}
                   <InsigniaDaTurma
                     insignia={m.insignia}
                     tamanho={240}
