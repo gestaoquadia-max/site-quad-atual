@@ -128,10 +128,12 @@ function rotuloDoLote(lote: LoteDaVitrine | null | undefined) {
 }
 
 const NAO_ENCONTRADA = "nao-encontrada";
+export const ETIQUETA_DA_VITRINE = "vitrine";
 
 async function lerDaVitrine<T>(caminho: string): Promise<T | typeof NAO_ENCONTRADA> {
   if (!API_URL) throw new Error("NEXT_PUBLIC_API_URL não está definida.");
-  const res = await fetch(`${API_URL}${caminho}`, { next: { revalidate: SEGUNDOS_DE_CACHE } });
+  // A etiqueta deixa reservar ou liberar vagas atualizar a vitrine na hora (lib/vagas.ts), sem esperar o minuto.
+  const res = await fetch(`${API_URL}${caminho}`, { next: { revalidate: SEGUNDOS_DE_CACHE, tags: [ETIQUETA_DA_VITRINE] } });
   // Id inexistente responde 404; id em formato inválido, 400.
   if (res.status === 404 || res.status === 400) return NAO_ENCONTRADA;
   if (!res.ok) throw await lerErro(res, "Não foi possível carregar a vitrine.");

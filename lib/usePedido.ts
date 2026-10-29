@@ -5,6 +5,7 @@ import type { CartItem } from "./cart";
 import { ErroDaApi } from "./http";
 import { alvoDoItem } from "./itens";
 import { esvaziarCarrinhoDoServidor, reservar, simular, type Alvo, type LinhaDoCarrinho, type Simulacao } from "./loja";
+import { atualizarVagas } from "./vagas";
 
 export type Pedido = {
   // id do item do carrinho do site → linha reservada no servidor
@@ -75,6 +76,8 @@ export function usePedido(itens: CartItem[], ativo: boolean) {
         if (!cancelado) {
           setCupom(null);
           setEstado({ fase: "pronto", pedido: { linhas, recusados, simulacao, expiraEm } });
+          // As vagas reservadas agora já aparecem descontadas no menu e na barra de avisos.
+          atualizarVagas().catch(() => {});
         }
       } catch (e) {
         if (!cancelado) setEstado({ fase: "erro", mensagem: mensagem(e, "Não foi possível preparar o seu pedido. Verifique sua internet e tente novamente.") });

@@ -4,13 +4,16 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { temSessao } from "./auth";
 import { parsePreco } from "./format";
 import { esvaziarCarrinhoDoServidor, type Alvo } from "./loja";
+import { atualizarVagas } from "./vagas";
 
 // As vagas e o estoque só são reservados no servidor ao abrir o checkout (lib/usePedido.ts), por 30 minutos. Mudar o
 // carrinho fora dele libera essas reservas na hora, senão a vaga continua presa para os outros alunos; ao voltar
 // ao checkout, ele reserva de novo o que estiver no carrinho. No checkout, quem cuida disso é o próprio usePedido.
 function liberarReservasDoServidor() {
   if (!temSessao() || window.location.pathname.startsWith("/checkout")) return;
-  esvaziarCarrinhoDoServidor().catch(() => {});
+  esvaziarCarrinhoDoServidor()
+    .then(() => atualizarVagas())
+    .catch(() => {});
 }
 
 export type CartItem = {
