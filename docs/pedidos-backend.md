@@ -29,6 +29,7 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 4.5 | Foto de perfil | Baixa |
 | 5.3 | Simulados: formatos de estudo e combos | Média |
 | 5.4 | Textos de venda da turma e programação do evento | Média |
+| 5.5 | Notícias de concursos na barra do topo, editáveis pelo console e atualizadas em tempo real | Média |
 | 6.2 | E-mails da compra (confirmada, aguardando PIX, acesso liberado) | Alta |
 | 6.3 | Armazenamento de arquivos no ambiente local (endereço do S3 configurável) | Média |
 | 6.4 | Aprovados, depoimentos em vídeo e blog pela API | Baixa |
@@ -221,6 +222,24 @@ Além disso, nada impede o envio de uma imagem pequena ou fora de proporção, q
 **O problema.** A vitrine traz a descrição da turma e, desde 23/10/2026, o resumo e os professores de cada evento (o site já mostra "Quem conduz", com link para a página do professor). Ainda faltam o que está incluso na turma e a programação do evento (horário, título e descrição de cada parte). As páginas escondem essas seções.
 
 **O pedido.** Os campos descritos em [contrato-api-conteudo.md](contrato-api-conteudo.md). A grade de professores **da turma** não é necessária: a decisão de 21/10/2026 foi não mostrar.
+
+### 5.5 Notícias de concursos na barra do topo, editáveis pelo console
+
+**O problema.** A barra azul do topo do site mostra hoje só as turmas abertas, montadas pelo site a partir da vitrine. O retorno do Quad (29/10/2026): a barra deve **informar notícias de concursos** (edital publicado, inscrições abertas, data de prova, resultado), com **atualização em tempo real**. Isso precisa de um cadastro no console, porque as notícias são escritas pela coordenação.
+
+**O pedido.**
+- **Cadastro no console** (perfil de coordenação ou marketing), com estes campos por aviso:
+  - `rotulo`: a etiqueta curta antes do texto, como "Edital", "Inscrições", "Prova", "Resultado" ou "Turmas";
+  - `texto`: até 120 caracteres;
+  - `link`: opcional, para a notícia ou o edital (interno do site ou externo);
+  - `inicioEm` e `fimEm`: período em que aparece, para o aviso sair sozinho depois da data;
+  - `ordem` e `ativo`.
+- **Rota pública** `GET /api/avisos/vitrine`: só os avisos ativos e dentro do período, já ordenados. Ela segue o padrão das outras rotas da vitrine (sem login, sem dados de aluno).
+
+**O que o site faz com isso.**
+- Mostra as notícias na barra, cada uma clicável quando tiver link.
+- Sem nenhuma notícia cadastrada, continua mostrando as turmas abertas, como hoje.
+- **Tempo real:** o site consulta a rota de novo a cada 1 minuto, também com a página já aberta. Uma notícia salva no console aparece para todos em até 1 minuto, sem precisar publicar o site. Para isso, a rota precisa estar nos limites por minuto da API (`GruposPorRota`) com folga para essa consulta.
 
 ---
 
