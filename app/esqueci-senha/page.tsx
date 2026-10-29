@@ -5,6 +5,7 @@ import Link from "next/link";
 import { solicitarRedefinicaoDeSenha } from "@/lib/auth";
 import { ErroDaApi } from "@/lib/http";
 import { AvisoDeErro, BotaoPrincipal, Campo, TituloDoFormulario } from "@/components/acesso/Campos";
+import TelaDeResultado from "@/components/acesso/TelaDeResultado";
 
 function emailValido(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -44,14 +45,18 @@ export default function EsqueciSenhaPage() {
   if (enviado) {
     return (
       <div className="flex flex-col gap-[18px]">
-        <TituloDoFormulario titulo="Confira seu e-mail" />
-        <p className="text-[15px] leading-[1.6] text-ardosia-escura" role="status">
+        <TelaDeResultado
+          tom="enviado"
+          titulo="Confira seu e-mail"
+          acoes={
+            <Link href="/entrar" className="btn-q btn-q-azul h-[54px] w-full text-base">
+              Voltar para o login
+            </Link>
+          }
+        >
           Se houver uma conta com o e-mail <strong className="text-tinta">{email.trim()}</strong>, enviamos um link para criar uma nova
           senha. O link vale por {enviado.validadeEmMinutos} minutos. Confira também a caixa de spam.
-        </p>
-        <Link href="/entrar" className="btn-q btn-q-azul h-[54px] w-full text-base">
-          Voltar para o login
-        </Link>
+        </TelaDeResultado>
         {erro && <AvisoDeErro>{erro}</AvisoDeErro>}
         <div className="flex flex-col items-center gap-2.5 border-t border-linha pt-4">
           <button type="button" onClick={enviar} disabled={enviando || segundosParaReenviar > 0} className={classeLink}>

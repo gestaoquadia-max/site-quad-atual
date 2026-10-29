@@ -5,6 +5,7 @@ import Link from "next/link";
 import { redefinirSenha, verificarLinkDeRedefinicao } from "@/lib/auth";
 import { ErroDaApi } from "@/lib/http";
 import { AvisoDeErro, BotaoPrincipal, Campo, TituloDoFormulario } from "@/components/acesso/Campos";
+import TelaDeResultado from "@/components/acesso/TelaDeResultado";
 
 function ehLinkRecusado(e: unknown) {
   return e instanceof ErroDaApi && (e.codigo === "TOKEN_INVALIDO" || e.codigo === "TOKEN_EXPIRADO");
@@ -61,15 +62,17 @@ export default function RedefinirSenhaForm({ token }: { token: string | null }) 
 
   if (salvo) {
     return (
-      <div className="flex flex-col gap-[18px]">
-        <TituloDoFormulario titulo="Senha alterada" />
-        <p className="text-[15px] leading-[1.6] text-ardosia-escura" role="status">
-          Agora é só entrar com a nova senha.
-        </p>
-        <Link href="/entrar" className="btn-q btn-q-azul h-[54px] w-full text-base">
-          Entrar
-        </Link>
-      </div>
+      <TelaDeResultado
+        tom="sucesso"
+        titulo="Senha alterada"
+        acoes={
+          <Link href="/entrar" className="btn-q btn-q-azul h-[54px] w-full text-base">
+            Entrar
+          </Link>
+        }
+      >
+        Pronto! Agora é só entrar com a nova senha. Por segurança, encerramos as sessões abertas em outros aparelhos.
+      </TelaDeResultado>
     );
   }
 
@@ -86,13 +89,17 @@ export default function RedefinirSenhaForm({ token }: { token: string | null }) 
 
   if (linkInvalido) {
     return (
-      <div className="flex flex-col gap-[18px]">
-        <TituloDoFormulario titulo="Nova senha" />
-        <AvisoDeErro>Este link não é válido ou já venceu. Cada link vale por 30 minutos e só pode ser usado uma vez.</AvisoDeErro>
-        <Link href="/esqueci-senha" className="btn-q btn-q-azul h-[54px] w-full text-base">
-          Pedir um novo link
-        </Link>
-      </div>
+      <TelaDeResultado
+        tom="erro"
+        titulo="Link inválido ou vencido"
+        acoes={
+          <Link href="/esqueci-senha" className="btn-q btn-q-azul h-[54px] w-full text-base">
+            Pedir um novo link
+          </Link>
+        }
+      >
+        Este link não é válido ou já venceu. Cada link vale por 30 minutos e só pode ser usado uma vez.
+      </TelaDeResultado>
     );
   }
 
