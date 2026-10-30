@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import InsigniaDaTurma from "./turmas/InsigniaDaTurma";
 
 // Decisão de 30/10/2026: cada submenu mostra no máximo 4 itens (no computador e no celular); o resto fica no "Ver todos".
 export const ITENS_NO_MENU = 4;
@@ -18,6 +19,9 @@ export type MegaMenuItem = {
   status?: "aberta" | "breve" | "encerrada";
   // Cor do ponto no lugar da cor da situação (ex.: o turno da turma). Classe Tailwind de fundo.
   corDoPonto?: string;
+  // Insígnia ao lado do nome (turmas). null = item que tem insígnia mas sem arquivo: a marca do Quad no lugar.
+  // Ausente = item sem insígnia (planos, materiais, eventos).
+  insignia?: string | null;
 };
 
 export type MegaMenuFeatured = {
@@ -73,8 +77,8 @@ export default function NavMegaMenu({
   const tom = featured.tom ?? "azul";
   return (
     // A centralização (translate) fica no elemento de fora; a animação de entrada, que também usa transform, no de dentro.
-    <div className="absolute left-1/2 top-full w-[min(900px,calc(100vw-40px))] -translate-x-1/2 pt-2.5">
-      <div className={`grid animate-[q-surgir_200ms_cubic-bezier(.2,.7,.2,1)_both] grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)] gap-2 rounded-[20px] border p-2.5 shadow-[0_30px_70px_-24px_rgba(0,0,0,0.75)] ${vinho ? "border-[rgba(243,163,177,0.16)] bg-[#24080F]" : "border-[rgba(111,174,255,0.16)] bg-marinho-900"}`}>
+    <div className="absolute left-1/2 top-full w-[min(980px,calc(100vw-40px))] -translate-x-1/2 pt-2.5">
+      <div className={`grid animate-[q-surgir_200ms_cubic-bezier(.2,.7,.2,1)_both] grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)] gap-2 rounded-[20px] border p-2.5 shadow-[0_30px_70px_-24px_rgba(0,0,0,0.75)] ${vinho ? "border-[rgba(243,163,177,0.16)] bg-[#24080F]" : "border-[rgba(111,174,255,0.16)] bg-marinho-900"}`}>
         <div className="flex flex-col px-5 pb-3 pt-5">
           <span className="mb-2 text-xs font-medium text-[#8FA0B8]">{rotulo}</span>
           {visiveis.length === 0 && <p className="py-2 text-sm text-prata">Nada aberto no momento.</p>}
@@ -83,12 +87,15 @@ export default function NavMegaMenu({
               <li key={it.href + it.nome}>
                 <LinkDoMenu
                   href={it.href}
-                  className="flex flex-col gap-1.5 rounded-[10px] px-3 py-3 text-white transition-colors hover:bg-white/[0.06] hover:text-white"
+                  className="flex items-center gap-3 rounded-[10px] px-3 py-3 text-white transition-colors hover:bg-white/[0.06] hover:text-white"
                 >
-                  <span className="font-display text-[15px] font-bold tracking-[-0.01em]">{it.nome}</span>
-                  <span className="flex items-center gap-2 text-[12.5px] text-prata">
-                    <span className={`h-1.5 w-1.5 flex-none rounded-full ${it.corDoPonto ?? CORES_DO_PONTO[it.status ?? "breve"]}`} />
-                    {it.meta}
+                  {it.insignia !== undefined && <InsigniaDaTurma insignia={it.insignia} tamanho={44} sizes="44px" className="h-11 w-11 flex-none" />}
+                  <span className="flex min-w-0 flex-col gap-1.5">
+                    <span className="font-display text-[15px] font-bold tracking-[-0.01em]">{it.nome}</span>
+                    <span className="flex items-center gap-2 whitespace-nowrap text-[12.5px] text-prata">
+                      <span className={`h-1.5 w-1.5 flex-none rounded-full ${it.corDoPonto ?? CORES_DO_PONTO[it.status ?? "breve"]}`} />
+                      {it.meta}
+                    </span>
                   </span>
                 </LinkDoMenu>
               </li>

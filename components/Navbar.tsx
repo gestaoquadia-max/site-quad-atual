@@ -95,6 +95,7 @@ function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): 
           meta: [t.turno, t.statusLabel].filter(Boolean).join(" · "),
           status: t.status,
           corDoPonto: t.status === "encerrada" ? undefined : COR_DO_TURNO[t.turno ?? ""],
+          insignia: t.insignia,
         })),
         featured: turmaDestaque
           ? {
