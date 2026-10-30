@@ -115,15 +115,9 @@ function Aviso({ tipo, children }: { tipo: "sucesso" | "erro" | "info"; children
   );
 }
 
-function EmpurraParaBaixo() {
-  return <div aria-hidden="true" className="flex-1" />;
-}
-
 function Cartao({ eyebrow, titulo, children }: { eyebrow: string; titulo: string; children: React.ReactNode }) {
   return (
-    // Coluna: com os cartões da linha da mesma altura, o EmpurraParaBaixo leva o botão de salvar ao rodapé, e os
-    // botões de cartões vizinhos ficam alinhados.
-    <section className="flex flex-col rounded-[18px] border border-linha bg-white p-[clamp(20px,2.4vw,28px)] shadow-[0_1px_2px_rgba(16,27,45,0.05),0_12px_28px_-22px_rgba(7,20,38,0.25)]">
+    <section className="rounded-[18px] border border-linha bg-white p-[clamp(20px,2.4vw,28px)] shadow-[0_1px_2px_rgba(16,27,45,0.05),0_12px_28px_-22px_rgba(7,20,38,0.25)]">
       <span className="text-xs font-bold uppercase tracking-[0.12em] text-azul-forte">{eyebrow}</span>
       <h2 className="mb-5 mt-1.5 font-display text-[22px] font-extrabold tracking-[-0.02em]">{titulo}</h2>
       {children}
@@ -218,15 +212,13 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
         <TrocaDeTelefone telefoneAtual={usuario.telefone} atualJaConfirmado={usuario.telefoneVerificado === true} onTrocado={onSalvo} />
       )}
 
-      <EmpurraParaBaixo />
       {erro && <Aviso tipo="erro">{erro}</Aviso>}
       {salvo && <Aviso tipo="sucesso">Dados atualizados.</Aviso>}
 
-      {/* A nota fica acima do botão: assim ele termina rente ao rodapé, na linha do "Salvar endereço". */}
-      <p className="text-center text-[13px] text-ardosia">CPF e e-mail não podem ser alterados por aqui.</p>
       <button type="button" onClick={salvar} disabled={bloqueado || salvando} className={classeBotao}>
         {salvando ? "Salvando..." : "Salvar alterações"}
       </button>
+      <p className="mt-3 text-center text-[13px] text-ardosia">CPF e e-mail não podem ser alterados por aqui.</p>
     </Cartao>
   );
 }
@@ -649,7 +641,6 @@ function FormularioEndereco({ endereco, onSalvo }: { endereco: Endereco; onSalvo
         </div>
       </div>
 
-      <EmpurraParaBaixo />
       {erro && <Aviso tipo="erro">{erro}</Aviso>}
       {salvo && <Aviso tipo="sucesso">Endereço atualizado.</Aviso>}
 
@@ -732,7 +723,6 @@ function TrocarSenha({ usuarioId }: { usuarioId: string }) {
         className={classeInput}
       />
 
-      <EmpurraParaBaixo />
       {erro && <Aviso tipo="erro">{erro}</Aviso>}
       {salvo && <Aviso tipo="sucesso">Senha alterada com sucesso.</Aviso>}
 
@@ -849,7 +839,6 @@ function CopiaEExclusao() {
             A exclusão acontece 30 dias depois do pedido, e você pode desistir até lá. Depois disso, seus dados pessoais são apagados e
             a conta não pode ser recuperada. Os registros que a lei obriga a guardar, como os de compras, ficam pelo prazo legal.
           </p>
-          <EmpurraParaBaixo />
           <button
             type="button"
             onClick={() => {
