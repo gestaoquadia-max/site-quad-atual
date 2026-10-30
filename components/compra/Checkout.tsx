@@ -24,6 +24,7 @@ import { useSessaoAtiva } from "@/lib/usuario";
 import { CLASSE_DO_CAMPO, CLASSE_DO_ROTULO } from "../acesso/Campos";
 import { ehFisico, motivoDaIndisponibilidade, ROTULO_DO_TIPO } from "./Carrinho";
 import Etapas from "./Etapas";
+import RevisaoDoPedido from "./RevisaoDoPedido";
 
 // Formas de pagamento e seus ícones (Phosphor, a mesma biblioteca para todos). Sem boleto (decisão de 23/10/2026):
 // no lugar dele, a compra dividida em dois cartões, que a API aceita quando cartoesMaximos é 2 ou mais.
@@ -134,6 +135,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
   const [aplicandoCupom, setAplicandoCupom] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState("");
+  const [revisando, setRevisando] = useState(false);
   // Mesma chave enquanto o aluno tenta pagar o mesmo pedido: um reenvio não vira uma segunda cobrança.
   const chaveDoPagamento = useRef<string | null>(null);
 
@@ -187,8 +189,35 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
     }
   }
 
-  async function confirmar(e: React.FormEvent) {
+  // O que impede pagar com o que está preenchido, conferido antes de abrir a revisão (sem tocar no Pagar.me).
+  function problemaAntesDePagar(): string | null {
+    if (acrescimo === null) return "Aguarde o cálculo das parcelas e confirme de novo.";
+    if (gratuito || metodo === "PIX") return null;
+    if (metodo === "CARTAO") return problemaNoCartao(cartao) ?? (config?.chavePublica ? null : PAGAMENTO_INDISPONIVEL);
+    const problema = problemaNoCartao(cartao) ?? problemaNoCartao(cartao2);
+    if (problema) return `${problemaNoCartao(cartao) ? "1º cartão" : "2º cartão"}: ${problema}`;
+    if (primeiroEmCentavos < minimoPorCartao || segundoEmCentavos < minimoPorCartao) {
+      return `Divida o valor de forma que cada cartão pague pelo menos ${emReais(Math.max(minimoPorCartao, 1))}.`;
+    }
+    return config?.chavePublica ? null : PAGAMENTO_INDISPONIVEL;
+  }
+
+  // O botão de pagar abre o espelho do pedido (RevisaoDoPedido); a cobrança só sai em "Confirmar e pagar".
+  function revisar(e: React.FormEvent) {
     e.preventDefault();
+    if (!podePagar) return;
+    const problema = problemaAntesDePagar();
+    setErro(problema ?? "");
+    if (!problema) setRevisando(true);
+  }
+
+  async function confirmarRevisado() {
+    await confirmar();
+    // Pagou: a página já foi trocada. Recusado ou erro: a mensagem aparece no formulário, com a revisão fechada.
+    setRevisando(false);
+  }
+
+  async function confirmar() {
     if (!podePagar) return;
     setErro("");
     let dados: DadosDoFechamento;
@@ -284,6 +313,33 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
   }
 
   const titulo = gratuito ? "Confirmar inscrição" : temTurma ? "Finalizar matrícula" : "Finalizar compra";
+  const rotuloDoPagamento = gratuito ? "Confirmar pedido" : metodo === "CARTAO" ? "Pagar com cartão" : metodo === "PIX" ? "Gerar PIX" : "Pagar com dois cartões";
+
+  // A forma de pagamento como o aluno vai conferir na revisão ("Cartão final 4242 · 3x de R$ 36,09").
+  function comoPaga(c: DadosDoCartao, n: number, tabela: ParcelasDoValor | null, qual = "Cartão") {
+    const opcao = tabela?.opcoes.find((o) => o.parcelas === n);
+    const final = c.numero.replace(/\D/g, "").slice(-4);
+    return `${qual} final ${final} · ${n === 1 ? "à vista" : opcao ? `${n}x de ${emReais(opcao.parcelaEmCentavos)}` : `${n}x`}`;
+  }
+  const pagamentoNaRevisao = gratuito
+    ? ["Sem custo"]
+    : metodo === "PIX"
+      ? ["PIX · o QR Code e o código para copiar aparecem na próxima tela"]
+      : metodo === "CARTAO"
+        ? [comoPaga(cartao, parcelas, opcoesDoTotal)]
+        : [comoPaga(cartao, parcelas, opcoesDoPrimeiro, "1º cartão"), comoPaga(cartao2, parcelas2, opcoesDoSegundo, "2º cartão")];
+  const linhasDaRevisao = items
+    .filter((i) => !recusados.has(i.id))
+    .map((item) => {
+      const linha = pedido?.linhas.get(item.id);
+      const simulada = simulacao?.linhas.find((l) => l.linhaId === linha?.id);
+      return {
+        id: item.id,
+        nome: `${item.nome}${item.quantidade > 1 ? ` × ${item.quantidade}` : ""}`,
+        detalhe: `${ROTULO_DO_TIPO[item.tipo]}${item.tag ? ` · ${item.tag}` : ""}`,
+        valorEmCentavos: simulada?.subtotalEmCentavos ?? null,
+      };
+    });
 
   return (
     <div className="bg-nevoa">
@@ -309,7 +365,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
           </div>
         ) : (
           <div className="flex flex-wrap items-start gap-6">
-            <form onSubmit={confirmar} noValidate className="flex min-w-0 flex-[999_1_520px] flex-col gap-5">
+            <form onSubmit={revisar} noValidate className="flex min-w-0 flex-[999_1_520px] flex-col gap-5">
               {gratuito ? (
                 <section className={CARTAO}>
                   <h2 className="font-display text-[17px] font-extrabold">Sem custo</h2>
@@ -463,9 +519,24 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                 aria-busy={enviando || undefined}
                 className="btn-q btn-q-azul h-14 w-full rounded-xl text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_12px_26px_-14px_rgba(0,107,255,1)] disabled:cursor-not-allowed disabled:bg-[#C9D3E0] disabled:shadow-none"
               >
-                {enviando ? "Processando…" : gratuito ? "Confirmar pedido" : metodo === "CARTAO" ? "Pagar com cartão" : metodo === "PIX" ? "Gerar PIX" : "Pagar com dois cartões"}
+                {enviando ? "Processando…" : rotuloDoPagamento}
               </button>
             </form>
+
+            {revisando && simulacao && (
+              <RevisaoDoPedido
+                linhas={linhasDaRevisao}
+                desconto={simulacao.descontoEmCentavos > 0 && cupom ? { cupom, valorEmCentavos: simulacao.descontoEmCentavos } : null}
+                acrescimoEmCentavos={acrescimo ?? 0}
+                totalEmCentavos={total + (acrescimo ?? 0)}
+                gratuito={gratuito}
+                pagamento={pagamentoNaRevisao}
+                rotuloDoBotao={gratuito ? "Confirmar pedido" : metodo === "PIX" ? "Confirmar e gerar PIX" : "Confirmar e pagar"}
+                enviando={enviando}
+                onConfirmar={confirmarRevisado}
+                onVoltar={() => setRevisando(false)}
+              />
+            )}
 
             <aside className="flex-[1_1_300px] rounded-[18px] border border-linha bg-white p-6 lg:sticky lg:top-[120px]">
               <h2 className="mb-3.5 font-display text-lg font-extrabold">Pedido</h2>

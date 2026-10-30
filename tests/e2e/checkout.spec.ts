@@ -150,6 +150,37 @@ test("comprar agora põe o item no carrinho e abre o checkout", async ({ page })
   await expect(page.locator("main").getByText(nome).first()).toBeVisible();
 });
 
+// Desde 30/10/2026 pagar abre o espelho do pedido; a cobrança só sai em "Confirmar e pagar". Aqui o teste volta sem cobrar.
+test("pagar abre a revisão do pedido, e voltar não cobra nada", async ({ page }) => {
+  await entrar(page, CONTA_A);
+  await adicionarUmMaterial(page);
+  await page.goto("/checkout");
+  const resumo = page.getByRole("complementary").filter({ hasText: "Pedido" });
+  await expect(resumo.getByText(/Itens reservados para você até/)).toBeVisible();
+  try {
+    test.skip(await page.getByText("O pagamento online está indisponível no momento.", { exact: false }).isVisible(), "Pagar.me desligado na API");
+    await page.getByPlaceholder("0000 0000 0000 0000").fill("4000000000000010");
+    await page.getByPlaceholder("MM/AA").fill("12/30");
+    await page.getByPlaceholder("123").fill("123");
+    await page.getByPlaceholder("Como está no cartão").fill("TESTE QUAD");
+    await page.getByRole("button", { name: "Pagar com cartão" }).click();
+
+    const revisao = page.getByRole("dialog", { name: "Seu pedido" });
+    await expect(revisao).toBeVisible();
+    await expect(revisao.getByText("Cartão final 0010 · à vista")).toBeVisible();
+    await expect(revisao.getByText(/R\$\s[\d.,]+/).last()).toBeVisible();
+    await expect(revisao.getByRole("button", { name: "Confirmar e pagar" })).toBeFocused();
+
+    await revisao.getByRole("button", { name: "Voltar e editar" }).click();
+    await expect(revisao).toHaveCount(0);
+    await expect(page).toHaveURL(/\/checkout$/);
+  } finally {
+    await page.evaluate(async (api) => {
+      await fetch(`${api}/api/loja/carrinho/eu`, { method: "DELETE", credentials: "include", headers: { "X-Quad-Cliente": "site" } });
+    }, process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080");
+  }
+});
+
 // Desde 27/10/2026 o parcelado tem acréscimo, calculado pela API: o site mostra as opções dela, sem refazer a conta.
 test("o parcelamento mostra o acréscimo da API e o total do pedido acompanha a escolha", async ({ page }) => {
   await entrar(page, CONTA_A);

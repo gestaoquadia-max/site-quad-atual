@@ -55,13 +55,26 @@ export default function PerfilConteudo() {
     return <ListaErro mensagem="Não foi possível carregar seus dados agora." onTentarNovamente={recarregar} />;
   }
 
+  const emailPendente = usuario.emailVerificado === false;
+  const celularPendente = usuario.telefoneVerificado === false;
+
   return (
-    <div className="grid items-start gap-5 xl:grid-cols-2">
-      {/* Chaveado pelo id (e não pelo nome) para o aviso de "salvo" não sumir quando os dados recarregam. */}
-      <DadosPessoais key={usuario.id} usuario={usuario} onSalvo={recarregar} />
-      <EnderecoDoAluno usuarioId={usuario.id} />
-      <TrocarSenha usuarioId={usuario.id} />
-      <CopiaEExclusao />
+    <div className="flex flex-col gap-5">
+      {/* Verificações que faltam: no topo da página, antes dos cartões. */}
+      {(emailPendente || celularPendente) && (
+        <div className="grid gap-3 md:grid-cols-2">
+          {celularPendente && <AlertaCelularNaoVerificado />}
+          {emailPendente && <AlertaEmailNaoVerificado />}
+        </div>
+      )}
+      {/* Sem items-start: os cartões de uma mesma linha ficam da mesma altura. */}
+      <div className="grid gap-5 xl:grid-cols-2">
+        {/* Chaveado pelo id (e não pelo nome) para o aviso de "salvo" não sumir quando os dados recarregam. */}
+        <DadosPessoais key={usuario.id} usuario={usuario} onSalvo={recarregar} />
+        <EnderecoDoAluno usuarioId={usuario.id} />
+        <TrocarSenha usuarioId={usuario.id} />
+        <CopiaEExclusao />
+      </div>
     </div>
   );
 }
@@ -167,9 +180,8 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
         id="perfil-email"
         value={usuario.email ?? "—"}
         disabled
-        className={`${classeInput} ${usuario.emailVerificado === false ? "mb-2" : ""}`}
+        className={classeInput}
       />
-      {usuario.emailVerificado === false && <AlertaEmailNaoVerificado />}
 
       <label className={classeLabel} htmlFor="perfil-cpf">
         CPF
@@ -196,7 +208,6 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
           Alterar
         </button>
       </div>
-      {usuario.telefoneVerificado === false && !mostrarTrocaTelefone && <AlertaCelularNaoVerificado />}
       {mostrarTrocaTelefone && (
         <TrocaDeTelefone telefoneAtual={usuario.telefone} atualJaConfirmado={usuario.telefoneVerificado === true} onTrocado={onSalvo} />
       )}
@@ -225,7 +236,7 @@ function SeloConfirmado() {
 
 function AlertaCelularNaoVerificado() {
   return (
-    <div role="alert" className="mb-4 rounded-[10px] border border-[#F0DDA0] bg-[#FFF8E5] px-3.5 py-3 text-[13.5px] text-[#7A5A00]">
+    <div role="alert" className="rounded-[12px] border border-[#F0DDA0] bg-[#FFF8E5] px-4 py-3.5 text-[13.5px] text-[#7A5A00]">
       <p className="mb-2 font-semibold">Seu celular ainda não foi confirmado.</p>
       <p className="mb-2.5 leading-relaxed">Confirme com o código que enviamos por SMS para liberar todos os recursos da sua conta.</p>
       <Link href="/confirmar-celular?redirect=%2Faluno%2Fperfil" className="font-semibold underline underline-offset-4">
@@ -253,7 +264,7 @@ function AlertaEmailNaoVerificado() {
   }
 
   return (
-    <div role="alert" className="mb-4 rounded-[10px] border border-[#F0DDA0] bg-[#FFF8E5] px-3.5 py-3 text-[13.5px] text-[#7A5A00]">
+    <div role="alert" className="rounded-[12px] border border-[#F0DDA0] bg-[#FFF8E5] px-4 py-3.5 text-[13.5px] text-[#7A5A00]">
       <p className="mb-2 font-semibold">Seu e-mail ainda não foi verificado.</p>
       <p className="mb-2.5 leading-relaxed">
         Abra o link que enviamos para a sua caixa de entrada para confirmar. Confira também o spam.
