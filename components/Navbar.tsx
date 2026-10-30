@@ -10,7 +10,7 @@ import { LINK_DAS_MENTORIAS } from "@/lib/conteudo";
 import { useCart } from "@/lib/cart";
 import { useUsuarioAtual } from "@/lib/usuario";
 import NewsTicker from "./NewsTicker";
-import NavMegaMenu, { type MegaMenuFeatured, type MegaMenuItem } from "./NavMegaMenu";
+import NavMegaMenu, { ITENS_NO_MENU, type MegaMenuFeatured, type MegaMenuItem } from "./NavMegaMenu";
 
 // Cores do topo: azul em todo o site e vinho nas páginas das Mentorias (barra de avisos, menu e botões).
 const TEMAS = {
@@ -63,7 +63,7 @@ function Seta({ aberta = false, className = "" }: { aberta?: boolean; className?
 type LinkDoMenu = {
   href: string;
   label: string;
-  menu?: { items: MegaMenuItem[]; featured: MegaMenuFeatured; viewAllHref: string; viewAllLabel: string };
+  menu?: { rotulo: string; items: MegaMenuItem[]; featured: MegaMenuFeatured; viewAllHref: string; viewAllLabel: string };
 };
 
 
@@ -71,11 +71,11 @@ type LinkDoMenu = {
 // vira um convite para a página da lista.
 // Ponto de cada turma no menu: a cor do turno, na escala de azul das etiquetas dos cartões (manhã clara, noite
 // escura). Turma lotada fica com a cor da situação.
-// Com o mesmo brilho dos pontos dos outros menus.
+// Tons que aparecem sobre o fundo branco do submenu.
 const COR_DO_TURNO: Record<string, string> = {
-  Manhã: "bg-[#CFE2FF] shadow-[0_0_8px_#CFE2FF]",
-  Tarde: "bg-[#6FAEFF] shadow-[0_0_8px_#6FAEFF]",
-  Noite: "bg-[#2F6BFF] shadow-[0_0_8px_#2F6BFF]",
+  Manhã: "bg-[#8CC0FF]",
+  Tarde: "bg-[#2F86FF]",
+  Noite: "bg-[#0C3594]",
 };
 
 function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): LinkDoMenu[] {
@@ -87,6 +87,7 @@ function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): 
       href: "/turmas",
       label: "Turmas Presenciais",
       menu: {
+        rotulo: "Turmas com matrículas",
         // O turno junto das vagas ("Manhã · 40 vagas restantes"): turmas da mesma modalidade se distinguem por ele.
         items: turmas.map((t) => ({
           href: `/turmas/${t.slug}`,
@@ -101,6 +102,7 @@ function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): 
               title: turmaDestaque.nome,
               desc: turmaDestaque.desc,
               meta: turmaDestaque.statusLabel,
+              imagem: turmaDestaque.insignia,
               ctaLabel: "Ver turma completa",
               ctaHref: `/turmas/${turmaDestaque.slug}`,
             }
@@ -119,6 +121,7 @@ function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): 
       href: "/mentorias",
       label: "Mentorias do Quad",
       menu: {
+        rotulo: "Planos",
         items: [
           { href: `${LINK_DAS_MENTORIAS}#mentoria`, nome: "Mentoria", meta: "12 meses de acesso" },
           { href: `${LINK_DAS_MENTORIAS}#plus`, nome: "Mentoria+", meta: "3 meses de acesso", status: "aberta" },
@@ -130,6 +133,7 @@ function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): 
           desc: "Estratégia, cronograma personalizado e análise de desempenho para uma preparação direcionada ao seu concurso.",
           ctaLabel: "Saiba mais sobre a mentoria",
           ctaHref: LINK_DAS_MENTORIAS,
+          tom: "vinho",
         },
         viewAllHref: "/mentorias",
         viewAllLabel: "Ver Mentorias do Quad",
@@ -139,6 +143,7 @@ function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): 
       href: "/produtos",
       label: "Materiais",
       menu: {
+        rotulo: "Apostilas e kits",
         items: materiais.map((p) => ({
           href: `/produtos/${p.slug}`,
           nome: p.nome,
@@ -169,6 +174,7 @@ function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): 
       href: "/eventos",
       label: "Eventos",
       menu: {
+        rotulo: "Agenda",
         items: [
           { href: "/simulados", nome: "Simulados do Quad", meta: "Presenciais, individuais e combos", status: "aberta" },
           ...eventos.map((e) => ({ href: `/eventos/${e.slug}`, nome: e.nome, meta: e.tag, status: e.status })),
@@ -216,7 +222,7 @@ function ItemSanfona({ link, aberto, onAlternar }: { link: LinkDoMenu; aberto: b
       </button>
       {aberto && (
         <ul className="mb-3 border-l-2 border-azul pb-1 pl-3.5">
-          {link.menu.items.map((it) => (
+          {link.menu.items.slice(0, ITENS_NO_MENU).map((it) => (
             <li key={it.href + it.nome}>
               <a href={it.href} className="flex min-h-[44px] items-center text-[15px] text-[#DCE4EF] hover:text-white">
                 {it.nome}

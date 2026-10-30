@@ -108,8 +108,14 @@ test("o menu suspenso abre pelo teclado e fecha com Esc", async ({ page }) => {
   await expect(turmas).toHaveAttribute("aria-expanded", "true");
   // O primeiro item do menu suspenso é alcançável com Tab.
   await page.keyboard.press("Tab");
-  const focado = await page.evaluate(() => document.activeElement?.closest("li")?.querySelector("a")?.textContent?.trim());
-  expect(focado).toBe("Turmas Presenciais");
+  // O foco fica dentro do item "Turmas Presenciais" do menu, no primeiro link do painel (desde 30/10/2026 cada link
+  // do painel tem o seu <li>, então sobe até o item de primeiro nível).
+  const focado = await page.evaluate(() => {
+    const ativo = document.activeElement;
+    const doMenu = ativo?.closest("nav > div > ul > li");
+    return { menu: doMenu?.querySelector("a")?.textContent?.trim(), noPainel: ativo !== doMenu?.querySelector("a") };
+  });
+  expect(focado).toEqual({ menu: "Turmas Presenciais", noPainel: true });
   await page.keyboard.press("Escape");
   await expect(turmas).toBeFocused();
   await expect(turmas).toHaveAttribute("aria-expanded", "false");
