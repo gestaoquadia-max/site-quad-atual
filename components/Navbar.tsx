@@ -71,11 +71,11 @@ type LinkDoMenu = {
 // vira um convite para a página da lista.
 // Ponto de cada turma no menu: a cor do turno, na escala de azul das etiquetas dos cartões (manhã clara, noite
 // escura). Turma lotada fica com a cor da situação.
-// Tons que aparecem sobre o fundo branco do submenu.
+// Com o mesmo brilho dos pontos dos outros itens do submenu (fundo azul-marinho).
 const COR_DO_TURNO: Record<string, string> = {
-  Manhã: "bg-[#8CC0FF]",
-  Tarde: "bg-[#2F86FF]",
-  Noite: "bg-[#0C3594]",
+  Manhã: "bg-[#CFE2FF] shadow-[0_0_8px_#CFE2FF]",
+  Tarde: "bg-[#6FAEFF] shadow-[0_0_8px_#6FAEFF]",
+  Noite: "bg-[#2F6BFF] shadow-[0_0_8px_#2F6BFF]",
 };
 
 function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): LinkDoMenu[] {
@@ -310,7 +310,7 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
                     {l.menu && <Seta className="opacity-70" />}
                   </Link>
                   {/* O <li> não é posicionado: o submenu se alinha ao centro da barra inteira. */}
-                  {l.menu && aberto && <NavMegaMenu {...l.menu} />}
+                  {l.menu && aberto && <NavMegaMenu {...l.menu} vinho={vinho} />}
                 </li>
               );
             })}
