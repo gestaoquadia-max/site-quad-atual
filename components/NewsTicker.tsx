@@ -35,13 +35,15 @@ const REPETICOES = 4;
 
 // Texto em movimento precisa poder ser pausado (WCAG 2.2.2): botão de pausa e pausa ao passar o mouse. Com
 // "menos movimento" no sistema, rola mais devagar (app/globals.css). Leitores de tela recebem a lista uma vez só, sem a animação.
-export default function NewsTicker({ turmas, eventos }: { turmas: Turma[]; eventos: Evento[] }) {
+// `vinho`: nas páginas das Mentorias a faixa acompanha o vinho delas (components/Navbar.tsx).
+export default function NewsTicker({ turmas, eventos, vinho = false }: { turmas: Turma[]; eventos: Evento[]; vinho?: boolean }) {
+  const fundo = vinho ? "bg-vinho" : "bg-azul-forte";
   const [pausado, setPausado] = useState(false);
   const noticias = montarAvisos(turmas, eventos);
   const faixa = Array.from({ length: REPETICOES }, () => noticias).flat();
 
   return (
-    <aside aria-label="Avisos" className="group relative flex h-[34px] items-center overflow-hidden whitespace-nowrap bg-azul-forte text-white">
+    <aside aria-label="Avisos" className={`group relative flex h-[34px] items-center overflow-hidden whitespace-nowrap text-white transition-colors ${fundo}`}>
       <ul className="sr-only">
         {noticias.map((n, i) => (
           <li key={i}>
@@ -67,7 +69,7 @@ export default function NewsTicker({ turmas, eventos }: { turmas: Turma[]; event
         onClick={() => setPausado((v) => !v)}
         aria-pressed={pausado}
         aria-label={pausado ? "Retomar os avisos" : "Pausar os avisos"}
-        className="absolute right-0 top-0 flex h-full items-center bg-azul-forte px-2.5 text-[10px] font-bold text-white"
+        className={`absolute right-0 top-0 flex h-full items-center px-2.5 text-[10px] font-bold text-white ${fundo}`}
       >
         {pausado ? "▶" : "❚❚"}
       </button>

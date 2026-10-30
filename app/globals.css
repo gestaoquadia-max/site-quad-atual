@@ -52,6 +52,11 @@ body {
     @apply bg-azul text-white hover:bg-azul-forte hover:text-white active:scale-[0.98];
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
   }
+  /* O mesmo botão nas páginas das Mentorias, que usam o vinho no lugar do azul. */
+  .btn-q-vinho {
+    @apply bg-vinho text-white hover:bg-vinho-forte hover:text-white active:scale-[0.98];
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
   .btn-q-contorno {
     @apply border border-linha-forte bg-white text-tinta hover:border-azul hover:text-azul;
   }

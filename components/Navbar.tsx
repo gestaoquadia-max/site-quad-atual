@@ -12,7 +12,30 @@ import { useUsuarioAtual } from "@/lib/usuario";
 import NewsTicker from "./NewsTicker";
 import NavMegaMenu, { type MegaMenuFeatured, type MegaMenuItem } from "./NavMegaMenu";
 
-function IconeCarrinho({ quantidade }: { quantidade: number }) {
+// Cores do topo: azul em todo o site e vinho nas páginas das Mentorias (barra de avisos, menu e botões).
+const TEMAS = {
+  azul: {
+    fundo: "bg-[rgba(7,20,38,0.97)]",
+    painelDoCelular: "bg-marinho-950",
+    sublinhado: "shadow-[inset_0_-2px_0_#2F86FF]",
+    botao: "btn-q-azul shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_8px_20px_-10px_rgba(0,107,255,0.8)]",
+    selo: "bg-azul shadow-[0_0_0_2px_#071426]",
+  },
+  vinho: {
+    fundo: "bg-[rgba(26,6,12,0.97)]",
+    painelDoCelular: "bg-[#1A060C]",
+    sublinhado: "shadow-[inset_0_-2px_0_#F3A3B1]",
+    botao: "btn-q-vinho shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_20px_-10px_rgba(196,42,68,0.9)]",
+    selo: "bg-vinho-forte shadow-[0_0_0_2px_#1A060C]",
+  },
+};
+type Tema = (typeof TEMAS)["azul"];
+
+function ehDasMentorias(caminho: string) {
+  return caminho === "/mentorias" || caminho.startsWith("/mentorias/");
+}
+
+function IconeCarrinho({ quantidade, selo }: { quantidade: number; selo: string }) {
   return (
     <>
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -21,7 +44,7 @@ function IconeCarrinho({ quantidade }: { quantidade: number }) {
         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
       </svg>
       {quantidade > 0 && (
-        <span className="absolute right-1 top-[5px] grid h-[17px] min-w-[17px] place-items-center rounded-full bg-azul px-1 text-[10.5px] font-bold text-white shadow-[0_0_0_2px_#071426]">
+        <span className={`absolute right-1 top-[5px] grid h-[17px] min-w-[17px] place-items-center rounded-full px-1 text-[10.5px] font-bold text-white ${selo}`}>
           {quantidade}
         </span>
       )}
@@ -214,6 +237,8 @@ function ItemSanfona({ link, aberto, onAlternar }: { link: LinkDoMenu; aberto: b
 export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]; eventos: Evento[]; materiais: Produto[] }) {
   const links = montarLinks(turmas, eventos, materiais);
   const pathname = usePathname();
+  const vinho = ehDasMentorias(pathname);
+  const tema: Tema = vinho ? TEMAS.vinho : TEMAS.azul;
   const { totalCount } = useCart();
   const usuario = useUsuarioAtual();
   const [suspenso, setSuspenso] = useState<string | null>(null);
@@ -235,8 +260,8 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
 
   return (
     <div className="sticky top-0 z-[60]">
-      <NewsTicker turmas={turmas} eventos={eventos} />
-      <nav aria-label="Principal" onMouseLeave={() => setSuspenso(null)} className="relative border-b border-white/[0.06] bg-[rgba(7,20,38,0.97)]">
+      <NewsTicker turmas={turmas} eventos={eventos} vinho={vinho} />
+      <nav aria-label="Principal" onMouseLeave={() => setSuspenso(null)} className={`relative border-b border-white/[0.06] transition-colors ${tema.fundo}`}>
         <div className="conteiner flex h-[72px] items-center justify-between gap-6">
           <Link href="/" aria-label="Quad Concursos — início" className="flex flex-none items-center rounded-lg transition-opacity hover:opacity-85">
             <Image src="/images/quad-logo-branco.png" alt="Quad Concursos" width={118} height={44} priority className="h-11 w-auto" />
@@ -271,7 +296,7 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
                     aria-current={ativo ? "page" : undefined}
                     aria-expanded={l.menu ? aberto : undefined}
                     className={`flex h-[72px] items-center gap-1.5 whitespace-nowrap px-[clamp(8px,0.9vw,12px)] text-sm transition-colors ${
-                      ativo ? "font-semibold shadow-[inset_0_-2px_0_#2F86FF]" : "font-medium"
+                      ativo ? `font-semibold ${tema.sublinhado}` : "font-medium"
                     } ${ativo || aberto ? "text-white" : "text-prata hover:text-white"}`}
                   >
                     {l.label}
@@ -288,13 +313,13 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
                 aria-label={rotuloDoCarrinho}
                 className="relative grid h-11 w-11 place-items-center rounded-[10px] text-prata transition-colors hover:bg-white/[0.06] hover:text-white"
               >
-                <IconeCarrinho quantidade={totalCount} />
+                <IconeCarrinho quantidade={totalCount} selo={tema.selo} />
               </Link>
             </li>
             <li className="ml-1.5">
               <Link
                 href={acesso.href}
-                className="btn-q btn-q-azul h-[42px] rounded-lg px-[18px] text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_8px_20px_-10px_rgba(0,107,255,0.8)] hover:-translate-y-px"
+                className={`btn-q h-[42px] rounded-lg px-[18px] text-sm hover:-translate-y-px ${tema.botao}`}
               >
                 {acesso.label}
               </Link>
@@ -303,9 +328,9 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
 
           <div className="flex items-center gap-1 min-[1220px]:hidden">
             <Link href="/carrinho" aria-label={rotuloDoCarrinho} className="relative grid h-11 w-11 place-items-center text-prata">
-              <IconeCarrinho quantidade={totalCount} />
+              <IconeCarrinho quantidade={totalCount} selo={tema.selo} />
             </Link>
-            <Link href={acesso.href} className="btn-q btn-q-azul h-10 rounded-lg px-3.5 text-sm">
+            <Link href={acesso.href} className={`btn-q h-10 rounded-lg px-3.5 text-sm ${tema.botao}`}>
               {acesso.label}
             </Link>
             <button
@@ -323,7 +348,7 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
         </div>
 
         {menuCelular && (
-          <div className="max-h-[calc(100vh-110px)] overflow-y-auto border-t border-white/[0.08] bg-marinho-950 px-[clamp(20px,4vw,32px)] pb-5 pt-1.5 min-[1220px]:hidden">
+          <div className={`max-h-[calc(100vh-110px)] overflow-y-auto border-t border-white/[0.08] ${tema.painelDoCelular} px-[clamp(20px,4vw,32px)] pb-5 pt-1.5 min-[1220px]:hidden`}>
             <ul>
               {links.map((l) => (
                 <ItemSanfona key={l.href} link={l} aberto={sanfona === l.href} onAlternar={() => setSanfona(sanfona === l.href ? null : l.href)} />
