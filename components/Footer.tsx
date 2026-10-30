@@ -9,8 +9,8 @@ const NAVEGACAO = [
   ["Turmas Presenciais", "/turmas"],
   ["Mentorias do Quad", "/mentorias"],
   ["Materiais", "/produtos"],
-  ["Loja", "/loja"],
   ["Eventos", "/eventos"],
+  ["Loja", "/loja"],
   ["Aprovados", "/aprovados"],
   ["Professores", "/professores"],
 ];
