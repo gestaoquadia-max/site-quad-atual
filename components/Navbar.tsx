@@ -165,7 +165,6 @@ function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): 
         viewAllLabel: "Ver todos os materiais",
       },
     },
-    { href: "/loja", label: "Loja" },
     {
       href: "/eventos",
       label: "Eventos",
@@ -185,6 +184,8 @@ function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): 
         viewAllLabel: "Ver agenda completa",
       },
     },
+    // Decisão de 30/10/2026: a Loja vem por último no menu.
+    { href: "/loja", label: "Loja" },
   ];
 }
 
