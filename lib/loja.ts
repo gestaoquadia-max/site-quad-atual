@@ -129,6 +129,23 @@ export function fecharCarrinho(dados: DadosDoFechamento, chaveDeIdempotencia: st
   });
 }
 
+// Compra de um combo (lib/combos.ts): fechamento próprio, sem carrinho e sem cupom (o combo já é o desconto; o campo
+// cupom é recusado com 400). `variacoes`: uma por item do combo que tem variações (a camisa G).
+// Recusas: 409 COMBO_INDISPONIVEL com `componentes` quando alguma parte saiu de venda.
+export type DadosDaCompraDoCombo = {
+  formaDePagamento: "CARTAO" | "PIX";
+  pagamento?: DadosDoFechamento["pagamento"];
+  variacoes?: { itemId: string; variacaoId: string }[];
+};
+
+export function fecharCombo(comboId: string, dados: DadosDaCompraDoCombo, chaveDeIdempotencia: string) {
+  return chamar<Fechamento>(`/api/loja/fechamentos/combos/${comboId}`, "Não foi possível concluir o pagamento.", {
+    method: "POST",
+    headers: { "Idempotency-Key": chaveDeIdempotencia },
+    body: JSON.stringify(dados),
+  });
+}
+
 export function buscarFechamento(id: string) {
   return chamar<Fechamento>(`/api/loja/fechamentos/${id}`, "Não foi possível consultar o pagamento.");
 }

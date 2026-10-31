@@ -35,7 +35,7 @@ const METODOS = [
 ] as const;
 type Metodo = (typeof METODOS)[number]["id"];
 
-const CARTAO_VAZIO: DadosDoCartao = { numero: "", nome: "", validade: "", cvv: "" };
+export const CARTAO_VAZIO: DadosDoCartao = { numero: "", nome: "", validade: "", cvv: "" };
 
 // "1.234,56" ou "1234,5" → centavos (123456 e 123450). Vazio ou inválido → null.
 function centavosDoTexto(texto: string) {
@@ -45,13 +45,13 @@ function centavosDoTexto(texto: string) {
   return Number(inteiro || "0") * 100 + Number((decimal + "00").slice(0, 2));
 }
 
-const CARTAO = "rounded-[18px] border border-linha bg-white p-6";
-const AVISO_DE_ERRO = "rounded-xl border border-[#F1C4C4] bg-[#FFF5F5] p-4 text-sm leading-[1.55] text-[#9B1C1C]";
-const PAGAMENTO_INDISPONIVEL = "O pagamento online está indisponível no momento. Tente mais tarde ou fale com o nosso atendimento pelo WhatsApp.";
+export const CARTAO = "rounded-[18px] border border-linha bg-white p-6";
+export const AVISO_DE_ERRO = "rounded-xl border border-[#F1C4C4] bg-[#FFF5F5] p-4 text-sm leading-[1.55] text-[#9B1C1C]";
+export const PAGAMENTO_INDISPONIVEL = "O pagamento online está indisponível no momento. Tente mais tarde ou fale com o nosso atendimento pelo WhatsApp.";
 
 // As opções de parcelamento de um valor, lidas da API com o acréscimo de cada uma. null enquanto carrega (ou se a
 // leitura falhar): aí só o 1x, que nunca tem acréscimo, pode ser pago. Espera o aluno parar de digitar o valor do 1º cartão.
-function useParcelas(valorEmCentavos: number, ativo: boolean) {
+export function useParcelas(valorEmCentavos: number, ativo: boolean) {
   const [lidas, setLidas] = useState<{ valor: number; tabela: ParcelasDoValor } | null>(null);
   useEffect(() => {
     if (!ativo || valorEmCentavos <= 0) return;
@@ -70,7 +70,7 @@ function useParcelas(valorEmCentavos: number, ativo: boolean) {
 }
 
 // O acréscimo das parcelas escolhidas: zero no 1x; null quando as opções ainda não chegaram.
-function acrescimoDe(tabela: ParcelasDoValor | null, parcelas: number) {
+export function acrescimoDe(tabela: ParcelasDoValor | null, parcelas: number) {
   if (parcelas <= 1) return 0;
   return tabela?.opcoes.find((o) => o.parcelas === parcelas)?.acrescimoEmCentavos ?? null;
 }
@@ -644,7 +644,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
 }
 
 // Os campos de um cartão e o parcelamento do valor que ele paga (o total, ou a parte dele na compra em dois cartões).
-function CamposDoCartao({
+export function CamposDoCartao({
   cartao,
   setCartao,
   parcelas,

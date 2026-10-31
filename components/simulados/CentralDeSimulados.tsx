@@ -8,8 +8,9 @@ import { ErroDaApi } from "@/lib/http";
 import { inscreverSeDeGraca } from "@/lib/loja";
 import { rotaComDestino } from "@/lib/redirecionamento";
 import { useSessaoAtiva } from "@/lib/usuario";
+import type { Combo as ComboDaLoja } from "@/lib/combos";
+import CartaoCombo from "../combos/CartaoCombo";
 import {
-  comboAVenda,
   dataCurta,
   formatosDa,
   hojeEmBrasilia,
@@ -18,7 +19,6 @@ import {
   situacaoDa,
   validarCompra,
   type Carreira,
-  type Combo,
   type Edicao,
   type FormatoDeEstudo,
   type Situacao,
@@ -156,7 +156,8 @@ export default function CentralDeSimulados({
   carreiraInicial,
 }: {
   carreiras: Carreira[] | null;
-  combos: Combo[];
+  // Combos da API só de simulados (lib/combos.ts).
+  combos: ComboDaLoja[];
   modoInicial: Modo;
   carreiraInicial: string | null;
 }) {
@@ -197,7 +198,6 @@ export default function CentralDeSimulados({
   const emBreve = edicoes.filter((e) => e.st.temporal !== "realizado" && !abertas.includes(e));
   const anteriores = edicoes.filter((e) => e.st.temporal === "realizado").sort((a, b) => b.numero - a.numero);
   const paraEstudo = edicoes.filter((e) => formatosDa(e).some((f) => f.oferta.disponivel)).sort((a, b) => b.numero - a.numero);
-  const combosDaCarreira = combos.filter((c) => c.carreira === carreira.id);
 
   const lista = modo === "presenciais" ? [...abertas, ...emBreve, ...anteriores] : modo === "individuais" ? paraEstudo : [];
   const atual = lista.find((e) => e.numero === selecionada) ?? lista[0] ?? null;
@@ -275,7 +275,7 @@ export default function CentralDeSimulados({
       return e.publicado && s.temporal !== "realizado" && s.confirmada && s.inscricao === "abertas";
     }).length;
 
-  const temExemplo = carreira.edicoes.some((e) => e.exemplo) || combosDaCarreira.some((c) => c.exemplo);
+  const temExemplo = carreira.edicoes.some((e) => e.exemplo);
 
   return (
     <>
@@ -509,55 +509,14 @@ export default function CentralDeSimulados({
                     aberta={dica === "combos"}
                     onAlternar={() => setDica(dica === "combos" ? null : "combos")}
                   />
-                  {combosDaCarreira.length === 0 ? (
-                    <Vazio>Ainda não temos combos para esta carreira. Os pacotes aparecem aqui assim que forem cadastrados.</Vazio>
+                  {/* Combos da API só de simulados (lib/combos.ts, 31/10/2026); o combo tem página e pagamento próprios. */}
+                  {combos.length === 0 ? (
+                    <Vazio>Ainda não temos combos de simulados. Os pacotes aparecem aqui assim que forem cadastrados.</Vazio>
                   ) : (
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,300px),1fr))] gap-4">
-                      {combosDaCarreira.map((c) => {
-                        const vendavel = comboAVenda(c, carreiras);
-                        return (
-                          <article key={c.id} className="flex flex-col gap-3 rounded-2xl border border-linha bg-white p-[22px] shadow-[0_18px_36px_-24px_rgba(7,20,38,0.35)]">
-                            <div className="flex items-start justify-between gap-3">
-                              <div>
-                                <h3 className="font-display text-[21px] font-extrabold tracking-[-0.02em]">{c.nome}</h3>
-                                <p className="text-sm text-ardosia">{carreira.curto}</p>
-                              </div>
-                              <Selo tom="estudo">{ROTULO_DO_FORMATO[c.formato].curto}</Selo>
-                            </div>
-                            <div className="flex flex-wrap gap-1.5">
-                              {c.itens.map((n) => (
-                                <span key={n} className="rounded-md border border-linha-forte px-2 py-1 text-[13px] font-semibold">
-                                  Nº{n}
-                                </span>
-                              ))}
-                            </div>
-                            <p className="text-sm text-ardosia">{c.formato === "impresso" ? "Retirada gratuita no Quad." : c.formato === "pdf" ? "Arquivos para download." : "Acesso na plataforma do Quad."}</p>
-                            {c.exemplo && (
-                              <span className="self-start rounded-full border border-dashed border-[#9DB0C8] px-2.5 py-0.5 text-[11px] font-semibold text-[#4A5A70]">Exemplo ilustrativo</span>
-                            )}
-                            <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-linha pt-4">
-                              <span className="font-display text-lg font-extrabold">{precoOuACadastrar(c.preco)}</span>
-                              <button
-                                type="button"
-                                disabled={!vendavel}
-                                onClick={() =>
-                                  addItem({
-                                    id: `simulado:${c.id}`,
-                                    tipo: "simulado",
-                                    nome: `${c.nome} — ${carreira.curto} — ${ROTULO_DO_FORMATO[c.formato].curto}`,
-                                    tag: c.itens.map((n) => `Nº${n}`).join(", "),
-                                    preco: precoOuACadastrar(c.preco),
-                                    simulado: { carreira: c.carreira, edicao: null, modalidade: c.formato, sku: c.sku, edicoesDoCombo: c.itens },
-                                  })
-                                }
-                                className="btn-q btn-q-azul h-11 px-4 text-sm disabled:cursor-not-allowed disabled:bg-[#C9D3E0] disabled:text-[#4A5A70] disabled:shadow-none"
-                              >
-                                Adicionar ao carrinho
-                              </button>
-                            </div>
-                          </article>
-                        );
-                      })}
+                      {combos.map((c) => (
+                        <CartaoCombo key={c.id} combo={c} />
+                      ))}
                     </div>
                   )}
                 </div>

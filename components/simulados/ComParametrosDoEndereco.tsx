@@ -1,7 +1,8 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import type { Carreira, Combo } from "@/lib/simulados";
+import type { Carreira } from "@/lib/simulados";
+import type { Combo } from "@/lib/combos";
 import CentralDeSimulados, { type Modo } from "./CentralDeSimulados";
 
 // /simulados?modo=individual&c=soldado-pmba abre já na aba e na carreira (links de Materiais e do menu).

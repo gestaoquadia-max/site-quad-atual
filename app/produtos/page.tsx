@@ -1,6 +1,8 @@
 import { metadadosDaPagina } from "@/lib/seo";
 import { listarMateriais } from "@/lib/vitrine";
 import CatalogoDeMateriais from "@/components/materiais/CatalogoDeMateriais";
+import SecaoDeCombos from "@/components/combos/SecaoDeCombos";
+import { listarCombosDaArea } from "@/lib/combos";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts); o Next exige um número escrito aqui.
 export const revalidate = 60;
@@ -13,5 +15,16 @@ export const metadata = metadadosDaPagina({
 });
 
 export default async function ProdutosPage() {
-  return <CatalogoDeMateriais produtos={await listarMateriais()} />;
+  const [produtos, combos] = await Promise.all([listarMateriais(), listarCombosDaArea("materiais")]);
+  return (
+    <>
+      <CatalogoDeMateriais produtos={produtos} />
+      <SecaoDeCombos
+        combos={combos}
+        titulo="Combos de materiais"
+        descricao="Apostilas juntas por um preço menor que a soma. O combo é pago à parte do carrinho, numa compra só."
+        fundo="branco"
+      />
+    </>
+  );
 }

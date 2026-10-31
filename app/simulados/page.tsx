@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { metadadosDaPagina } from "@/lib/seo";
 import { listarCarreiras } from "@/lib/vitrine";
+import { listarCombosDaArea } from "@/lib/combos";
 import ComParametrosDoEndereco from "@/components/simulados/ComParametrosDoEndereco";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts): as edições vêm da vitrine da API.
@@ -26,11 +27,11 @@ function Carregando() {
 }
 
 export default async function SimuladosPage() {
-  const carreiras = await listarCarreiras();
+  const [carreiras, combos] = await Promise.all([listarCarreiras(), listarCombosDaArea("simulados")]);
   return (
     <Suspense fallback={<Carregando />}>
-      {/* A API ainda não tem combos de simulados. */}
-      <ComParametrosDoEndereco carreiras={carreiras} combos={[]} />
+      {/* Aba "Combos": os combos da API só de simulados. */}
+      <ComParametrosDoEndereco carreiras={carreiras} combos={combos} />
     </Suspense>
   );
 }

@@ -20,7 +20,8 @@ export default function RevisaoDoPedido({
   onVoltar,
 }: {
   linhas: LinhaDaRevisao[];
-  desconto: { cupom: string; valorEmCentavos: number } | null;
+  // `cupom`: o código, mostrado como "Cupom X"; `rotulo`: um texto no lugar (ex.: "Desconto do combo").
+  desconto: { cupom?: string; rotulo?: string; valorEmCentavos: number } | null;
   acrescimoEmCentavos: number;
   totalEmCentavos: number;
   gratuito: boolean;
@@ -83,7 +84,11 @@ export default function RevisaoDoPedido({
           {desconto && (
             <div className="flex justify-between gap-4 border-b border-[#EEF2F7] py-2.5 text-sm">
               <span className="text-ardosia-escura">
-                Cupom <span className="font-semibold text-azul-forte">{desconto.cupom}</span>
+                {desconto.rotulo ?? (
+                  <>
+                    Cupom <span className="font-semibold text-azul-forte">{desconto.cupom}</span>
+                  </>
+                )}
               </span>
               <span className="font-semibold text-[#13774A]">− {emReais(desconto.valorEmCentavos)}</span>
             </div>

@@ -10,6 +10,7 @@ const NAVEGACAO = [
   ["Mentorias do Quad", "/mentorias"],
   ["Materiais", "/produtos"],
   ["Eventos", "/eventos"],
+  ["Combos", "/combos"],
   ["Loja", "/loja"],
   ["Aprovados", "/aprovados"],
   ["Professores", "/professores"],

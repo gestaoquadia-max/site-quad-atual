@@ -33,19 +33,6 @@ export type Carreira = {
   edicoes: Edicao[];
 };
 
-export type Combo = {
-  id: string;
-  nome: string;
-  carreira: string;
-  // Edições exatas do pacote; o pedido precisa gravar essa lista no momento da compra.
-  itens: number[];
-  formato: FormatoDeEstudo;
-  preco: number | null;
-  disponivel: boolean;
-  exemplo?: boolean;
-  sku: string;
-};
-
 export const ROTULO_DO_FORMATO: Record<FormatoDeEstudo, { nome: string; curto: string; dica: string }> = {
   pdf: { nome: "PDF digital", curto: "PDF", dica: "Arquivo para baixar e estudar" },
   plataforma: { nome: "Realizar na plataforma", curto: "Plataforma", dica: "Responda às questões na plataforma do Quad" },
@@ -87,12 +74,6 @@ export function formatosDa(e: Edicao) {
 
 export function formatosAVenda(e: Edicao) {
   return formatosDa(e).filter((f) => f.oferta.disponivel && f.oferta.preco != null);
-}
-
-export function comboAVenda(c: Combo, carreiras: Carreira[]) {
-  const carreira = carreiras.find((x) => x.id === c.carreira);
-  const todasExistem = c.itens.every((n) => carreira?.edicoes.some((e) => e.numero === n && e.publicado));
-  return c.disponivel && c.preco != null && todasExistem;
 }
 
 // Validação única de compra: chamada ao pôr no carrinho; o backend precisa repetir ao criar o pedido e ao confirmar o pagamento.
