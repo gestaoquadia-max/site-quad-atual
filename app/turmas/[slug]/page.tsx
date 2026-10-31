@@ -72,7 +72,9 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
 
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,380px),1fr))] items-start gap-[clamp(32px,5vw,64px)]">
             {/* Capa: foto cadastrada na API ou, sem foto, o nome da turma sobre o fundo do Quad. */}
-            <div className="relative aspect-[16/10] w-full max-w-[520px] overflow-hidden sm:aspect-[4/5] rounded-[18px] border border-white/10 bg-[linear-gradient(170deg,#12305A,#071426_75%)] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.85)]">
+            {/* Decisão de 31/10/2026: a imagem da turma é quadrada (560 × 560, como o console gera), então o quadro com imagem
+                também é quadrado e ela aparece inteira. Sem imagem, o quadro de antes, com a insígnia. */}
+            <div className={`relative w-full max-w-[520px] overflow-hidden ${turma.imagem ? "aspect-square" : "aspect-[16/10] sm:aspect-[4/5]"} rounded-[18px] border border-white/10 bg-[linear-gradient(170deg,#12305A,#071426_75%)] shadow-[0_40px_80px_-40px_rgba(0,0,0,0.85)]`}>
               {turma.imagem ? (
                 <Image src={turma.imagem} alt={`Turma ${grupo.nome}`} fill priority sizes="(min-width: 900px) 520px, 100vw" className="object-cover" />
               ) : (
