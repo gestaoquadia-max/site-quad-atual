@@ -91,16 +91,10 @@ export function lerNomeDaTurma(nome: string) {
   return { modalidade, edicao, cargo, concurso, turno: (turnoTexto && TURNO_PELO_NOME[turnoTexto]) || null };
 }
 
-// Insígnia de cada MODALIDADE de turma (arquivo em public/images/insignias/). Toda turma tem a sua: modalidade nova
-// (ex.: INVESTIGADOR) entra aqui quando o arquivo chegar. Sem insígnia cadastrada, o site mostra a marca do Quad.
-const INSIGNIAS_DAS_TURMAS: Record<string, string> = {
-  RONDESP: "/images/insignias/rondesp.webp",
-  PATAMO: "/images/insignias/patamo.webp",
-  BOPE: "/images/insignias/bope.webp",
-};
-
-export function insigniaDaTurma(modalidade: string | null): string | null {
-  return (modalidade && INSIGNIAS_DAS_TURMAS[modalidade.toUpperCase()]) || null;
+// Insígnia de uma MODALIDADE (decisão de 31/10/2026: nada fixo no site): a imagem cadastrada na API numa turma dela.
+// A API não tem imagem por modalidade, e a imagem de cada turma é a insígnia. Sem nenhuma, null: a marca do Quad.
+export function insigniaDaModalidade(turmas: { modalidadeId: string; insignia: string | null }[] | null, id: string): string | null {
+  return turmas?.find((t) => t.modalidadeId === id && t.insignia)?.insignia ?? null;
 }
 
 // Abreviações de cargo usadas no selo ("SD • PMBA"). Cargo fora da lista aparece como cadastrado.

@@ -10,7 +10,6 @@ import { API_URL, lerErro } from "./http";
 import {
   ehNivelDaPmba,
   horarioDoDia,
-  insigniaDaTurma,
   juntarTurnos,
   lerNomeDaTurma,
   nomeDaTurma,
@@ -332,7 +331,8 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     slug: slugDa(a),
     // Nível (RONDESP, PATAMO, BOPE) só na PMBA; fora dela a turma não tem nível.
     modalidade: nivel,
-    insignia: insigniaDaTurma(colunas.modalidade),
+    // A imagem cadastrada na turma é a insígnia dela (sem imagem: a marca do Quad).
+    insignia: a.imagemUrl ?? null,
     modalidadeNome: colunas.modalidade ?? a.nome,
     modalidadeId: slugDoNome(colunas.modalidade ?? a.nome),
     concurso: colunas.cargo || colunas.concurso ? seloDoCargoEConcurso(colunas.cargo, colunas.concurso) : undefined,
@@ -699,9 +699,6 @@ type ProfessorDaVitrine = {
   fotoUrl: string | null;
 };
 
-// Fotos que o site já tinha enquanto o cadastro não tem foto. A foto da API, quando houver, vale mais.
-const FOTO_DO_SITE: Record<string, string> = { "Danilo Ribeiro Moura": "/images/professores/danilo.webp" };
-
 // A minibio é a graduação do cadastro. "Sem graduação" (o padrão do console) não é minibio: o site não mostra.
 // Várias linhas (uma formação por linha) viram uma frase: "Graduação em Direito · Pós em Direito Civil".
 function minibioDa(graduacao: string | null) {
@@ -719,7 +716,7 @@ function paraProfessor(p: ProfessorDaVitrine): Professor {
     materia: materias[0] ?? "",
     materias,
     bio: minibioDa(p.graduacao),
-    fotoUrl: p.fotoUrl ?? FOTO_DO_SITE[nome],
+    fotoUrl: p.fotoUrl ?? undefined,
   };
 }
 

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { idDoItem } from "@/lib/itens";
 import { precoSemCentavosZerados } from "@/lib/format";
-import { esgotada, horarioDoDia, insigniaDaTurma, NOME_DO_TURNO, precoCheioDaOferta, precoDaOferta, textoDoLote, type TurmaComTurnos } from "@/lib/turmas";
+import { esgotada, horarioDoDia, NOME_DO_TURNO, precoCheioDaOferta, precoDaOferta, textoDoLote, type TurmaComTurnos } from "@/lib/turmas";
 import AviseMePeloWhatsApp from "../AviseMePeloWhatsApp";
 import { useCart } from "@/lib/cart";
 import BotoesDeCompra from "../BotoesDeCompra";
@@ -161,7 +161,8 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
                 tag: [nomeDoTurno, turma.cargo, turma.concurso].filter(Boolean).join(" · "),
                 preco,
                 alvo: { atividade: { tipo: "TURMA", id: oferta.id } },
-                imagem: insigniaDaTurma(turma.modalidade) ?? undefined,
+                // A imagem cadastrada na turma (a insígnia), vinda da API.
+                imagem: oferta.imagemUrl ?? undefined,
               })
             }
           />

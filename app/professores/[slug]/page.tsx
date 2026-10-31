@@ -7,9 +7,6 @@ import { getIniciais } from "@/lib/format";
 import Trilha from "@/components/Trilha";
 import { metadadosDaPagina } from "@/lib/seo";
 
-// Foto recortada (sem fundo) usada no topo, pelo nome; quem não tem usa a foto do cadastro.
-const FOTO_DO_TOPO: Record<string, string> = { "Danilo Ribeiro Moura": "/images/danilo-hero.png" };
-
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts). Professor cadastrado depois do build é gerado na primeira visita.
 export const revalidate = 60;
 
@@ -31,8 +28,8 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
   if (!professor) notFound();
   // Professor renomeado: o id continua o mesmo, então leva ao endereço com o nome atual.
   if (professor.slug !== slug) redirect(`/professores/${professor.slug}`);
-  const foto = FOTO_DO_TOPO[professor.nome] ?? professor.fotoUrl;
-  const recortada = professor.nome in FOTO_DO_TOPO;
+  // Só a foto do cadastro (API); sem ela, as iniciais. Decisão de 31/10/2026: nenhuma foto fixa no site.
+  const foto = professor.fotoUrl;
   const outros = ((await listarProfessores()) ?? []).filter((p) => p.slug !== professor.slug);
 
   return (
@@ -68,7 +65,7 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
                 fill
                 priority
                 sizes="(min-width: 1440px) 600px, 42vw"
-                className={recortada ? "object-contain object-[20%_100%]" : "rounded-t-[28px] object-cover object-top"}
+                className="rounded-t-[28px] object-cover object-top"
               />
             ) : (
               <span aria-hidden="true" className="absolute inset-0 grid select-none place-items-center font-display text-[clamp(140px,16vw,240px)] font-extrabold text-white/[0.06]">

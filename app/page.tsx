@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { aprovados } from "@/lib/data";
 import { bannersPublicados, mentorias, modalidades } from "@/lib/conteudo";
-import { listarEventos, listarMateriais, listarProdutosDaLoja, listarProfessores } from "@/lib/vitrine";
+import { listarEventos, listarMateriais, listarProdutosDaLoja, listarProfessores, listarTurmas } from "@/lib/vitrine";
+import { insigniaDaModalidade } from "@/lib/turmas";
 import { dadosDaOrganizacao } from "@/lib/dados-estruturados";
 import DadosEstruturados from "@/components/DadosEstruturados";
 import Reveal from "@/components/Reveal";
@@ -35,7 +36,13 @@ function Secao({ className = "", id, brilho, children }: { className?: string; i
 }
 
 export default async function Home() {
-  const [eventos, materiais, loja, professores] = await Promise.all([listarEventos(), listarMateriais(), listarProdutosDaLoja(), listarProfessores()]);
+  const [eventos, materiais, loja, professores, turmas] = await Promise.all([
+    listarEventos(),
+    listarMateriais(),
+    listarProdutosDaLoja(),
+    listarProfessores(),
+    listarTurmas(),
+  ]);
   const cartoesDeEvento = [CARTAO_DOS_SIMULADOS, ...(eventos ?? []).map(paraCartao)];
 
   return (
@@ -46,7 +53,7 @@ export default async function Home() {
       <Secao className="bg-nevoa">
         <Trilho titulo="Turmas presenciais" link={{ href: "/turmas", label: "Ver todas as turmas" }} rotulo="Modalidades das turmas presenciais">
           {modalidades.map((m) => (
-            <CartaoModalidade key={m.id} modalidade={m} />
+            <CartaoModalidade key={m.id} modalidade={m} insignia={insigniaDaModalidade(turmas, m.id)} />
           ))}
         </Trilho>
       </Secao>

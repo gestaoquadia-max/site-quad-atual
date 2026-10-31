@@ -6,6 +6,7 @@ import { Moon, Sun, SunHorizon, type Icon } from "@phosphor-icons/react";
 import { Children, useCallback, useEffect, useRef, useState } from "react";
 import type { Turma } from "@/lib/data";
 import { modalidades } from "@/lib/conteudo";
+import { insigniaDaModalidade } from "@/lib/turmas";
 import AviseMe from "../AviseMePeloWhatsApp";
 import InsigniaDaTurma from "./InsigniaDaTurma";
 
@@ -23,12 +24,14 @@ type OpcaoDeModalidade = {
   resumo?: string;
 };
 
-function opcoesDaAba(aba: string, doCargo: Turma[], comNiveis: boolean): OpcaoDeModalidade[] {
-  if (comNiveis) return modalidades.map((m) => ({ ...m }));
+function opcoesDaAba(aba: string, doCargo: Turma[], comNiveis: boolean, todas: Turma[] | null): OpcaoDeModalidade[] {
+  // Os três níveis da PMBA, com a insígnia tirada de uma turma deles cadastrada na API (de qualquer concurso).
+  const niveisDaPmba = () => modalidades.map((m) => ({ ...m, insignia: insigniaDaModalidade(todas, m.id) }));
+  if (comNiveis) return niveisDaPmba();
   // "Todos os concursos": os três níveis da PMBA e, depois, as modalidades dos outros concursos.
   if (aba === TODOS) {
     const niveis = modalidades.map((m) => m.id as string);
-    return [...modalidades.map((m) => ({ ...m })), ...opcoesDaAba(SEM_CARGO, doCargo.filter((t) => !niveis.includes(t.modalidadeId)), false)];
+    return [...niveisDaPmba(), ...opcoesDaAba(SEM_CARGO, doCargo.filter((t) => !niveis.includes(t.modalidadeId)), false, todas)];
   }
   const porId = new Map<string, Turma[]>();
   for (const t of doCargo) porId.set(t.modalidadeId, [...(porId.get(t.modalidadeId) ?? []), t]);
@@ -452,7 +455,7 @@ export default function EscolhaDeModalidade({
 
   const comNiveis = ehDaPmba(aba);
   const doCargo = (turmas ?? []).filter((t) => aba === TODOS || abaDa(t) === aba);
-  const opcoes = opcoesDaAba(aba, doCargo, comNiveis);
+  const opcoes = opcoesDaAba(aba, doCargo, comNiveis, turmas);
   // Aba sem níveis com uma modalidade só: ela já vem escolhida.
   const atual = opcoes.find((m) => m.id === selecionada) ?? (!comNiveis && opcoes.length === 1 ? opcoes[0] : null);
   const daModalidade = doCargo.filter((t) => atual && t.modalidadeId === atual.id);

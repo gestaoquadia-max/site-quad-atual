@@ -6,7 +6,7 @@ import { metadadosDaPagina } from "@/lib/seo";
 import { modalidades } from "@/lib/conteudo";
 import { dadosDoCurso } from "@/lib/dados-estruturados";
 import { buscarTurma, buscarTurmaComTurnos, listarTurmas } from "@/lib/vitrine";
-import { insigniaDaTurma, seloDoCargoEConcurso } from "@/lib/turmas";
+import { insigniaDaModalidade, seloDoCargoEConcurso } from "@/lib/turmas";
 import InsigniaDaTurma from "@/components/turmas/InsigniaDaTurma";
 import DadosEstruturados from "@/components/DadosEstruturados";
 import CheckList from "@/components/CheckList";
@@ -79,9 +79,9 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
                 <Image src={turma.imagem} alt={`Turma ${grupo.nome}`} fill priority sizes="(min-width: 900px) 520px, 100vw" className="object-cover" />
               ) : (
                 <>
-                  {/* Toda turma tem insígnia (a da modalidade); sem arquivo ainda, a marca do Quad. */}
+                  {/* Turma sem imagem na API: a insígnia de outra turma da mesma modalidade ou, sem nenhuma, a marca do Quad. */}
                   <InsigniaDaTurma
-                    insignia={insigniaDaTurma(grupo.modalidade)}
+                    insignia={insigniaDaModalidade(todas, turma.modalidadeId)}
                     tamanho={240}
                     sizes="240px"
                     priority
@@ -150,7 +150,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
               href={`/turmas?m=${modalidade.id}`}
               className="group grid grid-cols-[88px_minmax(0,1fr)] items-center gap-5 rounded-[18px] bg-marinho-900 p-[clamp(22px,3vw,32px)] text-white transition-transform hover:-translate-y-0.5 hover:text-white sm:grid-cols-[88px_minmax(0,1fr)_auto]"
             >
-              <Image src={modalidade.insignia} alt="" width={88} height={88} className="h-[88px] w-[88px] object-contain [filter:drop-shadow(0_8px_16px_rgba(0,0,0,0.5))]" />
+              <InsigniaDaTurma insignia={insigniaDaModalidade(todas, modalidade.id)} tamanho={88} sizes="88px" className="h-[88px] w-[88px]" />
               <div>
                 <span className="text-[11.5px] font-bold uppercase tracking-[0.14em] text-azul-ceu">Modalidade {modalidade.nome} · {modalidade.nivel}</span>
                 <p className="mt-1.5 text-[15px] leading-[1.55] text-[#DCE4EF]">

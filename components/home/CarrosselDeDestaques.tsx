@@ -46,9 +46,8 @@ const TITULO_PRINCIPAL = (
   </>
 );
 
-const MASCARA_DA_FOTO = "linear-gradient(180deg,#000 72%,transparent 98%)";
-
-// Composição institucional: Danilo, "+N aprovados" (só com o total confirmado em lib/institucional.ts) e a chamada principal. Uma versão para o computador e outra para o celular.
+// Composição institucional: a marca do Quad nos anéis de luz, "+N aprovados" (só com o total confirmado em
+// lib/institucional.ts) e a chamada principal. Uma versão para o computador e outra para o celular.
 function SlideDanilo({ banner, primeiro }: { banner: Banner; primeiro: boolean }) {
   return (
     <>
@@ -75,23 +74,18 @@ function SlideDanilo({ banner, primeiro }: { banner: Banner; primeiro: boolean }
             <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[30%] aspect-square w-[min(86%,500px)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(140,190,255,0.28)] shadow-[0_0_48px_rgba(0,107,255,0.30),inset_0_0_48px_rgba(0,107,255,0.16)]" />
             <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[30%] aspect-square w-[min(112%,640px)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[rgba(111,174,255,0.08)]" />
             <div aria-hidden="true" className="pointer-events-none absolute bottom-[-6%] left-[8%] right-[8%] h-[22%] rounded-full bg-[radial-gradient(closest-side,rgba(0,107,255,0.40),transparent)]" />
-            <div className="relative h-full [filter:drop-shadow(0_0_1px_rgba(150,200,255,0.75))_drop-shadow(0_0_10px_rgba(47,134,255,0.40))_drop-shadow(-6px_-4px_22px_rgba(0,107,255,0.22))]">
-              <Image
-                src="/images/danilo-hero.png"
-                alt={banner.alt ?? ""}
-                width={683}
-                height={1057}
-                priority={primeiro}
-                sizes="(min-width: 1000px) 520px, 1px"
-                className="block h-full w-auto max-w-none"
-                style={{ maskImage: MASCARA_DA_FOTO, WebkitMaskImage: MASCARA_DA_FOTO }}
-              />
-            </div>
-            <div className="pointer-events-none absolute bottom-[clamp(16px,4vw,44px)] left-0 right-0 z-[1] flex flex-wrap-reverse items-end justify-between gap-3">
-              <div className="pointer-events-auto rounded-r-[10px] border-l-2 border-azul-vivo bg-[rgba(7,20,38,0.78)] px-3.5 py-2.5">
-                <div className="font-display text-[15px] font-bold tracking-[0.02em]">Danilo Moura</div>
-                <div className="mt-[3px] text-[12.5px] text-[#B4C1D3]">Fundador do Quad Concursos</div>
-              </div>
+            {/* Decisão de 31/10/2026: sem a foto fixa do Danilo. O centro dos anéis leva a marca do Quad. */}
+            <Image
+              src="/images/quad-logo-branco.png"
+              alt=""
+              aria-hidden="true"
+              width={868}
+              height={324}
+              priority={primeiro}
+              sizes="(min-width: 1000px) 360px, 1px"
+              className="absolute left-1/2 top-[30%] w-[min(62%,360px)] -translate-x-1/2 -translate-y-1/2 [filter:drop-shadow(0_0_18px_rgba(47,134,255,0.45))]"
+            />
+            <div className="pointer-events-none absolute bottom-[clamp(16px,4vw,44px)] left-0 right-0 z-[1] flex flex-wrap-reverse items-end justify-end gap-3">
               {institucional.totalDeAprovados > 0 && (
                 <div className="pointer-events-auto relative ml-auto rounded-2xl border border-[rgba(111,174,255,0.22)] bg-[rgba(11,28,51,0.94)] px-6 pb-5 pt-[18px] shadow-[0_30px_60px_-24px_rgba(0,0,0,0.9),0_0_0_1px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.06)]">
                   <div aria-hidden="true" className="absolute left-5 right-5 top-[-1px] h-px bg-[linear-gradient(90deg,transparent,#4D9BFF,transparent)]" />
@@ -116,14 +110,14 @@ function SlideDanilo({ banner, primeiro }: { banner: Banner; primeiro: boolean }
         <div className="absolute bottom-0 left-0 right-0 flex h-[64%] justify-center">
           <div aria-hidden="true" className="absolute left-1/2 top-[22%] aspect-square w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(170,210,255,0.28),rgba(47,134,255,0.14)_55%,transparent_100%)]" />
           <Image
-            src="/images/danilo-hero.png"
-            alt={banner.alt ?? ""}
-            width={683}
-            height={1057}
+            src="/images/quad-logo-branco.png"
+            alt=""
+            aria-hidden="true"
+            width={868}
+            height={324}
             priority={primeiro}
-            sizes="(max-width: 999px) 360px, 1px"
-            className="relative block h-full w-auto [filter:drop-shadow(0_0_10px_rgba(47,134,255,0.40))]"
-            style={{ maskImage: "linear-gradient(180deg,#000 60%,transparent 96%)", WebkitMaskImage: "linear-gradient(180deg,#000 60%,transparent 96%)" }}
+            sizes="(max-width: 999px) 260px, 1px"
+            className="absolute left-1/2 top-[22%] w-[min(64%,260px)] -translate-x-1/2 -translate-y-1/2 [filter:drop-shadow(0_0_14px_rgba(47,134,255,0.45))]"
           />
         </div>
         <div className="absolute bottom-6 left-5 right-5 z-[2] flex">

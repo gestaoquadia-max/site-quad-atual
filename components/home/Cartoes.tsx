@@ -4,6 +4,7 @@ import type { Aprovado, Post, Professor } from "@/lib/data";
 import { categoriasDaLoja, type Modalidade, type ProdutoDaLoja } from "@/lib/conteudo";
 import { getIniciais, precoSemCentavosZerados } from "@/lib/format";
 import { Brilho } from "../Brilho";
+import InsigniaDaTurma from "../turmas/InsigniaDaTurma";
 
 function IconeDeImagem({ className = "" }: { className?: string }) {
   return (
@@ -23,19 +24,19 @@ export function SeloExemplo() {
   );
 }
 
-export function CartaoModalidade({ modalidade }: { modalidade: Modalidade }) {
+// `insignia`: a imagem de uma turma da modalidade cadastrada na API (insigniaDaModalidade); null = a marca do Quad.
+export function CartaoModalidade({ modalidade, insignia }: { modalidade: Modalidade; insignia: string | null }) {
   return (
     <Link
       href={`/turmas?m=${modalidade.id}`}
       className="relative flex h-full flex-col overflow-hidden rounded-[20px] border border-white/[0.08] bg-[linear-gradient(180deg,#0F2645,#0B1C33_70%)] p-[clamp(20px,2vw,28px)] text-white transition-[transform,border-color] duration-200 hover:-translate-y-[3px] hover:border-[rgba(111,174,255,0.5)] hover:text-white"
     >
       <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[130px] aspect-square w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(47,134,255,0.32),transparent)]" />
-      <Image
-        src={modalidade.insignia}
-        alt={`Insígnia ${modalidade.nome}`}
-        width={200}
-        height={200}
-        className="relative mx-auto mb-[18px] block aspect-square h-auto w-[clamp(150px,13vw,200px)] object-contain [filter:drop-shadow(0_16px_24px_rgba(0,0,0,0.6))]"
+      <InsigniaDaTurma
+        insignia={insignia}
+        tamanho={200}
+        sizes="200px"
+        className="relative mx-auto mb-[18px] block aspect-square h-auto w-[clamp(150px,13vw,200px)]"
       />
       <span className="relative flex flex-wrap items-baseline justify-between gap-3">
         <span className="font-display text-[26px] font-extrabold tracking-[0.02em]">{modalidade.nome}</span>

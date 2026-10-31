@@ -33,7 +33,7 @@ export const banners: Banner[] = [
     publicado: true,
     ordem: 1,
     tipo: "danilo",
-    alt: "Danilo Moura, fundador do Quad Concursos",
+    alt: "Quad Concursos",
     botao: { texto: "Clique aqui para acessar", link: "/turmas" },
   },
   {
@@ -74,7 +74,6 @@ export type Modalidade = {
   id: "rondesp" | "patamo" | "bope";
   nome: string;
   nivel: string;
-  insignia: string;
   perfil: string;
   metodo: string;
   // Peso da teoria no método (o resto é resolução de questões), em %.
@@ -86,7 +85,6 @@ export const modalidades: Modalidade[] = [
     id: "rondesp",
     nome: "RONDESP",
     nivel: "Base teórica",
-    insignia: "/images/insignias/rondesp.webp",
     perfil: "Indicada para alunos que precisam construir ou fortalecer a base de conhecimento.",
     metodo: "O foco principal é a explicação da teoria, com resolução de questões para fixação.",
     teoria: 75,
@@ -95,7 +93,6 @@ export const modalidades: Modalidade[] = [
     id: "patamo",
     nome: "PATAMO",
     nivel: "Intermediário",
-    insignia: "/images/insignias/patamo.webp",
     perfil: "Indicada para alunos que já possuem algum conhecimento, mas ainda precisam consolidar os conteúdos.",
     metodo: "Combina teoria e resolução de questões de forma equilibrada.",
     teoria: 50,
@@ -104,7 +101,6 @@ export const modalidades: Modalidade[] = [
     id: "bope",
     nome: "BOPE",
     nivel: "Avançado",
-    insignia: "/images/insignias/bope.webp",
     perfil: "Indicada para alunos que já possuem uma base de conhecimento e desejam intensificar o treinamento.",
     metodo: "O foco principal é a resolução de questões, revisão e aprimoramento do desempenho.",
     teoria: 25,
