@@ -115,6 +115,74 @@ export const modalidades: Modalidade[] = [
 // Vendidas na landing própria; as âncoras abaixo existem lá.
 export const LINK_DAS_MENTORIAS = "https://mentorias.quadconcursos.com.br/";
 
+// Checkout de cada mentoria por concurso, na Tutory: os mesmos 15 links da página das mentorias (bloco CHECKOUTS de
+// LINK_DAS_MENTORIAS, copiado em 31/10/2026). Ao trocar um link lá, trocar aqui também.
+export type PlanoDaMentoria = "mentoria" | "plus" | "combo";
+const TUTORY = "https://pay.plataformatutory.com.br/checkout";
+export const CONCURSOS_DAS_MENTORIAS: {
+  id: string;
+  titulo: string;
+  subtitulo: string;
+  brasao: string;
+  checkout: Record<PlanoDaMentoria, string>;
+}[] = [
+  {
+    id: "sd-pmba",
+    titulo: "Soldado PMBA",
+    subtitulo: "Polícia Militar da Bahia",
+    brasao: "/images/brasoes-concursos/pmba.png",
+    checkout: {
+      mentoria: `${TUTORY}/acbac796-4e0e-4dc7-9019-d687d2d2f56b`,
+      plus: `${TUTORY}/5566bc3b-8852-4d70-9c0a-0b98001bc64a`,
+      combo: `${TUTORY}/98350c39-d423-4df2-8337-59765e680dfa`,
+    },
+  },
+  {
+    id: "cfo-pmba",
+    titulo: "CFO PMBA",
+    subtitulo: "Curso de Formação de Oficiais",
+    brasao: "/images/brasoes-concursos/cfo.png",
+    checkout: {
+      mentoria: `${TUTORY}/e4488cef-39c6-472b-b221-332c1b83369d`,
+      plus: `${TUTORY}/294a5555-bfdb-4917-ae08-558b33c632c2`,
+      combo: `${TUTORY}/94299d6f-8b3e-49bf-8f6f-1ecb47f49b78`,
+    },
+  },
+  {
+    id: "sgt-pmba",
+    titulo: "Sargento PMBA",
+    subtitulo: "Curso de Formação de Sargentos",
+    brasao: "/images/brasoes-concursos/sgto.png",
+    checkout: {
+      mentoria: `${TUTORY}/954a6801-08eb-4087-b271-bbbd02a26b10`,
+      plus: `${TUTORY}/3a88d9ce-b739-4a0c-94ba-2813d070b92f`,
+      combo: `${TUTORY}/42908462-94db-4b30-91eb-96eca9a9014e`,
+    },
+  },
+  {
+    id: "sd-bmba",
+    titulo: "Soldado BMBA",
+    subtitulo: "Corpo de Bombeiros Militar",
+    brasao: "/images/brasoes-concursos/bmba.png",
+    checkout: {
+      mentoria: `${TUTORY}/a6f6190a-df9d-4c9e-9edc-a2ddf860b433`,
+      plus: `${TUTORY}/7a58f58e-9a87-494c-9d81-36b38360f0c8`,
+      combo: `${TUTORY}/cb0dd505-33ab-42b6-b206-f9a7ae6b2bf4`,
+    },
+  },
+  {
+    id: "inv-pcba",
+    titulo: "Investigador PCBA",
+    subtitulo: "Polícia Civil da Bahia",
+    brasao: "/images/brasoes-concursos/civil.png",
+    checkout: {
+      mentoria: `${TUTORY}/be0aab3b-ff86-4d96-840a-5c2852853bae`,
+      plus: `${TUTORY}/babae643-326b-430d-a170-df5be26c1e07`,
+      combo: `${TUTORY}/66b9502a-aac7-47ff-b6fc-e71cc361d9dc`,
+    },
+  },
+];
+
 export const mentorias = [
   {
     nome: "Mentoria",
