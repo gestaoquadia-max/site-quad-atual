@@ -83,6 +83,8 @@ A vitrine (`/api/loja/vitrine/atividades` e `/api/loja/vitrine`) é a única fon
 
 Além disso, nada impede o envio de uma imagem pequena ou fora de proporção, que fica borrada ou mal cortada.
 
+> **31/10/2026: a capa da turma fica quadrada.** Decisão do Quad: o site passou a mostrar a capa da turma num quadro quadrado, então o corte em 560 × 560 do console **serve para a turma**. Para ela, o pedido fica só no formato (manter PNG/WebP com transparência) e na medida mínima de 560 × 560. As outras imagens da tabela continuam valendo.
+
 **O pedido.**
 1. **Validar no envio** (no console e na API, que é quem grava) a medida mínima e a proporção de cada tipo de imagem, conforme a tabela abaixo. Imagem fora da regra é recusada com uma mensagem que diga a medida enviada e a esperada. Por exemplo: "A imagem tem 560 × 560 px. A capa da turma precisa ter pelo menos 800 × 1000 px, na proporção 4:5 (vertical)."
 2. **Não cortar em quadrado.** O corte, quando houver, respeita a proporção de cada tipo. Imagem acima do lado máximo é **reduzida** para o tamanho recomendado em vez de recusada.
@@ -92,7 +94,7 @@ Além disso, nada impede o envio de uma imagem pequena ou fora de proporção, q
 
 | Imagem | Onde aparece no site | Proporção | Recomendado | Mínimo (recusar abaixo) | Proporção aceita (largura ÷ altura) |
 |---|---|---|---|---|---|
-| Capa da turma (`imagemUrl` da atividade) | Página da turma (até 520 × 650) | 4:5 vertical | 1080 × 1350 | 800 × 1000 | 0,75 a 0,85 |
+| Capa da turma (`imagemUrl` da atividade) | Página da turma (até 520 × 520) | 1:1 | 1080 × 1080 | 560 × 560 | 0,95 a 1,05 |
 | Produto da loja (`imagemUrl` do item) | Página do produto (até 640 × 640) e cartão (320) | 1:1 | 1200 × 1200 | 800 × 800 | 0,95 a 1,05 |
 | Foto do professor (`fotoUrl`, item 3) | Cartão (320 × 400) e topo da página do professor | 4:5 vertical | 1080 × 1350 | 800 × 1000 | 0,75 a 0,85 |
 | Arte do evento e do simulado (quando houver) | Cartão e página do evento | 1:1 | 1080 × 1080 | 800 × 800 | 0,95 a 1,05 |
@@ -105,10 +107,10 @@ Além disso, nada impede o envio de uma imagem pequena ou fora de proporção, q
 - lado máximo de 4000 px (acima disso, reduzir).
 
 **Enquadramento (vale mostrar como dica no console, ao lado do campo de envio):**
-- **Capa da turma:** no celular, a capa aparece cortada em formato deitado (16:10), então o brasão ou o texto precisa ficar no **centro** da imagem.
+- **Capa da turma:** aparece inteira, num quadro quadrado; o brasão ou o texto centralizado.
 - **Foto do professor:** no topo da página, a foto é cortada mantendo a parte de cima, então o rosto precisa ficar no **terço superior**.
 
-**Imagens atuais:** as capas já cadastradas (560 × 560) não passam na regra nova. A validação vale só para envios novos; as atuais continuam aparecendo até serem trocadas.
+**Imagens atuais:** as capas de turma já cadastradas (560 × 560) passam na regra. A validação vale só para envios novos.
 
 ---
 
