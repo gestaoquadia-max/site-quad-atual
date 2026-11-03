@@ -26,8 +26,8 @@ export default async function TurmasPage() {
       </Suspense>
       <SecaoDeCombos
         combos={combos}
-        titulo="Combos de turmas"
-        descricao="Turmas juntas por um preço menor que a soma. O combo é pago à parte do carrinho, numa compra só."
+        titulo="Combos com turmas"
+        descricao="A turma junto com outras turmas, materiais, simulados ou produtos da loja, por um preço menor que a soma. O combo é pago à parte do carrinho, numa compra só."
         fundo="branco"
       />
     </>

@@ -4,7 +4,7 @@ import { SEGUNDOS_DE_CACHE, ETIQUETA_DA_VITRINE } from "./vitrine";
 
 // Combos da loja (API, PR #129, 28/10/2026): várias partes por um preço só. A vitrine é pública
 // (/api/loja/vitrine/combos); a compra é um fechamento próprio (/api/loja/fechamentos/combos/{id}), sem carrinho e sem
-// cupom, porque o combo já é o desconto. Página própria em /combos; cada área mostra os combos só dela.
+// cupom, porque o combo já é o desconto. Página própria em /combos; cada área mostra os combos que têm uma parte dela.
 
 export type TipoDaParte = "ITEM" | "TURMA" | "EVENTO" | "SIMULADO";
 
@@ -41,10 +41,23 @@ export type Combo = {
   componentes: ParteDoCombo[];
 };
 
-export type AreaDoCombo = "turmas" | "simulados" | "materiais";
+export type AreaDoCombo = "turmas" | "simulados" | "materiais" | "loja" | "eventos";
 
-// A área de um combo: a de todas as partes, quando são de um tipo só. Misturado (ex.: módulo + camisa + simulado)
-// fica só na página /combos (decisão de 31/10/2026).
+function areaDaParte(p: ParteDoCombo): AreaDoCombo {
+  if (p.tipo === "TURMA") return "turmas";
+  if (p.tipo === "SIMULADO") return "simulados";
+  if (p.tipo === "EVENTO") return "eventos";
+  return p.tipoDeItem === "MATERIAL" || p.tipoDeItem === "MODULOS" ? "materiais" : "loja";
+}
+
+// As áreas em que o combo aparece: a de cada parte. Turma + simulado + camisa aparece em Turmas, Simulados e Loja
+// (decisão de 03/11/2026; antes o misturado ficava só em /combos).
+export function areasDoCombo(c: Combo): Set<AreaDoCombo> {
+  return new Set(c.componentes.map(areaDaParte));
+}
+
+// O grupo do combo na página /combos: a área de todas as partes, quando são de um tipo só; misturado vai para
+// "Combos completos" (null).
 export function areaDoCombo(c: Combo): AreaDoCombo | null {
   const partes = c.componentes;
   if (partes.length === 0) return null;
@@ -104,5 +117,5 @@ export async function buscarCombo(slug: string): Promise<Combo | null> {
 }
 
 export async function listarCombosDaArea(area: AreaDoCombo): Promise<Combo[]> {
-  return ((await listarCombos()) ?? []).filter((c) => areaDoCombo(c) === area);
+  return ((await listarCombos()) ?? []).filter((c) => areasDoCombo(c).has(area));
 }

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Combo } from "@/lib/combos";
 import CartaoCombo from "./CartaoCombo";
 
-// Os combos de uma área (Turmas, Materiais, Simulados), no fim da página dela. Sem combos, nada aparece.
+// Os combos com alguma parte da área (Turmas, Materiais, Loja, Eventos), no fim da página dela. Sem combos, nada aparece.
 export default function SecaoDeCombos({ combos, titulo, descricao, fundo = "nevoa" }: { combos: Combo[]; titulo: string; descricao: string; fundo?: "nevoa" | "branco" }) {
   if (combos.length === 0) return null;
   return (

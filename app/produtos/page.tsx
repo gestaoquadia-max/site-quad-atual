@@ -21,8 +21,8 @@ export default async function ProdutosPage() {
       <CatalogoDeMateriais produtos={produtos} />
       <SecaoDeCombos
         combos={combos}
-        titulo="Combos de materiais"
-        descricao="Apostilas juntas por um preço menor que a soma. O combo é pago à parte do carrinho, numa compra só."
+        titulo="Combos com materiais"
+        descricao="Apostilas junto com outros materiais, turmas, simulados ou produtos da loja, por um preço menor que a soma. O combo é pago à parte do carrinho, numa compra só."
         fundo="branco"
       />
     </>
