@@ -120,9 +120,8 @@ export default function CartaoMaterial({ produto, indice }: { produto: Produto; 
           <div className="mt-2.5 animate-[q-surgir_200ms_ease_both] rounded-xl border border-white/[0.08] bg-black/[0.22] p-3">
             <div className="mb-2 text-[10.5px] font-bold uppercase tracking-[0.14em] text-prata-escura">Entrega do impresso</div>
             <div role="radiogroup" aria-label="Entrega do impresso" className="flex flex-col gap-1.5">
+              {/* Só a retirada: o Quad não entrega materiais por enquanto (decisão de 03/11/2026). */}
               <OpcaoDeEntrega marcada rotulo="Retirar no Quad" dica="Sem custo" />
-              {/* Depende da integração com a transportadora (frete por CEP). */}
-              <OpcaoDeEntrega marcada={false} desativada rotulo="Enviar para casa" dica="Em breve · frete pelo CEP" />
             </div>
           </div>
         )}

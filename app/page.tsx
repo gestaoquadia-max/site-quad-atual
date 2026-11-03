@@ -73,7 +73,7 @@ export default async function Home() {
               <CartaoMaterial key={p.slug} produto={p} indice={i} />
             ))}
           </Trilho>
-          <p className="mt-5 text-[12.5px] text-[#7F90A8]">O impresso é retirado no Quad, sem custo. O envio pelo correio, com frete calculado pelo CEP, chega em breve.</p>
+          <p className="mt-5 text-[12.5px] text-[#7F90A8]">O impresso é retirado na sede do Quad, sem custo.</p>
         </Secao>
       )}
 

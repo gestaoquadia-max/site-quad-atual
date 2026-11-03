@@ -13,7 +13,7 @@ const OPCOES: Record<FormatoDoMaterial, { rotulo: string; dica: string }> = {
 };
 
 // Formato, preço e "Adicionar ao carrinho" da página do material. Os dois formatos aparecem sempre; o que o material
-// não tem fica desativado. Cada formato tem preço próprio (na API, é um item). O envio do impresso depende do frete.
+// não tem fica desativado. Cada formato tem preço próprio. O impresso só se retira no Quad (sem entrega, por enquanto).
 export default function CompraDoMaterial({ produto }: { produto: Produto }) {
   const { addItem } = useCart();
   const [formato, setFormato] = useState<FormatoDoMaterial>(formatoInicial(produto));
@@ -57,7 +57,7 @@ export default function CompraDoMaterial({ produto }: { produto: Produto }) {
           })}
         </div>
         {formato === "impresso" && (
-          <p className="mt-2.5 text-[12.5px] text-prata">O envio do impresso pelo correio, com frete calculado pelo CEP, chega em breve.</p>
+          <p className="mt-2.5 text-[12.5px] text-prata">O impresso é retirado na sede do Quad, sem custo. Você recebe o aviso quando ele estiver disponível.</p>
         )}
         {formato === "digital" && (
           <p className="mt-2.5 text-[12.5px] text-prata">Depois do pagamento, o PDF fica em Minhas compras, na área do aluno. Cada conta compra uma vez.</p>

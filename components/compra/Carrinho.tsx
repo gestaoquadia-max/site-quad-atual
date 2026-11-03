@@ -172,8 +172,8 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
                     Vale para materiais impressos e produtos da Loja. Turmas, eventos e itens digitais não precisam de entrega.
                   </p>
                   <div role="radiogroup" aria-label="Forma de entrega" className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-2.5">
+                    {/* Só a retirada: o Quad não entrega por enquanto (decisão de 03/11/2026). */}
                     <OpcaoDeEntrega marcada={entrega === "retirada"} aoEscolher={() => setEntrega("retirada")} titulo="Retirar no Quad" dica="Grátis · na sede do Quad" />
-                    <OpcaoDeEntrega marcada={false} desativada titulo="Receber em casa" dica="Em breve: envio pelos Correios" />
                   </div>
                   <div className="mt-3.5 flex items-center gap-2.5 rounded-[11px] bg-[#E3F3EA] px-3.5 py-3 text-sm font-medium text-[#13774A]">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
