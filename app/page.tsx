@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { aprovados } from "@/lib/data";
 import { bannersPublicados, mentorias, modalidades } from "@/lib/conteudo";
-import { listarEventos, listarMateriais, listarProdutosDaLoja, listarProfessores, listarTurmas } from "@/lib/vitrine";
+import { listarEventos, listarMateriais, listarProfessores, listarTurmas } from "@/lib/vitrine";
 import { insigniaDaModalidade } from "@/lib/turmas";
 import { dadosDaOrganizacao } from "@/lib/dados-estruturados";
 import DadosEstruturados from "@/components/DadosEstruturados";
@@ -15,7 +15,6 @@ import {
   CartaoAprovado,
   CartaoMentoria,
   CartaoModalidade,
-  CartaoProdutoDaLoja,
 } from "@/components/home/Cartoes";
 import ProfessoresEmDestaque from "@/components/home/ProfessoresEmDestaque";
 
@@ -36,10 +35,10 @@ function Secao({ className = "", id, brilho, children }: { className?: string; i
 }
 
 export default async function Home() {
-  const [eventos, materiais, loja, professores, turmas] = await Promise.all([
+  // A Loja saiu da Home (03/11/2026): fica só no menu, em /loja.
+  const [eventos, materiais, professores, turmas] = await Promise.all([
     listarEventos(),
     listarMateriais(),
-    listarProdutosDaLoja(),
     listarProfessores(),
     listarTurmas(),
   ]);
@@ -66,7 +65,7 @@ export default async function Home() {
         </Trilho>
       </Secao>
 
-      {/* Materiais e Loja vêm da vitrine de itens da API; sem nada à venda (ou sem resposta), a seção some. */}
+      {/* Materiais vêm da vitrine de itens da API; sem nada à venda (ou sem resposta), a seção some. */}
       {materiais && materiais.length > 0 && (
         <Secao className="bg-marinho-900 text-white" brilho="bg-[radial-gradient(50%_60%_at_100%_0%,rgba(0,107,255,0.16),transparent_70%),radial-gradient(40%_50%_at_0%_100%,rgba(0,107,255,0.08),transparent_70%)]">
           <Trilho titulo="Materiais de estudo" link={{ href: "/produtos", label: "Ver todos os materiais" }} rotulo="Materiais de estudo" tema="escuro" colunas={4}>
@@ -75,16 +74,6 @@ export default async function Home() {
             ))}
           </Trilho>
           <p className="mt-5 text-[12.5px] text-[#7F90A8]">O impresso é retirado no Quad, sem custo. O envio pelo correio, com frete calculado pelo CEP, chega em breve.</p>
-        </Secao>
-      )}
-
-      {loja && loja.length > 0 && (
-        <Secao className="bg-white">
-          <Trilho titulo="Loja Quad" link={{ href: "/loja", label: "Ver todos os produtos" }} rotulo="Produtos da Loja Quad" colunas={4}>
-            {loja.map((p) => (
-              <CartaoProdutoDaLoja key={p.id} produto={p} />
-            ))}
-          </Trilho>
         </Secao>
       )}
 
