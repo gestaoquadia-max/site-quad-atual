@@ -31,14 +31,11 @@ function Fundo({ professor }: { professor: Professor }) {
       <span className="absolute -right-[4%] top-[2%] select-none font-display text-[clamp(180px,22vw,320px)] font-extrabold leading-none tracking-[-0.06em] text-transparent [-webkit-text-stroke:1.5px_rgba(111,174,255,0.45)]">
         {getIniciais(professor.nome)}
       </span>
+      {/* No máximo do tamanho do arquivo (hoje 512 × 512), sem esticar nem recomprimir: ampliada, a foto borra. */}
       {professor.fotoUrl && (
-        <Image
-          src={professor.fotoUrl}
-          alt=""
-          fill
-          sizes="(min-width: 1024px) 600px, 85vw"
-          className="object-contain object-bottom pt-[12%] drop-shadow-[0_20px_40px_rgba(0,0,0,0.55)] transition-transform duration-700 group-hover:scale-[1.03]"
-        />
+        <div className="absolute bottom-0 left-1/2 aspect-square h-[min(88%,512px)] max-w-full -translate-x-1/2">
+          <Image src={professor.fotoUrl} alt="" fill unoptimized className="object-contain object-bottom" />
+        </div>
       )}
       <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(5,14,28,0.92)_6%,rgba(5,14,28,0.55)_26%,rgba(5,14,28,0)_50%)]" />
     </div>
