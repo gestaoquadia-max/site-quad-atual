@@ -37,6 +37,10 @@ export type Turma = {
   };
 };
 
+// Um formato do material: o item da API que o vende (o mesmo nos dois formatos, na API nova), o preço e se dá para
+// comprar. `indisponivel`: o digital cadastrado cujo PDF ainda não chegou (a API mostra e não vende).
+export type OfertaDoMaterial = { slug: string; idNaApi: string; preco: string; esgotado: boolean; indisponivel?: boolean };
+
 export type Produto = {
   slug: string;
   // O id do item na API: é o que o carrinho do servidor reserva (o endereço é o slug).
@@ -45,8 +49,11 @@ export type Produto = {
   nome: string;
   desc: string;
   preco: string;
-  // Formatos à venda. Da API vem um só por item (tipo MATERIAL): "digital" (PDF, baixado no site) ou "impresso" (retirada no Quad).
+  // Formatos cadastrados: "digital" (PDF, baixado no site) e/ou "impresso" (retirada no Quad).
   formatos?: ("digital" | "impresso")[];
+  // O impresso e o digital, cada um com o preço dele; o aluno escolhe o formato dentro do material (lib/vitrine.ts).
+  // Os campos de cima (slug, idNaApi, preco) são os do primeiro formato à venda.
+  ofertas?: Partial<Record<"digital" | "impresso", OfertaDoMaterial>>;
   esgotado?: boolean;
   detalhe?: {
     lead: string;

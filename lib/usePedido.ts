@@ -23,7 +23,9 @@ type Estado =
 
 function mesmaLinha(alvo: Alvo, l: LinhaDoCarrinho) {
   if (alvo.atividade) return l.alvo.atividade?.id === alvo.atividade.id;
-  return l.alvo.itemId === alvo.itemId && (l.alvo.variacao?.id ?? undefined) === alvo.variacaoId;
+  // O impresso e o digital do mesmo material são duas linhas do mesmo item.
+  const mesmaPlataforma = !alvo.plataforma || !l.alvo.plataforma || l.alvo.plataforma === alvo.plataforma;
+  return l.alvo.itemId === alvo.itemId && (l.alvo.variacao?.id ?? undefined) === alvo.variacaoId && mesmaPlataforma;
 }
 
 function mensagem(e: unknown, padrao: string) {

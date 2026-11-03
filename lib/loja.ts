@@ -9,12 +9,20 @@ import { lerErro } from "./http";
 export type Alvo = {
   itemId?: string;
   variacaoId?: string;
+  // No material: a oferta escolhida (API, PR #137). Ausente, a API leva a única oferecida, ou o impresso com as duas.
+  plataforma?: "IMPRESSO" | "DIGITAL";
   atividade?: { tipo: "TURMA" | "EVENTO" | "SIMULADO"; id: string };
 };
 
 export type LinhaDoCarrinho = {
   id: string;
-  alvo: { itemId: string | null; variacao: { id: string; nome: string } | null; atividade: { tipo: string; id: string } | null };
+  alvo: {
+    itemId: string | null;
+    variacao: { id: string; nome: string } | null;
+    // A oferta que a linha reserva, já resolvida; nula fora do material.
+    plataforma?: "IMPRESSO" | "DIGITAL" | null;
+    atividade: { tipo: string; id: string } | null;
+  };
   nome: string;
   imagemUrl: string | null;
   quantidade: number;

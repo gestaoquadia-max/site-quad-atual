@@ -563,18 +563,24 @@ type ItemDaVitrine = {
   nome: string;
   // Único entre os itens; não muda se o nome mudar (V119).
   slug?: string | null;
-  // MATERIAL = material didático, impresso (retirada no balcão) ou digital (PDF baixado no site), em `material.plataforma`.
+  // MATERIAL = material didático, impresso (retirada no balcão) e/ou digital (PDF baixado no site).
   // Era MODULOS até a V132 (27/10/2026): a API de produção ainda pode responder o nome antigo até ser atualizada.
   // OUTROS = produto da loja. MENTORIA e SKIN são do app.
   tipo: "MATERIAL" | "MODULOS" | "EXCURSOES" | "TREINAMENTO_TAF" | "MENTORIA" | "OUTROS" | "SKIN";
   descricao: string | null;
-  // Só no material: categoria, concurso (nulo = todos) e plataforma. O digital não tem estoque (restantes nulo) e sai um por aluno.
+  // Só no material: categoria, concurso (nulo = todos) e as ofertas (API, PR #137, V144, 03/11/2026): o mesmo
+  // cadastro oferece o impresso e/ou o digital. O impresso usa o preço e o estoque do topo do item; o digital tem o
+  // preço dele em `digital` (sem estoque; `aVenda` falso enquanto o PDF não chegou). `plataforma` é o campo de antes
+  // da V144 (um formato por item), lido só enquanto alguma API responder assim.
   material?: {
     categoria: { id: string; nome: string } | null;
     concurso: ConcursoDaVitrine | null;
-    plataforma: "IMPRESSO" | "DIGITAL";
+    plataformas?: ("IMPRESSO" | "DIGITAL")[];
+    digital?: { preco: number | null; aVenda: boolean } | null;
+    plataforma?: "IMPRESSO" | "DIGITAL";
   } | null;
   imagemUrl: string | null;
+  // No material, o do impresso (nulo no material só digital).
   preco: number | null;
   ofertadas: number | null;
   vendidas: number | null;
@@ -593,38 +599,100 @@ async function buscarItem(endereco: string): Promise<ItemDaVitrine | null> {
 async function listarItens(): Promise<ItemDaVitrine[]> {
   const pagina = await lerDaVitrine<Pagina<ItemDaVitrine>>("/api/loja/vitrine?tamanho=100");
   // A vitrine lista do mais novo ao mais antigo; o site mostra na ordem do cadastro.
-  return pagina === NAO_ENCONTRADA ? [] : pagina.conteudo.filter((i) => i.preco != null && i.preco > 0).reverse();
+  // Fica de fora o que não se vende em reais (skin, mentoria). O material só digital tem o preço em `material.digital`.
+  const temPreco = (i: ItemDaVitrine) => (i.preco != null && i.preco > 0) || (i.material?.digital?.preco ?? 0) > 0;
+  return pagina === NAO_ENCONTRADA ? [] : pagina.conteudo.filter(temPreco).reverse();
 }
 
 const ehMaterial = (i: ItemDaVitrine) => i.tipo === "MATERIAL" || i.tipo === "MODULOS";
 
-// Cada item da API é um formato só: o PDF e o impresso de uma mesma apostila são itens separados, com preço próprio.
-function paraMaterial(i: ItemDaVitrine): Produto {
-  const kit = /\bkit\b|combo/i.test(i.nome);
-  const digital = i.material?.plataforma === "DIGITAL";
-  // O digital não esgota (restantes nulo); o impresso acaba com o estoque.
-  const esgotado = !digital && i.restantes !== null && i.restantes <= 0;
-  const concurso = i.material?.concurso?.rotulo;
+type FormatoDoMaterial = "digital" | "impresso";
+const ORDEM_DOS_FORMATOS: FormatoDoMaterial[] = ["digital", "impresso"];
+
+// O que um item oferece, com o preço de cada formato (em centavos; o formato sem preço em reais não se vende no site).
+function ofertasDoItem(i: ItemDaVitrine): { formato: FormatoDoMaterial; preco: number; esgotado: boolean; indisponivel: boolean }[] {
+  const m = i.material;
+  const plataformas = m?.plataformas ?? [m?.plataforma ?? "IMPRESSO"];
+  const ofertas: ReturnType<typeof ofertasDoItem> = [];
+  if (plataformas.includes("DIGITAL")) {
+    // Antes da V144, o preço do digital vinha no topo do item.
+    const preco = m?.digital ? m.digital.preco : m?.plataformas ? null : i.preco;
+    if (preco) ofertas.push({ formato: "digital", preco, esgotado: false, indisponivel: m?.digital ? !m.digital.aVenda : false });
+  }
+  if (plataformas.includes("IMPRESSO") && i.preco) {
+    ofertas.push({ formato: "impresso", preco: i.preco, esgotado: i.restantes !== null && i.restantes <= 0, indisponivel: false });
+  }
+  return ofertas;
+}
+
+// "Módulo de Português - PDF" e "Módulo de Português (Impresso)" → "Módulo de Português".
+function nomeSemFormato(nome: string) {
+  return nome.replace(/\s*(?:[-–—]\s*|\()\s*(?:pdf|digital|impresso)\s*\)?\s*$/i, "").trim();
+}
+
+// Mesma apostila = mesmo nome (sem o formato) e mesmo concurso.
+const chaveDoMaterial = (i: ItemDaVitrine) => `${slugDoNome(nomeSemFormato(i.nome))}|${i.material?.concurso?.id ?? ""}`;
+
+// Um material do site, com o impresso e o digital à escolha (03/11/2026). Na API nova o mesmo cadastro oferece os
+// dois (V144); os cadastros de antes, um por formato com o mesmo nome, também se juntam aqui (agruparMateriais).
+function paraMaterial(itens: ItemDaVitrine[]): Produto {
+  const porFormato = new Map<FormatoDoMaterial, { item: ItemDaVitrine; oferta: ReturnType<typeof ofertasDoItem>[number] }>();
+  for (const item of itens) for (const oferta of ofertasDoItem(item)) if (!porFormato.has(oferta.formato)) porFormato.set(oferta.formato, { item, oferta });
+  const formatos = ORDEM_DOS_FORMATOS.filter((f) => porFormato.has(f));
+  const ofertas = Object.fromEntries(
+    formatos.map((f) => {
+      const { item, oferta } = porFormato.get(f)!;
+      return [f, { slug: slugDa(item), idNaApi: item.id, preco: precoEmTexto(emReais(oferta.preco)), esgotado: oferta.esgotado, indisponivel: oferta.indisponivel }];
+    }),
+  ) as Produto["ofertas"];
+  const aVenda = (f: FormatoDoMaterial) => !ofertas![f]!.esgotado && !ofertas![f]!.indisponivel;
+  // O endereço do material é o do primeiro formato à venda (o do outro cadastro leva para ele).
+  const primeiro = formatos.find(aVenda) ?? formatos[0];
+  const principal = porFormato.get(primeiro)?.item ?? itens[0];
+  const impresso = porFormato.get("impresso")?.item;
+  const esgotadoDo = (i: ItemDaVitrine) => i.restantes !== null && i.restantes <= 0;
+  const kit = /\bkit\b|combo/i.test(principal.nome);
+  const concurso = principal.material?.concurso?.rotulo;
+  const descricao = itens.map((i) => i.descricao).find(Boolean) ?? "";
+  const rotuloDosFormatos = formatos.length > 1 ? "PDF ou impresso" : formatos[0] === "digital" ? "PDF" : "Impresso";
   return {
-    slug: slugDa(i),
-    idNaApi: i.id,
-    tag: `${kit ? "Kit" : i.material?.categoria?.nome ?? "Apostila"} · ${digital ? "PDF" : "Impresso"}`,
-    nome: i.nome,
-    desc: i.descricao ?? "",
-    preco: precoEmTexto(emReais(i.preco!)),
-    formatos: [digital ? "digital" : "impresso"],
-    esgotado,
+    slug: slugDa(principal),
+    idNaApi: principal.id,
+    tag: `${kit ? "Kit" : principal.material?.categoria?.nome ?? "Apostila"} · ${rotuloDosFormatos}`,
+    nome: nomeSemFormato(principal.nome),
+    desc: descricao,
+    preco: primeiro ? ofertas![primeiro]!.preco : "",
+    formatos,
+    ofertas,
+    esgotado: !formatos.some(aVenda),
     detalhe: {
-      lead: i.descricao ?? "",
+      lead: descricao,
       specs: [
-        { label: "Formato", valor: digital ? "Digital (PDF)" : "Impresso" },
-        { label: "Entrega", valor: digital ? "Download na área do aluno" : "Retirada no Quad" },
+        { label: "Formato", valor: formatos.map((f) => (f === "digital" ? "Digital (PDF)" : "Impresso")).join(" ou ") },
         ...(concurso ? [{ label: "Concurso", valor: concurso }] : []),
-        ...(!digital && i.restantes !== null ? [{ label: "Disponíveis", valor: esgotado ? "Esgotado" : String(i.restantes), destaque: true }] : []),
+        ...(impresso && impresso.restantes !== null
+          ? [{ label: "Impressos disponíveis", valor: esgotadoDo(impresso) ? "Esgotado" : String(impresso.restantes), destaque: true }]
+          : []),
       ],
       sumario: [],
     },
   };
+}
+
+// Agrupa os itens de material por apostila, na ordem do primeiro de cada uma.
+function agruparMateriais(itens: ItemDaVitrine[]): Produto[] {
+  const grupos = new Map<string, ItemDaVitrine[]>();
+  const formatosDe = (lista: ItemDaVitrine[]) => new Set(lista.flatMap((i) => ofertasDoItem(i).map((o) => o.formato)));
+  for (const i of itens.filter(ehMaterial)) {
+    if (ofertasDoItem(i).length === 0) continue;
+    const chave = chaveDoMaterial(i);
+    const grupo = grupos.get(chave) ?? [];
+    // Dois cadastros com o mesmo nome e o mesmo formato não se juntam: o segundo fica como material próprio.
+    const ocupados = formatosDe(grupo);
+    if (ofertasDoItem(i).some((o) => ocupados.has(o.formato))) grupos.set(`${chave}|${i.id}`, [i]);
+    else grupos.set(chave, [...grupo, i]);
+  }
+  return [...grupos.values()].map(paraMaterial);
 }
 
 function categoriaDoNome(nome: string) {
@@ -662,15 +730,18 @@ function paraProdutoDaLoja(i: ItemDaVitrine): ProdutoDaLoja {
 
 export async function listarMateriais(): Promise<Produto[] | null> {
   try {
-    return (await listarItens()).filter(ehMaterial).map(paraMaterial);
+    return agruparMateriais(await listarItens());
   } catch {
     return null;
   }
 }
 
+// Pelo endereço de qualquer formato (ou o id, nos endereços antigos): o material com todos os formatos.
 export async function buscarMaterial(slug: string): Promise<Produto | null> {
   const item = await buscarItem(slug);
-  return item && ehMaterial(item) ? paraMaterial(item) : null;
+  if (!item || !ehMaterial(item)) return null;
+  const materiais = agruparMateriais(await listarItens());
+  return materiais.find((p) => Object.values(p.ofertas ?? {}).some((o) => o.idNaApi === item.id)) ?? paraMaterial([item]);
 }
 
 export async function listarProdutosDaLoja(): Promise<ProdutoDaLoja[] | null> {

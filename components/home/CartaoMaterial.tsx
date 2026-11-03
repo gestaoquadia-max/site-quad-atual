@@ -7,8 +7,7 @@ import { useCart } from "@/lib/cart";
 import { idDoItem } from "@/lib/itens";
 import { Brilho } from "../Brilho";
 import CapaDoLivro, { CORES_DA_CAPA } from "../CapaDoLivro";
-import { formatosDo } from "@/lib/materiais";
-
+import { FORMATOS_DO_MATERIAL, aVenda, alvoDaOferta, formatoInicial, ofertaDo, rotuloDeIndisponivel } from "@/lib/materiais";
 
 type Formato = "digital" | "impresso";
 
@@ -65,19 +64,21 @@ function OpcaoDeEntrega({ marcada, desativada, rotulo, dica, onEscolher }: {
 
 export default function CartaoMaterial({ produto, indice }: { produto: Produto; indice: number }) {
   const { addItem } = useCart();
-  const formatos = formatosDo(produto);
-  const [formato, setFormato] = useState<Formato>(formatos[0]);
+  const [formato, setFormato] = useState<Formato>(formatoInicial(produto));
   const impresso = formato === "impresso";
+  // Preço, id e estoque do formato escolhido (na API, cada formato é um item).
+  const oferta = ofertaDo(produto, formato);
 
   function adicionar() {
+    if (!oferta) return;
     addItem({
-      id: `${idDoItem("produto", produto.slug)}${impresso ? ":impresso" : ""}`,
+      id: `${idDoItem("produto", oferta.slug)}${impresso ? ":impresso" : ""}`,
       tipo: "produto",
       nome: produto.nome,
       tag: impresso ? "Impresso · Retirar no Quad" : "PDF · Download na área do aluno",
-      preco: produto.preco,
+      preco: oferta.preco,
       formato,
-      alvo: produto.idNaApi ? { itemId: produto.idNaApi } : undefined,
+      alvo: oferta.idNaApi ? alvoDaOferta(oferta, formato) : undefined,
     });
   }
 
@@ -92,25 +93,28 @@ export default function CartaoMaterial({ produto, indice }: { produto: Produto; 
         <h3 className="mb-1.5 font-display text-[19px] font-extrabold leading-[1.2] tracking-[-0.02em]">{produto.nome}</h3>
         <p className="text-sm leading-[1.5] text-prata">{produto.desc}</p>
 
-        {/* Com um formato só (da API, hoje só o impresso), não há o que escolher. */}
-        {formatos.length > 1 && (
+        {/* Os dois formatos sempre à vista; o que não está cadastrado fica desativado. */}
         <div role="radiogroup" aria-label={`Formato de ${produto.nome}`} className="mt-4 grid grid-cols-2 rounded-[10px] border border-white/[0.08] bg-black/25 p-[3px]">
-          {formatos.map((f) => (
-            <button
-              key={f}
-              type="button"
-              role="radio"
-              aria-checked={formato === f}
-              onClick={() => setFormato(f)}
-              className={`h-9 rounded-lg font-display text-[13px] font-bold transition-colors ${
-                formato === f ? "bg-white text-marinho-950 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.4)]" : "text-prata"
-              }`}
-            >
-              {f === "digital" ? "Digital" : "Impresso"}
-            </button>
-          ))}
+          {FORMATOS_DO_MATERIAL.map((f) => {
+            const existe = !!ofertaDo(produto, f);
+            return (
+              <button
+                key={f}
+                type="button"
+                role="radio"
+                aria-checked={formato === f}
+                aria-disabled={!existe || undefined}
+                title={existe ? undefined : `Este material não tem a versão ${f === "digital" ? "digital" : "impressa"}`}
+                onClick={existe ? () => setFormato(f) : undefined}
+                className={`h-9 rounded-lg font-display text-[13px] font-bold transition-colors ${
+                  formato === f ? "bg-white text-marinho-950 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.4)]" : existe ? "text-prata hover:text-white" : "cursor-not-allowed text-prata/40 line-through"
+                }`}
+              >
+                {f === "digital" ? "Digital" : "Impresso"}
+              </button>
+            );
+          })}
         </div>
-        )}
 
         {impresso && (
           <div className="mt-2.5 animate-[q-surgir_200ms_ease_both] rounded-xl border border-white/[0.08] bg-black/[0.22] p-3">
@@ -126,16 +130,16 @@ export default function CartaoMaterial({ produto, indice }: { produto: Produto; 
         {/* Empurra preço e botões para o pé do cartão, alinhados entre cartões de alturas diferentes. */}
         <div className="flex-1" />
         <div className="mt-[18px] flex flex-col gap-3.5 border-t border-white/[0.08] pt-4">
-          <PrecoEmDestaque preco={produto.preco} />
+          <PrecoEmDestaque preco={oferta?.preco ?? produto.preco} />
           {/* Cartão estreito (carrossel no celular): os botões passam para linhas próprias em vez de cortar. */}
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={adicionar}
-              disabled={produto.esgotado}
+              disabled={!aVenda(oferta)}
               className="btn-q btn-q-azul h-11 flex-[1_1_150px] px-3 text-[13.5px] disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-prata disabled:shadow-none"
             >
-              {produto.esgotado ? "Esgotado" : "Adicionar ao carrinho"}
+              {oferta && !aVenda(oferta) ? rotuloDeIndisponivel(oferta) : "Adicionar ao carrinho"}
             </button>
             <Link href={`/produtos/${produto.slug}`} className="btn-q btn-q-contorno-escuro h-11 flex-[1_1_80px] px-3.5 text-[13.5px]">
               Detalhes
