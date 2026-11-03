@@ -7,6 +7,7 @@ import { Children, useCallback, useEffect, useRef, useState } from "react";
 import type { Turma } from "@/lib/data";
 import { modalidades } from "@/lib/conteudo";
 import { insigniaDaModalidade } from "@/lib/turmas";
+import { brasaoDoConcurso } from "@/lib/brasoes";
 import AviseMe from "../AviseMePeloWhatsApp";
 import InsigniaDaTurma from "./InsigniaDaTurma";
 
@@ -62,21 +63,9 @@ const DESCRICAO_DO_CONCURSO: Record<string, { titulo: string; subtitulo: string 
   Outras: { titulo: "Outros concursos", subtitulo: "Demais turmas presenciais" },
 };
 
-// Brasão de cada concurso, pelo id da aba ("sd-pmba"): PNG transparente de 192 × 192 em public/images/brasoes-concursos/.
-// Sem brasão, o espaço mostra as iniciais do concurso.
-const BRASOES = "/images/brasoes-concursos";
-const IMAGEM_DO_CONCURSO: Record<string, string> = {
-  "sd-pmba": `${BRASOES}/pmba.png`,
-  "cfo-pmba": `${BRASOES}/cfo.png`,
-  "cfs-pmba": `${BRASOES}/sgto.png`,
-  "sgt-pmba": `${BRASOES}/sgto.png`,
-  "sd-bmba": `${BRASOES}/bmba.png`,
-  "sd-cbmba": `${BRASOES}/bmba.png`,
-  "ipc-pcba": `${BRASOES}/civil.png`,
-};
-
+// Brasão de cada concurso (lib/brasoes.ts), pelo id da aba ("sd-pmba"). Sem brasão, o espaço mostra as iniciais.
 function ImagemDoConcurso({ aba }: { aba: string }) {
-  const imagem = IMAGEM_DO_CONCURSO[idDaAba(aba)];
+  const imagem = brasaoDoConcurso(idDaAba(aba));
   if (imagem) return <Image src={imagem} alt="" width={48} height={48} className="h-12 w-12 flex-none object-contain" />;
   // "Todos os concursos" e "Outros concursos" não têm brasão: o cartão fica só com o texto.
   if (aba === TODOS || aba === SEM_CARGO) return null;

@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { brasaoDoConcurso } from "@/lib/brasoes";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { ErroDaApi } from "@/lib/http";
@@ -372,12 +374,17 @@ export default function CentralDeSimulados({
                     marcada ? "border-azul bg-azul text-white shadow-[0_16px_32px_-18px_rgba(0,107,255,0.9)]" : "border-linha bg-white hover:border-azul/50"
                   }`}
                 >
-                  <span className={`grid h-[42px] w-[42px] flex-none place-items-center rounded-[11px] ${marcada ? "bg-white/[0.18]" : "bg-azul-gelo text-azul-forte"}`} aria-hidden="true">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" />
-                      <path d="M9 12l2 2 4-4" />
-                    </svg>
-                  </span>
+                  {/* O brasão do concurso, como na escolha das Turmas; sem brasão, o escudo genérico. */}
+                  {brasaoDoConcurso(c.id) ? (
+                    <Image src={brasaoDoConcurso(c.id)!} alt="" width={48} height={48} className="h-12 w-12 flex-none object-contain" />
+                  ) : (
+                    <span className={`grid h-[42px] w-[42px] flex-none place-items-center rounded-[11px] ${marcada ? "bg-white/[0.18]" : "bg-azul-gelo text-azul-forte"}`} aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" />
+                        <path d="M9 12l2 2 4-4" />
+                      </svg>
+                    </span>
+                  )}
                   <span className="flex min-w-0 flex-1 flex-col gap-1">
                     <span className="font-display text-[17px] font-bold leading-tight">{c.curto}</span>
                     <span className={`text-[13px] font-medium leading-tight ${marcada ? "text-white" : n > 0 ? "text-sucesso" : "text-ardosia"}`}>{legenda}</span>
