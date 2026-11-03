@@ -22,23 +22,25 @@ function numero(i: number) {
   return String(i + 1).padStart(2, "0");
 }
 
-// Fundo de quem não tem foto: as iniciais gigantes, só no contorno, sobre uma grade fina.
+// Fundo do painel: as iniciais gigantes, só no contorno, sobre uma grade fina. A foto do cadastro é um recorte sem
+// fundo (PNG transparente, 512 × 512): fica inteira, "em pé" na base do painel, na frente das iniciais, como um pôster.
 function Fundo({ professor }: { professor: Professor }) {
-  if (professor.fotoUrl) {
-    return (
-      <>
-        <Image src={professor.fotoUrl} alt="" fill sizes="(min-width: 1024px) 50vw, 85vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
-        <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(0deg,rgba(5,14,28,0.95)_8%,rgba(5,14,28,0.35)_50%,rgba(5,14,28,0.1)_100%)]" />
-      </>
-    );
-  }
   return (
     <div aria-hidden="true" className="absolute inset-0 overflow-hidden bg-[radial-gradient(90%_70%_at_80%_10%,#1E5BD8_0%,#0B2A55_45%,#060F1E_100%)]">
       <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,0.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.35)_1px,transparent_1px)] [background-size:44px_44px] [mask-image:radial-gradient(80%_70%_at_70%_20%,#000,transparent)]" />
       <span className="absolute -right-[4%] top-[2%] select-none font-display text-[clamp(180px,22vw,320px)] font-extrabold leading-none tracking-[-0.06em] text-transparent [-webkit-text-stroke:1.5px_rgba(111,174,255,0.45)]">
         {getIniciais(professor.nome)}
       </span>
-      <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(5,14,28,0.92)_6%,rgba(5,14,28,0)_55%)]" />
+      {professor.fotoUrl && (
+        <Image
+          src={professor.fotoUrl}
+          alt=""
+          fill
+          sizes="(min-width: 1024px) 600px, 85vw"
+          className="object-contain object-bottom pt-[12%] drop-shadow-[0_20px_40px_rgba(0,0,0,0.55)] transition-transform duration-700 group-hover:scale-[1.03]"
+        />
+      )}
+      <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(5,14,28,0.92)_6%,rgba(5,14,28,0.55)_26%,rgba(5,14,28,0)_50%)]" />
     </div>
   );
 }
