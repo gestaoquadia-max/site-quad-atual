@@ -16,8 +16,8 @@ import {
   CartaoMentoria,
   CartaoModalidade,
   CartaoProdutoDaLoja,
-  CartaoProfessor,
 } from "@/components/home/Cartoes";
+import ProfessoresEmDestaque from "@/components/home/ProfessoresEmDestaque";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts): os eventos vêm da API.
 export const revalidate = 60;
@@ -96,15 +96,7 @@ export default async function Home() {
         </Trilho>
       </Secao>
 
-      {!!professores?.length && (
-        <Secao id="professores" className="bg-marinho-950 text-white" brilho="bg-[radial-gradient(45%_55%_at_0%_0%,rgba(0,107,255,0.16),transparent_70%)]">
-          <Trilho titulo="Conheça nossos professores" link={{ href: "/professores", label: "Ver todos os professores" }} rotulo="Professores" tema="escuro" colunas={4}>
-            {professores.map((p) => (
-              <CartaoProfessor key={p.slug} professor={p} />
-            ))}
-          </Trilho>
-        </Secao>
-      )}
+      {!!professores?.length && <ProfessoresEmDestaque professores={professores} />}
 
       <Secao className="bg-nevoa">
         <Reveal className="mb-[clamp(32px,4vw,48px)]">
