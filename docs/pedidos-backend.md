@@ -22,6 +22,7 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 1.5 | Entrada pelo Google: client ID do Quad no Google Cloud | Média |
 | 2.7 | Imagens: medida mínima, proporção e formato no envio pelo console (hoje corta em 560 × 560 e salva em JPG) | Alta (antes do lançamento) |
 | 3 | Professores: fotos e só os professores do site | Média |
+| 3.1 | Foto do professor: o console reduz para 512 × 512 antes de enviar; mandar pelo menos 1080 px (ou guardar a original 4:5) | Alta |
 | 4.1 | Verificação do celular por código ⚠️ (atendido em 29/10; falta confirmar o Twilio em produção) | Alta |
 | 4.6 | Conferir o CPF na Receita no cadastro (cpfcnpj.com.br) | Média |
 | 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
@@ -119,6 +120,10 @@ Além disso, nada impede o envio de uma imagem pequena ou fora de proporção, q
 `GET /api/professores/vitrine`, `/{id}` e `/slug/{slug}` já são públicos (o slug desde 23/10/2026, e o endereço do site é `/professores/danilo-moura`), e o site usa (home, página do professor, sitemap e autor do blog). A **minibio** é a coluna `graduacao` (decisão de 23/10/2026): o texto cadastrado ali aparece abaixo do nome do professor e no cartão da home, então o campo deve ser preenchido como uma apresentação curta (2 ou 3 linhas, até os 200 caracteres que a coluna aceita), não só o nome do curso. Faltam:
 
 - **Fotos:** nenhum professor tem `fotoUrl` no banco local. O site usa a foto que já tinha do Danilo enquanto isso.
+- **Foto do professor chega pequena (3.1, 03/11/2026, alta):** o arquivo original tem 1080 × 1350, mas o que fica no S3 tem **512 × 512** (ex.: a do Airton Brito, `imagens/professores/6bc4f14d-….png`). A API não redimensiona (`ExigenciaDoUso.RETRATO` só exige JPEG/PNG quadrada); quem corta em quadrado e reduz é o console, antes de enviar. No site, a foto aparece grande (no carrossel da home, o painel aberto tem cerca de 600 px de largura) e fica borrada. O pedido:
+  1. o console enviar a foto **sem reduzir abaixo de 1080 px** no lado menor (o recorte quadrado pode continuar, para o círculo do app: 1080 × 1080);
+  2. ou, melhor, guardar também a original (1080 × 1350, 4:5) para o site, que mostra a foto vertical, e o recorte quadrado para o app;
+  3. depois, reenviar as fotos já cadastradas (Airton Brito e Roberto Fabian), que hoje estão em 512 × 512.
 - **Só os professores do site:** "Danilo Mourão ribeiro" e "Davi" aparecem na vitrine local e parecem cadastros de teste. Em produção, a vitrine deve listar só os professores ativos que devem aparecer no site.
 
 ---
