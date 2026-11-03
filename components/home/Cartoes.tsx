@@ -124,8 +124,8 @@ export function CartaoProfessor({ professor, compacto = false }: { professor: Pr
           <div className={`font-display ${c("text-[15px] leading-tight", "text-[19px] leading-normal")} font-extrabold tracking-[-0.015em]`}>{professor.nome}</div>
         </div>
       </div>
-      <div className={`flex flex-1 flex-col ${c("gap-2.5 px-2 py-2.5", "gap-3.5 px-3 py-3.5")}`}>
-        {professor.bio ? <p className={`flex-1 ${c("text-[12.5px]", "text-[13.5px]")} leading-[1.55] text-prata`}>{professor.bio}</p> : <span className="flex-1" />}
+      {/* A minibio fica só na página do professor (pedido de 03/11/2026). */}
+      <div className={`flex flex-1 flex-col justify-end ${c("px-2 py-2.5", "px-3 py-3.5")}`}>
         {professor.materia && (
           <span className={`self-start rounded-md border border-[rgba(111,174,255,0.22)] bg-azul/[0.14] ${c("px-2 text-[10px]", "px-2.5 text-[11.5px]")} py-[5px] font-semibold uppercase tracking-[0.06em] text-azul-ceu`}>
             {professor.materia}
