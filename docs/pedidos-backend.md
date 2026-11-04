@@ -1,9 +1,17 @@
 # Pedidos para o backend — Site do Quad Concursos
 
-**De:** time do site (Next.js) · **Atualizado em:** 29/10/2026
-**Base:** testes na API local (`localhost:8080`) e leituras públicas da API de produção (`https://api.quadconcursos.com.br`).
+**De:** time do site (Next.js) · **Atualizado em:** 04/11/2026
+**Base:** testes na API local (`localhost:8080`), leituras públicas da API de produção (`https://api.quadconcursos.com.br`) e o **site de teste publicado** em `https://teste.quadconcursos.com.br` (Vercel, ligado à API de produção).
 
 Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: material digital em PDF à venda, acréscimo do parcelamento pago pelo aluno, atividades gratuitas na vitrine e matrícula gratuita em turma, limite de tentativas por rota, lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
+
+> **04/11/2026: atendidos e conferidos no site de teste**, e por isso saíram da lista:
+> - **CORS e cookies do teste:** a pré-verificação vinda de `https://teste.quadconcursos.com.br` responde 200, com a origem, `Allow-Credentials` e `idempotency-key` liberados; o login no teste funciona.
+> - **Entrada pelo Google no teste:** o client ID está na API (a rota responde `TOKEN_DE_PROVEDOR_INVALIDO` a um token falso, e não mais 503) e no site, que mostra o botão.
+> - **Verificação do celular (4.1) e `telefoneVerificadoEm` (4.2):** testada no site de teste com o Twilio de produção; o celular foi confirmado.
+> - **Combos (PR #129 e #136)** e **impresso e digital no mesmo material (PR #137, V144):** o site já usa (`/combos` e a escolha do formato dentro do material).
+>
+> **Liberados agora que o teste está no ar:** os pedidos 1.3 (domínio do teste no Pagar.me) e 1.6 (endereço do site nos e-mails) só podiam ser feitos com um endereço público do site.
 
 > **Banco compartilhado:** a API e o banco também atendem o **app Viver o Quad**. Toda mudança pedida aqui precisa considerar o impacto no app; os itens em que isso pesa estão marcados com ⚠️.
 
@@ -16,18 +24,18 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 
 | # | Pedido | Prioridade |
 |---|---|---|
-| 1.2 | Produção: `CORS_ORIGENS` com o domínio do site e `COOKIES_DOMINIO` | Alta (antes do lançamento) |
-| 1.3 | Autorizar o domínio do site na conta do Pagar.me | Alta (antes do lançamento) |
+| 1.2 | Domínio oficial no CORS e nos cookies (o teste já funciona) | Alta (no lançamento) |
+| 1.3 | Autorizar no Pagar.me o domínio do teste agora, e o oficial no lançamento | Alta |
 | 1.4 | Publicar a API e o site juntos (preços em centavos) | Alta (no lançamento) |
-| 1.5 | Entrada pelo Google: client ID do Quad no Google Cloud | Média |
+| 1.5 | Entrada pelo Google: origens do domínio oficial (o teste já funciona) | Média (no lançamento) |
+| 1.6 | Endereço do site nos e-mails (`SITE_URL` e `URL_DE_REDEFINICAO_DE_SENHA`) apontando para o teste | Alta |
 | 2.7 | Imagens: medida mínima, proporção e formato no envio pelo console (hoje corta em 560 × 560 e salva em JPG) | Alta (antes do lançamento) |
 | 3 | Professores: fotos e só os professores do site | Média |
 | 3.1 | Foto do professor: o console reduz para 512 × 512 antes de enviar; mandar pelo menos 1080 px (ou guardar a original 4:5) | Alta |
-| 4.1 | Verificação do celular por código ⚠️ (atendido em 29/10; falta confirmar o Twilio em produção) | Alta |
 | 4.6 | Conferir o CPF na Receita no cadastro (cpfcnpj.com.br) | Média |
 | 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
 | 4.5 | Foto de perfil | Baixa |
-| 5.3 | Simulados: formatos de estudo e combos | Média |
+| 5.3 | Simulados: formatos de estudo (os combos já existem) | Média |
 | 5.4 | Textos de venda da turma e programação do evento | Média |
 | 5.5 | Notícias de concursos na barra do topo, editáveis pelo console e atualizadas em tempo real | Média |
 | 6.2 | E-mails da compra (confirmada, aguardando PIX, acesso liberado) | Alta |
@@ -38,13 +46,15 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 
 ## 1. Antes do lançamento
 
-### 1.2 Produção: domínio do site no CORS e nos cookies
+### 1.2 Domínio oficial no CORS e nos cookies
 
-**O problema.** O código do login em cookie já está em produção, mas o site só funciona nela com duas configurações:
-- **`CORS_ORIGENS`:** hoje a pré-verificação vinda de `https://quadconcursos.com.br` e de `https://www.quadconcursos.com.br` responde **403** (conferido em 23/10/2026). Sem isso, o navegador não deixa o site ler a vitrine nem fazer login.
+> **04/11/2026: o site de teste já funciona.** A pré-verificação vinda de `https://teste.quadconcursos.com.br` responde 200 e o login no teste funciona. Falta **só o domínio oficial**, no lançamento: `https://quadconcursos.com.br` e `https://www.quadconcursos.com.br` ainda respondem **403** (conferido em 04/11/2026), o que é esperado enquanto o site oficial não está no ar.
+
+**O problema.** O site só funciona com a API de produção com duas configurações:
+- **`CORS_ORIGENS`:** sem a origem do site, o navegador não deixa o site ler a vitrine nem fazer login.
 - **`COOKIES_DOMINIO`:** os cookies da sessão (`quad_acesso`, `quad_renovacao`, `quad_sessao`) precisam valer no domínio do site. Sem isso, o aluno entra e "cai" logo em seguida.
 
-**O pedido.** Configurar as duas variáveis em produção com os dois endereços do site, sem liberar qualquer origem.
+**O pedido (no lançamento).** Acrescentar `https://quadconcursos.com.br` e `https://www.quadconcursos.com.br` em `CORS_ORIGENS`, sem tirar o teste e sem liberar qualquer origem, e conferir que `COOKIES_DOMINIO` cobre o domínio oficial.
 
 **Como conferir:**
 ```
@@ -56,7 +66,11 @@ Deve responder 200, com essa origem em `Access-Control-Allow-Origin` e `idempote
 
 **O problema.** O site gera o token do cartão direto do navegador (`https://api.pagar.me/core/v5/tokens?appId={chavePublica}`), para que o número do cartão nunca passe pelo nosso servidor. O Pagar.me só aceita esse pedido vindo de domínios autorizados na conta.
 
-**O pedido.** Autorizar `quadconcursos.com.br` e `www.quadconcursos.com.br` (e `localhost:3000`, para testes, se a conta permitir) no painel do Pagar.me. Isso fica na conta do Pagar.me, não no código.
+**O pedido.**
+- **Agora:** autorizar `teste.quadconcursos.com.br` (e `localhost:3000`, para testes, se a conta permitir). Só dava para pedir com o site de teste publicado. Sem isso, o pagamento no cartão falha no teste ao gerar o token, antes de chegar à API.
+- **No lançamento:** autorizar `quadconcursos.com.br` e `www.quadconcursos.com.br`.
+
+Isso fica no painel da conta do Pagar.me, não no código. Confirmar também **qual conta** a API de produção usa: o teste está ligado à API de produção, então um pagamento no teste numa conta de produção é uma **cobrança real**.
 
 ### 1.4 Publicar a API e o site juntos
 
@@ -66,9 +80,21 @@ Deve responder 200, com essa origem em `Access-Control-Allow-Origin` e `idempote
 
 ### 1.5 Entrada pelo Google
 
-**Entregue em 24/10/2026** (`POST /auth/google`, só para contas que já existem), e o site já tem o botão "Continuar com o Google" na tela de login. Falta configurar:
-- **Client ID do tipo Web** do projeto do Quad no Google Cloud: em `GOOGLE_CLIENT_IDS` na API (local e produção) e em `NEXT_PUBLIC_GOOGLE_CLIENT_ID` no site. Sem ele, a API responde 503 `ENTRADA_EXTERNA_DESLIGADA` e o site esconde o botão.
-- **Origens autorizadas** no mesmo client ID: `https://quadconcursos.com.br`, `https://www.quadconcursos.com.br` e `http://localhost:3000` (testes).
+**Entregue em 24/10/2026** (`POST /auth/google`, só para contas que já existem). **04/11/2026: funciona no site de teste**: o client ID está em `GOOGLE_CLIENT_IDS` na API de produção e em `NEXT_PUBLIC_GOOGLE_CLIENT_ID` no site, e a origem `https://teste.quadconcursos.com.br` está autorizada.
+
+**Falta, no lançamento:** acrescentar no mesmo client ID, em "Origens JavaScript autorizadas" do Google Cloud, `https://quadconcursos.com.br` e `https://www.quadconcursos.com.br`. Sem isso, o botão no site oficial mostra o erro `origin_mismatch`.
+
+### 1.6 Endereço do site nos e-mails
+
+**O problema.** Os links dos e-mails da API levam às páginas do site: confirmar o e-mail (`/confirmar-email?token=…`) e redefinir a senha (`/redefinir-senha?token=…`). A API monta esses links com duas variáveis de produção (`application-prod.properties`): `SITE_URL` (`api.site.url`) e `URL_DE_REDEFINICAO_DE_SENHA` (`api.recuperacao.url-do-site`). Até o teste ser publicado, não havia um endereço público para pôr nelas.
+
+**O pedido.** Na API de produção:
+- `SITE_URL=https://teste.quadconcursos.com.br`
+- `URL_DE_REDEFINICAO_DE_SENHA=https://teste.quadconcursos.com.br/redefinir-senha`
+
+No lançamento, trocar as duas para `https://quadconcursos.com.br`.
+
+**Como conferir:** pedir "Esqueci a senha" no site de teste com uma conta de teste. O link do e-mail deve abrir `https://teste.quadconcursos.com.br/redefinir-senha?token=…`, e o do cadastro, `https://teste.quadconcursos.com.br/confirmar-email?token=…`. As duas páginas já estão no ar, com as telas de link inválido ou vencido.
 
 ---
 
@@ -130,56 +156,6 @@ Além disso, nada impede o envio de uma imagem pequena ou fora de proporção, q
 
 ## 4. Conta do aluno
 
-### 4.1 Verificação do celular por código ⚠️
-
-> **29/10/2026: atendido (PR #131, Twilio Verify) e o site já está adaptado ao formato do backend**, que é diferente do proposto abaixo:
-> - `PUT /auth/telefone` `{ telefone }` troca o número, **só enquanto ele não foi verificado** (o verificado só a coordenação troca: `TELEFONE_JA_VERIFICADO`);
-> - `POST /auth/telefone/verificacao`, sem corpo, manda o código ao número da conta e responde `{ validadeEmMinutos, reenvioEmSegundos }`;
-> - `POST /auth/telefone/verificacao/confirmacao` `{ codigo }` confirma; `GET /api/alunos/eu` traz `telefoneVerificadoEm`;
-> - **nada é bloqueado** sem a verificação (sem o 403 `CELULAR_NAO_VERIFICADO`).
->
-> No site: passo 3 do cadastro, `/confirmar-celular` e "Meu perfil" (troca do número não verificado; o verificado leva ao WhatsApp da coordenação). Sem o Twilio configurado (`VERIFICACAO_DE_TELEFONE_INDISPONIVEL`), o site deixa o aluno seguir. **Falta:** confirmar que a produção roda essa versão, com `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET` e `TWILIO_VERIFY_SERVICE_SID`. Na conta de teste do Twilio, o SMS só chega aos números cadastrados nela.
->
-> O texto abaixo é o pedido original, mantido como histórico.
-
-> **27/10/2026:** segundo o backend, a verificação já existe, mas **não vai ser publicada agora**, para não travar os testes. Ela ainda não está no repositório da API (nem no `main`, nem nas branches do GitHub). Quando entrar, o site liga o passo 3 do cadastro e a troca de telefone às rotas abaixo.
-
-> **29/10/2026: as telas do site estão todas prontas** e só esperam as rotas abaixo para funcionar (testadas com as respostas simuladas):
-> - **Passo 3 do cadastro:** envia o código, confere e mostra "Celular confirmado".
-> - **`/confirmar-celular`** (página nova): quando qualquer rota responde **403 `CELULAR_NAO_VERIFICADO`**, o site leva o aluno para cá (`/confirmar-celular?redirect=/pagina-de-onde-veio`). Depois de confirmar, ele volta para onde estava. Para isso, **`GET /api/alunos/eu` e as duas rotas do telefone precisam continuar liberadas** para a conta sem o celular confirmado; se `/api/alunos/eu` também for bloqueada, o aluno precisa digitar o número de novo.
-> - **Meu perfil:** selo "Confirmado" ao lado do e-mail e do telefone, aviso "Seu celular ainda não foi confirmado" com o link "Confirmar agora" e a troca de telefone completa (código para o número novo, reenvio depois de 60 s e "Celular confirmado" no fim).
-> - **`/confirmar-email?token=…`:** já existia; ganhou as telas de "E-mail confirmado" e "Link inválido ou vencido".
->
-> **Links que a API deve usar nos envios:** o e-mail de confirmação aponta para `{endereço do site}/confirmar-email?token={TOKEN}`, e o de senha para `{endereço do site}/redefinir-senha?token={TOKEN}`. O endereço do site vem de uma variável de ambiente: `https://teste.quadconcursos.com.br` no teste e `https://quadconcursos.com.br` no oficial. O SMS do celular leva **só o código** (6 números), sem link.
->
-> **Campo pedido:** `telefoneVerificadoEm` (data, ou nulo se nunca confirmou) em `GET /api/alunos/eu`, igual ao `emailVerificadoEm`.
-
-**Por que o site precisa.** Decisão de 02/10/2026: o celular é o único dado obrigatório para liberar a conta; o e-mail é confirmado depois, por link (isso já funciona). As telas do site estão prontas: o passo 3 do cadastro e a troca de telefone em "Meu perfil" pedem o código. Enquanto as rotas não existem, o passo 3 deixa o aluno seguir sem verificar.
-
-**Rotas:**
-- **`POST /api/usuarios/eu/telefone/verificacao`**, corpo `{ "novoTelefone": "(75) 99999-0000" }`. Gera um código de 6 dígitos e envia por SMS ou WhatsApp **para o número novo**. Não troca o telefone ainda. Resposta: `{ "expiraEm": "...", "podeReenviarEm": "..." }`.
-- **`POST /api/usuarios/eu/telefone/confirmacao`**, corpo `{ "codigo": "123456" }`. Código certo: grava o número novo.
-
-**Regras:**
-- O código vale 10 minutos, aceita até 5 tentativas erradas e só pode ser reenviado depois de 60 segundos.
-- Erros (`codigo`): `CODIGO_INVALIDO`, `CODIGO_EXPIRADO`, `MUITAS_TENTATIVAS`, `REENVIO_MUITO_CEDO` e `TELEFONE_IGUAL_AO_ATUAL` (aceitar o mesmo número quando ele ainda não foi verificado, como no cadastro).
-- Campo **`telefoneVerificado`** no usuário: começa `false` no cadastro e vira `true` na confirmação.
-- **Conta não verificada:** o login funciona (para o aluno conseguir verificar), mas as demais rotas do aluno respondem **403** com `codigo: "CELULAR_NAO_VERIFICADO"`. Assim o site sabe que deve levar o aluno de volta à verificação.
-
-**⚠️ App Viver o Quad:** o bloqueio não pode atingir as contas que já existem (hoje nenhuma tem o celular verificado), senão todos os alunos do app ficam bloqueados. Sugestão: marcar `telefoneVerificado = true` nas contas existentes, ou bloquear só as contas criadas depois da mudança.
-
-**Limite:** as rotas de envio de código precisam entrar nos limites por minuto da API (`GruposPorRota`), como o cadastro e a disponibilidade já estão. Cada SMS custa.
-
-**A decidir:** qual serviço envia o SMS ou WhatsApp, e se o mesmo número pode estar em duas contas (`TELEFONE_EM_USO`).
-
-### 4.2 `emailVerificado` e `telefoneVerificado` no cadastro do aluno
-
-**Por que o site precisa.** O site lê o aluno em `GET /api/alunos/eu`. Com esses dois campos, ele sabe quando mostrar o alerta "confirme seu e-mail" em "Meu perfil" e quando levar o aluno à verificação do celular (item 4.1).
-
-**O pedido.** Incluir os dois booleanos na resposta de `GET /api/alunos/eu`.
-
-> **27/10/2026:** o e-mail está atendido. `GET /api/alunos/eu` devolve `emailVerificadoEm` (data, ou nulo se o aluno nunca confirmou), e o site já usa esse campo para o alerta de "Meu perfil". Falta o do celular (`telefoneVerificado` ou `telefoneVerificadoEm`), que vem junto com o item 4.1.
-
 ### 4.6 Conferir o CPF na Receita no cadastro (cpfcnpj.com.br)
 
 **Por que o site precisa.** Hoje o site e a API só conferem os dígitos verificadores do CPF. Um CPF que não existe, de pessoa falecida ou de outra pessoa passa no cadastro. O Quad quer usar o serviço **cpfcnpj.com.br** (documentação: `https://www.cpfcnpj.com.br/dev/`) para conferir na Receita.
@@ -227,11 +203,13 @@ Além disso, nada impede o envio de uma imagem pequena ou fora de proporção, q
 
 ## 5. Produtos que a API ainda não cobre
 
-### 5.3 Simulados: formatos de estudo e combos
+### 5.3 Simulados: formatos de estudo
 
-**O problema.** A Central de Simulados do site vende cada edição em formatos de estudo (presencial, PDF, plataforma, impresso) e em combos de várias edições. A API só tem o simulado presencial.
+> **04/11/2026: os combos estão atendidos** (PR #129 e #136); o site mostra os combos só de simulados na aba "Combos" da Central e todos em `/combos`.
 
-**O pedido.** Os formatos de cada edição, com preço e vagas, e os combos.
+**O problema.** A Central de Simulados do site vende cada edição em formatos de estudo (presencial, PDF, plataforma, impresso). A API só tem o simulado presencial.
+
+**O pedido.** Os formatos de estudo de cada edição, com preço e vagas. Se servir, o mesmo modelo do material (PR #137): ofertas no mesmo cadastro, com a plataforma escolhida na compra.
 
 ### 5.4 Textos de venda da turma e programação do evento
 
