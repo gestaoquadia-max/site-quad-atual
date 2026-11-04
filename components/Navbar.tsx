@@ -274,10 +274,10 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
       <nav
         aria-label="Principal"
         onMouseLeave={() => setSuspenso(null)}
-        className="pointer-events-none absolute inset-x-0 top-full px-[clamp(10px,2vw,24px)] pt-2"
+        className="pointer-events-none absolute inset-x-0 top-full px-[clamp(10px,1.5vw,24px)] pt-2"
       >
         <div
-          className={`pointer-events-auto mx-auto flex h-14 max-w-[1280px] items-center justify-between gap-6 rounded-full border border-white/[0.1] pl-4 pr-1.5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.75),0_0_0_1px_rgba(0,0,0,0.2)] backdrop-blur-[12px] min-[1220px]:h-[60px] min-[1220px]:pl-6 min-[1220px]:pr-2 ${tema.capsula}`}
+          className={`pointer-events-auto mx-auto flex h-14 max-w-[1600px] items-center justify-between gap-6 rounded-full border border-white/[0.1] pl-4 pr-1.5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.75),0_0_0_1px_rgba(0,0,0,0.2)] backdrop-blur-[12px] min-[1220px]:h-[60px] min-[1220px]:pl-6 min-[1220px]:pr-2 ${tema.capsula}`}
         >
           <Link href="/" aria-label="Quad Concursos — início" className="flex flex-none items-center rounded-lg transition-opacity hover:opacity-85">
             <Image src="/images/quad-logo-branco.png" alt="Quad Concursos" width={118} height={44} priority className="h-9 w-auto min-[1220px]:h-10" />
@@ -365,7 +365,7 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
 
         {menuCelular && (
           <div
-            className={`pointer-events-auto mx-auto mt-2 max-h-[calc(100dvh-130px)] max-w-[1280px] overflow-y-auto rounded-[22px] border border-white/[0.1] ${tema.painelDoCelular} px-[clamp(18px,4vw,28px)] pb-4 pt-1 shadow-[0_18px_40px_-16px_rgba(0,0,0,0.7)] min-[1220px]:hidden`}
+            className={`pointer-events-auto mx-auto mt-2 max-h-[calc(100dvh-130px)] max-w-[1600px] overflow-y-auto rounded-[22px] border border-white/[0.1] ${tema.painelDoCelular} px-[clamp(18px,4vw,28px)] pb-4 pt-1 shadow-[0_18px_40px_-16px_rgba(0,0,0,0.7)] min-[1220px]:hidden`}
           >
             <ul>
               {links.map((l) => (
