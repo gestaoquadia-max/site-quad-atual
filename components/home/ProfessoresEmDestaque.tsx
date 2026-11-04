@@ -23,7 +23,7 @@ function numero(i: number) {
 }
 
 // Fundo do painel: as iniciais gigantes, só no contorno, sobre uma grade fina. A foto do cadastro é um recorte sem
-// fundo (PNG transparente, 512 × 512): fica inteira, "em pé" na base do painel, na frente das iniciais, como um pôster.
+// fundo (PNG transparente; hoje 512 × 512, a original é 1080 × 1350): fica inteira, "em pé" na base do painel, na frente das iniciais, como um pôster.
 function Fundo({ professor }: { professor: Professor }) {
   return (
     <div aria-hidden="true" className="absolute inset-0 overflow-hidden bg-[radial-gradient(90%_70%_at_80%_10%,#1E5BD8_0%,#0B2A55_45%,#060F1E_100%)]">
@@ -31,9 +31,10 @@ function Fundo({ professor }: { professor: Professor }) {
       <span className="absolute -right-[4%] top-[2%] select-none font-display text-[clamp(180px,22vw,320px)] font-extrabold leading-none tracking-[-0.06em] text-transparent [-webkit-text-stroke:1.5px_rgba(111,174,255,0.45)]">
         {getIniciais(professor.nome)}
       </span>
-      {/* No máximo do tamanho do arquivo (hoje 512 × 512), sem esticar nem recomprimir: ampliada, a foto borra. */}
+      {/* Altura fixa (88% do painel, que vai até 580 px) e a foto ajustada pela altura: a quadrada antiga (512 × 512)
+          fica no tamanho do arquivo, sem esticar, e a original 4:5 (aceita pela API desde o PR #139) cabe inteira. */}
       {professor.fotoUrl && (
-        <div className="absolute bottom-0 left-1/2 aspect-square h-[min(88%,512px)] max-w-full -translate-x-1/2">
+        <div className="absolute inset-x-0 bottom-0 h-[88%]">
           <Image src={professor.fotoUrl} alt="" fill unoptimized className="object-contain object-bottom" />
         </div>
       )}
