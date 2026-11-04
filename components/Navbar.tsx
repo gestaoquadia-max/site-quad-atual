@@ -14,16 +14,17 @@ import NavMegaMenu, { ITENS_NO_MENU, type MegaMenuFeatured, type MegaMenuItem } 
 
 // Cores do topo: azul em todo o site e vinho nas páginas das Mentorias (barra de avisos, menu e botões).
 // `fundo`: a faixa atrás da cápsula, só no alto da página (ao rolar, ela some e a cápsula flutua sobre o conteúdo).
+// Sólida e na cor da primeira dobra (marinho-950; vinho #1A060C nas Mentorias), para não parecer uma faixa à parte.
 const TEMAS = {
   azul: {
-    fundo: "bg-[rgba(7,20,38,0.97)]",
+    fundo: "bg-marinho-950",
     capsula: "bg-[rgba(10,26,48,0.93)]",
     painelDoCelular: "bg-marinho-950",
     botao: "btn-q-azul shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_8px_20px_-10px_rgba(0,107,255,0.8)]",
     selo: "bg-azul shadow-[0_0_0_2px_#071426]",
   },
   vinho: {
-    fundo: "bg-[rgba(26,6,12,0.97)]",
+    fundo: "bg-[#1A060C]",
     capsula: "bg-[rgba(40,10,19,0.93)]",
     painelDoCelular: "bg-[#1A060C]",
     botao: "btn-q-vinho shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_20px_-10px_rgba(196,42,68,0.9)]",
@@ -255,10 +256,13 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
   const [sanfona, setSanfona] = useState<string | null>(null);
   // Depois do Esc o foco volta ao link do menu; esse foco não deve reabrir o submenu.
   const ignorarProximoFoco = useRef(false);
-  // Página rolada: a faixa atrás da cápsula fica transparente e a cápsula ganha sombra.
+  // Página rolada: a faixa atrás da cápsula fica transparente e a cápsula ganha sombra. Só depois de rolar a altura
+  // do cabeçalho inteiro: antes disso, o conteúdo ainda não chegou atrás da faixa, e o que aparecia era o fundo claro
+  // da página (a faixa "piscava").
   const [rolou, setRolou] = useState(false);
+  const cabecalho = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const aoRolar = () => setRolou(window.scrollY > 8);
+    const aoRolar = () => setRolou(window.scrollY > (cabecalho.current?.offsetHeight ?? 110));
     window.addEventListener("scroll", aoRolar, { passive: true });
     return () => window.removeEventListener("scroll", aoRolar);
   }, []);
@@ -275,7 +279,7 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
   const rotuloDoCarrinho = totalCount > 0 ? `Carrinho, ${totalCount} ${totalCount === 1 ? "item" : "itens"}` : "Carrinho";
 
   return (
-    <div className="sticky top-0 z-[60]">
+    <div ref={cabecalho} className="sticky top-0 z-[60]">
       <NewsTicker turmas={turmas} eventos={eventos} vinho={vinho} />
       {/* Menu em cápsula, sem largura total: flutua no topo, com o conteúdo passando por trás (desfocado) ao rolar. */}
       <nav
