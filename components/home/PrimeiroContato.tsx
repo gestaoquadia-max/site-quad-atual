@@ -9,13 +9,27 @@ import { institucional } from "@/lib/institucional";
 // nas turmas dele (/turmas?cargo=...). Os banners continuam, como cartões fixos em "Agora no Quad", junto com a
 // próxima turma de matrícula aberta.
 
+// `cor`: o fundo do ponteiro (a seta), tirado da cor principal do brasão; `seta`: a cor da seta sobre ele.
 const CONCURSOS = [
-  { id: "sd-pmba", titulo: "Soldado PMBA", subtitulo: "Polícia Militar da Bahia" },
-  { id: "cfo-pmba", titulo: "CFO PMBA", subtitulo: "Formação de Oficiais" },
-  { id: "cfs-pmba", titulo: "Sargento PMBA", subtitulo: "Formação de Sargentos" },
-  { id: "sd-bmba", titulo: "Soldado BMBA", subtitulo: "Corpo de Bombeiros" },
-  { id: "ipc-pcba", titulo: "Investigador PCBA", subtitulo: "Polícia Civil da Bahia" },
+  { id: "sd-pmba", titulo: "Soldado PMBA", cor: "#D5DBE4", seta: "#0B1C33" }, // prata
+  { id: "cfo-pmba", titulo: "CFO PMBA", cor: "#1F5FD0", seta: "#FFFFFF" }, // azul
+  { id: "cfs-pmba", titulo: "Sargento PMBA", cor: "#B8862B", seta: "#FFFFFF" }, // bronze dourado
+  { id: "sd-bmba", titulo: "Soldado BMBA", cor: "#C8202E", seta: "#FFFFFF" }, // vermelho
+  { id: "ipc-pcba", titulo: "Investigador PCBA", cor: "#E6B93C", seta: "#0B1C33" }, // dourado
 ];
+
+// A seta do cartão num círculo da cor do concurso.
+function Ponteiro({ cor, seta }: { cor: string; seta: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      style={{ background: cor, color: seta }}
+      className="grid h-8 w-8 flex-none place-items-center rounded-full shadow-[0_6px_16px_-6px_rgba(0,0,0,0.6)] transition-transform group-hover:translate-x-0.5"
+    >
+      <Seta />
+    </span>
+  );
+}
 
 function Seta({ className = "" }: { className?: string }) {
   return (
@@ -114,22 +128,22 @@ export default function PrimeiroContato({ banners, turmas }: { banners: Banner[]
         </div>
 
         {/* Escolha do concurso */}
-        <h2 className="mb-4 mt-[clamp(32px,4vw,48px)] text-xs font-bold uppercase tracking-[0.16em] text-azul-ceu">Qual é o seu concurso?</h2>
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 min-[1100px]:max-w-[calc(100%-min(30vw,420px))] min-[1100px]:grid-cols-3 min-[1400px]:max-w-none min-[1400px]:grid-cols-6">
+        <ul aria-label="Escolha o seu concurso" className="mt-[clamp(32px,4vw,48px)] grid grid-cols-2 gap-3 sm:grid-cols-3 min-[1100px]:max-w-[calc(100%-min(30vw,420px))] min-[1100px]:grid-cols-3 min-[1400px]:max-w-none min-[1400px]:grid-cols-6">
           {CONCURSOS.map((c) => {
             const brasao = brasaoDoConcurso(c.id);
             return (
               <li key={c.id}>
                 <Link
                   href={`/turmas?cargo=${c.id}`}
-                  className="group flex h-full min-h-[76px] items-center gap-3 rounded-2xl border border-white/[0.1] bg-[rgba(11,28,51,0.72)] p-3 text-white backdrop-blur-[6px] transition-[border-color,background-color,transform] duration-150 hover:-translate-y-0.5 hover:border-[rgba(111,174,255,0.5)] hover:bg-[rgba(16,38,65,0.9)] hover:text-white sm:p-4"
+                  style={{ "--cor": c.cor } as React.CSSProperties}
+                  className="group flex h-full flex-col gap-3 rounded-2xl border border-white/[0.1] bg-[rgba(11,28,51,0.72)] p-4 text-white backdrop-blur-[6px] transition-[border-color,background-color,transform] duration-150 hover:-translate-y-0.5 hover:border-[var(--cor)] hover:bg-[rgba(16,38,65,0.9)] hover:text-white"
                 >
-                  {brasao && <Image src={brasao} alt="" width={48} height={48} className="h-10 w-10 flex-none object-contain sm:h-12 sm:w-12" />}
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-display text-[15px] font-bold leading-tight sm:text-base">{c.titulo}</span>
-                    <span className="mt-0.5 block text-[12.5px] leading-snug text-prata">{c.subtitulo}</span>
+                  {/* Em cima, o brasão e a seta colorida; embaixo, o nome do cargo com a largura toda do cartão. */}
+                  <span className="flex items-start justify-between gap-2">
+                    {brasao ? <Image src={brasao} alt="" width={48} height={48} className="h-11 w-11 flex-none object-contain sm:h-12 sm:w-12" /> : <span />}
+                    <Ponteiro cor={c.cor} seta={c.seta} />
                   </span>
-                  <Seta className="hidden flex-none text-azul-ceu transition-transform group-hover:translate-x-0.5 sm:block" />
+                  <span className="font-display text-[15px] font-bold leading-tight sm:text-base">{c.titulo}</span>
                 </Link>
               </li>
             );
@@ -137,13 +151,12 @@ export default function PrimeiroContato({ banners, turmas }: { banners: Banner[]
           <li>
             <Link
               href="/turmas"
-              className="group flex h-full min-h-[76px] items-center gap-3 rounded-2xl border border-dashed border-white/[0.18] p-3 text-white transition-colors hover:border-[rgba(111,174,255,0.5)] hover:text-white sm:p-4"
+              className="group flex h-full flex-col justify-between gap-3 rounded-2xl border border-dashed border-white/[0.18] p-4 text-white transition-colors hover:border-[rgba(111,174,255,0.5)] hover:text-white"
             >
-              <span className="min-w-0 flex-1">
-                <span className="block font-display text-[15px] font-bold leading-tight sm:text-base">Ainda não decidi</span>
-                <span className="mt-0.5 block text-[12.5px] leading-snug text-prata">Ver todas as turmas</span>
+              <span className="flex justify-end">
+                <Ponteiro cor="rgba(255,255,255,0.12)" seta="#FFFFFF" />
               </span>
-              <Seta className="hidden flex-none text-azul-ceu transition-transform group-hover:translate-x-0.5 sm:block" />
+              <span className="font-display text-[15px] font-bold leading-tight sm:text-base">Ainda não decidi</span>
             </Link>
           </li>
         </ul>
