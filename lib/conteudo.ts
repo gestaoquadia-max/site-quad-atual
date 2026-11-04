@@ -47,6 +47,7 @@ export const banners: Banner[] = [
     posicao: { desktop: "70% 50%", celular: "50% 25%" },
     escurecer: true,
     titulo: "Mentorias do Quad",
+    descricao: "Aulas gravadas, cronograma personalizado e análise de desempenho, de onde você estiver.",
     botao: { texto: "Clique aqui para acessar", link: "/mentorias", cor: "#8E1B2E" },
   },
   {
@@ -60,6 +61,7 @@ export const banners: Banner[] = [
     posicao: { desktop: "70% 50%", celular: "50% 25%" },
     escurecer: true,
     titulo: "Turmas presenciais",
+    descricao: "RONDESP, PATAMO e BOPE em Feira de Santana, no nível que você precisa.",
     botao: { texto: "Clique aqui para acessar", link: "/turmas" },
   },
 ];

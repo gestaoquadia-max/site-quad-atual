@@ -7,7 +7,7 @@ import { dadosDaOrganizacao } from "@/lib/dados-estruturados";
 import DadosEstruturados from "@/components/DadosEstruturados";
 import Reveal from "@/components/Reveal";
 import Trilho, { SetaDoLink } from "@/components/Trilho";
-import CarrosselDeDestaques from "@/components/home/CarrosselDeDestaques";
+import PrimeiroContato from "@/components/home/PrimeiroContato";
 import CartaoMaterial from "@/components/home/CartaoMaterial";
 import CartaoEvento from "@/components/home/CartaoEvento";
 import { CARTAO_DOS_SIMULADOS, paraCartao } from "@/lib/eventos";
@@ -47,7 +47,8 @@ export default async function Home() {
   return (
     <>
       <DadosEstruturados dados={dadosDaOrganizacao()} />
-      <CarrosselDeDestaques banners={bannersPublicados()} />
+      {/* O carrossel (components/home/CarrosselDeDestaques.tsx) saiu da Home em 04/11/2026; os banners viraram os cartões "Agora no Quad". */}
+      <PrimeiroContato banners={bannersPublicados()} turmas={turmas} />
 
       <Secao className="bg-nevoa">
         <Trilho titulo="Turmas presenciais" link={{ href: "/turmas", label: "Ver todas as turmas" }} rotulo="Modalidades das turmas presenciais">
