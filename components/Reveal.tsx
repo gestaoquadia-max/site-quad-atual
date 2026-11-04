@@ -34,9 +34,11 @@ export default function Reveal({
     <div
       ref={ref}
       style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
-      className={`transition-all duration-[380ms] ease-[cubic-bezier(.2,.7,.2,1)] ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3.5"
-      } motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${className}`}
+      // Entrada com desfoque: o item surge desfocado e vai entrando em foco enquanto aparece. Depois de visível, o filtro
+      // vira "none" (não "blur(0)"), para o invólucro não prender elementos fixos nem pesar na rolagem.
+      className={`transition-[opacity,transform,filter] duration-[750ms] ease-[cubic-bezier(.2,.7,.2,1)] ${
+        visible ? "translate-y-0 opacity-100 [filter:none]" : "translate-y-2 opacity-0 [filter:blur(12px)]"
+      } motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:[filter:none] motion-reduce:transition-none ${className}`}
     >
       {children}
     </div>
