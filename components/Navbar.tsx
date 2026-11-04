@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { Evento, Produto, Turma } from "@/lib/data";
 import { ehKit } from "@/lib/materiais";
 import { LINK_DAS_MENTORIAS } from "@/lib/conteudo";
@@ -13,7 +13,7 @@ import NewsTicker from "./NewsTicker";
 import NavMegaMenu, { ITENS_NO_MENU, type MegaMenuFeatured, type MegaMenuItem } from "./NavMegaMenu";
 
 // Cores do topo: azul em todo o site e vinho nas páginas das Mentorias (barra de avisos, menu e botões).
-// `fundo`: a faixa atrás da cápsula, só no alto da página (ao rolar, ela some e a cápsula flutua sobre o conteúdo).
+// `fundo`: o lugar da cápsula no alto da página, que rola junto com o conteúdo (a cápsula flutua sempre).
 // Sólida e na cor da primeira dobra (marinho-950; vinho #1A060C nas Mentorias), para não parecer uma faixa à parte.
 const TEMAS = {
   azul: {
@@ -256,16 +256,6 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
   const [sanfona, setSanfona] = useState<string | null>(null);
   // Depois do Esc o foco volta ao link do menu; esse foco não deve reabrir o submenu.
   const ignorarProximoFoco = useRef(false);
-  // Página rolada: a faixa atrás da cápsula fica transparente e a cápsula ganha sombra. Só depois de rolar a altura
-  // do cabeçalho inteiro: antes disso, o conteúdo ainda não chegou atrás da faixa, e o que aparecia era o fundo claro
-  // da página (a faixa "piscava").
-  const [rolou, setRolou] = useState(false);
-  const cabecalho = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const aoRolar = () => setRolou(window.scrollY > (cabecalho.current?.offsetHeight ?? 110));
-    window.addEventListener("scroll", aoRolar, { passive: true });
-    return () => window.removeEventListener("scroll", aoRolar);
-  }, []);
 
   const [pathnameAnterior, setPathnameAnterior] = useState(pathname);
   if (pathname !== pathnameAnterior) {
@@ -279,18 +269,19 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
   const rotuloDoCarrinho = totalCount > 0 ? `Carrinho, ${totalCount} ${totalCount === 1 ? "item" : "itens"}` : "Carrinho";
 
   return (
-    <div ref={cabecalho} className="sticky top-0 z-[60]">
+    <>
+    <div className="sticky top-0 z-[60]">
       <NewsTicker turmas={turmas} eventos={eventos} vinho={vinho} />
-      {/* Menu em cápsula, sem largura total: flutua no topo, com o conteúdo passando por trás (desfocado) ao rolar. */}
+      {/* Menu em cápsula, sempre flutuando: fica por cima da página (não ocupa espaço) e o conteúdo passa por trás,
+          desfocado. A área em volta da cápsula não recebe cliques; só a cápsula, o submenu e o menu do celular. Sem
+          respiro embaixo da cápsula: o submenu começa colado nela, e o mouse não "sai" do menu no caminho até ele. */}
       <nav
         aria-label="Principal"
         onMouseLeave={() => setSuspenso(null)}
-        className={`relative px-[clamp(10px,2vw,24px)] py-2 transition-colors duration-300 ${rolou ? "bg-transparent" : tema.fundo}`}
+        className="pointer-events-none absolute inset-x-0 top-full px-[clamp(10px,2vw,24px)] pt-2"
       >
         <div
-          className={`mx-auto flex h-14 max-w-[1280px] items-center justify-between gap-6 rounded-full border border-white/[0.1] pl-4 pr-1.5 backdrop-blur-[12px] transition-shadow duration-300 min-[1220px]:h-[60px] min-[1220px]:pl-6 min-[1220px]:pr-2 ${tema.capsula} ${
-            rolou ? "shadow-[0_14px_36px_-14px_rgba(0,0,0,0.7)]" : ""
-          }`}
+          className={`pointer-events-auto mx-auto flex h-14 max-w-[1280px] items-center justify-between gap-6 rounded-full border border-white/[0.1] pl-4 pr-1.5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.75),0_0_0_1px_rgba(0,0,0,0.2)] backdrop-blur-[12px] min-[1220px]:h-[60px] min-[1220px]:pl-6 min-[1220px]:pr-2 ${tema.capsula}`}
         >
           <Link href="/" aria-label="Quad Concursos — início" className="flex flex-none items-center rounded-lg transition-opacity hover:opacity-85">
             <Image src="/images/quad-logo-branco.png" alt="Quad Concursos" width={118} height={44} priority className="h-9 w-auto min-[1220px]:h-10" />
@@ -378,7 +369,7 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
 
         {menuCelular && (
           <div
-            className={`mx-auto mt-2 max-h-[calc(100dvh-130px)] max-w-[1280px] overflow-y-auto rounded-[22px] border border-white/[0.1] ${tema.painelDoCelular} px-[clamp(18px,4vw,28px)] pb-4 pt-1 shadow-[0_18px_40px_-16px_rgba(0,0,0,0.7)] min-[1220px]:hidden`}
+            className={`pointer-events-auto mx-auto mt-2 max-h-[calc(100dvh-130px)] max-w-[1280px] overflow-y-auto rounded-[22px] border border-white/[0.1] ${tema.painelDoCelular} px-[clamp(18px,4vw,28px)] pb-4 pt-1 shadow-[0_18px_40px_-16px_rgba(0,0,0,0.7)] min-[1220px]:hidden`}
           >
             <ul>
               {links.map((l) => (
@@ -389,5 +380,9 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
         )}
       </nav>
     </div>
+    {/* O lugar da cápsula no alto da página, na cor da primeira dobra: rola junto com o conteúdo, então a cápsula
+        flutua sobre ele desde o início, sem faixa presa e sem troca de cor ao rolar. Altura: 8 px acima + cápsula + 8 px. */}
+    <div aria-hidden="true" className={`h-[72px] min-[1220px]:h-[76px] ${tema.fundo}`} />
+    </>
   );
 }
