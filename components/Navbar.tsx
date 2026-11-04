@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Evento, Produto, Turma } from "@/lib/data";
 import { ehKit } from "@/lib/materiais";
 import { LINK_DAS_MENTORIAS } from "@/lib/conteudo";
@@ -13,18 +13,19 @@ import NewsTicker from "./NewsTicker";
 import NavMegaMenu, { ITENS_NO_MENU, type MegaMenuFeatured, type MegaMenuItem } from "./NavMegaMenu";
 
 // Cores do topo: azul em todo o site e vinho nas páginas das Mentorias (barra de avisos, menu e botões).
+// `fundo`: a faixa atrás da cápsula, só no alto da página (ao rolar, ela some e a cápsula flutua sobre o conteúdo).
 const TEMAS = {
   azul: {
     fundo: "bg-[rgba(7,20,38,0.97)]",
+    capsula: "bg-[rgba(10,26,48,0.93)]",
     painelDoCelular: "bg-marinho-950",
-    sublinhado: "shadow-[inset_0_-2px_0_#2F86FF]",
     botao: "btn-q-azul shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_8px_20px_-10px_rgba(0,107,255,0.8)]",
     selo: "bg-azul shadow-[0_0_0_2px_#071426]",
   },
   vinho: {
     fundo: "bg-[rgba(26,6,12,0.97)]",
+    capsula: "bg-[rgba(40,10,19,0.93)]",
     painelDoCelular: "bg-[#1A060C]",
-    sublinhado: "shadow-[inset_0_-2px_0_#F3A3B1]",
     botao: "btn-q-vinho shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_20px_-10px_rgba(196,42,68,0.9)]",
     selo: "bg-vinho-forte shadow-[0_0_0_2px_#1A060C]",
   },
@@ -203,7 +204,7 @@ function estaAtivo(pathname: string, href: string) {
 function ItemSanfona({ link, aberto, onAlternar }: { link: LinkDoMenu; aberto: boolean; onAlternar: () => void }) {
   if (!link.menu) {
     return (
-      <li className="border-b border-white/[0.08]">
+      <li className="border-b border-white/[0.08] last:border-b-0">
         <Link href={link.href} className="flex min-h-[52px] items-center font-display text-base font-bold text-[#DCE4EF]">
           {link.label}
         </Link>
@@ -211,7 +212,7 @@ function ItemSanfona({ link, aberto, onAlternar }: { link: LinkDoMenu; aberto: b
     );
   }
   return (
-    <li className="border-b border-white/[0.08]">
+    <li className="border-b border-white/[0.08] last:border-b-0">
       <button
         type="button"
         onClick={onAlternar}
@@ -254,6 +255,13 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
   const [sanfona, setSanfona] = useState<string | null>(null);
   // Depois do Esc o foco volta ao link do menu; esse foco não deve reabrir o submenu.
   const ignorarProximoFoco = useRef(false);
+  // Página rolada: a faixa atrás da cápsula fica transparente e a cápsula ganha sombra.
+  const [rolou, setRolou] = useState(false);
+  useEffect(() => {
+    const aoRolar = () => setRolou(window.scrollY > 8);
+    window.addEventListener("scroll", aoRolar, { passive: true });
+    return () => window.removeEventListener("scroll", aoRolar);
+  }, []);
 
   const [pathnameAnterior, setPathnameAnterior] = useState(pathname);
   if (pathname !== pathnameAnterior) {
@@ -269,10 +277,19 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
   return (
     <div className="sticky top-0 z-[60]">
       <NewsTicker turmas={turmas} eventos={eventos} vinho={vinho} />
-      <nav aria-label="Principal" onMouseLeave={() => setSuspenso(null)} className={`relative border-b border-white/[0.06] transition-colors ${tema.fundo}`}>
-        <div className="conteiner flex h-[72px] items-center justify-between gap-6">
+      {/* Menu em cápsula, sem largura total: flutua no topo, com o conteúdo passando por trás (desfocado) ao rolar. */}
+      <nav
+        aria-label="Principal"
+        onMouseLeave={() => setSuspenso(null)}
+        className={`relative px-[clamp(10px,2vw,24px)] py-2 transition-colors duration-300 ${rolou ? "bg-transparent" : tema.fundo}`}
+      >
+        <div
+          className={`mx-auto flex h-14 max-w-[1280px] items-center justify-between gap-6 rounded-full border border-white/[0.1] pl-4 pr-1.5 backdrop-blur-[12px] transition-shadow duration-300 min-[1220px]:h-[60px] min-[1220px]:pl-6 min-[1220px]:pr-2 ${tema.capsula} ${
+            rolou ? "shadow-[0_14px_36px_-14px_rgba(0,0,0,0.7)]" : ""
+          }`}
+        >
           <Link href="/" aria-label="Quad Concursos — início" className="flex flex-none items-center rounded-lg transition-opacity hover:opacity-85">
-            <Image src="/images/quad-logo-branco.png" alt="Quad Concursos" width={118} height={44} priority className="h-11 w-auto" />
+            <Image src="/images/quad-logo-branco.png" alt="Quad Concursos" width={118} height={44} priority className="h-9 w-auto min-[1220px]:h-10" />
           </Link>
 
           <ul className="hidden items-center gap-0.5 min-[1220px]:flex">
@@ -303,9 +320,9 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
                     href={l.href}
                     aria-current={ativo ? "page" : undefined}
                     aria-expanded={l.menu ? aberto : undefined}
-                    className={`flex h-[72px] items-center gap-1.5 whitespace-nowrap px-[clamp(8px,0.9vw,12px)] text-sm transition-colors ${
-                      ativo ? `font-semibold ${tema.sublinhado}` : "font-medium"
-                    } ${ativo || aberto ? "text-white" : "text-prata hover:text-white"}`}
+                    className={`flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full px-[clamp(10px,1vw,14px)] text-sm transition-colors ${
+                      ativo ? "bg-white/[0.09] font-semibold" : "font-medium"
+                    } ${ativo || aberto ? "text-white" : "text-prata hover:bg-white/[0.05] hover:text-white"}`}
                   >
                     {l.label}
                     {l.menu && <Seta className="opacity-70" />}
@@ -319,7 +336,7 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
               <Link
                 href="/carrinho"
                 aria-label={rotuloDoCarrinho}
-                className="relative grid h-11 w-11 place-items-center rounded-[10px] text-prata transition-colors hover:bg-white/[0.06] hover:text-white"
+                className="relative grid h-11 w-11 place-items-center rounded-full text-prata transition-colors hover:bg-white/[0.06] hover:text-white"
               >
                 <IconeCarrinho quantidade={totalCount} selo={tema.selo} />
               </Link>
@@ -327,7 +344,7 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
             <li className="ml-1.5">
               <Link
                 href={acesso.href}
-                className={`btn-q h-[42px] rounded-lg px-[18px] text-sm hover:-translate-y-px ${tema.botao}`}
+                className={`btn-q h-11 rounded-full px-5 text-sm hover:-translate-y-px ${tema.botao}`}
               >
                 {acesso.label}
               </Link>
@@ -338,7 +355,7 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
             <Link href="/carrinho" aria-label={rotuloDoCarrinho} className="relative grid h-11 w-11 place-items-center text-prata">
               <IconeCarrinho quantidade={totalCount} selo={tema.selo} />
             </Link>
-            <Link href={acesso.href} className={`btn-q h-10 rounded-lg px-3.5 text-sm ${tema.botao}`}>
+            <Link href={acesso.href} className={`btn-q h-10 rounded-full px-4 text-sm ${tema.botao}`}>
               {acesso.label}
             </Link>
             <button
@@ -346,7 +363,7 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
               aria-label={menuCelular ? "Fechar menu" : "Abrir menu"}
               aria-expanded={menuCelular}
               onClick={() => setMenuCelular((v) => !v)}
-              className="flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-[10px]"
+              className="flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-full"
             >
               <span className={`block h-0.5 w-5 rounded bg-[#DCE4EF] transition-transform duration-200 ${menuCelular ? "translate-y-[7px] rotate-45" : ""}`} />
               <span className={`block h-0.5 w-5 rounded bg-[#DCE4EF] transition-opacity duration-200 ${menuCelular ? "opacity-0" : ""}`} />
@@ -356,7 +373,9 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
         </div>
 
         {menuCelular && (
-          <div className={`max-h-[calc(100vh-110px)] overflow-y-auto border-t border-white/[0.08] ${tema.painelDoCelular} px-[clamp(20px,4vw,32px)] pb-5 pt-1.5 min-[1220px]:hidden`}>
+          <div
+            className={`mx-auto mt-2 max-h-[calc(100dvh-130px)] max-w-[1280px] overflow-y-auto rounded-[22px] border border-white/[0.1] ${tema.painelDoCelular} px-[clamp(18px,4vw,28px)] pb-4 pt-1 shadow-[0_18px_40px_-16px_rgba(0,0,0,0.7)] min-[1220px]:hidden`}
+          >
             <ul>
               {links.map((l) => (
                 <ItemSanfona key={l.href} link={l} aberto={sanfona === l.href} onAlternar={() => setSanfona(sanfona === l.href ? null : l.href)} />
