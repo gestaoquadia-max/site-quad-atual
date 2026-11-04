@@ -31,6 +31,26 @@ body {
   .animate-marquee { animation-duration: 130s !important; animation-iteration-count: infinite !important; }
 }
 
+/* Menu em cápsula sempre flutuando (components/Navbar.tsx): ele não ocupa espaço, e o primeiro bloco da página começa
+   logo abaixo da barra de avisos, por trás da cápsula. Assim o fundo da própria página (cor, degradês e brilhos) passa
+   atrás do menu, sem faixa de outra cor. O ::before empurra o conteúdo do bloco para baixo da cápsula: 8 px acima +
+   cápsula (56 px; 60 px a partir de 1220 px) + 8 px. O primeiro bloco pode vir depois de um <script> de dados
+   estruturados. */
+.com-menu-flutuante ~ #conteudo > :not(script):first-child::before,
+.com-menu-flutuante ~ #conteudo > script:first-child + :not(script)::before,
+.com-menu-flutuante ~ #conteudo > script:first-child + script + :not(script)::before {
+  content: "";
+  display: block;
+  height: 72px;
+}
+@media (min-width: 1220px) {
+  .com-menu-flutuante ~ #conteudo > :not(script):first-child::before,
+  .com-menu-flutuante ~ #conteudo > script:first-child + :not(script)::before,
+  .com-menu-flutuante ~ #conteudo > script:first-child + script + :not(script)::before {
+    height: 76px;
+  }
+}
+
 @layer components {
   /* ---------- Novo visual ---------- */
   .conteiner {

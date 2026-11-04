@@ -13,18 +13,15 @@ import NewsTicker from "./NewsTicker";
 import NavMegaMenu, { ITENS_NO_MENU, type MegaMenuFeatured, type MegaMenuItem } from "./NavMegaMenu";
 
 // Cores do topo: azul em todo o site e vinho nas páginas das Mentorias (barra de avisos, menu e botões).
-// `fundo`: o lugar da cápsula no alto da página, que rola junto com o conteúdo (a cápsula flutua sempre).
-// Sólida e na cor da primeira dobra (marinho-950; vinho #1A060C nas Mentorias), para não parecer uma faixa à parte.
+// Atrás da cápsula fica a própria primeira dobra da página (ver `.com-menu-flutuante` em app/globals.css).
 const TEMAS = {
   azul: {
-    fundo: "bg-marinho-950",
     capsula: "bg-[rgba(10,26,48,0.93)]",
     painelDoCelular: "bg-marinho-950",
     botao: "btn-q-azul shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_8px_20px_-10px_rgba(0,107,255,0.8)]",
     selo: "bg-azul shadow-[0_0_0_2px_#071426]",
   },
   vinho: {
-    fundo: "bg-[#1A060C]",
     capsula: "bg-[rgba(40,10,19,0.93)]",
     painelDoCelular: "bg-[#1A060C]",
     botao: "btn-q-vinho shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_20px_-10px_rgba(196,42,68,0.9)]",
@@ -269,8 +266,7 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
   const rotuloDoCarrinho = totalCount > 0 ? `Carrinho, ${totalCount} ${totalCount === 1 ? "item" : "itens"}` : "Carrinho";
 
   return (
-    <>
-    <div className="sticky top-0 z-[60]">
+    <div className="com-menu-flutuante sticky top-0 z-[60]">
       <NewsTicker turmas={turmas} eventos={eventos} vinho={vinho} />
       {/* Menu em cápsula, sempre flutuando: fica por cima da página (não ocupa espaço) e o conteúdo passa por trás,
           desfocado. A área em volta da cápsula não recebe cliques; só a cápsula, o submenu e o menu do celular. Sem
@@ -380,9 +376,5 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
         )}
       </nav>
     </div>
-    {/* O lugar da cápsula no alto da página, na cor da primeira dobra: rola junto com o conteúdo, então a cápsula
-        flutua sobre ele desde o início, sem faixa presa e sem troca de cor ao rolar. Altura: 8 px acima + cápsula + 8 px. */}
-    <div aria-hidden="true" className={`h-[72px] min-[1220px]:h-[76px] ${tema.fundo}`} />
-    </>
   );
 }
