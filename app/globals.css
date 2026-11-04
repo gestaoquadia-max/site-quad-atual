@@ -35,19 +35,20 @@ body {
    logo abaixo da barra de avisos, por trás da cápsula. Assim o fundo da própria página (cor, degradês e brilhos) passa
    atrás do menu, sem faixa de outra cor. O ::before empurra o conteúdo do bloco para baixo da cápsula: 8 px acima +
    cápsula (56 px; 60 px a partir de 1220 px) + 8 px. O primeiro bloco pode vir depois de um <script> de dados
-   estruturados. */
+   estruturados. A faixa de avisos (34 px) também é de vidro: o contêiner do menu tem margem de -34 px embaixo, o
+   bloco sobe para trás dela e o ::before soma esses 34 px. */
 .com-menu-flutuante ~ #conteudo > :not(script):first-child::before,
 .com-menu-flutuante ~ #conteudo > script:first-child + :not(script)::before,
 .com-menu-flutuante ~ #conteudo > script:first-child + script + :not(script)::before {
   content: "";
   display: block;
-  height: 72px;
+  height: 106px;
 }
 @media (min-width: 1220px) {
   .com-menu-flutuante ~ #conteudo > :not(script):first-child::before,
   .com-menu-flutuante ~ #conteudo > script:first-child + :not(script)::before,
   .com-menu-flutuante ~ #conteudo > script:first-child + script + :not(script)::before {
-    height: 76px;
+    height: 110px;
   }
 }
 

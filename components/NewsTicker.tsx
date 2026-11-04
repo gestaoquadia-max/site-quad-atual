@@ -37,7 +37,13 @@ const REPETICOES = 4;
 // "menos movimento" no sistema, rola mais devagar (app/globals.css). Leitores de tela recebem a lista uma vez só, sem a animação.
 // `vinho`: nas páginas das Mentorias a faixa acompanha o vinho delas (components/Navbar.tsx).
 export default function NewsTicker({ turmas, eventos, vinho = false }: { turmas: Turma[]; eventos: Evento[]; vinho?: boolean }) {
-  const fundo = vinho ? "bg-vinho" : "bg-azul-forte";
+  // Vidro: a cor translúcida com desfoque do que passa por trás (o fundo da página e o conteúdo ao rolar). A cor é
+  // escura o bastante para o texto branco continuar legível quando passa um bloco claro por trás (contraste ~4,5:1).
+  const fundo = vinho
+    ? "border-b border-white/[0.08] bg-[rgba(100,16,32,0.72)] backdrop-blur-[14px] backdrop-saturate-150"
+    : "border-b border-white/[0.08] bg-[rgba(14,42,150,0.7)] backdrop-blur-[14px] backdrop-saturate-150";
+  // O botão de pausa fica por cima do texto que rola: mais fechado, para o texto não aparecer através dele.
+  const fundoDoBotao = vinho ? "bg-[rgba(60,12,22,0.85)]" : "bg-[rgba(10,30,80,0.85)]";
   const [pausado, setPausado] = useState(false);
   const noticias = montarAvisos(turmas, eventos);
   const faixa = Array.from({ length: REPETICOES }, () => noticias).flat();
@@ -69,7 +75,7 @@ export default function NewsTicker({ turmas, eventos, vinho = false }: { turmas:
         onClick={() => setPausado((v) => !v)}
         aria-pressed={pausado}
         aria-label={pausado ? "Retomar os avisos" : "Pausar os avisos"}
-        className={`absolute right-0 top-0 flex h-full items-center px-2.5 text-[10px] font-bold text-white ${fundo}`}
+        className={`absolute right-0 top-0 flex h-full items-center px-2.5 text-[10px] font-bold text-white ${fundoDoBotao}`}
       >
         {pausado ? "▶" : "❚❚"}
       </button>

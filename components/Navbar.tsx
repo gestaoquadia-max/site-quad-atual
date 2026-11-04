@@ -266,7 +266,7 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
   const rotuloDoCarrinho = totalCount > 0 ? `Carrinho, ${totalCount} ${totalCount === 1 ? "item" : "itens"}` : "Carrinho";
 
   return (
-    <div className="com-menu-flutuante sticky top-0 z-[60]">
+    <div className="com-menu-flutuante sticky top-0 z-[60] -mb-[34px]">
       <NewsTicker turmas={turmas} eventos={eventos} vinho={vinho} />
       {/* Menu em cápsula, sempre flutuando: fica por cima da página (não ocupa espaço) e o conteúdo passa por trás,
           desfocado. A área em volta da cápsula não recebe cliques; só a cápsula, o submenu e o menu do celular. Sem
