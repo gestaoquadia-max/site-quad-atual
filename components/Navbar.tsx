@@ -277,10 +277,10 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
         className="pointer-events-none absolute inset-x-0 top-full px-[clamp(10px,2vw,24px)] pt-2"
       >
         <div
-          className={`pointer-events-auto mx-auto flex h-14 max-w-[1280px] items-center justify-between gap-6 rounded-full border border-white/[0.1] pl-4 pr-1.5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.75),0_0_0_1px_rgba(0,0,0,0.2)] backdrop-blur-[12px] min-[1220px]:h-[60px] min-[1220px]:pl-6 min-[1220px]:pr-2 ${tema.capsula}`}
+          className={`pointer-events-auto mx-auto flex h-[60px] max-w-[1320px] items-center justify-between gap-6 rounded-full border border-white/[0.1] pl-5 pr-2 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.75),0_0_0_1px_rgba(0,0,0,0.2)] backdrop-blur-[12px] min-[1220px]:h-[68px] min-[1220px]:pl-7 min-[1220px]:pr-2.5 ${tema.capsula}`}
         >
           <Link href="/" aria-label="Quad Concursos — início" className="flex flex-none items-center rounded-lg transition-opacity hover:opacity-85">
-            <Image src="/images/quad-logo-branco.png" alt="Quad Concursos" width={118} height={44} priority className="h-9 w-auto min-[1220px]:h-10" />
+            <Image src="/images/quad-logo-branco.png" alt="Quad Concursos" width={118} height={44} priority className="h-10 w-auto min-[1220px]:h-12" />
           </Link>
 
           <ul className="hidden items-center gap-0.5 min-[1220px]:flex">
@@ -311,7 +311,7 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
                     href={l.href}
                     aria-current={ativo ? "page" : undefined}
                     aria-expanded={l.menu ? aberto : undefined}
-                    className={`flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full px-[clamp(10px,1vw,14px)] text-sm transition-colors ${
+                    className={`flex h-11 items-center gap-1.5 whitespace-nowrap rounded-full px-[clamp(10px,1.05vw,16px)] text-[15px] transition-colors ${
                       ativo ? "bg-white/[0.09] font-semibold" : "font-medium"
                     } ${ativo || aberto ? "text-white" : "text-prata hover:bg-white/[0.05] hover:text-white"}`}
                   >
@@ -327,7 +327,7 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
               <Link
                 href="/carrinho"
                 aria-label={rotuloDoCarrinho}
-                className="relative grid h-11 w-11 place-items-center rounded-full text-prata transition-colors hover:bg-white/[0.06] hover:text-white"
+                className="relative grid h-12 w-12 place-items-center rounded-full text-prata transition-colors hover:bg-white/[0.06] hover:text-white"
               >
                 <IconeCarrinho quantidade={totalCount} selo={tema.selo} />
               </Link>
@@ -335,7 +335,7 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
             <li className="ml-1.5">
               <Link
                 href={acesso.href}
-                className={`btn-q h-11 rounded-full px-5 text-sm hover:-translate-y-px ${tema.botao}`}
+                className={`btn-q h-12 rounded-full px-6 text-[15px] hover:-translate-y-px ${tema.botao}`}
               >
                 {acesso.label}
               </Link>
