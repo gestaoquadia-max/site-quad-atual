@@ -3,11 +3,10 @@ import Link from "next/link";
 import type { Turma } from "@/lib/data";
 import type { Banner } from "@/lib/conteudo";
 import { brasaoDoConcurso } from "@/lib/brasoes";
-import { institucional } from "@/lib/institucional";
 
-// Primeira dobra da Home (proposta de 04/11/2026, no lugar do carrossel de banners): o aluno escolhe o concurso e cai
-// nas turmas dele (/turmas?cargo=...). Os banners continuam, como cartões fixos em "Agora no Quad", junto com a
-// próxima turma de matrícula aberta.
+// Primeira dobra da Home (no lugar do carrossel de banners, 04/11/2026): o aluno escolhe o concurso e cai nas turmas
+// dele (/turmas?cargo=...). À direita, a próxima turma com matrícula aberta. Os banners continuam como a pílula de
+// aviso acima do título: um por vez (o primeiro publicado depois do institucional), levando à página da campanha.
 
 // `cor`: o fundo do ponteiro (a seta), tirado da cor principal do brasão; `seta`: a cor da seta sobre ele.
 const CONCURSOS = [
@@ -17,6 +16,14 @@ const CONCURSOS = [
   { id: "sd-bmba", titulo: "Soldado BMBA", cor: "#C8202E", seta: "#FFFFFF" }, // vermelho
   { id: "ipc-pcba", titulo: "Investigador PCBA", cor: "#E6B93C", seta: "#0B1C33" }, // dourado
 ];
+
+function Seta({ className = "" }: { className?: string }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
+      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 // A seta do cartão num círculo da cor do concurso.
 function Ponteiro({ cor, seta }: { cor: string; seta: string }) {
@@ -31,16 +38,6 @@ function Ponteiro({ cor, seta }: { cor: string; seta: string }) {
   );
 }
 
-function Seta({ className = "" }: { className?: string }) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
-      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-type Destaque = { chave: string; rotulo: string; titulo: string; descricao?: string; href: string; cor: string };
-
 // A turma aberta que começa primeiro (sem data, vai para o fim).
 function proximaTurmaAberta(turmas: Turma[] | null): Turma | null {
   const abertas = (turmas ?? []).filter((t) => t.status === "aberta");
@@ -48,74 +45,120 @@ function proximaTurmaAberta(turmas: Turma[] | null): Turma | null {
   return abertas[0] ?? null;
 }
 
-function destaques(banners: Banner[], turmas: Turma[] | null): Destaque[] {
-  const lista: Destaque[] = [];
-  const turma = proximaTurmaAberta(turmas);
-  if (turma) {
-    lista.push({
-      chave: `turma-${turma.slug}`,
-      rotulo: "Matrículas abertas",
-      titulo: turma.nome,
-      descricao: [turma.concurso, turma.inicio && `início em ${turma.inicio}`].filter(Boolean).join(" · ") || undefined,
-      href: `/turmas/${turma.slug}`,
-      cor: "#2F86FF",
-    });
-  }
-  // O banner institucional virou a própria primeira dobra; os outros viram cartões.
-  for (const b of banners.filter((b) => b.tipo !== "danilo")) {
-    lista.push({
-      chave: b.id,
-      rotulo: "Destaque",
-      titulo: b.titulo ?? b.nome,
-      descricao: b.descricao,
-      href: b.botao.link,
-      cor: b.botao.cor ?? "#2F86FF",
-    });
-  }
-  return lista.slice(0, 3);
+// Pílula de aviso acima do título: o banner da vez.
+function Aviso({ banner }: { banner: Banner }) {
+  const cor = banner.botao.cor ?? "#2F86FF";
+  return (
+    <Link
+      href={banner.botao.link}
+      className="group mb-6 inline-flex max-w-full items-center gap-2.5 rounded-full border border-white/[0.12] bg-white/[0.05] py-1.5 pl-1.5 pr-4 text-[13.5px] text-prata-clara backdrop-blur-[6px] transition-colors hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
+    >
+      <span style={{ background: cor }} className="flex-none rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.1em] text-white">
+        Destaque
+      </span>
+      <span className="truncate font-medium">{banner.titulo ?? banner.nome}</span>
+      <Seta className="flex-none transition-transform group-hover:translate-x-0.5" />
+    </Link>
+  );
+}
+
+// Cartão da próxima turma: insígnia, nome, concurso, início e turno, vagas e preço, e o botão para a página dela.
+function ProximaTurma({ turma }: { turma: Turma }) {
+  const total = turma.detalhe?.vagasTotal;
+  const ocupadas = turma.detalhe?.vagasOcupadas ?? 0;
+  const restantes = total != null ? Math.max(0, total - ocupadas) : null;
+  const linhas = [
+    turma.inicio && { rotulo: "Início", valor: turma.inicio },
+    turma.turno && { rotulo: "Turno", valor: turma.turno },
+    turma.concurso && { rotulo: "Concurso", valor: turma.concurso },
+  ].filter(Boolean) as { rotulo: string; valor: string }[];
+
+  return (
+    <div className="relative">
+      {/* Brilho atrás do cartão. */}
+      <div aria-hidden="true" className="pointer-events-none absolute -inset-10 rounded-full bg-[radial-gradient(closest-side,rgba(0,107,255,0.35),transparent)]" />
+      <div className="relative overflow-hidden rounded-[24px] border border-[rgba(111,174,255,0.22)] bg-[linear-gradient(160deg,rgba(20,48,90,0.92)_0%,rgba(10,26,48,0.94)_60%)] p-6 shadow-[0_40px_80px_-32px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-[10px]">
+        <div aria-hidden="true" className="absolute inset-x-6 top-0 h-px bg-[linear-gradient(90deg,transparent,#4D9BFF,transparent)]" />
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <span className="inline-flex items-center gap-2 text-[11.5px] font-bold uppercase tracking-[0.16em] text-azul-ceu">
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#3DDC84] shadow-[0_0_8px_#3DDC84]" />
+              Matrículas abertas
+            </span>
+            <p className="mt-1 text-[13px] text-prata">Próxima turma presencial</p>
+          </div>
+          <Image
+            src={turma.insignia ?? "/images/quad-logo-branco.png"}
+            alt=""
+            width={64}
+            height={64}
+            unoptimized
+            className={`flex-none object-contain ${turma.insignia ? "h-16 w-16" : "h-8 w-auto opacity-70"}`}
+          />
+        </div>
+
+        <h2 className="mt-4 font-display text-[clamp(1.9rem,2.6vw,2.4rem)] font-extrabold leading-none tracking-[-0.03em]">{turma.nome}</h2>
+
+        {linhas.length > 0 && (
+          <dl className="mt-5 grid grid-cols-3 gap-3 border-y border-white/[0.08] py-4">
+            {linhas.map((l) => (
+              <div key={l.rotulo} className="min-w-0">
+                <dt className="text-[11px] font-bold uppercase tracking-[0.12em] text-prata-escura">{l.rotulo}</dt>
+                <dd className="mt-1 truncate font-display text-[15px] font-bold text-white">{l.valor}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+
+        {restantes != null && total ? (
+          <div className="mt-4">
+            <div className="flex items-baseline justify-between text-[13px]">
+              <span className="font-semibold text-white">{restantes === 1 ? "1 vaga restante" : `${restantes} vagas restantes`}</span>
+              <span className="text-prata">de {total}</span>
+            </div>
+            <div aria-hidden="true" className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+              <div className="h-full rounded-full bg-[linear-gradient(90deg,#2F86FF,#7DB8FF)]" style={{ width: `${Math.max(6, (ocupadas / total) * 100)}%` }} />
+            </div>
+          </div>
+        ) : (
+          <p className="mt-4 text-[13px] font-semibold text-white">{turma.statusLabel}</p>
+        )}
+
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            {turma.precoCheio && <span className="block text-[12.5px] text-prata line-through">{turma.precoCheio}</span>}
+            <span className="font-display text-[22px] font-extrabold tracking-[-0.02em]">{turma.preco}</span>
+          </div>
+          <Link href={`/turmas/${turma.slug}`} className="btn-q btn-q-azul h-12 rounded-full px-6 text-[15px] hover:-translate-y-px">
+            Garantir minha vaga <Seta />
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function PrimeiroContato({ banners, turmas }: { banners: Banner[]; turmas: Turma[] | null }) {
-  const cartoes = destaques(banners, turmas);
-  const provas = [
-    institucional.totalDeAprovados > 0 ? `+${institucional.totalDeAprovados} aprovados` : null,
-    "Turmas presenciais em Feira de Santana",
-    "Simulados",
-    "Materiais de estudo",
-    "Mentorias",
-  ].filter(Boolean) as string[];
+  const aviso = banners.find((b) => b.tipo !== "danilo") ?? null;
+  const turma = proximaTurmaAberta(turmas);
 
   return (
     <section aria-labelledby="titulo-da-home" className="relative overflow-hidden bg-marinho-950 text-white">
       {/* Fundo: brilhos azuis e a grade fina, como no restante do site. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_60%_at_82%_18%,rgba(0,107,255,0.38),transparent_70%),radial-gradient(35%_50%_at_8%_70%,rgba(20,74,255,0.14),transparent_70%),radial-gradient(70%_40%_at_50%_115%,rgba(0,107,255,0.28),transparent_70%),linear-gradient(180deg,#071426_0%,#081830_100%)]" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_60%_at_82%_30%,rgba(0,107,255,0.34),transparent_70%),radial-gradient(35%_50%_at_8%_70%,rgba(20,74,255,0.14),transparent_70%),radial-gradient(70%_40%_at_50%_115%,rgba(0,107,255,0.24),transparent_70%),linear-gradient(180deg,#071426_0%,#081830_100%)]" />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[length:64px_64px]"
-        style={{ maskImage: "radial-gradient(60% 70% at 75% 30%, #000 0%, transparent 75%)", WebkitMaskImage: "radial-gradient(60% 70% at 75% 30%, #000 0%, transparent 75%)" }}
+        style={{ maskImage: "radial-gradient(60% 70% at 75% 35%, #000 0%, transparent 75%)", WebkitMaskImage: "radial-gradient(60% 70% at 75% 35%, #000 0%, transparent 75%)" }}
       />
-      {/* Anéis de luz com a marca do Quad, só no computador, presos à direita do contêiner (não da tela). */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden min-[1100px]:block">
-      <div className="conteiner relative h-full">
-      <div className="absolute right-[-2%] top-[60px] aspect-square w-[min(36vw,500px)]">
-        <div className="absolute inset-[14%] rounded-full bg-[radial-gradient(closest-side,rgba(170,210,255,0.22),rgba(47,134,255,0.12)_55%,transparent_100%)]" />
-        <div className="absolute inset-[6%] rounded-full border border-[rgba(140,190,255,0.22)] shadow-[0_0_48px_rgba(0,107,255,0.25),inset_0_0_48px_rgba(0,107,255,0.14)]" />
-        <div className="absolute inset-[-12%] rounded-full border border-[rgba(111,174,255,0.07)]" />
-        <Image
-          src="/images/quad-logo-branco.png"
-          alt=""
-          width={868}
-          height={324}
-          priority
-          sizes="300px"
-          className="absolute left-1/2 top-1/2 w-[52%] -translate-x-1/2 -translate-y-1/2 opacity-90 [filter:drop-shadow(0_0_18px_rgba(47,134,255,0.45))]"
-        />
-      </div>
-      </div>
-      </div>
 
-      <div className="conteiner relative pb-[clamp(40px,5vw,64px)] pt-[clamp(28px,4vw,56px)]">
-        <div className="max-w-[720px]">
+      <div
+        className={`conteiner relative grid items-center gap-x-12 gap-y-10 pb-[clamp(48px,6vw,88px)] pt-[clamp(24px,3.5vw,48px)] ${
+          turma ? "min-[1100px]:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]" : ""
+        }`}
+      >
+        <div className="min-w-0">
+          {aviso && <Aviso banner={aviso} />}
           <h1 id="titulo-da-home" className="font-display text-[clamp(2.3rem,4.4vw,4.2rem)] font-extrabold leading-[1.02] tracking-[-0.04em] [text-wrap:balance]">
             Sua aprovação começa com a{" "}
             <em className="bg-[linear-gradient(100deg,#7DB8FF_0%,#2F86FF_45%,#1F5BFF_100%)] bg-clip-text not-italic text-transparent [filter:drop-shadow(0_6px_24px_rgba(0,107,255,0.35))]">
@@ -125,77 +168,43 @@ export default function PrimeiroContato({ banners, turmas }: { banners: Banner[]
           <p className="mt-5 max-w-[520px] text-[clamp(16px,1.5vw,18.5px)] leading-[1.6] text-[#B4C1D3] [text-wrap:pretty]">
             Escolha o seu concurso e veja as turmas do Quad para ele.
           </p>
-        </div>
 
-        {/* Escolha do concurso */}
-        <ul aria-label="Escolha o seu concurso" className="mt-[clamp(32px,4vw,48px)] grid grid-cols-2 gap-3 sm:grid-cols-3 min-[1100px]:max-w-[calc(100%-min(30vw,420px))] min-[1100px]:grid-cols-3 min-[1400px]:max-w-none min-[1400px]:grid-cols-6">
-          {CONCURSOS.map((c) => {
-            const brasao = brasaoDoConcurso(c.id);
-            return (
-              <li key={c.id}>
-                <Link
-                  href={`/turmas?cargo=${c.id}`}
-                  style={{ "--cor": c.cor } as React.CSSProperties}
-                  className="group flex h-full flex-col gap-3 rounded-2xl border border-white/[0.1] bg-[rgba(11,28,51,0.72)] p-4 text-white backdrop-blur-[6px] transition-[border-color,background-color,transform] duration-150 hover:-translate-y-0.5 hover:border-[var(--cor)] hover:bg-[rgba(16,38,65,0.9)] hover:text-white"
-                >
-                  {/* Em cima, o brasão e a seta colorida; embaixo, o nome do cargo com a largura toda do cartão. */}
-                  <span className="flex items-start justify-between gap-2">
-                    {brasao ? <Image src={brasao} alt="" width={48} height={48} className="h-11 w-11 flex-none object-contain sm:h-12 sm:w-12" /> : <span />}
-                    <Ponteiro cor={c.cor} seta={c.seta} />
-                  </span>
-                  <span className="font-display text-[15px] font-bold leading-tight sm:text-base">{c.titulo}</span>
-                </Link>
-              </li>
-            );
-          })}
-          <li>
-            <Link
-              href="/turmas"
-              className="group flex h-full flex-col justify-between gap-3 rounded-2xl border border-dashed border-white/[0.18] p-4 text-white transition-colors hover:border-[rgba(111,174,255,0.5)] hover:text-white"
-            >
-              <span className="flex justify-end">
-                <Ponteiro cor="rgba(255,255,255,0.12)" seta="#FFFFFF" />
-              </span>
-              <span className="font-display text-[15px] font-bold leading-tight sm:text-base">Ainda não decidi</span>
-            </Link>
-          </li>
-        </ul>
-
-        {/* Faixa de provas */}
-        <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-[13.5px] text-prata-clara">
-          {provas.map((p) => (
-            <li key={p} className="flex items-center gap-2">
-              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-azul-vivo" />
-              {p}
-            </li>
-          ))}
-        </ul>
-
-        {/* Agora no Quad: os banners de antes, como cartões fixos. */}
-        {cartoes.length > 0 && (
-          <div className="mt-[clamp(32px,4vw,48px)] border-t border-white/[0.08] pt-6">
-            <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-azul-ceu">Agora no Quad</h2>
-            <ul className="-mx-[clamp(20px,4vw,56px)] flex snap-x snap-mandatory scroll-px-[clamp(20px,4vw,56px)] gap-3 overflow-x-auto px-[clamp(20px,4vw,56px)] pb-1 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0">
-              {cartoes.map((d) => (
-                <li key={d.chave} className="w-[82%] flex-none snap-start md:w-auto">
+          {/* Escolha do concurso */}
+          <ul aria-label="Escolha o seu concurso" className="mt-[clamp(28px,3.5vw,40px)] grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {CONCURSOS.map((c) => {
+              const brasao = brasaoDoConcurso(c.id);
+              return (
+                <li key={c.id}>
                   <Link
-                    href={d.href}
-                    style={{ "--cor": d.cor } as React.CSSProperties}
-                    className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.1] bg-[rgba(11,28,51,0.8)] p-5 text-white transition-[border-color,transform] duration-150 hover:-translate-y-0.5 hover:border-[var(--cor)] hover:text-white"
+                    href={`/turmas?cargo=${c.id}`}
+                    style={{ "--cor": c.cor } as React.CSSProperties}
+                    className="group flex h-full flex-col gap-3 rounded-2xl border border-white/[0.1] bg-[rgba(11,28,51,0.72)] p-4 text-white backdrop-blur-[6px] transition-[border-color,background-color,transform] duration-150 hover:-translate-y-0.5 hover:border-[var(--cor)] hover:bg-[rgba(16,38,65,0.9)] hover:text-white"
                   >
-                    <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[3px] bg-[var(--cor)]" />
-                    <span className="text-[11.5px] font-bold uppercase tracking-[0.14em] text-prata">{d.rotulo}</span>
-                    <span className="mt-2 font-display text-lg font-extrabold leading-tight tracking-[-0.01em]">{d.titulo}</span>
-                    {d.descricao && <span className="mt-1.5 text-[14px] leading-[1.5] text-[#B4C1D3]">{d.descricao}</span>}
-                    <span className="mt-auto flex items-center gap-2 pt-4 text-[14px] font-semibold text-azul-ceu group-hover:text-white">
-                      Saiba mais <Seta />
+                    {/* Em cima, o brasão e a seta colorida; embaixo, o nome do cargo com a largura toda do cartão. */}
+                    <span className="flex items-start justify-between gap-2">
+                      {brasao ? <Image src={brasao} alt="" width={48} height={48} className="h-11 w-11 flex-none object-contain sm:h-12 sm:w-12" /> : <span />}
+                      <Ponteiro cor={c.cor} seta={c.seta} />
                     </span>
+                    <span className="font-display text-[15px] font-bold leading-tight sm:text-base">{c.titulo}</span>
                   </Link>
                 </li>
-              ))}
-            </ul>
-          </div>
-        )}
+              );
+            })}
+            <li>
+              <Link
+                href="/turmas"
+                className="group flex h-full flex-col justify-between gap-3 rounded-2xl border border-dashed border-white/[0.18] p-4 text-white transition-colors hover:border-[rgba(111,174,255,0.5)] hover:text-white"
+              >
+                <span className="flex justify-end">
+                  <Ponteiro cor="rgba(255,255,255,0.12)" seta="#FFFFFF" />
+                </span>
+                <span className="font-display text-[15px] font-bold leading-tight sm:text-base">Ainda não decidi</span>
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        {turma && <ProximaTurma turma={turma} />}
       </div>
     </section>
   );
