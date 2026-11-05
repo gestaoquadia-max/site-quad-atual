@@ -277,9 +277,10 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
         className="pointer-events-none absolute inset-x-0 top-full px-[clamp(10px,2.5vw,40px)] pt-2"
       >
         <div
-          className={`pointer-events-auto mx-auto flex h-14 max-w-[1440px] items-center justify-between gap-6 rounded-full border border-white/[0.1] pl-4 pr-1.5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.75),0_0_0_1px_rgba(0,0,0,0.2)] backdrop-blur-[12px] min-[1220px]:h-[60px] min-[1220px]:pl-6 min-[1220px]:pr-2 ${tema.capsula}`}
+          className={`pointer-events-auto mx-auto flex h-14 max-w-[1440px] items-center justify-between gap-6 rounded-full border border-white/[0.1] pl-4 pr-1.5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.75),0_0_0_1px_rgba(0,0,0,0.2)] backdrop-blur-[12px] min-[1220px]:grid min-[1220px]:h-[60px] min-[1220px]:grid-cols-[1fr_auto_1fr] min-[1220px]:px-2 ${tema.capsula}`}
         >
-          <Link href="/" aria-label="Quad Concursos — início" className="flex flex-none items-center rounded-lg transition-opacity hover:opacity-85">
+          {/* No computador, três colunas: as das pontas têm a mesma largura (1fr), então os links ficam no centro exato. */}
+          <Link href="/" aria-label="Quad Concursos — início" className="flex flex-none items-center justify-self-start rounded-lg min-[1220px]:ml-4 transition-opacity hover:opacity-85">
             <Image src="/images/quad-logo-branco.png" alt="Quad Concursos" width={118} height={44} priority className="h-9 w-auto min-[1220px]:h-10" />
           </Link>
 
@@ -323,24 +324,21 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
                 </li>
               );
             })}
-            <li className="ml-2">
-              <Link
-                href="/carrinho"
-                aria-label={rotuloDoCarrinho}
-                className="relative grid h-11 w-11 place-items-center rounded-full text-prata transition-colors hover:bg-white/[0.06] hover:text-white"
-              >
-                <IconeCarrinho quantidade={totalCount} selo={tema.selo} />
-              </Link>
-            </li>
-            <li className="ml-1.5">
-              <Link
-                href={acesso.href}
-                className={`btn-q h-11 rounded-full px-5 text-sm hover:-translate-y-px ${tema.botao}`}
-              >
-                {acesso.label}
-              </Link>
-            </li>
           </ul>
+
+          {/* Computador: carrinho e Área do Aluno no canto direito (a logo fica no esquerdo e os links no centro). */}
+          <div className="hidden items-center gap-1.5 justify-self-end min-[1220px]:flex">
+            <Link
+              href="/carrinho"
+              aria-label={rotuloDoCarrinho}
+              className="relative grid h-11 w-11 place-items-center rounded-full text-prata transition-colors hover:bg-white/[0.06] hover:text-white"
+            >
+              <IconeCarrinho quantidade={totalCount} selo={tema.selo} />
+            </Link>
+            <Link href={acesso.href} className={`btn-q h-11 rounded-full px-5 text-sm hover:-translate-y-px ${tema.botao}`}>
+              {acesso.label}
+            </Link>
+          </div>
 
           <div className="flex items-center gap-1 min-[1220px]:hidden">
             <Link href="/carrinho" aria-label={rotuloDoCarrinho} className="relative grid h-11 w-11 place-items-center text-prata">
