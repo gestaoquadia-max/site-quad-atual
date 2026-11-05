@@ -80,13 +80,7 @@ function ProximaTurma({ turma }: { turma: Turma }) {
       <div className="relative overflow-hidden rounded-[24px] border border-[rgba(111,174,255,0.22)] bg-[linear-gradient(160deg,rgba(20,48,90,0.92)_0%,rgba(10,26,48,0.94)_60%)] p-6 shadow-[0_40px_80px_-32px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-[10px]">
         <div aria-hidden="true" className="absolute inset-x-6 top-0 h-px bg-[linear-gradient(90deg,transparent,#4D9BFF,transparent)]" />
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <span className="inline-flex items-center gap-2 text-[11.5px] font-bold uppercase tracking-[0.16em] text-azul-ceu">
-              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#3DDC84] shadow-[0_0_8px_#3DDC84]" />
-              Matrículas abertas
-            </span>
-            <p className="mt-1 text-[13px] text-prata">Próxima turma presencial</p>
-          </div>
+          <span className="text-[11.5px] font-bold uppercase tracking-[0.16em] text-azul-ceu">Turma presencial</span>
           <Image
             src={turma.insignia ?? "/images/quad-logo-branco.png"}
             alt=""
@@ -112,10 +106,7 @@ function ProximaTurma({ turma }: { turma: Turma }) {
 
         {restantes != null && total ? (
           <div className="mt-4">
-            <div className="flex items-baseline justify-between text-[13px]">
-              <span className="font-semibold text-white">{restantes === 1 ? "1 vaga restante" : `${restantes} vagas restantes`}</span>
-              <span className="text-prata">de {total}</span>
-            </div>
+            <span className="text-[13px] font-semibold text-white">{restantes === 1 ? "1 vaga restante" : `${restantes} vagas restantes`}</span>
             <div aria-hidden="true" className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
               <div className="h-full rounded-full bg-[linear-gradient(90deg,#2F86FF,#7DB8FF)]" style={{ width: `${Math.max(6, (ocupadas / total) * 100)}%` }} />
             </div>
