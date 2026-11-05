@@ -37,19 +37,19 @@ const REPETICOES = 4;
 // "menos movimento" no sistema, rola mais devagar (app/globals.css). Leitores de tela recebem a lista uma vez só, sem a animação.
 // `vinho`: nas páginas das Mentorias a faixa acompanha o vinho delas (components/Navbar.tsx).
 export default function NewsTicker({ turmas, eventos, vinho = false }: { turmas: Turma[]; eventos: Evento[]; vinho?: boolean }) {
-  // Vidro: a cor translúcida com desfoque do que passa por trás (o fundo da página e o conteúdo ao rolar). A cor é
-  // escura o bastante para o texto branco continuar legível quando passa um bloco claro por trás (contraste ~4,5:1).
+  // Transparente (05/11/2026): só um véu leve e o desfoque do que passa por trás. A sombra no texto o mantém legível
+  // quando um bloco claro passa por trás ao rolar.
   const fundo = vinho
-    ? "border-b border-white/[0.08] bg-[rgba(100,16,32,0.72)] backdrop-blur-[14px] backdrop-saturate-150"
-    : "border-b border-white/[0.08] bg-[rgba(14,42,150,0.7)] backdrop-blur-[14px] backdrop-saturate-150";
-  // O botão de pausa fica por cima do texto que rola: mais fechado, para o texto não aparecer através dele.
-  const fundoDoBotao = vinho ? "bg-[rgba(60,12,22,0.85)]" : "bg-[rgba(10,30,80,0.85)]";
+    ? "border-b border-white/[0.1] bg-[rgba(60,12,22,0.22)] backdrop-blur-[16px] backdrop-saturate-150"
+    : "border-b border-white/[0.1] bg-[rgba(7,20,38,0.22)] backdrop-blur-[16px] backdrop-saturate-150";
+  // O botão de pausa fica por cima do texto que rola: um pouco mais fechado, para o texto não aparecer através dele.
+  const fundoDoBotao = vinho ? "bg-[rgba(60,12,22,0.55)] backdrop-blur-[16px]" : "bg-[rgba(7,20,38,0.55)] backdrop-blur-[16px]";
   const [pausado, setPausado] = useState(false);
   const noticias = montarAvisos(turmas, eventos);
   const faixa = Array.from({ length: REPETICOES }, () => noticias).flat();
 
   return (
-    <aside aria-label="Avisos" className={`group relative flex h-[34px] items-center overflow-hidden whitespace-nowrap text-white transition-colors ${fundo}`}>
+    <aside aria-label="Avisos" className={`group relative flex h-[34px] items-center overflow-hidden whitespace-nowrap text-white transition-colors [text-shadow:0_1px_3px_rgba(0,0,0,0.75)] ${fundo}`}>
       <ul className="sr-only">
         {noticias.map((n, i) => (
           <li key={i}>
