@@ -397,7 +397,36 @@ export type Compra = {
     boleto: { url: string | null; pdf: string | null; venceEm: string | null } | null;
     cartao: { bandeira: string | null; ultimosDigitos: string | null; parcelas: number | null } | null;
   } | null;
+  // O que ESTA compra pagou em reais (com o desconto do cupom ou do combo); num fechamento de várias, a parte dela.
+  aPagarEmCentavos?: number | null;
+  // Até quando o aluno pode desistir, calculado pela API (vem em todas as rotas de compra). Regras: turma, 7 dias
+  // corridos do pagamento (o 7º é o último); evento e simulado, até a véspera; item da loja, até retirar na recepção.
+  // `ate` é um dia ("2026-11-12"), nulo só em ATE_A_RETIRADA.
+  desistencia?: {
+    permitida: boolean;
+    limite: "SETE_DIAS" | "VESPERA_DA_ATIVIDADE" | "ATE_A_RETIRADA";
+    ate: string | null;
+    impedimento: "PRAZO_VENCIDO" | "ATIVIDADE_JA_COMECOU" | "ITEM_JA_RETIRADO" | "COMPRA_NAO_ESTORNAVEL" | null;
+  } | null;
+  // A devolução, só na compra estornada. `manual`: o Pagar.me não devolve sozinho (PIX de um carrinho com várias
+  // compras, boleto) e o financeiro devolve por transferência.
+  estorno?: {
+    origem: "ALUNO" | "ADMINISTRACAO";
+    em: string;
+    manual: boolean;
+    valorEmCentavos: number | null;
+  } | null;
 };
+
+// O aluno desfaz a própria compra paga dentro do prazo: a API pede o estorno ao Pagar.me, libera a vaga e corta o
+// acesso. NÃO é idempotente (um segundo pedido responde 409), por isso a tela pede confirmação antes.
+// Recusas (409): DESISTENCIA_FORA_DO_PRAZO, ATIVIDADE_JA_COMECOU, ITEM_JA_RETIRADO, COMPRA_NAO_ESTORNAVEL,
+// DESISTENCIA_MANUAL_NO_BOLETO; ESTORNO_RECUSADO_PELO_PROVEDOR quando o Pagar.me não devolveu.
+export async function desistirDaCompra(compraId: string): Promise<Compra> {
+  const res = await fetchAutenticado(`/api/loja/compras/${compraId}/desistencia`, { method: "POST" });
+  if (!res.ok) throw await lerErro(res, "Não foi possível desistir da compra agora. Tente novamente em alguns minutos.");
+  return res.json();
+}
 
 // Formas de pagamento em reais. Quad Coins e diamantes são moedas do app Viver o Quad, que compartilha a API.
 export const FORMAS_EM_REAIS: FormaDePagamento[] = ["CARTAO", "PIX", "BOLETO"];
