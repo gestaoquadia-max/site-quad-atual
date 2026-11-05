@@ -9,7 +9,7 @@ import Reveal from "@/components/Reveal";
 import { SetaDoLink } from "@/components/Trilho";
 
 // Painéis à vista no computador; o destacado se abre e mostra tudo.
-const NO_COMPUTADOR = 6;
+const NO_COMPUTADOR = 4;
 const SEGUNDOS_POR_PROFESSOR = 5;
 
 // "Bruno Araújo Agostinho" → "Bruno" em cima e "ARAÚJO AGOSTINHO" grande embaixo.
