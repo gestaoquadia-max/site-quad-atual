@@ -15,6 +15,20 @@ function Duracao({ numero, escuro = false }: { numero: string; escuro?: boolean 
   );
 }
 
+// A insígnia do plano ao lado do nome (lib/conteudo.ts). Sem arte cadastrada, não aparece nada.
+function Insignia({ src }: { src: string | null }) {
+  if (!src) return null;
+  return (
+    <Image
+      src={src}
+      alt=""
+      width={80}
+      height={80}
+      className="h-[clamp(56px,5vw,76px)] w-[clamp(56px,5vw,76px)] flex-none object-contain [filter:drop-shadow(0_6px_14px_rgba(0,0,0,0.35))]"
+    />
+  );
+}
+
 // Escolha das mentorias em dois passos (31/10/2026), como a página de turmas: primeiro o concurso, com o brasão;
 // depois o plano, cujo botão leva ao checkout daquele concurso na Tutory (CONCURSOS_DAS_MENTORIAS).
 // Sem concurso escolhido, os botões dos planos levam de volta à escolha.
@@ -89,8 +103,11 @@ export default function PlanosDasMentorias() {
           <article className="relative flex flex-col gap-[22px] overflow-hidden rounded-3xl border border-linha-forte bg-superficie p-[clamp(26px,3vw,44px)] shadow-cartao-alto">
             {/* Faixa vinho no alto: o cartão claro se separa do fundo, que é da mesma família de cor. */}
             <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1.5 bg-[linear-gradient(90deg,#8E1B2E,#E0425C)]" />
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <h4 className="font-display text-[clamp(2.2rem,3.4vw,3rem)] font-extrabold leading-none tracking-[-0.04em]">{mentoria.nome}</h4>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <span className="flex items-center gap-4">
+                <Insignia src={mentoria.insignia} />
+                <h4 className="font-display text-[clamp(2.2rem,3.4vw,3rem)] font-extrabold leading-none tracking-[-0.04em]">{mentoria.nome}</h4>
+              </span>
               <Duracao numero="12" />
             </div>
             <p className="text-[16.5px] leading-[1.6] text-ardosia-escura [text-wrap:pretty]">{mentoria.descricao}</p>
@@ -113,10 +130,13 @@ export default function PlanosDasMentorias() {
 
           <article className="relative flex flex-col gap-[22px] overflow-hidden rounded-3xl border border-[#5A2A35] bg-[#140A0E] p-[clamp(26px,3vw,44px)] text-white shadow-[0_40px_80px_-40px_rgba(20,10,14,0.9)]">
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_50%_at_100%_0%,rgba(142,27,46,0.55),transparent_70%)]" />
-            <div className="relative flex flex-wrap items-end justify-between gap-4">
-              <h4 className="font-display text-[clamp(2.2rem,3.4vw,3rem)] font-extrabold leading-none tracking-[-0.04em]">
-                Mentoria<span className="text-[#E0425C]">+</span>
-              </h4>
+            <div className="relative flex flex-wrap items-center justify-between gap-4">
+              <span className="flex items-center gap-4">
+                <Insignia src={mentoriaMais.insignia} />
+                <h4 className="font-display text-[clamp(2.2rem,3.4vw,3rem)] font-extrabold leading-none tracking-[-0.04em]">
+                  Mentoria<span className="text-[#E0425C]">+</span>
+                </h4>
+              </span>
               <Duracao numero="3" escuro />
             </div>
             <p className="relative text-[16.5px] leading-[1.6] text-[#E2DAE4] [text-wrap:pretty]">{mentoriaMais.descricao}</p>
