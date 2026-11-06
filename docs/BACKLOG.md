@@ -32,7 +32,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 |---|---|---|---|---|
 | 1 | Cadastro e login | 4 | 28 | 27 |
 | 2 | Páginas públicas | 3 | 17 | 11 |
-| 3 | Área do aluno | 4 | 17 | 14 |
+| 3 | Área do aluno | 4 | 17 | 16 |
 | 4 | Qualidade de código | 3 | 11 | 10 |
 | 5 | Conteúdo via API | 4 | 11 | 5 |
 | 6 | Painel administrativo | 3 | 6 | 0 |
@@ -223,13 +223,13 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 3 — TURMAS E MATERIAIS
 
-**Status:** EM ANDAMENTO
+**Status:** CONCLUÍDA · **Término:** 06/11/2026
 
 | Tarefa | Status |
 |---|---|
 | Minhas turmas com as matrículas reais | FEITO |
-| Meus materiais com download do arquivo | EM ANDAMENTO |
-| Materiais diários por turma | EM ANDAMENTO |
+| Meus materiais com download do arquivo | FEITO |
+| Materiais diários por turma | FEITO |
 
 **Campos adicionais**
 - **Descrição:** As telas já usam a API: Minhas turmas lê `/api/matriculas` + `/api/turmas/{id}` e calcula o progresso pelas aulas realizadas na agenda da turma; Meus materiais lê `/api/materiais/eu` (por turma, matéria e tópico, com download e marcação de visto). Minhas turmas testada com matrículas reais em 05/10/2026 (cada aluno vê só as suas). Meus materiais testada em 05/10/2026 com materiais de teste: lista por turma, filtro, "Novo"/visto e vídeo funcionando; o download do arquivo não pôde ser testado porque o backend local não tem armazenamento de arquivos configurado (responde 503) Os PDFs vendidos avulsos ainda não existem na API
