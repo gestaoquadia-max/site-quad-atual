@@ -8,7 +8,7 @@ export default async function MeusMateriaisPage({ searchParams }: { searchParams
   const { turma } = await searchParams;
   return (
     <>
-      <CabecalhoDoAluno titulo="Meus materiais" subtitulo="Os materiais publicados nas suas turmas, disponíveis para download." />
+      <CabecalhoDoAluno titulo="Meus materiais" subtitulo="Os PDFs que você comprou e os materiais publicados nas suas turmas, para baixar." />
       <MeusMateriaisConteudo turmaInicial={typeof turma === "string" ? turma : null} />
     </>
   );

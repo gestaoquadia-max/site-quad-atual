@@ -5,8 +5,11 @@ import EstadoLista from "@/components/EstadoLista";
 import { CLASSE_DO_BOTAO_PEQUENO, CLASSE_DO_CARTAO, CLASSE_DO_SELO } from "@/components/aluno/CabecalhoDoAluno";
 import {
   baixarArquivoDoMaterial,
+  baixarMaterialComprado,
   listarMeusMateriais,
+  listarMinhasComprasEmReais,
   marcarMaterialComoVisto,
+  type Compra,
   type MaterialDaTurma,
 } from "@/lib/api";
 import { salvarArquivo } from "@/lib/download";
@@ -24,8 +27,13 @@ export const ROTULO_DO_TIPO: Record<MaterialDaTurma["tipo"], string> = {
   OUTRO: "Arquivo",
 };
 
-// A lista não depende de nenhum parâmetro: a chave só indica que já dá para carregar.
-const carregarMateriais = () => listarMeusMateriais();
+// Duas fontes (06/11/2026): o material de aula das turmas (/api/materiais/eu, por matrícula) e os PDFs comprados na
+// loja (as compras pagas do material DIGITAL, que se baixam pela própria compra). Se as compras não carregarem, os
+// materiais das turmas aparecem mesmo assim.
+async function carregarMateriais(): Promise<{ daTurma: MaterialDaTurma[]; comprados: Compra[] }> {
+  const [daTurma, compras] = await Promise.all([listarMeusMateriais(), listarMinhasComprasEmReais().catch(() => [] as Compra[])]);
+  return { daTurma, comprados: compras.filter((c) => c.situacao === "PAGA" && c.item.plataforma === "DIGITAL") };
+}
 
 function formatarTamanho(bytes: number | null) {
   if (!bytes) return "";
@@ -43,7 +51,8 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
   const [baixando, setBaixando] = useState<string | null>(null);
   const [erroDoItem, setErroDoItem] = useState<{ id: string; mensagem: string } | null>(null);
 
-  const materiais = dados ?? [];
+  const materiais = dados?.daTurma ?? [];
+  const comprados = dados?.comprados ?? [];
   const turmas = [...new Map(materiais.map((m) => [m.turmaId, m.turmaNome])).entries()];
   const daTurma = materiais.filter((m) => !turma || m.turmaId === turma);
   const materias = [...new Map(daTurma.map((m) => [m.materiaId, m.materiaNome])).entries()];
@@ -72,17 +81,62 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
     }
   }
 
+  async function baixarComprado(compra: Compra) {
+    const id = `compra-${compra.id}`;
+    setErroDoItem(null);
+    setBaixando(id);
+    try {
+      salvarArquivo(await baixarMaterialComprado(compra.id), `${compra.item.nome}.pdf`);
+    } catch (e) {
+      setErroDoItem({ id, mensagem: e instanceof ErroDaApi ? e.message : "Não foi possível baixar. Verifique sua internet e tente novamente." });
+    } finally {
+      setBaixando(null);
+    }
+  }
+
   return (
     <EstadoLista
       carregando={carregandoUsuario || carregando}
       erro={erro}
       onTentarNovamente={tentarNovamente}
-      vazio={materiais.length === 0}
+      vazio={materiais.length === 0 && comprados.length === 0}
       vazioTitulo="Nenhum material por aqui ainda"
-      vazioTexto="Os materiais publicados nas suas turmas aparecem aqui assim que forem liberados."
-      vazioAcao={{ href: "/aluno/turmas", label: "Ver minhas turmas" }}
+      vazioTexto="Os materiais publicados nas suas turmas e os PDFs que você comprar na loja aparecem aqui."
+      vazioAcao={{ href: "/produtos", label: "Ver materiais à venda" }}
     >
       <div className="flex flex-col gap-5">
+        {/* PDFs comprados na loja: baixados pela própria compra (o mesmo botão de Compras). */}
+        {comprados.length > 0 && (
+          <section aria-labelledby="titulo-comprados" className="flex flex-col gap-2.5">
+            <h2 id="titulo-comprados" className="font-display text-lg font-extrabold">Comprados</h2>
+            <div className={`${CLASSE_DO_CARTAO} overflow-hidden`}>
+              {comprados.map((c, i) => {
+                const id = `compra-${c.id}`;
+                return (
+                  <div key={c.id} className={`px-[22px] py-3.5 ${i > 0 ? "border-t border-linha" : ""}`}>
+                    <div className="flex items-center gap-3.5">
+                      <span className={CLASSE_DO_SELO}>PDF</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="line-clamp-2 text-[15px] font-semibold leading-snug">{c.item.nome}</div>
+                        <div className="mt-0.5 text-[13px] text-ardosia">Comprado em {formatarData(c.pagaEm ?? c.criadaEm)}</div>
+                      </div>
+                      <button type="button" onClick={() => baixarComprado(c)} disabled={baixando === id} className={CLASSE_DO_BOTAO_PEQUENO}>
+                        {baixando === id ? "Baixando..." : "Baixar PDF"}
+                      </button>
+                    </div>
+                    {erroDoItem?.id === id && (
+                      <p role="alert" className="mt-2 text-[13px] text-[#9B1C1C]">
+                        {erroDoItem.mensagem}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {materiais.length > 0 && comprados.length > 0 && <h2 className="font-display text-lg font-extrabold">Das suas turmas</h2>}
         {turmas.length > 1 && (
           <Filtros
             rotulo="Filtrar por turma"
@@ -97,6 +151,7 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
         )}
         {materias.length > 1 && <Filtros rotulo="Filtrar por matéria" todos="Todas" opcoes={materias} valor={materia} aoEscolher={setMateria} />}
 
+        {materiais.length > 0 && (
         <div className={`${CLASSE_DO_CARTAO} overflow-hidden`}>
           {filtrados.length === 0 && <p className="px-[22px] py-8 text-center text-[15px] text-ardosia">Nenhum material desta turma ou matéria ainda.</p>}
 
@@ -149,6 +204,7 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
             );
           })}
         </div>
+        )}
       </div>
     </EstadoLista>
   );
