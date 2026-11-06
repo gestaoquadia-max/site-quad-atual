@@ -18,10 +18,6 @@ function partesDoNome(nome: string) {
   return { primeiro: resto.length ? primeiro : "", sobrenome: resto.length ? resto.join(" ") : primeiro };
 }
 
-function numero(i: number) {
-  return String(i + 1).padStart(2, "0");
-}
-
 // Fundo do painel: as iniciais gigantes, só no contorno, sobre uma grade fina. A foto do cadastro é um recorte sem
 // fundo (PNG transparente; hoje 512 × 512, a original é 1080 × 1350): fica inteira, "em pé" na base do painel, na frente das iniciais, como um pôster.
 function Fundo({ professor }: { professor: Professor }) {
@@ -43,14 +39,11 @@ function Fundo({ professor }: { professor: Professor }) {
   );
 }
 
-// O conteúdo do painel aberto: número, matéria na vertical, nome em duas linhas e o convite.
-function Aberto({ professor, indice, total }: { professor: Professor; indice: number; total: number }) {
+// O conteúdo do painel aberto: matéria na vertical, nome em duas linhas e o convite.
+function Aberto({ professor }: { professor: Professor }) {
   const { primeiro, sobrenome } = partesDoNome(professor.nome);
   return (
     <>
-      <span className="absolute left-6 top-6 font-display text-[15px] font-bold tracking-[0.08em] text-white/70 [font-variant-numeric:tabular-nums]">
-        <span className="text-white">{numero(indice)}</span> / {String(total).padStart(2, "0")}
-      </span>
       {professor.materia && (
         <span className="absolute right-5 top-6 flex items-center gap-3 text-[12px] font-bold uppercase tracking-[0.32em] text-azul-ceu [writing-mode:vertical-rl]">
           {professor.materia}
@@ -107,10 +100,7 @@ export default function ProfessoresEmDestaque({ professores }: { professores: Pr
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(45%_55%_at_0%_0%,rgba(0,107,255,0.18),transparent_70%)]" />
       <div className="conteiner relative">
         <Reveal className="mb-[clamp(28px,3.4vw,44px)] flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-[0.16em] text-azul-ceu">Corpo docente · {total} professores</span>
-            <h2 className="titulo-secao mt-2">Conheça nossos professores</h2>
-          </div>
+          <h2 className="titulo-secao">Conheça nossos professores</h2>
           <div className="flex items-center gap-3">
             <Link href="/professores" className="mr-2 inline-flex min-h-[44px] items-center gap-2 font-display text-[15px] font-bold text-azul-ceu hover:text-white">
               Ver todos os professores <SetaDoLink />
@@ -152,10 +142,9 @@ export default function ProfessoresEmDestaque({ professores }: { professores: Pr
               >
                 <Fundo professor={p} />
                 <div className={`absolute inset-0 transition-opacity duration-300 ${aberto ? "opacity-100 delay-300" : "pointer-events-none opacity-0"}`}>
-                  <Aberto professor={p} indice={indice} total={total} />
+                  <Aberto professor={p} />
                 </div>
                 <div aria-hidden="true" className={`absolute inset-0 transition-opacity duration-300 ${aberto ? "opacity-0" : "opacity-100 delay-200"}`}>
-                  <span className="absolute left-1/2 top-5 -translate-x-1/2 font-display text-[13px] font-bold text-white/60">{numero(indice)}</span>
                   <span className="absolute bottom-6 left-1/2 -translate-x-1/2 rotate-180 whitespace-nowrap font-display text-[20px] font-extrabold uppercase tracking-[0.02em] text-white [writing-mode:vertical-rl]">
                     {sobrenome}
                   </span>
@@ -173,7 +162,7 @@ export default function ProfessoresEmDestaque({ professores }: { professores: Pr
 
       {/* Celular e tablet: cartões altos, já abertos, que se arrastam para o lado. */}
       <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-[max(16px,calc((100vw-1200px)/2))] pb-2 [scrollbar-width:none] lg:hidden">
-        {professores.map((p, i) => (
+        {professores.map((p) => (
           <Link
             key={p.slug}
             href={`/professores/${p.slug}`}
@@ -181,7 +170,7 @@ export default function ProfessoresEmDestaque({ professores }: { professores: Pr
             className="group relative aspect-[3/4] w-[78%] max-w-[360px] flex-none snap-center overflow-hidden rounded-[22px] border border-white/[0.1] text-white hover:text-white sm:w-[46%]"
           >
             <Fundo professor={p} />
-            <Aberto professor={p} indice={i} total={total} />
+            <Aberto professor={p} />
           </Link>
         ))}
       </div>
