@@ -57,7 +57,7 @@ export default function RevisaoDoPedido({
         aria-modal="true"
         aria-labelledby="revisao-titulo"
         onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[92vh] w-full max-w-[520px] animate-[q-aparecer_220ms_ease_both] flex-col overflow-hidden rounded-[20px] bg-white shadow-[0_40px_80px_-30px_rgba(7,20,38,0.6)]"
+        className="flex max-h-[92vh] w-full max-w-[520px] animate-[q-aparecer_220ms_ease_both] flex-col overflow-hidden rounded-[20px] bg-superficie shadow-[0_40px_80px_-30px_rgba(7,20,38,0.6)]"
       >
         <div className="border-b border-linha px-6 pb-4 pt-6">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-forte">Revise antes de confirmar</span>

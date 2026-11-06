@@ -29,7 +29,7 @@ export default function SobrePage() {
     <>
       <PageHeader eyebrow="Quem somos" title="Sobre o Quad" desc={`Preparação séria para quem quer vestir a farda. Feira de Santana, Bahia${desde(" — ")}.`} />
 
-      <section className="bg-white py-[clamp(56px,7vw,104px)]">
+      <section className="bg-nevoa-clara py-[clamp(56px,7vw,104px)]">
         <div className="conteiner grid gap-[clamp(28px,5vw,80px)] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div>
             <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-forte">Nossa história</span>
@@ -66,7 +66,7 @@ export default function SobrePage() {
           <h2 className="titulo-secao mb-8 mt-2.5">Nossos valores</h2>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,300px),1fr))] gap-5">
             {valores.map((v, i) => (
-              <article key={v.nome} className="rounded-[18px] border border-linha bg-white p-6">
+              <article key={v.nome} className="rounded-[18px] border border-linha bg-superficie shadow-cartao p-6">
                 <span className="font-display text-sm font-extrabold text-azul-forte">{String(i + 1).padStart(2, "0")}</span>
                 <h3 className="mb-2 mt-3 font-display text-xl font-extrabold tracking-[-0.015em]">{v.nome}</h3>
                 <p className="text-[15px] leading-[1.6] text-ardosia">{v.texto}</p>
@@ -76,7 +76,7 @@ export default function SobrePage() {
         </div>
       </section>
 
-      <section className="bg-white py-[clamp(56px,7vw,96px)]">
+      <section className="bg-nevoa-clara py-[clamp(56px,7vw,96px)]">
         <div className="conteiner flex flex-col items-center gap-6 text-center">
           <p className="max-w-[760px] font-display text-[clamp(1.5rem,2.6vw,2.2rem)] font-extrabold leading-[1.15] tracking-[-0.03em] [text-wrap:balance]">
             Nossa bandeira é a educação. Nossa causa é transformar vidas.

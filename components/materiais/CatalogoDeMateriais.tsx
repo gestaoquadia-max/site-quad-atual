@@ -80,7 +80,7 @@ export default function CatalogoDeMateriais({ produtos: lista }: { produtos: Pro
                     aria-pressed={tipo === t.valor}
                     onClick={() => setTipo(t.valor)}
                     className={`h-[38px] whitespace-nowrap rounded-full border px-4 text-sm font-semibold transition-colors ${
-                      tipo === t.valor ? "border-white bg-white text-marinho-950" : "border-white/[0.14] bg-white/[0.04] text-[#DCE4EF] hover:border-white/40"
+                      tipo === t.valor ? "border-azul-palido bg-azul-palido text-marinho-950" : "border-white/[0.14] bg-white/[0.04] text-[#DCE4EF] hover:border-white/40"
                     }`}
                   >
                     {t.rotulo}
@@ -121,7 +121,7 @@ export default function CatalogoDeMateriais({ produtos: lista }: { produtos: Pro
                 <p className="max-w-[520px] text-[16.5px] leading-[1.6] text-[#C9D5E5]">{kit.detalhe?.lead.split(" — ")[0] ?? kit.desc}</p>
                 <div className="mt-6 flex flex-wrap items-center gap-5">
                   <span className="font-display text-[clamp(28px,3vw,36px)] font-extrabold tracking-[-0.03em]">{kit.preco}</span>
-                  <span className="btn-q h-12 bg-white px-5 text-[15px] text-marinho-950 group-hover:bg-azul-palido">Ver o kit</span>
+                  <span className="btn-q h-12 bg-azul-palido px-5 text-[15px] text-marinho-950 group-hover:bg-[#D6E6FF]">Ver o kit</span>
                 </div>
               </div>
             </Link>
@@ -129,7 +129,7 @@ export default function CatalogoDeMateriais({ produtos: lista }: { produtos: Pro
 
           <Link
             href="/simulados?modo=individual"
-            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-linha bg-white px-6 py-5 text-tinta shadow-[0_1px_2px_rgba(16,27,45,0.04)] transition-colors hover:border-azul/50 hover:text-tinta"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-linha bg-superficie px-6 py-5 text-tinta shadow-[0_1px_2px_rgba(16,27,45,0.04)] transition-colors hover:border-azul/50 hover:text-tinta"
           >
             <span className="flex flex-col gap-1">
               <span className="font-display text-xl font-extrabold tracking-[-0.01em]">Simulados do Quad</span>

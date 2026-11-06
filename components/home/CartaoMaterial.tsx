@@ -107,7 +107,7 @@ export default function CartaoMaterial({ produto, indice }: { produto: Produto; 
                 title={existe ? undefined : `Este material não tem a versão ${f === "digital" ? "digital" : "impressa"}`}
                 onClick={existe ? () => setFormato(f) : undefined}
                 className={`h-9 rounded-lg font-display text-[13px] font-bold transition-colors ${
-                  formato === f ? "bg-white text-marinho-950 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.4)]" : existe ? "text-prata hover:text-white" : "cursor-not-allowed text-prata/40 line-through"
+                  formato === f ? "bg-azul-palido text-marinho-950 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.4)]" : existe ? "text-prata hover:text-white" : "cursor-not-allowed text-prata/40 line-through"
                 }`}
               >
                 {f === "digital" ? "Digital" : "Impresso"}

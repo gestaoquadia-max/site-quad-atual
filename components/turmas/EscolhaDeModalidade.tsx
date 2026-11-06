@@ -270,7 +270,7 @@ function CartaoDaTurma({ turma, titulo, concurso }: { turma: Turma; titulo: stri
   ] as const;
   const preco = turma.preco === "Consulte" ? undefined : turma.preco;
   return (
-    <article className="grid animate-[q-surgir_220ms_ease_both] grid-cols-[repeat(auto-fit,minmax(min(100%,190px),1fr))] items-center gap-x-6 gap-y-4 rounded-2xl border border-linha bg-white p-[clamp(18px,2vw,24px)] shadow-[0_1px_2px_rgba(16,27,45,0.04),0_18px_36px_-28px_rgba(16,27,45,0.3)]">
+    <article className="grid animate-[q-surgir_220ms_ease_both] grid-cols-[repeat(auto-fit,minmax(min(100%,190px),1fr))] items-center gap-x-6 gap-y-4 rounded-2xl border border-linha bg-superficie p-[clamp(18px,2vw,24px)] shadow-[0_1px_2px_rgba(16,27,45,0.04),0_18px_36px_-28px_rgba(16,27,45,0.3)]">
       <div className="flex min-w-0 items-center gap-4">
         <InsigniaDaTurma insignia={turma.insignia} tamanho={64} sizes="64px" className="h-16 w-16 flex-none" />
         <div className="flex min-w-0 flex-col gap-2">
@@ -337,7 +337,7 @@ function Filtro({ rotulo, opcoes, atual, onEscolher, todos }: {
 }) {
   const chip = (ligado: boolean) =>
     `h-9 whitespace-nowrap rounded-full border px-3.5 text-[13.5px] font-semibold transition-colors ${
-      ligado ? "border-marinho-900 bg-marinho-900 text-white" : "border-[#D3DCE7] bg-white text-ardosia-escura hover:border-azul"
+      ligado ? "border-marinho-900 bg-marinho-900 text-white" : "border-[#D3DCE7] bg-superficie text-ardosia-escura hover:border-azul"
     }`;
   return (
     // No celular, numa linha só que rola para o lado (sem sobrar um filtro sozinho embaixo).
@@ -413,7 +413,7 @@ function TurmasDoCargo({ turmas, aba }: { turmas: Turma[]; aba: string }) {
       {visiveis.length > 0 ? (
         visiveis.map((t) => <CartaoDaTurma key={t.slug} turma={t} titulo={t.nome} />)
       ) : (
-        <div className="flex flex-col items-start gap-3 rounded-2xl border border-linha bg-white p-[clamp(24px,3vw,36px)]">
+        <div className="flex flex-col items-start gap-3 rounded-2xl border border-linha bg-superficie shadow-cartao p-[clamp(24px,3vw,36px)]">
           <span className="inline-flex h-[26px] items-center rounded-full bg-[#EEF2F7] px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">Sem oferta no momento</span>
           <span className="font-display text-xl font-extrabold">Ainda não há turmas abertas para este cargo</span>
           <span className="max-w-[560px] text-[15px] leading-[1.55] text-[#3E4A5E] [text-wrap:pretty]">Avisamos pelo WhatsApp quando abrir uma turma.</span>
@@ -667,7 +667,7 @@ export default function EscolhaDeModalidade({
                 {visiveis.length > 0 ? (
                   visiveis.map((t) => <CartaoDaTurma key={t.slug} turma={t} titulo={t.nome} concurso={aba === TODOS ? t.concurso : undefined} />)
                 ) : (
-                  <div className="flex flex-col items-start gap-3 rounded-2xl border border-linha bg-white p-[clamp(24px,3vw,36px)]">
+                  <div className="flex flex-col items-start gap-3 rounded-2xl border border-linha bg-superficie shadow-cartao p-[clamp(24px,3vw,36px)]">
                     <span className="inline-flex h-[26px] items-center rounded-full bg-[#EEF2F7] px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">Sem oferta no momento</span>
                     <span className="font-display text-xl font-extrabold">
                       Ainda não há turmas abertas nesta modalidade

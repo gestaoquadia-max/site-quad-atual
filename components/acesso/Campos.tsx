@@ -5,7 +5,7 @@ import { useId, useState } from "react";
 // Peças dos formulários de acesso e da área do aluno, no novo visual (fundo claro).
 
 export const CLASSE_DO_CAMPO =
-  "h-[52px] w-full rounded-[10px] border border-linha-forte bg-white px-3.5 text-[15.5px] text-tinta outline-none transition-[border-color,box-shadow] placeholder:text-[#97A3B4] focus:border-azul focus:shadow-[0_0_0_4px_rgba(0,107,255,0.15)] disabled:bg-nevoa disabled:text-ardosia";
+  "h-[52px] w-full rounded-[10px] border border-linha-forte bg-superficie px-3.5 text-[15.5px] text-tinta outline-none transition-[border-color,box-shadow] placeholder:text-[#97A3B4] focus:border-azul focus:shadow-[0_0_0_4px_rgba(0,107,255,0.15)] disabled:bg-nevoa disabled:text-ardosia";
 
 export const CLASSE_DO_ROTULO = "text-[13.5px] font-semibold text-tinta";
 

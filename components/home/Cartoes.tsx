@@ -83,7 +83,7 @@ export function CartaoProdutoDaLoja({ produto, fundo = "nevoa" }: { produto: Pro
   return (
     <Link
       href={`/loja/${produto.id}`}
-      className={`flex h-full flex-col rounded-[18px] border border-linha ${fundo === "branco" ? "bg-white shadow-[0_1px_2px_rgba(16,27,45,0.05),0_12px_28px_-22px_rgba(7,20,38,0.25)]" : "bg-nevoa"} p-2 text-tinta transition-[transform,border-color] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:text-tinta`}
+      className={`flex h-full flex-col rounded-[18px] border border-linha ${fundo === "branco" ? "bg-superficie shadow-cartao hover:shadow-cartao-alto" : "bg-nevoa"} p-2 text-tinta transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:text-tinta`}
     >
       <div className="relative grid aspect-square place-items-center overflow-hidden rounded-xl bg-[#E6ECF4] text-[#8A97AA]">
         {produto.imagemUrl ? <Image src={produto.imagemUrl} alt="" fill sizes="(min-width: 1024px) 320px, 50vw" className="object-cover" /> : <IconeDeImagem />}
@@ -140,7 +140,7 @@ export function CartaoProfessor({ professor, compacto = false }: { professor: Pr
 export function CartaoAprovado({ aprovado }: { aprovado: Aprovado }) {
   const [cargo, resultado = "Aprovado"] = aprovado.concurso.split(" — ");
   return (
-    <article className="flex h-full min-h-[240px] gap-2 overflow-hidden rounded-[18px] border border-linha bg-white p-2 shadow-[0_1px_2px_rgba(16,27,45,0.05),0_12px_28px_-22px_rgba(7,20,38,0.25)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-[3px] hover:border-azul/40 hover:shadow-[0_1px_2px_rgba(16,27,45,0.05),0_28px_52px_-26px_rgba(7,20,38,0.45)]">
+    <article className="flex h-full min-h-[240px] gap-2 overflow-hidden rounded-[18px] border border-linha bg-superficie p-2 shadow-cartao transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-[3px] hover:border-azul/40 hover:shadow-cartao-alto">
       <div className="relative flex-[0_0_38%] overflow-hidden rounded-xl bg-[linear-gradient(160deg,#1B3A63_0%,#071426_80%)]">
         <div aria-hidden="true" className="absolute inset-0 grid place-items-center font-display text-[60px] font-extrabold tracking-[-0.04em] text-white/10">
           {getIniciais(aprovado.nome)}

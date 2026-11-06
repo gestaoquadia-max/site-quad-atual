@@ -7,7 +7,7 @@ export function ListaCarregando({ linhas = 3, altura = "h-[76px]" }: { linhas?: 
   return (
     <div role="status" aria-label="Carregando" className="flex flex-col gap-3">
       {Array.from({ length: linhas }, (_, i) => (
-        <div key={i} className={`animate-pulse rounded-[18px] border border-linha bg-white ${altura}`}>
+        <div key={i} className={`animate-pulse rounded-[18px] border border-linha bg-superficie shadow-cartao ${altura}`}>
           <div className="flex h-full items-center gap-3.5 px-5">
             <span className="h-11 w-11 flex-shrink-0 rounded-[10px] bg-[#E6ECF4]" />
             <div className="flex-1">

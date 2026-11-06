@@ -146,7 +146,7 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
                         <span className="absolute inset-y-0 w-px bg-linha-forte" />
                         <span className="relative mt-[19px] h-3 w-3 rounded-full border-[2.5px] border-azul-vivo bg-nevoa" />
                       </span>
-                      <div className="rounded-xl border border-linha bg-white px-5 py-4">
+                      <div className="rounded-xl border border-linha bg-superficie shadow-cartao px-5 py-4">
                         <div className="text-[15.5px] font-semibold">{item.titulo}</div>
                         <div className="mt-0.5 text-sm text-ardosia">{item.desc}</div>
                       </div>
@@ -161,7 +161,7 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
                 <h2 className="mb-5 font-display text-[clamp(1.8rem,3vw,2.4rem)] font-extrabold tracking-[-0.03em]">O que está incluso</h2>
                 <ul className="grid max-w-[820px] gap-2.5 sm:grid-cols-2">
                   {d.incluso.map((item) => (
-                    <li key={item} className="flex items-start gap-3 rounded-xl border border-linha bg-white px-5 py-4 text-[15px] leading-[1.5] text-ardosia-escura">
+                    <li key={item} className="flex items-start gap-3 rounded-xl border border-linha bg-superficie shadow-cartao px-5 py-4 text-[15px] leading-[1.5] text-ardosia-escura">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="mt-0.5 flex-none text-azul">
                         <path d="M3 8.5l3.2 3L13 4.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
@@ -209,7 +209,7 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
                 </div>
               )}
               {outros.length > 0 && (
-                <div className="rounded-[20px] border border-linha bg-white p-[clamp(20px,2.4vw,24px)]">
+                <div className="rounded-[20px] border border-linha bg-superficie shadow-cartao p-[clamp(20px,2.4vw,24px)]">
                   <h2 className="border-b border-linha pb-3 font-display text-[17px] font-extrabold">Outros eventos</h2>
                   <ul>
                     {outros.map((o) => (

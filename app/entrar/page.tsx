@@ -55,7 +55,7 @@ export default function EntrarPage() {
           Entrar
         </BotaoPrincipal>
         <EntrarComGoogle aoEntrar={() => router.push(destinoAposLogin())} />
-        <div className="mt-1.5 flex flex-col gap-3 rounded-[14px] border border-linha bg-white p-5">
+        <div className="mt-1.5 flex flex-col gap-3 rounded-[14px] border border-linha bg-superficie shadow-cartao p-5">
           <span className="font-display text-base font-extrabold text-tinta">Ainda não tem conta?</span>
           <span className="text-sm leading-[1.5] text-ardosia">Cadastre-se para acessar seus materiais, turmas e eventos.</span>
           <LinkDeAcesso

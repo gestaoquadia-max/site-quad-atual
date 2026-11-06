@@ -49,7 +49,7 @@ export default function PaginaInstitucional({
       <PageHeader eyebrow={eyebrow} title={titulo} desc={descricao} />
       <div className="bg-nevoa py-[clamp(48px,6vw,88px)]">
         <article className="conteiner">
-          <div className="mx-auto max-w-[820px] rounded-[20px] border border-linha bg-white p-[clamp(24px,4vw,56px)]">
+          <div className="mx-auto max-w-[820px] rounded-[20px] border border-linha bg-superficie shadow-cartao p-[clamp(24px,4vw,56px)]">
             {minuta && emDesenvolvimento && (
               <div role="note" className="mb-8 rounded-xl border border-[#F0DDA0] bg-[#FFF8E5] px-4 py-3 text-[13.5px] text-[#7A5A00]">
                 <strong>Minuta — aguardando revisão jurídica.</strong> Este aviso só aparece em desenvolvimento. Não publicar antes da revisão e do

@@ -77,7 +77,7 @@ export default function AvisoDeCookies() {
           aria-modal="true"
           aria-labelledby="titulo-cookies"
           onClick={(e) => e.stopPropagation()}
-          className="max-h-[90dvh] w-full max-w-[560px] overflow-y-auto rounded-[18px] bg-white p-[clamp(20px,3vw,28px)] text-tinta shadow-[0_30px_60px_-20px_rgba(7,20,38,0.6)] outline-none"
+          className="max-h-[90dvh] w-full max-w-[560px] overflow-y-auto rounded-[18px] bg-superficie p-[clamp(20px,3vw,28px)] text-tinta shadow-[0_30px_60px_-20px_rgba(7,20,38,0.6)] outline-none"
         >
           <h2 id="titulo-cookies" className="font-display text-[22px] font-extrabold tracking-[-0.02em]">
             Preferências de cookies

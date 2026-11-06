@@ -24,7 +24,7 @@ export function CampoDoCodigo({ id, valor, aoMudar, disabled }: { id: string; va
         placeholder="000000"
         maxLength={6}
         disabled={disabled}
-        className="h-[60px] w-full rounded-[10px] border border-linha-forte bg-white text-center font-display text-2xl font-bold tracking-[0.5em] text-tinta outline-none transition-[border-color,box-shadow] placeholder:text-[#C3CCD8] focus:border-azul focus:shadow-[0_0_0_4px_rgba(0,107,255,0.15)]"
+        className="h-[60px] w-full rounded-[10px] border border-linha-forte bg-superficie text-center font-display text-2xl font-bold tracking-[0.5em] text-tinta outline-none transition-[border-color,box-shadow] placeholder:text-[#C3CCD8] focus:border-azul focus:shadow-[0_0_0_4px_rgba(0,107,255,0.15)]"
       />
     </div>
   );

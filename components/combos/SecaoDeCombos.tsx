@@ -6,7 +6,7 @@ import CartaoCombo from "./CartaoCombo";
 export default function SecaoDeCombos({ combos, titulo, descricao, fundo = "nevoa" }: { combos: Combo[]; titulo: string; descricao: string; fundo?: "nevoa" | "branco" }) {
   if (combos.length === 0) return null;
   return (
-    <section className={`${fundo === "branco" ? "bg-white" : "bg-nevoa"} py-[clamp(56px,7vw,96px)]`}>
+    <section className={`${fundo === "branco" ? "bg-nevoa-clara" : "bg-nevoa"} py-[clamp(56px,7vw,96px)]`}>
       <div className="conteiner">
         <div className="mb-[clamp(24px,3vw,36px)] flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
           <div>

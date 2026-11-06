@@ -112,7 +112,7 @@ export default function AgendaDeEventos({ eventos }: { eventos: Evento[] | null 
                     aria-pressed={filtro === f.valor}
                     onClick={() => setFiltro(f.valor)}
                     className={`h-[38px] whitespace-nowrap rounded-full border px-4 text-sm font-semibold transition-colors ${
-                      filtro === f.valor ? "border-marinho-950 bg-marinho-950 text-white" : "border-[#D3DCE7] bg-white text-ardosia-escura hover:border-azul"
+                      filtro === f.valor ? "border-marinho-950 bg-marinho-950 text-white" : "border-[#D3DCE7] bg-superficie text-ardosia-escura hover:border-azul"
                     }`}
                   >
                     {f.rotulo}

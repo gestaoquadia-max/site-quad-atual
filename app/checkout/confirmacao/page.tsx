@@ -75,7 +75,7 @@ export default async function ConfirmacaoPage({ searchParams }: Props) {
       {tela.limpar && <LimparCarrinho />}
       <div className="mx-auto max-w-[760px] px-[clamp(20px,4vw,32px)] pb-[clamp(64px,9vw,120px)] pt-[clamp(36px,5vw,64px)]">
         <Etapas atual="Confirmação" />
-        <div className="rounded-[20px] border border-linha bg-white p-[clamp(28px,5vw,48px)] shadow-[0_20px_40px_-30px_rgba(7,20,38,0.3)]">
+        <div className="rounded-[20px] border border-linha bg-superficie p-[clamp(28px,5vw,48px)] shadow-[0_20px_40px_-30px_rgba(7,20,38,0.3)]">
           <IconeDoResultado tom={tela.tom} />
           <h1 className="mb-3 mt-5 font-display text-[clamp(1.8rem,3.6vw,2.4rem)] font-extrabold leading-[1.1] tracking-[-0.03em]">{tela.titulo}</h1>
           <p className="text-[15.5px] leading-[1.6] text-ardosia">{tela.texto(typeof metodo === "string" ? metodo : undefined)}</p>

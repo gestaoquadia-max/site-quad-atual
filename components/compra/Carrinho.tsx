@@ -91,7 +91,7 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
         {!carregado ? (
           <div role="status" aria-label="Carregando" className="min-h-[40vh]" />
         ) : items.length === 0 ? (
-          <div className="grid justify-items-center gap-3 rounded-[18px] border border-linha bg-white p-[clamp(36px,6vw,64px)] text-center">
+          <div className="grid justify-items-center gap-3 rounded-[18px] border border-linha bg-superficie shadow-cartao p-[clamp(36px,6vw,64px)] text-center">
             <div className="grid h-14 w-14 place-items-center rounded-[14px] bg-azul-palido text-azul">
               <IconeDoCarrinho />
             </div>
@@ -109,7 +109,7 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
         ) : (
           <div className="flex flex-wrap items-start gap-6">
             <div className="flex min-w-0 flex-[999_1_520px] flex-col gap-5">
-              <ul className="overflow-hidden rounded-[18px] border border-linha bg-white">
+              <ul className="overflow-hidden rounded-[18px] border border-linha bg-superficie shadow-cartao">
                 {items.map((item, i) => {
                   const motivo = indisponiveis.get(item.id);
                   const unitario = parsePreco(item.preco);
@@ -159,7 +159,7 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
               </ul>
 
               {fisicos.length > 0 && (
-                <section aria-labelledby="entrega-titulo" className="rounded-[18px] border border-linha bg-white px-[22px] pb-5 pt-[22px]">
+                <section aria-labelledby="entrega-titulo" className="rounded-[18px] border border-linha bg-superficie shadow-cartao px-[22px] pb-5 pt-[22px]">
                   <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1.5">
                     <h2 id="entrega-titulo" className="font-display text-lg font-extrabold">
                       Entrega dos produtos físicos
@@ -185,7 +185,7 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
               )}
             </div>
 
-            <aside className="flex-[1_1_300px] rounded-[18px] border border-linha bg-white p-6 lg:sticky lg:top-[130px]">
+            <aside className="flex-[1_1_300px] rounded-[18px] border border-linha bg-superficie shadow-cartao p-6 lg:sticky lg:top-[130px]">
               <h2 className="mb-3.5 font-display text-lg font-extrabold">Resumo</h2>
               <div className="flex justify-between py-1.5 text-[14.5px] text-[#3E4A5E]">
                 <span>{totalCount === 1 ? "1 item" : `${totalCount} itens`}</span>
@@ -249,7 +249,7 @@ function OpcaoDeEntrega({
       aria-disabled={desativada || undefined}
       onClick={desativada ? undefined : aoEscolher}
       className={`flex items-center gap-3 rounded-xl border-[1.5px] px-4 py-3.5 text-left transition-colors ${
-        marcada ? "border-azul bg-azul-gelo" : "border-linha-forte bg-white"
+        marcada ? "border-azul bg-azul-gelo" : "border-linha-forte bg-superficie"
       } ${desativada ? "cursor-not-allowed opacity-60" : "hover:border-azul"}`}
     >
       <span aria-hidden="true" className={`grid h-[18px] w-[18px] flex-none place-items-center rounded-full border-2 ${marcada ? "border-azul" : "border-[#B5C1D1]"}`}>

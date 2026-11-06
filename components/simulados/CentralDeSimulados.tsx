@@ -58,7 +58,7 @@ function Dica({ id, aberta, onAlternar, children }: { id: string; aberta: boolea
         aria-controls={id}
         data-dica=""
         onClick={onAlternar}
-        className="grid h-[26px] w-[26px] place-items-center rounded-full border border-linha-forte bg-white font-display text-[13px] font-bold text-ardosia-escura hover:border-azul hover:text-azul"
+        className="grid h-[26px] w-[26px] place-items-center rounded-full border border-linha-forte bg-superficie font-display text-[13px] font-bold text-ardosia-escura hover:border-azul hover:text-azul"
       >
         i
       </button>
@@ -105,7 +105,7 @@ function LinhaDaEdicao({ e, selecionada, onSelecionar, tipo, acao }: {
   return (
     <div
       className={`flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl border px-3 py-3 transition-colors sm:pr-4 ${
-        selecionada ? "border-marinho-900 bg-marinho-900 text-white" : "border-linha bg-white hover:border-azul/50"
+        selecionada ? "border-marinho-900 bg-marinho-900 text-white" : "border-linha bg-superficie hover:border-azul/50"
       }`}
     >
       <button type="button" onClick={onSelecionar} aria-pressed={selecionada} className="flex min-w-0 flex-[1_1_320px] items-center gap-4 text-left">
@@ -318,7 +318,7 @@ export default function CentralDeSimulados({
                   aria-selected={ativa}
                   onClick={() => trocarModo(a.modo)}
                   className={`flex min-h-[72px] items-center gap-3.5 rounded-2xl border px-4 text-left transition-colors ${
-                    ativa ? "border-marinho-950 bg-marinho-950 text-white" : "border-linha bg-white hover:border-azul/50"
+                    ativa ? "border-marinho-950 bg-marinho-950 text-white" : "border-linha bg-superficie hover:border-azul/50"
                   }`}
                 >
                   <span className={`grid h-10 w-10 flex-none place-items-center rounded-[10px] font-display text-sm font-extrabold ${ativa ? "bg-azul text-white" : "bg-azul-gelo text-azul-forte"}`}>
@@ -371,7 +371,7 @@ export default function CentralDeSimulados({
                   aria-checked={marcada}
                   onClick={() => trocarCarreira(c)}
                   className={`flex min-h-[100px] items-center gap-3.5 rounded-2xl border px-4 py-4 text-left transition-[background-color,border-color,box-shadow] ${
-                    marcada ? "border-azul bg-azul text-white shadow-[0_16px_32px_-18px_rgba(0,107,255,0.9)]" : "border-linha bg-white hover:border-azul/50"
+                    marcada ? "border-azul bg-azul text-white shadow-[0_16px_32px_-18px_rgba(0,107,255,0.9)]" : "border-linha bg-superficie hover:border-azul/50"
                   }`}
                 >
                   {/* O brasão do concurso, como na escolha das Turmas; sem brasão, o escudo genérico. */}

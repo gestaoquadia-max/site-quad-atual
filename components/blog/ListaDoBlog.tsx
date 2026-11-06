@@ -42,7 +42,7 @@ function CartaoDoArtigo({ post }: { post: Post }) {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="flex h-full flex-col overflow-hidden rounded-[18px] border border-linha bg-white text-tinta shadow-[0_18px_36px_-28px_rgba(7,20,38,0.35)] transition-[transform,border-color] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:text-tinta"
+      className="flex h-full flex-col overflow-hidden rounded-[18px] border border-linha bg-superficie text-tinta shadow-[0_18px_36px_-28px_rgba(7,20,38,0.35)] transition-[transform,border-color] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:text-tinta"
     >
       <ImagemDoArtigo post={post} className="aspect-[3/2]" tamanhos="(min-width: 1024px) 420px, 90vw" />
       <div className="flex flex-1 flex-col px-[22px] pb-5 pt-5">
@@ -123,7 +123,7 @@ export default function ListaDoBlog({ posts, categoriaInicial, buscaInicial }: {
                     atualizarEndereco(c, busca);
                   }}
                   className={`h-10 whitespace-nowrap rounded-full border px-4 text-sm font-semibold transition-colors ${
-                    ligado ? "border-white bg-white text-marinho-950" : "border-white/[0.14] bg-white/[0.04] text-[#DCE4EF] hover:border-white/40"
+                    ligado ? "border-azul-palido bg-azul-palido text-marinho-950" : "border-white/[0.14] bg-white/[0.04] text-[#DCE4EF] hover:border-white/40"
                   }`}
                 >
                   {c ?? "Todos"}
@@ -191,7 +191,7 @@ export default function ListaDoBlog({ posts, categoriaInicial, buscaInicial }: {
                       <Link
                         key={p.slug}
                         href={`/blog/${p.slug}`}
-                        className="grid grid-cols-[120px_minmax(0,1fr)] gap-4 rounded-[18px] border border-linha bg-white p-3.5 text-tinta transition-colors hover:border-azul/45 hover:text-tinta"
+                        className="grid grid-cols-[120px_minmax(0,1fr)] gap-4 rounded-[18px] border border-linha bg-superficie shadow-cartao p-3.5 text-tinta transition-colors hover:border-azul/45 hover:text-tinta"
                       >
                         <ImagemDoArtigo post={p} className="aspect-square rounded-xl" tamanhos="120px" />
                         <span className="flex flex-col gap-1.5 py-1">

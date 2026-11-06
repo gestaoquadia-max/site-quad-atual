@@ -38,7 +38,7 @@ export default async function ProfessoresPage() {
           )}
         </div>
       </section>
-      <section className="bg-white py-[clamp(56px,7vw,96px)]">
+      <section className="bg-nevoa-clara py-[clamp(56px,7vw,96px)]">
         <div className="conteiner flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-[640px]">
             <h2 className="titulo-secao mb-3">Estude com quem conhece a banca</h2>

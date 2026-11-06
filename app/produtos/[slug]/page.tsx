@@ -72,7 +72,7 @@ export default async function ProdutoDetalhe({ params }: { params: Promise<{ slu
       </section>
 
       {/* Bloco claro entre o topo escuro e o rodapé (que tem quase a mesma cor): convite para os outros materiais. */}
-      <section className="bg-white py-[clamp(56px,7vw,96px)]">
+      <section className="bg-nevoa-clara py-[clamp(56px,7vw,96px)]">
         <div className="mx-auto flex max-w-[1200px] flex-wrap items-end justify-between gap-6 px-[clamp(20px,4vw,32px)]">
           <div className="max-w-[640px]">
             <h2 className="titulo-secao mb-3">Monte o seu material de estudo</h2>

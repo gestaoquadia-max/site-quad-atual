@@ -9,7 +9,7 @@ export default function CartaoCombo({ combo }: { combo: Combo }) {
   return (
     <Link
       href={`/combos/${combo.slug}`}
-      className="group relative flex h-full flex-col gap-4 rounded-[20px] border border-linha bg-white p-[clamp(20px,2vw,26px)] text-tinta shadow-[0_1px_2px_rgba(16,27,45,0.05),0_12px_28px_-22px_rgba(7,20,38,0.25)] transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:text-tinta"
+      className="group relative flex h-full flex-col gap-4 rounded-[20px] border border-linha bg-superficie p-[clamp(20px,2vw,26px)] text-tinta shadow-cartao hover:shadow-cartao-alto transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:text-tinta"
     >
       <div className="flex items-start justify-between gap-3">
         <span className="inline-flex h-6 items-center rounded-full bg-azul-palido px-2.5 text-[11px] font-bold uppercase tracking-[0.08em] text-azul-forte">

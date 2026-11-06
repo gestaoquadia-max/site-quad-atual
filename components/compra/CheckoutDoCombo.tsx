@@ -125,7 +125,7 @@ export default function CheckoutDoCombo({ combo }: { combo: Combo }) {
         {sessaoAtiva === undefined ? (
           <div role="status" aria-label="Carregando" className="min-h-[50vh]" />
         ) : !logado ? (
-          <div className="grid justify-items-center gap-3 rounded-[18px] border border-linha bg-white p-[clamp(36px,6vw,64px)] text-center">
+          <div className="grid justify-items-center gap-3 rounded-[18px] border border-linha bg-superficie shadow-cartao p-[clamp(36px,6vw,64px)] text-center">
             <h2 className="font-display text-[22px] font-extrabold">Entre para comprar o combo</h2>
             <p className="max-w-[440px] text-[15px] leading-[1.55] text-ardosia">A compra fica registrada na sua conta, e é lá que você acessa o que comprou.</p>
             <div className="mt-2.5 flex flex-wrap justify-center gap-2.5">
@@ -176,7 +176,7 @@ export default function CheckoutDoCombo({ combo }: { combo: Combo }) {
                         role="radio"
                         aria-checked={marcado}
                         onClick={() => setMetodo(id)}
-                        className={`flex items-center gap-3 rounded-xl border-[1.5px] px-4 py-3.5 text-left transition-colors hover:border-azul ${marcado ? "border-azul bg-azul-gelo" : "border-linha-forte bg-white"}`}
+                        className={`flex items-center gap-3 rounded-xl border-[1.5px] px-4 py-3.5 text-left transition-colors hover:border-azul ${marcado ? "border-azul bg-azul-gelo" : "border-linha-forte bg-superficie"}`}
                       >
                         <span aria-hidden="true" className={`grid h-[18px] w-[18px] place-items-center rounded-full border-2 ${marcado ? "border-azul" : "border-[#B5C1D1]"}`}>
                           {marcado && <span className="h-2 w-2 rounded-full bg-azul" />}
@@ -219,7 +219,7 @@ export default function CheckoutDoCombo({ combo }: { combo: Combo }) {
               </button>
             </form>
 
-            <aside className="flex-[1_1_300px] rounded-[18px] border border-linha bg-white p-6 lg:sticky lg:top-[120px]">
+            <aside className="flex-[1_1_300px] rounded-[18px] border border-linha bg-superficie shadow-cartao p-6 lg:sticky lg:top-[120px]">
               <h2 className="mb-1 font-display text-lg font-extrabold">Combo</h2>
               <p className="mb-3 text-[14px] font-semibold text-azul-forte">{combo.nome}</p>
               <ul>

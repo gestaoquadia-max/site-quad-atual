@@ -45,7 +45,7 @@ function centavosDoTexto(texto: string) {
   return Number(inteiro || "0") * 100 + Number((decimal + "00").slice(0, 2));
 }
 
-export const CARTAO = "rounded-[18px] border border-linha bg-white p-6";
+export const CARTAO = "rounded-[18px] border border-linha bg-superficie shadow-cartao p-6";
 export const AVISO_DE_ERRO = "rounded-xl border border-[#F1C4C4] bg-[#FFF5F5] p-4 text-sm leading-[1.55] text-[#9B1C1C]";
 export const PAGAMENTO_INDISPONIVEL = "O pagamento online está indisponível no momento. Tente mais tarde ou fale com o nosso atendimento pelo WhatsApp.";
 
@@ -81,7 +81,7 @@ function horaCurta(iso: string) {
 
 function Vazio() {
   return (
-    <div className="grid justify-items-center gap-3 rounded-[18px] border border-linha bg-white p-[clamp(36px,6vw,64px)] text-center">
+    <div className="grid justify-items-center gap-3 rounded-[18px] border border-linha bg-superficie shadow-cartao p-[clamp(36px,6vw,64px)] text-center">
       <h2 className="font-display text-[22px] font-extrabold">Seu carrinho está vazio</h2>
       <p className="max-w-[400px] text-[15px] text-ardosia">Escolha uma turma, material ou evento para continuar.</p>
       <div className="mt-2.5 flex flex-wrap justify-center gap-2.5">
@@ -99,7 +99,7 @@ function Vazio() {
 // Sem login: a compra é feita na conta do aluno (o carrinho fica guardado no navegador até ele voltar).
 function PedirLogin() {
   return (
-    <div className="grid justify-items-center gap-3 rounded-[18px] border border-linha bg-white p-[clamp(36px,6vw,64px)] text-center">
+    <div className="grid justify-items-center gap-3 rounded-[18px] border border-linha bg-superficie shadow-cartao p-[clamp(36px,6vw,64px)] text-center">
       <h2 className="font-display text-[22px] font-extrabold">Entre para finalizar a compra</h2>
       <p className="max-w-[440px] text-[15px] leading-[1.55] text-ardosia">
         A compra fica registrada na sua conta, e é lá que você acessa turmas, materiais e eventos. Seu carrinho continua guardado.
@@ -355,7 +355,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
         ) : !logado ? (
           <PedirLogin />
         ) : estado.fase === "erro" ? (
-          <div className="grid justify-items-start gap-4 rounded-[18px] border border-linha bg-white p-6">
+          <div className="grid justify-items-start gap-4 rounded-[18px] border border-linha bg-superficie shadow-cartao p-6">
             <p role="alert" className={AVISO_DE_ERRO}>
               {estado.mensagem}
             </p>
@@ -387,7 +387,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                           aria-checked={marcado}
                           onClick={() => setMetodo(id)}
                           className={`flex items-center gap-3 rounded-xl border-[1.5px] px-4 py-3.5 text-left transition-colors hover:border-azul ${
-                            marcado ? "border-azul bg-azul-gelo" : "border-linha-forte bg-white"
+                            marcado ? "border-azul bg-azul-gelo" : "border-linha-forte bg-superficie"
                           }`}
                         >
                           <span aria-hidden="true" className={`grid h-[18px] w-[18px] place-items-center rounded-full border-2 ${marcado ? "border-azul" : "border-[#B5C1D1]"}`}>
@@ -538,7 +538,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
               />
             )}
 
-            <aside className="flex-[1_1_300px] rounded-[18px] border border-linha bg-white p-6 lg:sticky lg:top-[120px]">
+            <aside className="flex-[1_1_300px] rounded-[18px] border border-linha bg-superficie shadow-cartao p-6 lg:sticky lg:top-[120px]">
               <h2 className="mb-3.5 font-display text-lg font-extrabold">Pedido</h2>
               {estado.fase === "preparando" ? (
                 <div role="status" className="py-6 text-sm text-ardosia">
@@ -600,7 +600,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                           value={cupomDigitado}
                           onChange={(e) => setCupomDigitado(e.target.value)}
                           placeholder="Cupom de desconto"
-                          className="h-11 w-full rounded-[10px] border border-linha-forte bg-white px-3 text-sm text-tinta outline-none placeholder:text-[#97A3B4] focus:border-azul"
+                          className="h-11 w-full rounded-[10px] border border-linha-forte bg-superficie px-3 text-sm text-tinta outline-none placeholder:text-[#97A3B4] focus:border-azul"
                         />
                         <button type="submit" disabled={aplicandoCupom} className="btn-q btn-q-contorno h-11 px-4 text-sm disabled:opacity-60">
                           {aplicandoCupom ? "…" : "Aplicar"}

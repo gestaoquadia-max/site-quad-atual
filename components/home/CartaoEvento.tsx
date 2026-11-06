@@ -23,7 +23,7 @@ export default function CartaoEvento({ evento }: { evento: DadosDoCartaoEvento }
   return (
     <article
       data-glow=""
-      className="relative flex h-full flex-col rounded-[18px] border border-linha bg-white p-2 shadow-[0_1px_2px_rgba(16,27,45,0.05),0_12px_28px_-22px_rgba(7,20,38,0.25)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:shadow-[0_1px_2px_rgba(16,27,45,0.05),0_28px_52px_-26px_rgba(7,20,38,0.45)]"
+      className="relative flex h-full flex-col rounded-[18px] border border-linha bg-superficie p-2 shadow-cartao transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:shadow-cartao-alto"
     >
       <Brilho intensidade={0.08} />
       {/* Arte do evento (1:1). Enquanto não há arte, o fundo leva o logo do Quad em marca d'água. */}
@@ -38,7 +38,7 @@ export default function CartaoEvento({ evento }: { evento: DadosDoCartaoEvento }
           className="pointer-events-none absolute left-1/2 top-[44%] w-[42%] -translate-x-1/2 -translate-y-1/2 opacity-[0.12]"
         />
         {evento.data && (
-          <div className="pointer-events-none absolute bottom-3 left-3 flex items-stretch overflow-hidden rounded-[10px] bg-white shadow-[0_10px_24px_-10px_rgba(0,0,0,0.55)]">
+          <div className="pointer-events-none absolute bottom-3 left-3 flex items-stretch overflow-hidden rounded-[10px] bg-superficie shadow-[0_10px_24px_-10px_rgba(0,0,0,0.55)]">
             <div className="bg-azul px-3 pb-[9px] pt-2 text-center text-white">
               <div className="font-display text-2xl font-extrabold leading-none tracking-[-0.02em] [font-variant-numeric:tabular-nums]">{evento.data.dia}</div>
               <div className="mt-[3px] text-[10.5px] font-bold tracking-[0.16em]">{evento.data.mes}</div>

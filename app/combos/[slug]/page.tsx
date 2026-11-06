@@ -76,7 +76,7 @@ export default async function ComboPage({ params }: { params: Promise<{ slug: st
             {combo.componentes.map((p) => {
               const link = linkDaParte(p);
               return (
-                <li key={p.tipo + p.id} className="flex items-center justify-between gap-4 rounded-2xl border border-linha bg-white p-5">
+                <li key={p.tipo + p.id} className="flex items-center justify-between gap-4 rounded-2xl border border-linha bg-superficie shadow-cartao p-5">
                   <div className="min-w-0">
                     <span className="text-[11.5px] font-bold uppercase tracking-[0.1em] text-azul-forte">{rotuloDaParte(p)}</span>
                     <p className="mt-1 font-display text-[17px] font-extrabold">{p.nome}</p>

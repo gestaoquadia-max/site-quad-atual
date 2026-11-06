@@ -34,7 +34,7 @@ export default function AbasDeAcesso({ atual }: { atual: "/entrar" | "/cadastro"
           <span
             key={a.para}
             aria-current="page"
-            className="grid h-[46px] place-items-center rounded-[10px] bg-white font-display text-[15px] font-bold text-tinta shadow-[0_1px_2px_rgba(16,27,45,0.08),0_6px_16px_-8px_rgba(16,27,45,0.25)]"
+            className="grid h-[46px] place-items-center rounded-[10px] bg-superficie font-display text-[15px] font-bold text-tinta shadow-[0_1px_2px_rgba(16,27,45,0.08),0_6px_16px_-8px_rgba(16,27,45,0.25)]"
           >
             {a.rotulo}
           </span>

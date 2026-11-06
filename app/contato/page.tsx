@@ -21,7 +21,7 @@ function Canal({ titulo, valor, campo, href, destaque = false }: { titulo: strin
   const longo = valor.length > 22 && !valor.includes(" ");
   const partes = valor.includes("@") && !valor.startsWith("@") ? valor.split("@") : null;
   return (
-    <div className={`flex flex-col gap-2 rounded-[18px] border p-6 ${destaque ? "border-transparent bg-marinho-900 text-white" : "border-linha bg-white"}`}>
+    <div className={`flex flex-col gap-2 rounded-[18px] border p-6 ${destaque ? "border-transparent bg-marinho-900 text-white" : "border-linha bg-superficie"}`}>
       <div className={`text-xs font-bold uppercase tracking-[0.12em] ${destaque ? "text-azul-ceu" : "text-azul-forte"}`}>{titulo}</div>
       {valor && href ? (
         <a

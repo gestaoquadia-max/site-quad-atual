@@ -62,7 +62,7 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
         <nav aria-labelledby="rotulo-turno" className="mt-2.5 flex flex-wrap gap-2">
           {turnos.map((t) =>
             t.atual ? (
-              <span key={t.nome} aria-current="page" className={`${BOTAO_DO_TURNO} border-white bg-white text-marinho-950`}>
+              <span key={t.nome} aria-current="page" className={`${BOTAO_DO_TURNO} border-azul-palido bg-azul-palido text-marinho-950`}>
                 {t.nome}
               </span>
             ) : t.href ? (

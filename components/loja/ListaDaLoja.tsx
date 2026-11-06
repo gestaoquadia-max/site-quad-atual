@@ -24,7 +24,7 @@ export default function ListaDaLoja({ produtos }: { produtos: ProdutoDaLoja[] })
                 aria-pressed={ligado}
                 onClick={() => setCategoria(id)}
                 className={`h-10 whitespace-nowrap rounded-full border px-4 text-sm font-semibold transition-colors ${
-                  ligado ? "border-marinho-950 bg-marinho-950 text-white" : "border-linha-forte bg-white text-ardosia-escura hover:border-azul hover:text-azul"
+                  ligado ? "border-marinho-950 bg-marinho-950 text-white" : "border-linha-forte bg-superficie text-ardosia-escura hover:border-azul hover:text-azul"
                 }`}
               >
                 {id ? categoriasDaLoja.find((c) => c.id === id)?.nome : "Todos"}

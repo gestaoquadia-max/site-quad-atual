@@ -111,7 +111,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
 
       <section className="py-[clamp(56px,7vw,88px)]">
         <div className="mx-auto grid max-w-[1200px] gap-6 px-[clamp(20px,4vw,32px)]">
-          <div className="rounded-[18px] border border-linha bg-white p-[clamp(28px,4vw,48px)]">
+          <div className="rounded-[18px] border border-linha bg-superficie shadow-cartao p-[clamp(28px,4vw,48px)]">
             <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-forte">Sobre a turma</span>
             <h2 className="mb-4 mt-2 font-display text-2xl font-extrabold tracking-[-0.02em]">Como funciona</h2>
             <div className="grid max-w-[760px] gap-3 text-[15.5px] leading-[1.65] text-ardosia-escura">
@@ -125,7 +125,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
           </div>
 
           {outras.length > 0 && (
-            <div className="rounded-[18px] border border-linha bg-white p-[clamp(28px,4vw,48px)]">
+            <div className="rounded-[18px] border border-linha bg-superficie shadow-cartao p-[clamp(28px,4vw,48px)]">
               <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-forte">Mesma modalidade</span>
               <h2 className="mb-5 mt-2 font-display text-2xl font-extrabold tracking-[-0.02em]">Outras turmas {turma.modalidadeNome}</h2>
               <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-3">
@@ -162,7 +162,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
           )}
 
           {d.incluso.length > 0 && (
-            <div className="rounded-[18px] border border-linha bg-white p-[clamp(28px,4vw,48px)]">
+            <div className="rounded-[18px] border border-linha bg-superficie shadow-cartao p-[clamp(28px,4vw,48px)]">
               <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-forte">Conteúdo</span>
               <h2 className="mb-4 mt-2 font-display text-2xl font-extrabold tracking-[-0.02em]">O que está incluso</h2>
               <CheckList items={d.incluso} />

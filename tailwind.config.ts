@@ -25,10 +25,16 @@ const config: Config = {
           gelo: "#F2F7FF",
         },
         tinta: "#101B2D",
-        nevoa: "#F4F7FB",
+        // Sem fundo branco no site (06/11/2026): a página em azul-acinzentado, as seções que eram brancas um tom acima
+        // e os cartões em "superficie" (gelo), destacados pela sombra "cartao".
+        nevoa: {
+          DEFAULT: "#E6ECF4",
+          clara: "#EDF1F7",
+        },
+        superficie: "#F3F6FB",
         linha: {
-          DEFAULT: "#DFE6EF",
-          forte: "#CFD8E3",
+          DEFAULT: "#D5DEEA",
+          forte: "#C4CFDD",
         },
         // Textos secundários: "ardosia" em fundo claro, "prata" em fundo escuro (contraste AA nos dois).
         ardosia: {
@@ -54,6 +60,11 @@ const config: Config = {
       },
       maxWidth: {
         tela: "1440px",
+      },
+      boxShadow: {
+        // Cartões sobre o fundo claro: um contorno curto e uma sombra azulada longa; "cartao-alto" no hover e nos painéis.
+        cartao: "0 1px 2px rgba(11,28,51,0.06), 0 14px 32px -16px rgba(11,28,51,0.28)",
+        "cartao-alto": "0 2px 4px rgba(11,28,51,0.07), 0 24px 48px -20px rgba(11,28,51,0.38)",
       },
     },
   },

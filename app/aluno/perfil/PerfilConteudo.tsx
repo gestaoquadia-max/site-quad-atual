@@ -32,10 +32,10 @@ import {
 
 const classeLabel = "mb-[7px] block text-[13.5px] font-semibold text-tinta";
 const classeInput =
-  "mb-4 h-12 w-full rounded-[10px] border border-linha-forte bg-white px-3.5 text-[15px] text-tinta outline-none transition-[border-color,box-shadow] focus:border-azul focus:shadow-[0_0_0_4px_rgba(0,107,255,0.15)] disabled:cursor-not-allowed disabled:bg-nevoa disabled:text-ardosia";
+  "mb-4 h-12 w-full rounded-[10px] border border-linha-forte bg-superficie px-3.5 text-[15px] text-tinta outline-none transition-[border-color,box-shadow] focus:border-azul focus:shadow-[0_0_0_4px_rgba(0,107,255,0.15)] disabled:cursor-not-allowed disabled:bg-nevoa disabled:text-ardosia";
 const classeBotao = "btn-q btn-q-azul mt-2 h-12 w-full text-[15px] disabled:cursor-not-allowed disabled:opacity-60";
 const classeBotaoContorno =
-  "inline-flex h-12 items-center justify-center whitespace-nowrap rounded-[10px] border border-linha-forte bg-white px-4 font-display text-sm font-bold text-tinta transition-colors hover:border-azul hover:text-azul disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex h-12 items-center justify-center whitespace-nowrap rounded-[10px] border border-linha-forte bg-superficie px-4 font-display text-sm font-bold text-tinta transition-colors hover:border-azul hover:text-azul disabled:cursor-not-allowed disabled:opacity-60";
 
 function mensagemDoErro(e: unknown) {
   if (e instanceof ErroDaApi) {
@@ -91,7 +91,7 @@ function CartoesCarregando({ quantidade }: { quantidade: number }) {
 
 function CartaoCarregando() {
   return (
-    <div className="animate-pulse rounded-[18px] border border-linha bg-white p-7">
+    <div className="animate-pulse rounded-[18px] border border-linha bg-superficie shadow-cartao p-7">
       {[0, 1, 2].map((j) => (
         <div key={j} className="mb-5">
           <div className="mb-2 h-3 w-24 rounded bg-[#E6ECF4]" />
@@ -117,7 +117,7 @@ function Aviso({ tipo, children }: { tipo: "sucesso" | "erro" | "info"; children
 
 function Cartao({ eyebrow, titulo, children }: { eyebrow: string; titulo: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-[18px] border border-linha bg-white p-[clamp(20px,2.4vw,28px)] shadow-[0_1px_2px_rgba(16,27,45,0.05),0_12px_28px_-22px_rgba(7,20,38,0.25)]">
+    <section className="rounded-[18px] border border-linha bg-superficie p-[clamp(20px,2.4vw,28px)] shadow-cartao">
       <span className="text-xs font-bold uppercase tracking-[0.12em] text-azul-forte">{eyebrow}</span>
       <h2 className="mb-5 mt-1.5 font-display text-[22px] font-extrabold tracking-[-0.02em]">{titulo}</h2>
       {children}
@@ -422,7 +422,7 @@ function TrocaDeTelefoneNaoVerificado({ telefoneAtual, onTrocado }: { telefoneAt
             placeholder="(75) 99999-0000"
             maxLength={15}
             disabled={carregando}
-            className={`${classeInput} mb-2 bg-white`}
+            className={`${classeInput} mb-2 bg-superficie`}
           />
           <p className="mb-3 text-[13px] leading-relaxed text-ardosia-escura">
             O número novo passa a ser o da sua conta e recebe um código por SMS. Digite o código para confirmá-lo.

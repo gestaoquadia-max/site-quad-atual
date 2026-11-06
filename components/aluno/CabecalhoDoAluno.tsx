@@ -9,7 +9,7 @@ export default function CabecalhoDoAluno({ titulo, subtitulo }: { titulo: string
 }
 
 // Cartão branco padrão da área do aluno.
-export const CLASSE_DO_CARTAO = "rounded-[18px] border border-linha bg-white shadow-[0_1px_2px_rgba(16,27,45,0.05),0_12px_28px_-22px_rgba(7,20,38,0.25)]";
+export const CLASSE_DO_CARTAO = "rounded-[18px] border border-linha bg-superficie shadow-cartao";
 
 // Selo de tipo (PDF, Slides, Vídeo...) à esquerda das linhas.
 export const CLASSE_DO_SELO =
@@ -17,7 +17,7 @@ export const CLASSE_DO_SELO =
 
 // Botão pequeno de contorno das linhas (Baixar, Ver boleto...).
 export const CLASSE_DO_BOTAO_PEQUENO =
-  "inline-flex h-10 flex-none items-center justify-center rounded-[9px] border border-linha-forte bg-white px-4 font-display text-[13.5px] font-bold text-tinta transition-colors hover:border-azul hover:text-azul disabled:opacity-60";
+  "inline-flex h-10 flex-none items-center justify-center rounded-[9px] border border-linha-forte bg-superficie px-4 font-display text-[13.5px] font-bold text-tinta transition-colors hover:border-azul hover:text-azul disabled:opacity-60";
 
 // Etiqueta de situação (Ativa, Inscrito, Pago...).
 export function Etiqueta({ tom, children }: { tom: "verde" | "amarelo" | "vermelho" | "cinza" | "azul"; children: React.ReactNode }) {

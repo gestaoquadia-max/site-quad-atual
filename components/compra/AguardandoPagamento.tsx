@@ -52,7 +52,7 @@ function BotaoCopiar({ texto, rotulo }: { texto: string; rotulo: string }) {
 }
 
 function Cartao({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-[20px] border border-linha bg-white p-[clamp(24px,4vw,40px)] shadow-[0_20px_40px_-30px_rgba(7,20,38,0.3)]">{children}</div>;
+  return <div className="rounded-[20px] border border-linha bg-superficie p-[clamp(24px,4vw,40px)] shadow-[0_20px_40px_-30px_rgba(7,20,38,0.3)]">{children}</div>;
 }
 
 export default function AguardandoPagamento({ id }: { id: string }) {
