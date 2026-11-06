@@ -107,8 +107,9 @@ function ProximaTurma({ turma }: { turma: Turma }) {
         {restantes != null && total ? (
           <div className="mt-4">
             <span className="text-[13px] font-semibold text-white">{restantes === 1 ? "1 vaga restante" : `${restantes} vagas restantes`}</span>
+            {/* Fiel às vagas: sem matrícula, a barra fica vazia (nunca um mínimo para "parecer cheia"). */}
             <div aria-hidden="true" className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full rounded-full bg-[linear-gradient(90deg,#2F86FF,#7DB8FF)]" style={{ width: `${Math.max(6, (ocupadas / total) * 100)}%` }} />
+              <div className="h-full rounded-full bg-[linear-gradient(90deg,#2F86FF,#7DB8FF)]" style={{ width: `${Math.min(100, (ocupadas / total) * 100)}%` }} />
             </div>
           </div>
         ) : (
