@@ -383,13 +383,13 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 2 — CADASTRO DE CONTEÚDO
 
-**Status:** PENDENTE
+**Status:** CONCLUÍDA (não se aplica: painel administrativo independente)
 
 | Tarefa | Status |
 |---|---|
-| Criar e editar turmas, materiais e eventos | PENDENTE |
-| Enviar PDFs e liberar acesso por aluno ou turma | PENDENTE |
-| Publicar materiais diários por turma | PENDENTE |
+| Criar e editar turmas, materiais e eventos | NÃO SE APLICA |
+| Enviar PDFs e liberar acesso por aluno ou turma | NÃO SE APLICA |
+| Publicar materiais diários por turma | NÃO SE APLICA |
 
 **Campos adicionais**
 - **Descrição:** Operação do dia a dia do conteúdo
@@ -398,12 +398,12 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 3 — GESTÃO DE VENDAS
 
-**Status:** PENDENTE
+**Status:** CONCLUÍDA (não se aplica: painel administrativo independente)
 
 | Tarefa | Status |
 |---|---|
-| Lista de inscritos por evento e por turma | PENDENTE |
-| Gestão de cupons de desconto | PENDENTE |
+| Lista de inscritos por evento e por turma | NÃO SE APLICA |
+| Gestão de cupons de desconto | NÃO SE APLICA |
 
 **Campos adicionais**
 - **Descrição:** Acompanhamento das vendas e inscrições
