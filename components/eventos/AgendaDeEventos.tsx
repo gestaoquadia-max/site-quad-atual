@@ -145,11 +145,12 @@ export default function AgendaDeEventos({ eventos }: { eventos: Evento[] | null 
 
           <Link
             href="/simulados"
-            className="group mt-[clamp(48px,6vw,80px)] grid overflow-hidden rounded-[22px] bg-marinho-950 text-white shadow-[0_40px_80px_-40px_rgba(7,20,38,0.8)] hover:text-white md:grid-cols-2"
+            // Branco de propósito (06/11/2026, pedido do usuário): o destaque da página contrasta com o marinho em volta.
+            className="group mt-[clamp(48px,6vw,80px)] grid overflow-hidden rounded-[22px] bg-white text-marinho-950 shadow-[0_40px_80px_-36px_rgba(0,0,0,0.9)] transition-transform hover:-translate-y-0.5 hover:text-marinho-950 md:grid-cols-2"
           >
-            <div className="flex flex-col items-start justify-center gap-4 bg-[radial-gradient(70%_80%_at_100%_50%,rgba(0,107,255,0.18),transparent_70%)] p-[clamp(28px,4.5vw,60px)]">
+            <div className="flex flex-col items-start justify-center gap-4 bg-[radial-gradient(70%_80%_at_100%_50%,rgba(0,107,255,0.10),transparent_70%)] p-[clamp(28px,4.5vw,60px)]">
               <h2 className="font-display text-[clamp(2.2rem,4.2vw,3.6rem)] font-extrabold leading-[1.02] tracking-[-0.035em]">Simulados do Quad</h2>
-              <p className="max-w-[480px] text-[17px] leading-[1.6] text-[#C9D5E5]">
+              <p className="max-w-[480px] text-[17px] leading-[1.6] text-[#3E4A5E]">
                 Escolha sua carreira e encontre simulados presenciais, digitais, impressos e combos para sua preparação.
               </p>
               <span className="btn-q btn-q-azul mt-2 h-[52px] px-6 text-base">Explorar simulados</span>
