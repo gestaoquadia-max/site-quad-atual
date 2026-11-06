@@ -199,6 +199,12 @@ export const mentorias = [
       "Análise da incidência dos assuntos na prova",
       "Materiais exclusivos de redação",
       "Ajustes após a publicação do edital",
+      // Os quatro abaixo eram listados só na Mentoria+; o Eduardo Souza confirmou (05/11/2026, no Painel) que estão
+      // na Mentoria de 12 meses.
+      "Encontros semanais com professores do Quad",
+      "Curso Como Estudar",
+      "Comunidade Esparta",
+      "Relatórios individuais de desempenho",
     ],
   },
   {
@@ -211,10 +217,6 @@ export const mentorias = [
     link: `${LINK_DAS_MENTORIAS}#plus`,
     // Além de tudo o que a Mentoria tem.
     recursos: [
-      "Encontros semanais com professores do Quad",
-      "Curso Como Estudar",
-      "Comunidade Esparta",
-      "Relatórios individuais de desempenho",
       "Uma correção individual de redação por mês",
       "Acompanhamento individualizado com mentor aprovado em concurso público",
       "QConcursos integrado à estratégia de preparação",

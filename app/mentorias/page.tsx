@@ -29,6 +29,10 @@ const INCLUSO = [
   "Raio-X de acertos por tópico",
   "Peso dos assuntos na prova da sua banca",
   "Ajustes após a publicação do edital",
+  "Encontros semanais com professores do Quad",
+  "Curso Como Estudar",
+  "Comunidade Esparta",
+  "Relatórios individuais de desempenho",
   "12 meses de acesso a contar da compra",
 ];
 
