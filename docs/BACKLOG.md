@@ -416,7 +416,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 1 — CARRINHO DE COMPRAS
 
-**Status:** EM ANDAMENTO
+**Status:** CONCLUÍDA
 
 | Tarefa | Status |
 |---|---|
@@ -426,7 +426,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Inscrição em evento gratuito sem passar pelo checkout | FEITO |
 | Registrar a inscrição gratuita na API | FEITO |
 | Conferir preço e vagas no servidor antes de pagar | FEITO |
-| Carrinho salvo na conta do aluno (melhoria futura) | PENDENTE |
+| Carrinho salvo na conta do aluno (melhoria futura) | NÃO SE APLICA |
 
 **Campos adicionais**
 - **Descrição:** Seleção dos itens antes do pagamento
