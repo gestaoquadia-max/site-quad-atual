@@ -95,7 +95,6 @@ export default function AguardandoPagamento({ id }: { id: string }) {
   }
 
   const pix = fechamento?.pagamento?.pix;
-  const boleto = fechamento?.pagamento?.boleto;
 
   let conteudo: React.ReactNode;
   if (sessaoAtiva === false) {
@@ -150,7 +149,7 @@ export default function AguardandoPagamento({ id }: { id: string }) {
   } else {
     conteudo = (
       <Cartao>
-        <h1 className="mb-2 font-display text-[clamp(1.8rem,3.6vw,2.4rem)] font-extrabold tracking-[-0.03em]">{pix ? "Pague com PIX" : "Pague o boleto"}</h1>
+        <h1 className="mb-2 font-display text-[clamp(1.8rem,3.6vw,2.4rem)] font-extrabold tracking-[-0.03em]">Pague com PIX</h1>
         <p className="text-[15.5px] leading-[1.6] text-ardosia">
           Total de <strong className="text-tinta">{emReais(fechamento.totalEmCentavos)}</strong>. Esta página atualiza sozinha quando o pagamento for confirmado.
         </p>
@@ -171,26 +170,6 @@ export default function AguardandoPagamento({ id }: { id: string }) {
               )}
               {pix.expiraEm && <p className="text-[13px] text-ardosia">Válido até {dataEHora(pix.expiraEm)}.</p>}
             </div>
-          </div>
-        )}
-
-        {boleto && (
-          <div className="mt-6 flex flex-col gap-3">
-            <span className="text-[13.5px] font-semibold">Linha digitável</span>
-            {boleto.linhaDigitavel && (
-              <>
-                <code className="block break-all rounded-xl bg-nevoa p-3 text-sm text-tinta">{boleto.linhaDigitavel}</code>
-                <div className="flex flex-wrap gap-2.5">
-                  <BotaoCopiar texto={boleto.linhaDigitavel} rotulo="Copiar linha digitável" />
-                  {(boleto.pdf || boleto.url) && (
-                    <a href={boleto.pdf ?? boleto.url ?? ""} target="_blank" rel="noopener noreferrer" className="btn-q btn-q-contorno h-12 px-5 text-[15px]">
-                      Abrir o boleto (PDF)<span className="sr-only"> (abre em nova aba)</span>
-                    </a>
-                  )}
-                </div>
-              </>
-            )}
-            {boleto.venceEm && <p className="text-[13px] text-ardosia">Vence em {dataEHora(boleto.venceEm)}. A compensação leva de 1 a 2 dias úteis.</p>}
           </div>
         )}
 

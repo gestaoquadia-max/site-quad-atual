@@ -53,12 +53,11 @@ export type Fechamento = {
   cupom: string | null;
   compras: { id: string; item: { nome: string; variacao: { nome: string } | null }; quantidade: number }[];
   pagamento: {
-    forma: "CARTAO" | "PIX" | "BOLETO" | "CUPOM" | "QUAD_COINS";
+    forma: "CARTAO" | "PIX" | "CUPOM" | "QUAD_COINS";
     // O cobrado, já com o acréscimo do parcelamento, que vem também à parte (zero no PIX e à vista).
     valorEmCentavos: number;
     acrescimoEmCentavos?: number;
     pix: { codigo: string | null; imagemUrl: string | null; expiraEm: string | null } | null;
-    boleto: { linhaDigitavel: string | null; url: string | null; pdf: string | null; venceEm: string | null } | null;
     cartao: { bandeira: string | null; ultimosDigitos: string | null; parcelas: number | null; recusa: { codigo: string; mensagem: string } | null } | null;
     // Compra dividida em dois cartões: cada um com a parte que paga e a situação dele no provedor.
     cartoes?: { bandeira: string | null; ultimosDigitos: string | null; parcelas: number | null; valorEmCentavos: number; situacaoNoProvedor: string | null; recusa: { codigo: string; mensagem: string } | null }[] | null;
@@ -117,7 +116,7 @@ export function simular(cupom: string | null) {
 }
 
 export type DadosDoFechamento = {
-  // O site não oferece boleto (decisão de 23/10/2026); a API ainda aceita.
+  // Sem boleto: o site deixou de oferecer em 23/10/2026 e a API o tirou em 06/11/2026 (V150).
   formaDePagamento: "CARTAO" | "PIX" | "CUPOM";
   // Um cartão (`cartao`) ou dois (`cartoes`, cada um com a parte que paga, em centavos; a soma é o total).
   // acrescimoVistoEmCentavos: o acréscimo do parcelamento que a tela mostrou (no cartão único, dentro de `cartao`;

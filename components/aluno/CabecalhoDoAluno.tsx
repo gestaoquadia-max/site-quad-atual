@@ -15,7 +15,7 @@ export const CLASSE_DO_CARTAO = "rounded-[18px] border border-linha bg-superfici
 export const CLASSE_DO_SELO =
   "inline-grid h-11 min-w-11 flex-none place-items-center rounded-[10px] bg-azul-palido px-1.5 text-[11px] font-extrabold uppercase tracking-[0.08em] text-azul-forte";
 
-// Botão pequeno de contorno das linhas (Baixar, Ver boleto...).
+// Botão pequeno de contorno das linhas (Baixar PDF, Desistir...).
 export const CLASSE_DO_BOTAO_PEQUENO =
   "inline-flex h-10 flex-none items-center justify-center rounded-[9px] border border-linha-forte bg-superficie px-4 font-display text-[13.5px] font-bold text-tinta transition-colors hover:border-azul hover:text-azul disabled:opacity-60";
 

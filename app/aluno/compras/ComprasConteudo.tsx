@@ -30,14 +30,13 @@ function descreverPagamento(c: Compra) {
     const parcelas = cartao?.parcelas && cartao.parcelas > 1 ? ` · ${cartao.parcelas}x` : "";
     return `Cartão${final}${parcelas}`;
   }
-  return c.formaDePagamento === "PIX" ? "PIX" : "Boleto";
+  if (c.formaDePagamento === "CUPOM") return "Cupom";
+  return "PIX";
 }
 
 function PagamentoPendente({ compra }: { compra: Compra }) {
   const [copia, setCopia] = useState<"inicial" | "copiado" | "falhou">("inicial");
   const pix = compra.pagamento?.pix;
-  const boleto = compra.pagamento?.boleto;
-  const linkDoBoleto = boleto?.url || boleto?.pdf;
 
   if (compra.formaDePagamento === "PIX" && pix?.codigo) {
     const codigo = pix.codigo;
@@ -71,16 +70,6 @@ function PagamentoPendente({ compra }: { compra: Compra }) {
             />
           </div>
         )}
-      </div>
-    );
-  }
-  if (compra.formaDePagamento === "BOLETO" && linkDoBoleto) {
-    return (
-      <div className="mt-3 flex flex-wrap items-center gap-3 text-[13px] text-ardosia">
-        <a href={linkDoBoleto} target="_blank" rel="noopener noreferrer" className={CLASSE_DO_BOTAO_PEQUENO}>
-          Ver boleto
-        </a>
-        {boleto?.venceEm && <span>Vence em {formatarData(boleto.venceEm)}</span>}
       </div>
     );
   }
@@ -153,7 +142,7 @@ function Desistencia({ compra, aoDesistir }: { compra: Compra; aoDesistir: (c: C
   const [etapa, setEtapa] = useState<"inicial" | "confirmando" | "enviando">("inicial");
   const [erro, setErro] = useState("");
   const d = compra.desistencia;
-  if (!d || compra.formaDePagamento === "BOLETO") return null;
+  if (!d) return null;
 
   const atendimento = (
     <a href={linkDoWhatsApp(institucional.whatsapp)} target="_blank" rel="noopener noreferrer" className="font-semibold text-azul-forte underline underline-offset-4">

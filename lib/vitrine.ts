@@ -27,7 +27,7 @@ export const SEGUNDOS_DE_CACHE = 60;
 type TipoDeAtividade = "TURMA" | "EVENTO" | "SIMULADO";
 
 // Resposta da vitrine em 23/10/2026 (modelo novo do banco). `preco` em CENTAVOS de reais (desde 23/10/2026; antes,
-// reais inteiros), o do lote vigente; as vagas são as de quem paga em reais (cartão, PIX, boleto e diamantes).
+// reais inteiros), o do lote vigente; as vagas são as de quem paga em reais (cartão e PIX).
 // Os campos de Quad Coins são do app Viver o Quad e o site ignora.
 type AtividadeDaVitrine = {
   tipo: TipoDeAtividade;

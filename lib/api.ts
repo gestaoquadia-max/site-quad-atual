@@ -380,7 +380,8 @@ export async function conferirDisponibilidade(dados: { email: string; telefone: 
 
 // ── Compras ─────────────────────────────────────────────────────────────────
 
-export type FormaDePagamento = "QUAD_COINS" | "DIAMANTES" | "CARTAO" | "PIX" | "BOLETO";
+// As formas da API desde a V150 (06/11/2026, fim do boleto). CUPOM: a compra que o cupom zerou.
+export type FormaDePagamento = "QUAD_COINS" | "CARTAO" | "PIX" | "CUPOM";
 
 export type Compra = {
   id: string;
@@ -394,7 +395,6 @@ export type Compra = {
   pagamento: {
     valorEmCentavos: number | null;
     pix: { codigo: string | null; expiraEm: string | null } | null;
-    boleto: { url: string | null; pdf: string | null; venceEm: string | null } | null;
     cartao: { bandeira: string | null; ultimosDigitos: string | null; parcelas: number | null } | null;
   } | null;
   // O que ESTA compra pagou em reais (com o desconto do cupom ou do combo); num fechamento de várias, a parte dela.
@@ -409,7 +409,7 @@ export type Compra = {
     impedimento: "PRAZO_VENCIDO" | "ATIVIDADE_JA_COMECOU" | "ITEM_JA_RETIRADO" | "COMPRA_NAO_ESTORNAVEL" | null;
   } | null;
   // A devolução, só na compra estornada. `manual`: o Pagar.me não devolve sozinho (PIX de um carrinho com várias
-  // compras, boleto) e o financeiro devolve por transferência.
+  // compras) e o financeiro devolve por transferência.
   estorno?: {
     origem: "ALUNO" | "ADMINISTRACAO";
     em: string;
@@ -420,16 +420,17 @@ export type Compra = {
 
 // O aluno desfaz a própria compra paga dentro do prazo: a API pede o estorno ao Pagar.me, libera a vaga e corta o
 // acesso. NÃO é idempotente (um segundo pedido responde 409), por isso a tela pede confirmação antes.
-// Recusas (409): DESISTENCIA_FORA_DO_PRAZO, ATIVIDADE_JA_COMECOU, ITEM_JA_RETIRADO, COMPRA_NAO_ESTORNAVEL,
-// DESISTENCIA_MANUAL_NO_BOLETO; ESTORNO_RECUSADO_PELO_PROVEDOR quando o Pagar.me não devolveu.
+// Recusas (409): DESISTENCIA_FORA_DO_PRAZO, ATIVIDADE_JA_COMECOU, ITEM_JA_RETIRADO, COMPRA_NAO_ESTORNAVEL;
+// ESTORNO_RECUSADO_PELO_PROVEDOR quando o Pagar.me não devolveu.
 export async function desistirDaCompra(compraId: string): Promise<Compra> {
   const res = await fetchAutenticado(`/api/loja/compras/${compraId}/desistencia`, { method: "POST" });
   if (!res.ok) throw await lerErro(res, "Não foi possível desistir da compra agora. Tente novamente em alguns minutos.");
   return res.json();
 }
 
-// Formas de pagamento em reais. Quad Coins e diamantes são moedas do app Viver o Quad, que compartilha a API.
-export const FORMAS_EM_REAIS: FormaDePagamento[] = ["CARTAO", "PIX", "BOLETO"];
+// As compras feitas pelo site: cartão, PIX e a zerada por cupom (sem ela, quem usou um cupom de 100% não via a compra
+// nem baixava o PDF). Quad Coins é a moeda do app Viver o Quad, que compartilha a API.
+export const FORMAS_EM_REAIS: FormaDePagamento[] = ["CARTAO", "PIX", "CUPOM"];
 
 // Para aluno, a API já devolve só as compras dele (comprovado em 05/10/2026). O site mostra só as feitas em reais.
 export async function listarMinhasComprasEmReais(): Promise<Compra[]> {
