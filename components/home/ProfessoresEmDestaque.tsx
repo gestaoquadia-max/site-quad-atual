@@ -45,12 +45,13 @@ function Aberto({ professor }: { professor: Professor }) {
   return (
     <>
       {professor.materia && (
-        <span className="absolute right-5 top-6 flex items-center gap-3 text-[12px] font-bold uppercase tracking-[0.32em] text-azul-ceu [writing-mode:vertical-rl]">
-          {professor.materia}
-          <span aria-hidden="true" className="block h-16 w-px bg-azul-ceu/60" />
+        // Na horizontal, no canto de cima (06/11/2026; antes vertical, à direita), com o traço antes.
+        <span className="absolute left-6 right-6 top-6 flex items-center gap-3 text-[12px] font-bold uppercase tracking-[0.24em] text-azul-ceu">
+          <span aria-hidden="true" className="block h-px w-10 flex-none bg-azul-ceu/60" />
+          <span className="truncate">{professor.materia}</span>
         </span>
       )}
-      <div className="absolute inset-x-6 bottom-6 pr-10">
+      <div className="absolute inset-x-6 bottom-6">
         {primeiro && <span className="block font-display text-[clamp(18px,1.6vw,24px)] font-semibold tracking-[-0.01em] text-white/85">{primeiro}</span>}
         <span className="mt-0.5 block font-display text-[clamp(30px,3.4vw,52px)] font-extrabold uppercase leading-[0.92] tracking-[-0.035em] text-white [overflow-wrap:anywhere]">{sobrenome}</span>
         <span className="mt-5 inline-flex items-center gap-2 border-b border-white/30 pb-1 text-[14px] font-semibold text-white transition-colors group-hover:border-azul-ceu group-hover:text-azul-ceu">
