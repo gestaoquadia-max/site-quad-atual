@@ -188,6 +188,8 @@ export const mentorias = [
     descricao:
       "Uma preparação completa com aulas gravadas, materiais teóricos, cronograma personalizado e análise de desempenho para orientar a evolução do aluno.",
     destaque: false,
+    // Insígnia de cada plano (06/11/2026): o caminho da imagem em public/, quando a arte chegar. Sem ela, a marca do Quad.
+    insignia: null as string | null,
     link: `${LINK_DAS_MENTORIAS}#mentoria`,
     recursos: [
       "Aulas gravadas",
@@ -205,6 +207,7 @@ export const mentorias = [
     descricao:
       "Todos os recursos da Mentoria, com acompanhamento premium para quem deseja uma preparação mais próxima e orientada.",
     destaque: true,
+    insignia: null as string | null,
     link: `${LINK_DAS_MENTORIAS}#plus`,
     // Além de tudo o que a Mentoria tem.
     recursos: [
@@ -222,6 +225,7 @@ export const mentorias = [
     duracao: "12 meses + 3 meses Plus",
     descricao: "Mentoria por 12 meses + benefícios da Mentoria Plus por 3 meses.",
     destaque: false,
+    insignia: null as string | null,
     link: `${LINK_DAS_MENTORIAS}#comparativo`,
     recursos: [] as string[],
   },

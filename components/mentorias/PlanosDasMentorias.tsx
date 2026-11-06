@@ -65,8 +65,8 @@ export default function PlanosDasMentorias() {
                   type="button"
                   aria-pressed={ligado}
                   onClick={() => setEscolhido(c.id)}
-                  className={`flex min-h-[76px] items-center gap-3 rounded-[14px] border bg-superficie px-3.5 py-3 text-left transition-[border-color,box-shadow] ${
-                    ligado ? "border-vinho shadow-[0_0_0_3px_rgba(142,27,46,0.16)]" : "border-linha hover:border-vinho/60"
+                  className={`flex min-h-[76px] items-center gap-3 rounded-[14px] border bg-superficie px-3.5 py-3 text-left shadow-cartao transition-[border-color,box-shadow] ${
+                    ligado ? "border-vinho shadow-[0_0_0_3px_rgba(142,27,46,0.16)]" : "border-linha-forte hover:border-vinho/60"
                   }`}
                 >
                   <Image src={c.brasao} alt="" width={48} height={48} className="h-12 w-12 flex-none object-contain" />
@@ -86,7 +86,9 @@ export default function PlanosDasMentorias() {
           Escolha o plano{concurso ? ` para ${concurso.titulo}` : ""}
         </h3>
         <div className="grid items-stretch gap-[clamp(16px,2vw,28px)] lg:grid-cols-2">
-          <article className="flex flex-col gap-[22px] rounded-3xl border border-linha bg-superficie p-[clamp(26px,3vw,44px)] shadow-cartao">
+          <article className="relative flex flex-col gap-[22px] overflow-hidden rounded-3xl border border-linha-forte bg-superficie p-[clamp(26px,3vw,44px)] shadow-cartao-alto">
+            {/* Faixa vinho no alto: o cartão claro se separa do fundo, que é da mesma família de cor. */}
+            <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1.5 bg-[linear-gradient(90deg,#8E1B2E,#E0425C)]" />
             <div className="flex flex-wrap items-end justify-between gap-4">
               <h4 className="font-display text-[clamp(2.2rem,3.4vw,3rem)] font-extrabold leading-none tracking-[-0.04em]">{mentoria.nome}</h4>
               <Duracao numero="12" />

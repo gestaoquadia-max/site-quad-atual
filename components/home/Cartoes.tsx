@@ -50,23 +50,43 @@ export function CartaoModalidade({ modalidade, insignia }: { modalidade: Modalid
 
 // Na Home, nas cores do site (06/11/2026): marinho como os cartões das turmas, com o destaque em azul. O vinho fica só
 // dentro da página das Mentorias.
-export function CartaoMentoria({ nome, duracao, descricao, destaque }: { nome: string; duracao: string; descricao: string; destaque: boolean }) {
+// A insígnia do plano fica no alto, como a das turmas (InsigniaDaTurma: sem arte, a marca do Quad).
+export function CartaoMentoria({
+  nome,
+  duracao,
+  descricao,
+  destaque,
+  insignia,
+}: {
+  nome: string;
+  duracao: string;
+  descricao: string;
+  destaque: boolean;
+  insignia: string | null;
+}) {
   return (
     <Link
       href="/mentorias"
-      className={`flex h-full flex-col gap-4 rounded-[20px] p-[clamp(22px,2.2vw,30px)] text-white shadow-cartao transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-[3px] hover:text-white hover:shadow-cartao-alto ${
+      className={`relative flex h-full flex-col gap-4 overflow-hidden rounded-[20px] p-[clamp(22px,2.2vw,30px)] text-white shadow-cartao transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-[3px] hover:text-white hover:shadow-cartao-alto ${
         destaque
           ? "border border-[rgba(111,174,255,0.5)] bg-[linear-gradient(180deg,#16448A,#0B1C33_78%)]"
           : "border border-white/[0.08] bg-[linear-gradient(180deg,#0F2645,#0B1C33_70%)] hover:border-[rgba(111,174,255,0.5)]"
       }`}
     >
-      <span className="flex flex-wrap items-end justify-between gap-3">
+      <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[120px] aspect-square w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(47,134,255,0.3),transparent)]" />
+      <InsigniaDaTurma
+        insignia={insignia}
+        tamanho={180}
+        sizes="180px"
+        className="relative mx-auto mb-1 block aspect-square h-auto w-[clamp(130px,11vw,170px)]"
+      />
+      <span className="relative flex flex-wrap items-end justify-between gap-3">
         <span className="font-display text-[clamp(26px,2.4vw,32px)] font-extrabold leading-none tracking-[-0.035em]">{nome}</span>
         <span className="whitespace-nowrap text-[13.5px] font-bold text-azul-ceu">{duracao}</span>
       </span>
-      <span className="flex-1 text-[15px] leading-[1.55] text-[#C9D5E5] [text-wrap:pretty]">{descricao}</span>
+      <span className="relative flex-1 text-[15px] leading-[1.55] text-[#C9D5E5] [text-wrap:pretty]">{descricao}</span>
       <span
-        className={`inline-flex h-11 items-center self-start rounded-[10px] px-[18px] font-display text-[14.5px] font-bold ${
+        className={`relative inline-flex h-11 items-center self-start rounded-[10px] px-[18px] font-display text-[14.5px] font-bold ${
           destaque ? "bg-azul" : "border border-white/25"
         }`}
       >

@@ -62,7 +62,7 @@ export default async function Home() {
       <Secao className="bg-nevoa-clara">
         <Trilho titulo="Mentorias do Quad" link={{ href: "/mentorias", label: "Ver todas as mentorias" }} rotulo="Planos das Mentorias do Quad">
           {mentorias.map((m) => (
-            <CartaoMentoria key={m.nome} {...{ nome: m.nome, duracao: m.duracao, descricao: m.descricao, destaque: m.destaque }} />
+            <CartaoMentoria key={m.nome} {...{ nome: m.nome, duracao: m.duracao, descricao: m.descricao, destaque: m.destaque, insignia: m.insignia }} />
           ))}
         </Trilho>
       </Secao>
