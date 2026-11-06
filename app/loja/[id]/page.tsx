@@ -54,7 +54,7 @@ export default async function ProdutoDaLojaPage({ params }: { params: Promise<{ 
           </div>
           <div className="flex min-w-0 max-w-[560px] flex-[1_1_400px] flex-col gap-5 lg:sticky lg:top-[124px]">
             <div className="flex flex-col gap-2">
-              {categoria && <span className="text-[13.5px] font-semibold text-azul-forte">{categoria}</span>}
+              {categoria && <span className="text-[13.5px] font-semibold text-azul-ceu">{categoria}</span>}
               <h1 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] font-extrabold leading-none tracking-[-0.04em]">{produto.nome}</h1>
             </div>
             <CompraDoProdutoDaLoja produto={produto} />

@@ -45,7 +45,7 @@ export default function EntrarPage() {
           valor={senha}
           aoMudar={setSenha}
           extra={
-            <Link href="/esqueci-senha" className="text-[13px] font-semibold text-azul-forte hover:text-azul">
+            <Link href="/esqueci-senha" className="text-[13px] font-semibold text-azul-ceu hover:text-azul-ceu">
               Esqueci minha senha
             </Link>
           }

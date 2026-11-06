@@ -42,7 +42,7 @@ export function Campo({ rotulo, valor, aoMudar, tipo = "text", obrigatorio, masc
         <label htmlFor={idDoCampo} className={CLASSE_DO_ROTULO}>
           {rotulo}
           {obrigatorio && (
-            <span className="text-[#B42323]" aria-hidden="true">
+            <span className="text-[#FF9C9C]" aria-hidden="true">
               {" "}
               *
             </span>
@@ -67,7 +67,7 @@ export function Campo({ rotulo, valor, aoMudar, tipo = "text", obrigatorio, masc
             onClick={() => setVisivel((v) => !v)}
             aria-label={visivel ? "Ocultar senha" : "Mostrar senha"}
             aria-pressed={visivel}
-            className="absolute right-1 top-1 grid h-11 w-11 place-items-center rounded-lg text-ardosia transition-colors hover:text-azul"
+            className="absolute right-1 top-1 grid h-11 w-11 place-items-center rounded-lg text-ardosia transition-colors hover:text-azul-ceu"
           >
             <IconeOlho aberto={!visivel} />
           </button>
@@ -98,7 +98,7 @@ export function Seletor({
       <label htmlFor={id} className={CLASSE_DO_ROTULO}>
         {rotulo}
         {obrigatorio && (
-          <span className="text-[#B42323]" aria-hidden="true">
+          <span className="text-[#FF9C9C]" aria-hidden="true">
             {" "}
             *
           </span>
@@ -113,7 +113,7 @@ export function Seletor({
 
 export function AvisoDeErro({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div role="alert" className={`rounded-[10px] border border-[#F1C4C4] bg-[#FFF5F5] px-4 py-3 text-sm leading-[1.5] text-[#9B1C1C] ${className}`}>
+    <div role="alert" className={`rounded-[10px] border border-[rgba(248,113,113,0.38)] bg-[rgba(220,38,38,0.14)] px-4 py-3 text-sm leading-[1.5] text-[#FF9C9C] ${className}`}>
       {children}
     </div>
   );
@@ -121,7 +121,7 @@ export function AvisoDeErro({ children, className = "" }: { children: React.Reac
 
 export function AvisoInformativo({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div role="status" className={`rounded-[10px] border border-azul/25 bg-azul-gelo px-4 py-3 text-sm leading-[1.55] text-ardosia-escura ${className}`}>
+    <div role="status" className={`rounded-[10px] border border-azul/25 bg-azul/15 px-4 py-3 text-sm leading-[1.55] text-ardosia-escura ${className}`}>
       {children}
     </div>
   );

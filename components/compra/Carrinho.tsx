@@ -56,7 +56,7 @@ function Quantidade({ item }: { item: CartItem }) {
         onClick={() => updateQuantidade(item.id, item.quantidade - 1)}
         disabled={item.quantidade <= 1}
         aria-label={`Diminuir quantidade de ${item.nome}`}
-        className="grid h-8 w-8 place-items-center text-ardosia transition-colors hover:text-tinta disabled:opacity-40"
+        className="grid h-8 w-8 place-items-center text-ardosia transition-colors hover:text-white disabled:opacity-40"
       >
         −
       </button>
@@ -67,7 +67,7 @@ function Quantidade({ item }: { item: CartItem }) {
         type="button"
         onClick={() => updateQuantidade(item.id, item.quantidade + 1)}
         aria-label={`Aumentar quantidade de ${item.nome}`}
-        className="grid h-8 w-8 place-items-center text-ardosia transition-colors hover:text-tinta"
+        className="grid h-8 w-8 place-items-center text-ardosia transition-colors hover:text-white"
       >
         +
       </button>
@@ -92,7 +92,7 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
           <div role="status" aria-label="Carregando" className="min-h-[40vh]" />
         ) : items.length === 0 ? (
           <div className="grid justify-items-center gap-3 rounded-[18px] border border-linha bg-superficie shadow-cartao p-[clamp(36px,6vw,64px)] text-center">
-            <div className="grid h-14 w-14 place-items-center rounded-[14px] bg-azul-palido text-azul">
+            <div className="grid h-14 w-14 place-items-center rounded-[14px] bg-azul/15 text-azul-ceu">
               <IconeDoCarrinho />
             </div>
             <h2 className="mt-2 font-display text-[22px] font-extrabold">Seu carrinho está vazio</h2>
@@ -128,15 +128,15 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-                          <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-azul-forte">{ROTULO_DO_TIPO[item.tipo]}</span>
-                          {ehFisico(item) && <span className={`${SELO} bg-nevoa-clara text-[#3E4A5E]`}>{item.tipo === "loja" ? "Físico" : "Impresso"}</span>}
-                          {item.formato === "digital" && <span className={`${SELO} bg-azul-palido text-azul-forte`}>Digital</span>}
+                          <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-azul-ceu">{ROTULO_DO_TIPO[item.tipo]}</span>
+                          {ehFisico(item) && <span className={`${SELO} bg-nevoa-clara text-ardosia-escura`}>{item.tipo === "loja" ? "Físico" : "Impresso"}</span>}
+                          {item.formato === "digital" && <span className={`${SELO} bg-azul/15 text-azul-ceu`}>Digital</span>}
                         </div>
                         <div className="mt-1 font-display text-[17px] font-extrabold tracking-[-0.015em]">{item.nome}</div>
                         {item.tag && <div className="mt-0.5 text-[13px] text-ardosia">{item.tag}</div>}
                         {temQuantidade(item) && !motivo && <Quantidade item={item} />}
                         {motivo && (
-                          <div role="alert" className="mt-1.5 inline-flex items-center gap-1.5 rounded-lg bg-[#FDECEC] px-2.5 py-1 text-[12.5px] font-semibold text-[#B42323]">
+                          <div role="alert" className="mt-1.5 inline-flex items-center gap-1.5 rounded-lg bg-[rgba(220,38,38,0.14)] px-2.5 py-1 text-[12.5px] font-semibold text-[#FF9C9C]">
                             Indisponível: {motivo} Remova para continuar.
                           </div>
                         )}
@@ -148,7 +148,7 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
                           type="button"
                           onClick={() => removeItem(item.id)}
                           aria-label={`Remover ${item.nome}`}
-                          className="min-h-8 px-1 text-[13px] font-medium text-ardosia transition-colors hover:text-[#B42323]"
+                          className="min-h-8 px-1 text-[13px] font-medium text-ardosia transition-colors hover:text-[#FF9C9C]"
                         >
                           Remover
                         </button>
@@ -175,7 +175,7 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
                     {/* Só a retirada: o Quad não entrega por enquanto (decisão de 03/11/2026). */}
                     <OpcaoDeEntrega marcada={entrega === "retirada"} aoEscolher={() => setEntrega("retirada")} titulo="Retirar no Quad" dica="Grátis · na sede do Quad" />
                   </div>
-                  <div className="mt-3.5 flex items-center gap-2.5 rounded-[11px] bg-[#E3F3EA] px-3.5 py-3 text-sm font-medium text-[#13774A]">
+                  <div className="mt-3.5 flex items-center gap-2.5 rounded-[11px] bg-[rgba(34,197,94,0.14)] px-3.5 py-3 text-sm font-medium text-[#5FD39A]">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                       <path d="M3 8.5l3.2 3L13 4.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
@@ -187,27 +187,27 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
 
             <aside className="flex-[1_1_300px] rounded-[18px] border border-linha bg-superficie shadow-cartao p-6 lg:sticky lg:top-[130px]">
               <h2 className="mb-3.5 font-display text-lg font-extrabold">Resumo</h2>
-              <div className="flex justify-between py-1.5 text-[14.5px] text-[#3E4A5E]">
+              <div className="flex justify-between py-1.5 text-[14.5px] text-ardosia-escura">
                 <span>{totalCount === 1 ? "1 item" : `${totalCount} itens`}</span>
                 <span className="[font-variant-numeric:tabular-nums]">{formatarValor(totalValor)}</span>
               </div>
               {fisicos.length > 0 && (
-                <div className="flex justify-between py-1.5 text-[14.5px] text-[#3E4A5E]">
+                <div className="flex justify-between py-1.5 text-[14.5px] text-ardosia-escura">
                   <span>Retirada no Quad</span>
-                  <span className="font-semibold text-[#13774A]">Grátis</span>
+                  <span className="font-semibold text-[#5FD39A]">Grátis</span>
                 </div>
               )}
               <div className="mt-2.5 flex items-baseline justify-between border-t border-linha pt-4">
                 <span className="font-semibold">Total</span>
                 <span className="font-display text-[28px] font-extrabold tracking-[-0.03em] [font-variant-numeric:tabular-nums]">{formatarValor(totalValor)}</span>
               </div>
-              {temItemSobConsulta && <p className="mt-2 text-[12.5px] text-[#8A4B00]">Há itens com valor a confirmar. O total exibido não os inclui.</p>}
+              {temItemSobConsulta && <p className="mt-2 text-[12.5px] text-[#F5C46A]">Há itens com valor a confirmar. O total exibido não os inclui.</p>}
               {temIndisponivel ? (
                 <>
-                  <span aria-disabled="true" className="mt-5 flex h-[52px] cursor-not-allowed items-center justify-center rounded-[11px] bg-[#C9D3E0] font-display text-[15.5px] font-bold text-white">
+                  <span aria-disabled="true" className="mt-5 flex h-[52px] cursor-not-allowed items-center justify-center rounded-[11px] bg-linha-forte font-display text-[15.5px] font-bold text-white">
                     Finalizar compra
                   </span>
-                  <p className="mt-2 text-[12.5px] text-[#B42323]">Há itens indisponíveis no carrinho.</p>
+                  <p className="mt-2 text-[12.5px] text-[#FF9C9C]">Há itens indisponíveis no carrinho.</p>
                 </>
               ) : (
                 <Link
@@ -217,7 +217,7 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
                   Finalizar compra
                 </Link>
               )}
-              <Link href="/" className="mt-2.5 flex min-h-11 items-center justify-center text-sm font-semibold text-[#3E4A5E] hover:text-azul">
+              <Link href="/" className="mt-2.5 flex min-h-11 items-center justify-center text-sm font-semibold text-ardosia-escura hover:text-azul-ceu">
                 Continuar comprando
               </Link>
             </aside>
@@ -249,10 +249,10 @@ function OpcaoDeEntrega({
       aria-disabled={desativada || undefined}
       onClick={desativada ? undefined : aoEscolher}
       className={`flex items-center gap-3 rounded-xl border-[1.5px] px-4 py-3.5 text-left transition-colors ${
-        marcada ? "border-azul bg-azul-gelo" : "border-linha-forte bg-superficie"
+        marcada ? "border-azul bg-azul/15" : "border-linha-forte bg-superficie"
       } ${desativada ? "cursor-not-allowed opacity-60" : "hover:border-azul"}`}
     >
-      <span aria-hidden="true" className={`grid h-[18px] w-[18px] flex-none place-items-center rounded-full border-2 ${marcada ? "border-azul" : "border-[#B5C1D1]"}`}>
+      <span aria-hidden="true" className={`grid h-[18px] w-[18px] flex-none place-items-center rounded-full border-2 ${marcada ? "border-azul" : "border-linha-forte"}`}>
         {marcada && <span className="h-2 w-2 rounded-full bg-azul" />}
       </span>
       <span className="flex flex-col gap-0.5">

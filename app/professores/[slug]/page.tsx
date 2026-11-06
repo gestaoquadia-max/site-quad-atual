@@ -81,7 +81,7 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
           <div className="conteiner">
             <div className="mb-8 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
               <h2 className="titulo-secao">Outros professores</h2>
-              <Link href="/professores" className="font-display text-[15px] font-bold text-azul-forte hover:text-marinho-600">
+              <Link href="/professores" className="font-display text-[15px] font-bold text-azul-ceu hover:text-white">
                 Ver todos os professores →
               </Link>
             </div>
@@ -90,7 +90,7 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
                 <Link
                   key={p.slug}
                   href={`/professores/${p.slug}`}
-                  className="flex items-center gap-4 rounded-[18px] border border-linha bg-superficie shadow-cartao hover:shadow-cartao-alto p-5 text-tinta transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:text-tinta"
+                  className="flex items-center gap-4 rounded-[18px] border border-linha bg-superficie shadow-cartao hover:shadow-cartao-alto p-5 text-tinta transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:text-white"
                 >
                   <span className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-marinho-900 font-display text-lg font-extrabold text-white">
                     {p.fotoUrl ? <Image src={p.fotoUrl} alt="" fill sizes="64px" className="object-cover" /> : getIniciais(p.nome)}

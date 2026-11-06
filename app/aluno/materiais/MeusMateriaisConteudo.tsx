@@ -141,7 +141,7 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
                   )}
                 </div>
                 {erroDoItem?.id === m.id && (
-                  <p role="alert" className="mt-2 text-[13px] text-[#9B1C1C]">
+                  <p role="alert" className="mt-2 text-[13px] text-[#FF9C9C]">
                     {erroDoItem.mensagem}
                   </p>
                 )}
@@ -178,7 +178,7 @@ function Filtros({
             aria-pressed={ligado}
             onClick={() => aoEscolher(id)}
             className={`h-10 flex-none whitespace-nowrap rounded-full border px-4 text-sm font-semibold transition-colors ${
-              ligado ? "border-marinho-950 bg-marinho-950 text-white" : "border-linha-forte bg-superficie text-ardosia-escura hover:border-azul hover:text-azul"
+              ligado ? "border-marinho-950 bg-marinho-950 text-white" : "border-linha-forte bg-superficie text-ardosia-escura hover:border-azul hover:text-azul-ceu"
             }`}
           >
             {nome}

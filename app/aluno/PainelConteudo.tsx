@@ -65,7 +65,7 @@ export default function PainelConteudo() {
             <div className="font-display text-[22px] font-extrabold tracking-[-0.02em]">Bem-vindo de volta{primeiroNome ? `, ${primeiroNome}` : ""}.</div>
           )}
           <div className="mt-1 text-[14.5px] text-ardosia">
-            Missão do dia: <span className="font-semibold text-azul-forte">constância.</span>
+            Missão do dia: <span className="font-semibold text-azul-ceu">constância.</span>
           </div>
         </div>
 
@@ -87,7 +87,7 @@ export default function PainelConteudo() {
           <div className={`${CLASSE_DO_CARTAO} overflow-hidden`}>
             <div className="flex items-center justify-between gap-3 border-b border-linha px-[22px] py-[18px]">
               <h2 className="font-display text-lg font-extrabold">Materiais recentes</h2>
-              <Link href="/aluno/materiais" className="text-[13.5px] font-semibold text-azul-forte hover:text-azul">
+              <Link href="/aluno/materiais" className="text-[13.5px] font-semibold text-azul-ceu hover:text-azul-ceu">
                 Ver todos
               </Link>
             </div>

@@ -31,7 +31,7 @@ export function ListaVazia({
   acao?: { href: string; label: string };
 }) {
   return (
-    <div className="flex flex-col items-center rounded-[18px] border-[1.5px] border-dashed border-[#C9D3E0] bg-white/60 px-6 py-12 text-center">
+    <div className="flex flex-col items-center rounded-[18px] border-[1.5px] border-dashed border-linha-forte bg-white/60 px-6 py-12 text-center">
       <p className="mb-1.5 font-display text-xl font-extrabold tracking-[-0.01em] text-tinta">{titulo}</p>
       {texto && <p className="mb-5 max-w-[420px] text-[15px] leading-[1.55] text-ardosia">{texto}</p>}
       {acao && (
@@ -51,8 +51,8 @@ export function ListaErro({
   onTentarNovamente?: () => void;
 }) {
   return (
-    <div role="alert" className="flex flex-col items-center rounded-[18px] border border-[#F1C4C4] bg-[#FFF5F5] px-6 py-8 text-center">
-      <p className="mb-4 text-sm text-[#9B1C1C]">{mensagem}</p>
+    <div role="alert" className="flex flex-col items-center rounded-[18px] border border-[rgba(248,113,113,0.38)] bg-[rgba(220,38,38,0.14)] px-6 py-8 text-center">
+      <p className="mb-4 text-sm text-[#FF9C9C]">{mensagem}</p>
       <button type="button" onClick={onTentarNovamente ?? (() => window.location.reload())} className="btn-q btn-q-contorno h-10 px-4 text-[13.5px]">
         Tentar novamente
       </button>

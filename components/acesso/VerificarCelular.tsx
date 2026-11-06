@@ -31,7 +31,7 @@ export function CampoDoCodigo({ id, valor, aoMudar, disabled }: { id: string; va
 }
 
 const classeLink =
-  "text-sm font-semibold text-azul-forte underline-offset-4 transition-colors hover:text-azul hover:underline disabled:cursor-not-allowed disabled:text-ardosia disabled:no-underline";
+  "text-sm font-semibold text-azul-ceu underline-offset-4 transition-colors hover:text-azul-ceu hover:underline disabled:cursor-not-allowed disabled:text-ardosia disabled:no-underline";
 
 // Passo 3 do cadastro e página /confirmar-celular: a conta só é liberada depois de confirmar o celular.
 // O código é enviado só quando o aluno pede (evita SMS duplicado e permite corrigir o número antes).

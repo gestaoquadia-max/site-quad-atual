@@ -9,7 +9,7 @@ export function Dado({ valor, campo }: { valor: string; campo: string }) {
   if (valor) return <>{valor}</>;
   if (!emDesenvolvimento) return null;
   return (
-    <span className="rounded bg-[#FFF4D6] px-1.5 py-0.5 text-[#7A5A00]" title="Preencher em lib/institucional.ts">
+    <span className="rounded bg-[rgba(245,158,11,0.14)] px-1.5 py-0.5 text-[#F5C46A]" title="Preencher em lib/institucional.ts">
       [a preencher: {campo}]
     </span>
   );
@@ -19,7 +19,7 @@ export function Secao({ titulo, id, children }: { titulo: string; id?: string; c
   return (
     <section id={id} className="scroll-mt-28 border-t border-linha pt-7 first:border-0 first:pt-0">
       <h2 className="mb-3 font-display text-[22px] font-extrabold tracking-[-0.02em]">{titulo}</h2>
-      <div className="space-y-3 text-base leading-[1.75] text-ardosia-escura [&_a]:font-semibold [&_a]:text-azul-forte [&_a]:underline [&_a]:underline-offset-2 [&_li]:ml-5 [&_li]:list-disc [&_li]:pl-1 [&_ul]:space-y-1.5">
+      <div className="space-y-3 text-base leading-[1.75] text-ardosia-escura [&_a]:font-semibold [&_a]:text-azul-ceu [&_a]:underline [&_a]:underline-offset-2 [&_li]:ml-5 [&_li]:list-disc [&_li]:pl-1 [&_ul]:space-y-1.5">
         {children}
       </div>
     </section>
@@ -51,7 +51,7 @@ export default function PaginaInstitucional({
         <article className="conteiner">
           <div className="mx-auto max-w-[820px] rounded-[20px] border border-linha bg-superficie shadow-cartao p-[clamp(24px,4vw,56px)]">
             {minuta && emDesenvolvimento && (
-              <div role="note" className="mb-8 rounded-xl border border-[#F0DDA0] bg-[#FFF8E5] px-4 py-3 text-[13.5px] text-[#7A5A00]">
+              <div role="note" className="mb-8 rounded-xl border border-[rgba(245,158,11,0.38)] bg-[rgba(245,158,11,0.14)] px-4 py-3 text-[13.5px] text-[#F5C46A]">
                 <strong>Minuta — aguardando revisão jurídica.</strong> Este aviso só aparece em desenvolvimento. Não publicar antes da revisão e do
                 preenchimento dos dados marcados como pendentes.
               </div>

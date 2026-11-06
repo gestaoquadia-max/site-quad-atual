@@ -25,7 +25,7 @@ function fimDoPedido(situacao: SituacaoDoPagamento) {
   return FIM_DO_PEDIDO[situacao] ?? { titulo: "Este pedido não está mais ativo", texto: "Se ainda quiser os itens, faça o pedido de novo." };
 }
 
-const AVISO_DO_PIX_VENCIDO = "rounded-xl border border-[#F1C4C4] bg-[#FFF5F5] p-4 text-sm leading-[1.55] text-[#9B1C1C]";
+const AVISO_DO_PIX_VENCIDO = "rounded-xl border border-[rgba(248,113,113,0.38)] bg-[rgba(220,38,38,0.14)] p-4 text-sm leading-[1.55] text-[#FF9C9C]";
 
 function dataEHora(iso: string) {
   return new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
@@ -130,7 +130,7 @@ export default function AguardandoPagamento({ id }: { id: string }) {
   } else if (fechamento.situacao === "PAGA") {
     conteudo = (
       <Cartao>
-        <div aria-hidden="true" className="grid h-14 w-14 place-items-center rounded-2xl bg-[#E3F3EA] text-[#13774A]">
+        <div aria-hidden="true" className="grid h-14 w-14 place-items-center rounded-2xl bg-[rgba(34,197,94,0.14)] text-[#5FD39A]">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M5 12.5l4.5 4.5L19 7.5" />
           </svg>

@@ -38,9 +38,9 @@ type EdicaoComSituacao = Edicao & { st: Situacao };
 
 const SELOS = {
   abertas: "bg-sucesso-fundo text-sucesso",
-  breve: "bg-nevoa-clara text-[#4A5A70]",
-  esgotado: "bg-[#FFF0D9] text-[#8A4B00]",
-  estudo: "bg-azul-palido text-azul-forte",
+  breve: "bg-nevoa-clara text-ardosia",
+  esgotado: "bg-[rgba(245,158,11,0.14)] text-[#F5C46A]",
+  estudo: "bg-azul/15 text-azul-ceu",
 };
 
 function Selo({ tom, children }: { tom: keyof typeof SELOS; children: React.ReactNode }) {
@@ -58,7 +58,7 @@ function Dica({ id, aberta, onAlternar, children }: { id: string; aberta: boolea
         aria-controls={id}
         data-dica=""
         onClick={onAlternar}
-        className="grid h-[26px] w-[26px] place-items-center rounded-full border border-linha-forte bg-superficie font-display text-[13px] font-bold text-ardosia-escura hover:border-azul hover:text-azul"
+        className="grid h-[26px] w-[26px] place-items-center rounded-full border border-linha-forte bg-superficie font-display text-[13px] font-bold text-ardosia-escura hover:border-azul hover:text-azul-ceu"
       >
         i
       </button>
@@ -78,7 +78,7 @@ function Dica({ id, aberta, onAlternar, children }: { id: string; aberta: boolea
 
 function Numero({ n, destaque }: { n: number; destaque: boolean }) {
   return (
-    <span className={`grid h-[60px] w-[60px] flex-none place-items-center rounded-xl leading-none ${destaque ? "bg-white/10 text-white" : "bg-azul-gelo text-azul-forte"}`}>
+    <span className={`grid h-[60px] w-[60px] flex-none place-items-center rounded-xl leading-none ${destaque ? "bg-white/10 text-white" : "bg-azul/15 text-azul-ceu"}`}>
       <span className="text-center">
         <span className="block text-[10px] font-bold tracking-[0.1em]">Nº</span>
         <span className="font-display text-[22px] font-extrabold">{n}</span>
@@ -121,7 +121,7 @@ function LinhaDaEdicao({ e, selecionada, onSelecionar, tipo, acao }: {
           </span>
           <span className={`text-sm ${selecionada ? "text-prata-clara" : "text-ardosia"}`}>{linha}</span>
           {tipo === "aberta" && pres?.vagas != null && (
-            <span className={`text-[13px] font-semibold ${selecionada ? "text-azul-ceu" : "text-azul-forte"}`}>
+            <span className={`text-[13px] font-semibold ${selecionada ? "text-azul-ceu" : "text-azul-ceu"}`}>
               {pres.vagasRestantes ?? pres.vagas} de {pres.vagas} vagas disponíveis
             </span>
           )}
@@ -136,7 +136,7 @@ function LinhaDaEdicao({ e, selecionada, onSelecionar, tipo, acao }: {
 }
 
 function Vazio({ children }: { children: React.ReactNode }) {
-  return <p className="rounded-2xl border-[1.5px] border-dashed border-[#C9D3E0] px-5 py-8 text-center text-[15px] text-ardosia">{children}</p>;
+  return <p className="rounded-2xl border-[1.5px] border-dashed border-linha-forte px-5 py-8 text-center text-[15px] text-ardosia">{children}</p>;
 }
 
 function TituloComDica({ id, titulo, dica, aberta, onAlternar }: { id: string; titulo: string; dica: string; aberta: boolean; onAlternar: () => void }) {
@@ -321,7 +321,7 @@ export default function CentralDeSimulados({
                     ativa ? "border-marinho-950 bg-marinho-950 text-white" : "border-linha bg-superficie hover:border-azul/50"
                   }`}
                 >
-                  <span className={`grid h-10 w-10 flex-none place-items-center rounded-[10px] font-display text-sm font-extrabold ${ativa ? "bg-azul text-white" : "bg-azul-gelo text-azul-forte"}`}>
+                  <span className={`grid h-10 w-10 flex-none place-items-center rounded-[10px] font-display text-sm font-extrabold ${ativa ? "bg-azul text-white" : "bg-azul/15 text-azul-ceu"}`}>
                     {a.numero}
                   </span>
                   <span className="flex flex-col gap-0.5">
@@ -334,7 +334,7 @@ export default function CentralDeSimulados({
             </div>
             <Link
               href="/aluno/materiais"
-              className="flex min-h-[72px] items-center justify-between gap-3 rounded-2xl border border-dashed border-[#B9C6D6] px-4 text-tinta hover:border-azul hover:text-tinta"
+              className="flex min-h-[72px] items-center justify-between gap-3 rounded-2xl border border-dashed border-linha-forte px-4 text-tinta hover:border-azul hover:text-white"
             >
               <span className="flex flex-col gap-0.5">
                 <span className="font-display text-[17px] font-bold">Meus simulados</span>
@@ -347,7 +347,7 @@ export default function CentralDeSimulados({
           {carreiras.length === 0 ? (
             <p
               role={recebidas === null ? "alert" : undefined}
-              className="mt-[clamp(36px,4vw,52px)] rounded-[18px] border-[1.5px] border-dashed border-[#C9D3E0] px-5 py-12 text-center text-[15px] text-ardosia"
+              className="mt-[clamp(36px,4vw,52px)] rounded-[18px] border-[1.5px] border-dashed border-linha-forte px-5 py-12 text-center text-[15px] text-ardosia"
             >
               {recebidas === null
                 ? "Não foi possível carregar os simulados agora. Tente novamente em instantes."
@@ -378,7 +378,7 @@ export default function CentralDeSimulados({
                   {brasaoDoConcurso(c.id) ? (
                     <Image src={brasaoDoConcurso(c.id)!} alt="" width={48} height={48} className="h-12 w-12 flex-none object-contain" />
                   ) : (
-                    <span className={`grid h-[42px] w-[42px] flex-none place-items-center rounded-[11px] ${marcada ? "bg-white/[0.18]" : "bg-azul-gelo text-azul-forte"}`} aria-hidden="true">
+                    <span className={`grid h-[42px] w-[42px] flex-none place-items-center rounded-[11px] ${marcada ? "bg-white/[0.18]" : "bg-azul/15 text-azul-ceu"}`} aria-hidden="true">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" />
                         <path d="M9 12l2 2 4-4" />
@@ -389,7 +389,7 @@ export default function CentralDeSimulados({
                     <span className="font-display text-[17px] font-bold leading-tight">{c.curto}</span>
                     <span className={`text-[13px] font-medium leading-tight ${marcada ? "text-white" : n > 0 ? "text-sucesso" : "text-ardosia"}`}>{legenda}</span>
                   </span>
-                  <span className={`grid h-[22px] w-[22px] flex-none place-items-center rounded-full ${marcada ? "bg-white text-azul" : "border-[1.5px] border-[#B9C6D6]"}`} aria-hidden="true">
+                  <span className={`grid h-[22px] w-[22px] flex-none place-items-center rounded-full ${marcada ? "bg-white text-azul" : "border-[1.5px] border-linha-forte"}`} aria-hidden="true">
                     {marcada && (
                       <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
                         <path d="M3 8.5l3.2 3L13 4.5" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -402,7 +402,7 @@ export default function CentralDeSimulados({
           </div>
 
           {temExemplo && (
-            <p className="mt-6 rounded-xl border border-dashed border-[#9DB0C8] bg-white/70 px-4 py-3 text-[13.5px] text-[#4A5A70]">
+            <p className="mt-6 rounded-xl border border-dashed border-white/20 bg-white/[0.04] px-4 py-3 text-[13.5px] text-ardosia">
               <strong className="font-semibold">Edições de exemplo.</strong> Números, datas, horários e vagas são ilustrativos e ainda sem preço. As inscrições e as compras abrem
               quando a equipe cadastrar as edições reais.
             </p>
@@ -438,7 +438,7 @@ export default function CentralDeSimulados({
                                 type="button"
                                 disabled={!e.st.vendePresencial}
                                 onClick={() => inscreverPresencial(e)}
-                                className="btn-q btn-q-azul h-11 px-4 text-sm disabled:cursor-not-allowed disabled:bg-[#C9D3E0] disabled:text-[#4A5A70] disabled:shadow-none"
+                                className="btn-q btn-q-azul h-11 px-4 text-sm disabled:cursor-not-allowed disabled:bg-linha-forte disabled:text-ardosia disabled:shadow-none"
                               >
                                 Inscrever-se
                               </button>
@@ -554,7 +554,7 @@ export default function CentralDeSimulados({
                   }
                 />
                 {aviso && (
-                  <p role="alert" className="mt-3 rounded-xl bg-[#FFF0D9] px-4 py-3 text-sm text-[#8A4B00]">
+                  <p role="alert" className="mt-3 rounded-xl bg-[rgba(245,158,11,0.14)] px-4 py-3 text-sm text-[#F5C46A]">
                     {aviso}
                   </p>
                 )}

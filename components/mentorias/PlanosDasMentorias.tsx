@@ -9,8 +9,8 @@ const [mentoria, mentoriaMais, combo] = mentorias;
 function Duracao({ numero, escuro = false }: { numero: string; escuro?: boolean }) {
   return (
     <span className="flex items-baseline gap-2 whitespace-nowrap">
-      <span className={`font-display text-[44px] font-extrabold leading-none tracking-[-0.04em] ${escuro ? "" : "text-marinho-900"}`}>{numero}</span>
-      <span className={`text-sm font-semibold ${escuro ? "text-[#D6CFDD]" : "text-[#4A5568]"}`}>meses de acesso</span>
+      <span className={`font-display text-[44px] font-extrabold leading-none tracking-[-0.04em] ${escuro ? "" : "text-tinta"}`}>{numero}</span>
+      <span className={`text-sm font-semibold ${escuro ? "text-[#D6CFDD]" : "text-ardosia"}`}>meses de acesso</span>
     </span>
   );
 }
@@ -82,7 +82,7 @@ export default function PlanosDasMentorias() {
 
         {/* Passo 2: o plano. */}
         <h3 className="mb-3.5 mt-[clamp(32px,4vw,48px)] flex items-center gap-2.5 font-display text-lg font-extrabold">
-          <span className={`grid h-7 w-7 place-items-center rounded-full text-sm text-white ${concurso ? "bg-vinho" : "bg-[#B5C1D1]"}`}>2</span>
+          <span className={`grid h-7 w-7 place-items-center rounded-full text-sm text-white ${concurso ? "bg-vinho" : "bg-linha-forte"}`}>2</span>
           Escolha o plano{concurso ? ` para ${concurso.titulo}` : ""}
         </h3>
         <div className="grid items-stretch gap-[clamp(16px,2vw,28px)] lg:grid-cols-2">
@@ -91,11 +91,11 @@ export default function PlanosDasMentorias() {
               <h4 className="font-display text-[clamp(2.2rem,3.4vw,3rem)] font-extrabold leading-none tracking-[-0.04em]">{mentoria.nome}</h4>
               <Duracao numero="12" />
             </div>
-            <p className="text-[16.5px] leading-[1.6] text-[#3E4A5E] [text-wrap:pretty]">{mentoria.descricao}</p>
+            <p className="text-[16.5px] leading-[1.6] text-ardosia-escura [text-wrap:pretty]">{mentoria.descricao}</p>
             <ul className="flex flex-col border-t border-linha">
               {mentoria.recursos.map((r) => (
                 <li key={r} className="flex items-center gap-3 border-b border-linha py-[13px] text-[15.5px]">
-                  <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="flex-none text-azul">
+                  <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="flex-none text-azul-ceu">
                     <path d="M3 8.5l3.2 3L13 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   {r}
@@ -105,7 +105,7 @@ export default function PlanosDasMentorias() {
             {botaoDoPlano(
               "mentoria",
               "Quero a Mentoria",
-              "mt-auto inline-flex h-[54px] items-center justify-center rounded-[11px] border-[1.5px] border-marinho-900 font-display text-base font-bold text-marinho-900 transition-colors hover:bg-marinho-900 hover:text-white",
+              "mt-auto inline-flex h-[54px] items-center justify-center rounded-[11px] border-[1.5px] border-white/35 font-display text-base font-bold text-white transition-colors hover:border-white hover:bg-white/10 hover:text-white",
             )}
           </article>
 
@@ -149,7 +149,7 @@ export default function PlanosDasMentorias() {
           {botaoDoPlano(
             "combo",
             "Quero o Combo",
-            "inline-flex h-[54px] flex-none items-center whitespace-nowrap rounded-[11px] bg-superficie px-[26px] font-display text-base font-bold text-marinho-900 transition-transform hover:-translate-y-0.5 hover:text-marinho-900",
+            "inline-flex h-[54px] flex-none items-center whitespace-nowrap rounded-[11px] bg-[#F3E6EA] px-[26px] font-display text-base font-bold text-marinho-900 transition-transform hover:-translate-y-0.5 hover:text-marinho-900",
           )}
         </div>
         <p className="mt-4 text-[13px] text-ardosia">Valores e condições de pagamento aparecem no checkout de cada plano, na Tutory.</p>

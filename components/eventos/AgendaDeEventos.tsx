@@ -17,9 +17,9 @@ const FILTROS: { valor: Filtro; rotulo: string }[] = [
 
 const CORES_DO_SELO = {
   aberta: "bg-sucesso-fundo text-sucesso",
-  breve: "bg-azul-palido text-azul-forte",
-  esgotado: "bg-[#FFF0D9] text-[#8A4B00]",
-  encerrado: "bg-nevoa-clara text-[#4A5A70]",
+  breve: "bg-azul/15 text-azul-ceu",
+  esgotado: "bg-[rgba(245,158,11,0.14)] text-[#F5C46A]",
+  encerrado: "bg-nevoa-clara text-ardosia",
 };
 
 // Arte do evento (1:1). Enquanto não há arte cadastrada, o fundo leva o logo do Quad em marca d'água.
@@ -112,7 +112,7 @@ export default function AgendaDeEventos({ eventos }: { eventos: Evento[] | null 
                     aria-pressed={filtro === f.valor}
                     onClick={() => setFiltro(f.valor)}
                     className={`h-[38px] whitespace-nowrap rounded-full border px-4 text-sm font-semibold transition-colors ${
-                      filtro === f.valor ? "border-marinho-950 bg-marinho-950 text-white" : "border-[#D3DCE7] bg-superficie text-ardosia-escura hover:border-azul"
+                      filtro === f.valor ? "border-marinho-950 bg-marinho-950 text-white" : "border-linha-forte bg-superficie text-ardosia-escura hover:border-azul"
                     }`}
                   >
                     {f.rotulo}
@@ -123,11 +123,11 @@ export default function AgendaDeEventos({ eventos }: { eventos: Evento[] | null 
           </div>
 
           {eventos === null ? (
-            <p role="alert" className="rounded-2xl border border-[#9B3535]/30 bg-[#9B3535]/[0.06] p-6 text-center text-sm text-[#9B3535]">
+            <p role="alert" className="rounded-2xl border border-[#9B3535]/30 bg-[#9B3535]/[0.06] p-6 text-center text-sm text-[#FF9C9C]">
               Não foi possível carregar a agenda agora. Tente novamente em instantes.
             </p>
           ) : visiveis.length === 0 ? (
-            <div className="flex flex-col items-center gap-2.5 rounded-[18px] border-[1.5px] border-dashed border-[#C9D3E0] px-5 py-[clamp(40px,5vw,64px)] text-center">
+            <div className="flex flex-col items-center gap-2.5 rounded-[18px] border-[1.5px] border-dashed border-linha-forte px-5 py-[clamp(40px,5vw,64px)] text-center">
               <span className="font-display text-[22px] font-extrabold">
                 {lista.length === 0 ? "Nenhum evento com inscrições abertas" : "Nenhum evento nesta situação"}
               </span>

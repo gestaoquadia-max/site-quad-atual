@@ -16,7 +16,7 @@ export function PrecoEmDestaque({ preco, claro = false }: { preco: string; claro
   const temMoeda = preco.startsWith("R$");
   return (
     <div className="flex items-baseline gap-[5px]">
-      {temMoeda && <span className={`font-display text-sm font-bold ${claro ? "text-[#64748B]" : "text-prata"}`}>R$</span>}
+      {temMoeda && <span className={`font-display text-sm font-bold ${claro ? "text-ardosia" : "text-prata"}`}>R$</span>}
       <span className="font-display text-[28px] font-extrabold leading-none tracking-[-0.03em] [font-variant-numeric:tabular-nums]">
         {temMoeda ? preco.slice(3) : preco}
       </span>

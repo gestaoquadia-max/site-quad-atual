@@ -118,7 +118,7 @@ export default function PrivacidadePage() {
         <p>
           No primeiro acesso, você escolhe o que aceita. Você pode recusar os cookies opcionais sem perder nenhuma
           funcionalidade do site, e pode mudar a sua escolha a qualquer momento:{" "}
-          <BotaoPreferenciasDeCookies className="font-semibold text-azul-forte underline underline-offset-2" />.
+          <BotaoPreferenciasDeCookies className="font-semibold text-azul-ceu underline underline-offset-2" />.
         </p>
       </Secao>
 

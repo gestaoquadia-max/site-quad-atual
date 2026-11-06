@@ -94,7 +94,7 @@ export default async function ConfirmacaoPage({ searchParams }: Props) {
 }
 
 function IconeDoResultado({ tom }: { tom: "sucesso" | "espera" | "erro" }) {
-  const cores = { sucesso: "bg-[#E3F3EA] text-[#13774A]", espera: "bg-[#FFF4D6] text-[#8A5A00]", erro: "bg-[#FDECEC] text-[#B42323]" };
+  const cores = { sucesso: "bg-[rgba(34,197,94,0.14)] text-[#5FD39A]", espera: "bg-[rgba(245,158,11,0.14)] text-[#8A5A00]", erro: "bg-[rgba(220,38,38,0.14)] text-[#FF9C9C]" };
   return (
     <div aria-hidden="true" className={`grid h-14 w-14 place-items-center rounded-2xl ${cores[tom]}`}>
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">

@@ -43,7 +43,7 @@ function CartaoComDepoimento({ aprovado }: { aprovado: Aprovado }) {
         </div>
       </div>
       <p className="font-display text-[clamp(20px,2vw,24px)] font-extrabold leading-[1.15] tracking-[-0.02em]">
-        {cargo} <span className="block text-azul-forte">{resultado}</span>
+        {cargo} <span className="block text-azul-ceu">{resultado}</span>
       </p>
       <blockquote className="mt-auto border-l-[3px] border-azul pl-4 text-[15.5px] leading-[1.65] text-ardosia-escura">“{aprovado.depoimento}”</blockquote>
     </article>

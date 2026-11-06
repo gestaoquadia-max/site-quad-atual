@@ -77,9 +77,9 @@ function ImagemDoConcurso({ aba }: { aba: string }) {
 }
 
 const SITUACAO: Record<Turma["status"], { rotulo: string; cor: string }> = {
-  aberta: { rotulo: "Matrículas abertas", cor: "bg-nevoa-clara text-[#4A5A70]" },
-  breve: { rotulo: "Em breve", cor: "bg-[#E6ECFF] text-[#1238C4]" },
-  encerrada: { rotulo: "Turma lotada", cor: "bg-[#FFF0D9] text-[#8A4B00]" },
+  aberta: { rotulo: "Matrículas abertas", cor: "bg-nevoa-clara text-ardosia" },
+  breve: { rotulo: "Em breve", cor: "bg-azul/15 text-azul-ceu" },
+  encerrada: { rotulo: "Turma lotada", cor: "bg-[rgba(245,158,11,0.14)] text-[#F5C46A]" },
 };
 
 const A_CONFIRMAR = "A confirmar";
@@ -237,10 +237,10 @@ function BarraDoMetodo({ teoria }: { teoria: number }) {
 // Cada turno com ícone e um tom da mesma escala de azul, do mais claro (manhã) ao mais escuro (noite):
 // turmas iguais em turnos diferentes se distinguem de relance.
 const ESTILO_DO_TURNO: Record<string, { icone: Icon; cor: string }> = {
-  Manhã: { icone: Sun, cor: "bg-azul-palido text-azul-forte" },
-  Tarde: { icone: SunHorizon, cor: "bg-[#BCD5FF] text-[#0C3594]" },
+  Manhã: { icone: Sun, cor: "bg-azul/15 text-azul-ceu" },
+  Tarde: { icone: SunHorizon, cor: "bg-[rgba(188,213,255,0.16)] text-[#BCD5FF]" },
   Noite: { icone: Moon, cor: "bg-marinho-700 text-[#D6E6FF]" },
-  Integral: { icone: Sun, cor: "bg-[#D6E5FF] text-[#123E9C]" },
+  Integral: { icone: Sun, cor: "bg-[rgba(214,229,255,0.14)] text-[#D6E5FF]" },
 };
 
 function EtiquetaDoTurno({ turno }: { turno: string }) {
@@ -279,7 +279,7 @@ function CartaoDaTurma({ turma, titulo, concurso }: { turma: Turma; titulo: stri
             {turma.status === "aberta" && turma.statusLabel !== "Matrículas abertas" ? turma.statusLabel : situacao.rotulo}
           </span>
           {concurso && (
-            <span className="inline-flex h-6 items-center whitespace-nowrap rounded-full bg-azul-palido px-[9px] text-[11px] font-bold uppercase tracking-[0.06em] text-azul-forte">
+            <span className="inline-flex h-6 items-center whitespace-nowrap rounded-full bg-azul/15 px-[9px] text-[11px] font-bold uppercase tracking-[0.06em] text-azul-ceu">
               {concurso}
             </span>
           )}
@@ -337,7 +337,7 @@ function Filtro({ rotulo, opcoes, atual, onEscolher, todos }: {
 }) {
   const chip = (ligado: boolean) =>
     `h-9 whitespace-nowrap rounded-full border px-3.5 text-[13.5px] font-semibold transition-colors ${
-      ligado ? "border-marinho-900 bg-marinho-900 text-white" : "border-[#D3DCE7] bg-superficie text-ardosia-escura hover:border-azul"
+      ligado ? "border-marinho-900 bg-marinho-900 text-white" : "border-linha-forte bg-superficie text-ardosia-escura hover:border-azul"
     }`;
   return (
     // No celular, numa linha só que rola para o lado (sem sobrar um filtro sozinho embaixo).
@@ -407,16 +407,16 @@ function TurmasDoCargo({ turmas, aba }: { turmas: Turma[]; aba: string }) {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="flex-auto text-xs font-semibold uppercase tracking-[0.14em] text-azul-forte">Turmas</h2>
+        <h2 className="flex-auto text-xs font-semibold uppercase tracking-[0.14em] text-azul-ceu">Turmas</h2>
         {turnos.length > 1 && <Filtro rotulo="Turno" opcoes={turnos} atual={turno} onEscolher={setTurno} todos="Todos os turnos" />}
       </div>
       {visiveis.length > 0 ? (
         visiveis.map((t) => <CartaoDaTurma key={t.slug} turma={t} titulo={t.nome} />)
       ) : (
         <div className="flex flex-col items-start gap-3 rounded-2xl border border-linha bg-superficie shadow-cartao p-[clamp(24px,3vw,36px)]">
-          <span className="inline-flex h-[26px] items-center rounded-full bg-nevoa-clara px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">Sem oferta no momento</span>
+          <span className="inline-flex h-[26px] items-center rounded-full bg-nevoa-clara px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-ardosia">Sem oferta no momento</span>
           <span className="font-display text-xl font-extrabold">Ainda não há turmas abertas para este cargo</span>
-          <span className="max-w-[560px] text-[15px] leading-[1.55] text-[#3E4A5E] [text-wrap:pretty]">Avisamos pelo WhatsApp quando abrir uma turma.</span>
+          <span className="max-w-[560px] text-[15px] leading-[1.55] text-ardosia-escura [text-wrap:pretty]">Avisamos pelo WhatsApp quando abrir uma turma.</span>
           <AviseMe assunto={`turma ${aba}`} destaque />
         </div>
       )}
@@ -603,14 +603,14 @@ export default function EscolhaDeModalidade({
       <section id="turmas-modalidade" ref={secaoDasTurmas} className="scroll-mt-[110px] bg-nevoa py-[clamp(56px,7vw,104px)]">
         <div className="conteiner">
           {turmas === null && (
-            <div role="alert" className="mb-8 rounded-2xl border border-[#9B3535]/30 bg-[#9B3535]/[0.06] p-6 text-center text-sm text-[#9B3535]">
+            <div role="alert" className="mb-8 rounded-2xl border border-[#9B3535]/30 bg-[#9B3535]/[0.06] p-6 text-center text-sm text-[#FF9C9C]">
               Não foi possível carregar as turmas agora. Tente novamente em instantes.
             </div>
           )}
           {opcoes.length === 0 ? (
             <TurmasDoCargo key={aba} turmas={doCargo} aba={aba} />
           ) : !atual ? (
-            <div className="flex flex-col items-center gap-2.5 rounded-[18px] border-[1.5px] border-dashed border-[#C9D3E0] px-5 py-[clamp(40px,5vw,64px)] text-center text-[#3E4A5E]">
+            <div className="flex flex-col items-center gap-2.5 rounded-[18px] border-[1.5px] border-dashed border-linha-forte px-5 py-[clamp(40px,5vw,64px)] text-center text-ardosia-escura">
               <span className="font-display text-[22px] font-extrabold text-tinta">Selecione uma modalidade</span>
               <span className="max-w-[440px] text-[15px] [text-wrap:pretty]">As turmas disponíveis aparecem aqui, organizadas por concurso e turno.</span>
             </div>
@@ -660,7 +660,7 @@ export default function EscolhaDeModalidade({
 
               <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-5">
                 <div className="flex flex-wrap items-center justify-between gap-4">
-                  <h2 className="flex-auto text-xs font-semibold uppercase tracking-[0.14em] text-azul-forte">Turmas</h2>
+                  <h2 className="flex-auto text-xs font-semibold uppercase tracking-[0.14em] text-azul-ceu">Turmas</h2>
                   {turnos.length > 1 && <Filtro rotulo="Turno" opcoes={turnos} atual={turno} onEscolher={setTurno} todos="Todos os turnos" />}
                 </div>
 
@@ -668,11 +668,11 @@ export default function EscolhaDeModalidade({
                   visiveis.map((t) => <CartaoDaTurma key={t.slug} turma={t} titulo={t.nome} concurso={aba === TODOS ? t.concurso : undefined} />)
                 ) : (
                   <div className="flex flex-col items-start gap-3 rounded-2xl border border-linha bg-superficie shadow-cartao p-[clamp(24px,3vw,36px)]">
-                    <span className="inline-flex h-[26px] items-center rounded-full bg-nevoa-clara px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">Sem oferta no momento</span>
+                    <span className="inline-flex h-[26px] items-center rounded-full bg-nevoa-clara px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-ardosia">Sem oferta no momento</span>
                     <span className="font-display text-xl font-extrabold">
                       Ainda não há turmas abertas nesta modalidade
                     </span>
-                    <span className="max-w-[560px] text-[15px] leading-[1.55] text-[#3E4A5E] [text-wrap:pretty]">
+                    <span className="max-w-[560px] text-[15px] leading-[1.55] text-ardosia-escura [text-wrap:pretty]">
                       {atual.perfil ? `${atual.perfil} ${atual.metodo}` : "Avisamos pelo WhatsApp quando abrir uma turma."}
                     </span>
                     <div className="mt-1.5 flex flex-wrap gap-2.5">

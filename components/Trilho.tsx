@@ -8,9 +8,9 @@ type Tema = "claro" | "escuro" | "vinho";
 
 const CORES: Record<Tema, { link: string; seta: string }> = {
   claro: {
-    // #144AFF e não #006BFF: sobre o fundo cinza-claro (#F4F7FB) o azul padrão fica abaixo do contraste 4,5 (WCAG AA).
-    link: "text-azul-forte hover:text-marinho-600",
-    seta: "border-linha-forte text-tinta hover:border-azul hover:bg-azul-gelo hover:text-azul",
+    // "claro" é o nome antigo: desde 06/11/2026 essas seções também são escuras (bg-nevoa), com o azul-céu nos links.
+    link: "text-azul-ceu hover:text-white",
+    seta: "border-linha-forte text-tinta hover:border-azul hover:bg-azul/15 hover:text-azul-ceu",
   },
   escuro: {
     link: "text-azul-ceu hover:text-white",

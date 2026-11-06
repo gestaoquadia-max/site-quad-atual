@@ -40,12 +40,12 @@ export default async function CombosPage() {
       <section className="bg-nevoa py-[clamp(48px,6vw,88px)]">
         <div className="conteiner flex flex-col gap-[clamp(40px,5vw,64px)]">
           {combos === null && (
-            <div role="alert" className="rounded-2xl border border-[#9B3535]/30 bg-[#9B3535]/[0.06] p-6 text-center text-sm text-[#9B3535]">
+            <div role="alert" className="rounded-2xl border border-[#9B3535]/30 bg-[#9B3535]/[0.06] p-6 text-center text-sm text-[#FF9C9C]">
               Não foi possível carregar os combos agora. Tente novamente em instantes.
             </div>
           )}
           {combos !== null && porGrupo.length === 0 && (
-            <div className="flex flex-col items-center gap-2.5 rounded-[18px] border-[1.5px] border-dashed border-[#C9D3E0] px-5 py-[clamp(40px,5vw,64px)] text-center text-[#3E4A5E]">
+            <div className="flex flex-col items-center gap-2.5 rounded-[18px] border-[1.5px] border-dashed border-linha-forte px-5 py-[clamp(40px,5vw,64px)] text-center text-ardosia-escura">
               <span className="font-display text-[22px] font-extrabold text-tinta">Nenhum combo à venda agora</span>
               <span className="max-w-[440px] text-[15px] [text-wrap:pretty]">Os combos aparecem aqui assim que forem cadastrados.</span>
             </div>

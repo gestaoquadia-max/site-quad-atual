@@ -11,7 +11,7 @@ export default function TelaDeResultado({
   children: React.ReactNode;
   acoes: React.ReactNode;
 }) {
-  const cores = { sucesso: "bg-[#E3F3EA] text-[#13774A]", erro: "bg-[#FDECEC] text-[#B42323]", enviado: "bg-[#DCE8FF] text-azul-forte" };
+  const cores = { sucesso: "bg-[rgba(34,197,94,0.14)] text-[#5FD39A]", erro: "bg-[rgba(220,38,38,0.14)] text-[#FF9C9C]", enviado: "bg-azul/15 text-azul-ceu" };
   return (
     <div className="flex flex-col gap-[18px]">
       <div aria-hidden="true" className={`grid h-14 w-14 place-items-center rounded-2xl ${cores[tom]}`}>

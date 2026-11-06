@@ -101,7 +101,7 @@ export default function AvisoDeCookies() {
                   aria-labelledby={`cookie-${c.id}`}
                   disabled={c.id === "essenciais"}
                   onClick={c.id === "essenciais" ? undefined : alternar[c.id]}
-                  className={`relative mt-0.5 h-7 w-12 flex-none rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${marcado[c.id] ? "bg-azul" : "bg-[#C9D3E0]"}`}
+                  className={`relative mt-0.5 h-7 w-12 flex-none rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${marcado[c.id] ? "bg-azul" : "bg-linha-forte"}`}
                 >
                   <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-[left] ${marcado[c.id] ? "left-6" : "left-1"}`} />
                 </button>

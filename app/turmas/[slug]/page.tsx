@@ -100,7 +100,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-azul-ceu">{turma.tag}</div>
               <h1 className="mb-[18px] mt-3 font-display text-[clamp(2.2rem,4.6vw,3.6rem)] font-extrabold leading-[1.02] tracking-[-0.035em]">{grupo.nome}</h1>
               {/* Cargo e concurso num selo só ("SD • PMBA"). Sem os dois, vale para todos (como "TODOS OS CONCURSOS" na planilha). */}
-              <span className="inline-flex items-center rounded-full bg-[#E6ECFF] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#1238C4]">
+              <span className="inline-flex items-center rounded-full bg-azul/15 px-[11px] py-[5px] text-[12.5px] font-semibold text-azul-ceu">
                 {seloDoCargoEConcurso(grupo.cargo, grupo.concurso)}
               </span>
               <EscolhaDoTurno turma={grupo} turnos={turnos} />
@@ -112,7 +112,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
       <section className="py-[clamp(56px,7vw,88px)]">
         <div className="mx-auto grid max-w-[1200px] gap-6 px-[clamp(20px,4vw,32px)]">
           <div className="rounded-[18px] border border-linha bg-superficie shadow-cartao p-[clamp(28px,4vw,48px)]">
-            <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-forte">Sobre a turma</span>
+            <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-ceu">Sobre a turma</span>
             <h2 className="mb-4 mt-2 font-display text-2xl font-extrabold tracking-[-0.02em]">Como funciona</h2>
             <div className="grid max-w-[760px] gap-3 text-[15.5px] leading-[1.65] text-ardosia-escura">
               <p>{d.lead}</p>
@@ -126,14 +126,14 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
 
           {outras.length > 0 && (
             <div className="rounded-[18px] border border-linha bg-superficie shadow-cartao p-[clamp(28px,4vw,48px)]">
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-forte">Mesma modalidade</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-ceu">Mesma modalidade</span>
               <h2 className="mb-5 mt-2 font-display text-2xl font-extrabold tracking-[-0.02em]">Outras turmas {turma.modalidadeNome}</h2>
               <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-3">
                 {outras.map((t) => (
                   <li key={t.slug}>
                     <Link
                       href={`/turmas/${t.slug}`}
-                      className="flex h-full flex-col gap-1 rounded-[14px] border border-linha p-4 text-tinta transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-azul/45 hover:text-tinta"
+                      className="flex h-full flex-col gap-1 rounded-[14px] border border-linha p-4 text-tinta transition-[transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-azul/45 hover:text-white"
                     >
                       <span className="font-display text-[17px] font-extrabold">{t.nome}</span>
                       <span className="text-sm text-ardosia">{[t.turno, t.inicio && `início ${t.inicio}`].filter(Boolean).join(" · ")}</span>
@@ -163,7 +163,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
 
           {d.incluso.length > 0 && (
             <div className="rounded-[18px] border border-linha bg-superficie shadow-cartao p-[clamp(28px,4vw,48px)]">
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-forte">Conteúdo</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-ceu">Conteúdo</span>
               <h2 className="mb-4 mt-2 font-display text-2xl font-extrabold tracking-[-0.02em]">O que está incluso</h2>
               <CheckList items={d.incluso} />
             </div>

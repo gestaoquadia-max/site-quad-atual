@@ -9,7 +9,7 @@ export default function CheckList({ items, dark = false }: { items: string[]; da
             dark ? "border-white/[0.08] text-[#DCE4EF]" : "border-linha text-ardosia-escura"
           }`}
         >
-          <span aria-hidden="true" className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-azul/[0.12] text-azul">
+          <span aria-hidden="true" className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-azul/[0.12] text-azul-ceu">
             <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
               <path d="M3 8.5l3.2 3L13 4.5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
             </svg>

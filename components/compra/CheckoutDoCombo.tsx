@@ -176,13 +176,13 @@ export default function CheckoutDoCombo({ combo }: { combo: Combo }) {
                         role="radio"
                         aria-checked={marcado}
                         onClick={() => setMetodo(id)}
-                        className={`flex items-center gap-3 rounded-xl border-[1.5px] px-4 py-3.5 text-left transition-colors hover:border-azul ${marcado ? "border-azul bg-azul-gelo" : "border-linha-forte bg-superficie"}`}
+                        className={`flex items-center gap-3 rounded-xl border-[1.5px] px-4 py-3.5 text-left transition-colors hover:border-azul ${marcado ? "border-azul bg-azul/15" : "border-linha-forte bg-superficie"}`}
                       >
-                        <span aria-hidden="true" className={`grid h-[18px] w-[18px] place-items-center rounded-full border-2 ${marcado ? "border-azul" : "border-[#B5C1D1]"}`}>
+                        <span aria-hidden="true" className={`grid h-[18px] w-[18px] place-items-center rounded-full border-2 ${marcado ? "border-azul" : "border-linha-forte"}`}>
                           {marcado && <span className="h-2 w-2 rounded-full bg-azul" />}
                         </span>
                         <span className="font-display text-[15px] font-bold">{rotulo}</span>
-                        <Icone size={24} weight={marcado ? "duotone" : "regular"} aria-hidden="true" className={`ml-auto ${marcado ? "text-azul" : "text-ardosia"}`} />
+                        <Icone size={24} weight={marcado ? "duotone" : "regular"} aria-hidden="true" className={`ml-auto ${marcado ? "text-azul-ceu" : "text-ardosia"}`} />
                       </button>
                     );
                   })}
@@ -213,7 +213,7 @@ export default function CheckoutDoCombo({ combo }: { combo: Combo }) {
               <button
                 type="submit"
                 disabled={!podePagar}
-                className="btn-q btn-q-azul h-14 w-full rounded-xl text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_12px_26px_-14px_rgba(0,107,255,1)] disabled:cursor-not-allowed disabled:bg-[#C9D3E0] disabled:shadow-none"
+                className="btn-q btn-q-azul h-14 w-full rounded-xl text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_12px_26px_-14px_rgba(0,107,255,1)] disabled:cursor-not-allowed disabled:bg-linha-forte disabled:shadow-none"
               >
                 {enviando ? "Processando…" : metodo === "CARTAO" ? "Pagar com cartão" : "Gerar PIX"}
               </button>
@@ -221,7 +221,7 @@ export default function CheckoutDoCombo({ combo }: { combo: Combo }) {
 
             <aside className="flex-[1_1_300px] rounded-[18px] border border-linha bg-superficie shadow-cartao p-6 lg:sticky lg:top-[120px]">
               <h2 className="mb-1 font-display text-lg font-extrabold">Combo</h2>
-              <p className="mb-3 text-[14px] font-semibold text-azul-forte">{combo.nome}</p>
+              <p className="mb-3 text-[14px] font-semibold text-azul-ceu">{combo.nome}</p>
               <ul>
                 {combo.componentes.map((p) => (
                   <li key={p.tipo + p.id} className="flex justify-between gap-3 border-b border-linha py-2.5 text-sm">
@@ -243,8 +243,8 @@ export default function CheckoutDoCombo({ combo }: { combo: Combo }) {
                 <span className="font-semibold">Total do combo</span>
                 <span className="font-display text-[26px] font-extrabold tracking-[-0.03em] [font-variant-numeric:tabular-nums]">{emReais(total + (acrescimo ?? 0))}</span>
               </div>
-              {!!combo.economiaEmCentavos && <p className="mt-2 text-[13px] font-semibold text-[#13774A]">Você economiza {emReais(combo.economiaEmCentavos)}.</p>}
-              <Link href={`/combos/${combo.slug}`} className="mt-3 flex min-h-11 items-center justify-center text-sm font-semibold text-[#3E4A5E] hover:text-azul">
+              {!!combo.economiaEmCentavos && <p className="mt-2 text-[13px] font-semibold text-[#5FD39A]">Você economiza {emReais(combo.economiaEmCentavos)}.</p>}
+              <Link href={`/combos/${combo.slug}`} className="mt-3 flex min-h-11 items-center justify-center text-sm font-semibold text-ardosia-escura hover:text-azul-ceu">
                 Voltar ao combo
               </Link>
             </aside>

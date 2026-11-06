@@ -10,9 +10,9 @@ import { PrecoEmDestaque } from "./CartaoMaterial";
 
 const CORES_DO_SELO: Record<TomDoSelo, string> = {
   aberta: "bg-sucesso-fundo text-sucesso",
-  breve: "bg-azul-palido text-azul-forte",
-  esgotado: "bg-[#FFF0D9] text-[#8A4B00]",
-  encerrado: "bg-nevoa-clara text-[#4A5A70]",
+  breve: "bg-azul/15 text-azul-ceu",
+  esgotado: "bg-[rgba(245,158,11,0.14)] text-[#F5C46A]",
+  encerrado: "bg-nevoa-clara text-ardosia",
 };
 
 export default function CartaoEvento({ evento }: { evento: DadosDoCartaoEvento }) {

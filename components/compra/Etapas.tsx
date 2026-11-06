@@ -8,7 +8,7 @@ export default function Etapas({ atual }: { atual: (typeof ETAPAS)[number] }) {
       {ETAPAS.map((e, i) => (
         <li key={e} className="flex items-center gap-2.5">
           {i > 0 && <span aria-hidden="true">→</span>}
-          <span aria-current={i === indice ? "step" : undefined} className={i < indice ? "text-[#13774A]" : i === indice ? "text-tinta" : ""}>
+          <span aria-current={i === indice ? "step" : undefined} className={i < indice ? "text-[#5FD39A]" : i === indice ? "text-tinta" : ""}>
             {e}
           </span>
         </li>

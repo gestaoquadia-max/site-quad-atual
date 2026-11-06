@@ -24,8 +24,8 @@ export default function CompraDoProdutoDaLoja({ produto }: { produto: ProdutoDaL
     produto.estoque === null
       ? { texto: "Disponibilidade a confirmar", classe: "bg-nevoa-clara text-ardosia-escura" }
       : esgotado
-        ? { texto: "Esgotado", classe: "bg-[#FFF0D9] text-[#8A4B00]" }
-        : { texto: "Em estoque", classe: "bg-[#E3F3EA] text-[#13774A]" };
+        ? { texto: "Esgotado", classe: "bg-[rgba(245,158,11,0.14)] text-[#F5C46A]" }
+        : { texto: "Em estoque", classe: "bg-[rgba(34,197,94,0.14)] text-[#5FD39A]" };
   const textoDaVariacao = variacoes.map((v) => `${v.nome} ${escolha[v.nome]}`).join(" · ");
 
   function adicionar() {
@@ -49,7 +49,7 @@ export default function CompraDoProdutoDaLoja({ produto }: { produto: ProdutoDaL
         <span className="font-display text-[34px] font-extrabold tracking-[-0.03em]">{preco ?? "A confirmar"}</span>
         <span className={`inline-flex h-[26px] items-center whitespace-nowrap rounded-full px-2.5 text-[12.5px] font-semibold ${estoque.classe}`}>{estoque.texto}</span>
       </div>
-      {produto.descricao && <p className="text-base leading-[1.6] text-[#3E4A5E]">{produto.descricao}</p>}
+      {produto.descricao && <p className="text-base leading-[1.6] text-ardosia-escura">{produto.descricao}</p>}
 
       {variacoes.map((v) => (
         <div key={v.nome} role="radiogroup" aria-label={v.nome} className="flex flex-col gap-2.5">
@@ -103,16 +103,16 @@ export default function CompraDoProdutoDaLoja({ produto }: { produto: ProdutoDaL
         <span id="entrega-rotulo" className="font-display text-[15px] font-extrabold">
           Entrega
         </span>
-        <button type="button" role="radio" aria-checked="true" className="flex min-h-12 items-center gap-3 rounded-[10px] border-[1.5px] border-azul bg-azul-gelo px-3 py-2 text-left">
+        <button type="button" role="radio" aria-checked="true" className="flex min-h-12 items-center gap-3 rounded-[10px] border-[1.5px] border-azul bg-azul/15 px-3 py-2 text-left">
           <span aria-hidden="true" className="h-[18px] w-[18px] flex-none rounded-full border-[5px] border-azul bg-white" />
           <span className="flex-1 font-display text-[14.5px] font-bold">Retirar no Quad</span>
         </button>
         <button type="button" role="radio" aria-checked="false" aria-disabled="true" className="flex min-h-12 cursor-not-allowed items-center gap-3 rounded-[10px] border border-linha bg-superficie px-3 py-2 text-left opacity-60">
-          <span aria-hidden="true" className="h-[18px] w-[18px] flex-none rounded-full border-[1.5px] border-[#A3B0C2] bg-white" />
+          <span aria-hidden="true" className="h-[18px] w-[18px] flex-none rounded-full border-[1.5px] border-linha-forte bg-white" />
           <span className="flex-1 font-display text-[14.5px] font-bold">Receber no meu endereço</span>
           <span className="text-xs font-semibold text-ardosia">Em breve</span>
         </button>
-        <span className="flex items-center gap-2 rounded-[10px] bg-[#E3F3EA] px-3 py-2.5 text-[13.5px] font-medium text-[#13774A]">
+        <span className="flex items-center gap-2 rounded-[10px] bg-[rgba(34,197,94,0.14)] px-3 py-2.5 text-[13.5px] font-medium text-[#5FD39A]">
           <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M3 8.5l3.2 3L13 4.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>

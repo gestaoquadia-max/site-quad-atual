@@ -4,8 +4,8 @@
 
 body {
   font-family: var(--font-body);
-  background: #D7E0EB;
-  color: #101B2D;
+  background: #071426;
+  color: #E8EEF6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -79,7 +79,7 @@ body {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
   }
   .btn-q-contorno {
-    @apply border border-linha-forte bg-superficie text-tinta shadow-[0_1px_2px_rgba(11,28,51,0.06)] hover:border-azul hover:text-azul;
+    @apply border border-linha-forte bg-superficie text-tinta shadow-[0_1px_2px_rgba(11,28,51,0.06)] hover:border-azul hover:text-azul-ceu;
   }
   .btn-q-contorno-escuro {
     @apply border border-white/20 bg-transparent text-white hover:border-azul-ceu hover:bg-azul/10 hover:text-white;

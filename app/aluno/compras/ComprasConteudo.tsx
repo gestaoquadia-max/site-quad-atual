@@ -119,7 +119,7 @@ function BaixarPdf({ compra }: { compra: Compra }) {
         {baixando ? "Baixando..." : "Baixar PDF"}
       </button>
       {erro && (
-        <span role="alert" className="text-[13px] text-[#B42323]">
+        <span role="alert" className="text-[13px] text-[#FF9C9C]">
           {erro}
         </span>
       )}
@@ -165,7 +165,7 @@ function Desistencia({ compra, aoDesistir }: { compra: Compra; aoDesistir: (c: C
   if (!d) return null;
 
   const atendimento = (
-    <a href={linkDoWhatsApp(institucional.whatsapp)} target="_blank" rel="noopener noreferrer" className="font-semibold text-azul-forte underline underline-offset-4">
+    <a href={linkDoWhatsApp(institucional.whatsapp)} target="_blank" rel="noopener noreferrer" className="font-semibold text-azul-ceu underline underline-offset-4">
       fale com o atendimento
     </a>
   );
@@ -205,7 +205,7 @@ function Desistencia({ compra, aoDesistir }: { compra: Compra; aoDesistir: (c: C
     return (
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] text-ardosia">
         <span>{frasesDoPrazo(d)}</span>
-        <button type="button" onClick={() => setEtapa("confirmando")} className="font-semibold text-[#B42323] underline underline-offset-4 hover:text-[#8E1B1B]">
+        <button type="button" onClick={() => setEtapa("confirmando")} className="font-semibold text-[#FF9C9C] underline underline-offset-4 hover:text-[#8E1B1B]">
           Desistir da compra
         </button>
       </div>
@@ -213,14 +213,14 @@ function Desistencia({ compra, aoDesistir }: { compra: Compra; aoDesistir: (c: C
   }
 
   return (
-    <div role="group" aria-label="Confirmar desistência" className="mt-3 rounded-[12px] border border-[#F3C9C9] bg-[#FFF6F6] p-4 text-[13.5px] text-tinta">
+    <div role="group" aria-label="Confirmar desistência" className="mt-3 rounded-[12px] border border-[rgba(248,113,113,0.38)] bg-[rgba(220,38,38,0.14)] p-4 text-[13.5px] text-tinta">
       <p className="font-semibold">Desistir de “{compra.item.nome}”?</p>
       <p className="mt-1 text-ardosia">
         {valor != null ? `Você recebe ${formatarValor(valor / 100)} de volta. ` : ""}
         {devolucao} A vaga e o acesso desta compra são cancelados, e isso não pode ser desfeito.
       </p>
       {erro && (
-        <p role="alert" className="mt-2 text-[#B42323]">
+        <p role="alert" className="mt-2 text-[#FF9C9C]">
           {erro}
         </p>
       )}
