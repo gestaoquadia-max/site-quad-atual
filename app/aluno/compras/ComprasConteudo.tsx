@@ -34,9 +34,29 @@ function descreverPagamento(c: Compra) {
   return "PIX";
 }
 
+// "05/11 às 15:42": o PIX vale 30 minutos, então o dia sozinho não diz quando ele vence.
+function dataEHora(iso: string) {
+  const d = new Date(iso);
+  const dia = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", timeZone: "America/Bahia" });
+  const hora = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Bahia" });
+  return `${dia} às ${hora}`;
+}
+
 function PagamentoPendente({ compra }: { compra: Compra }) {
   const [copia, setCopia] = useState<"inicial" | "copiado" | "falhou">("inicial");
+  // A hora em que a lista abriu: basta para a validade do PIX, que é de 30 minutos.
+  const [agora] = useState(() => Date.now());
   const pix = compra.pagamento?.pix;
+
+  // PIX vencido (a validade é o expiraEm da API): o código não paga mais, então não se oferece a cópia. A compra
+  // continua "Aguardando pagamento" até a API expirá-la.
+  if (compra.formaDePagamento === "PIX" && pix?.expiraEm && Date.parse(pix.expiraEm) <= agora) {
+    return (
+      <p className="mt-3 text-[13px] text-ardosia">
+        Este PIX venceu em {dataEHora(pix.expiraEm)} e não pode mais ser pago. Se ainda quiser, faça a compra de novo.
+      </p>
+    );
+  }
 
   if (compra.formaDePagamento === "PIX" && pix?.codigo) {
     const codigo = pix.codigo;
@@ -55,7 +75,7 @@ function PagamentoPendente({ compra }: { compra: Compra }) {
           >
             {copia === "copiado" ? "Código copiado ✓" : "Copiar código PIX"}
           </button>
-          {pix.expiraEm && <span>Vence em {formatarData(pix.expiraEm)}</span>}
+          {pix.expiraEm && <span>Vence em {dataEHora(pix.expiraEm)}</span>}
         </div>
         {/* Alguns navegadores bloqueiam a cópia automática: aí o código aparece para copiar à mão. */}
         {copia === "falhou" && (
@@ -151,7 +171,14 @@ function Desistencia({ compra, aoDesistir }: { compra: Compra; aoDesistir: (c: C
   );
 
   if (!d.permitida) {
-    const motivo = d.impedimento ? MOTIVO_DO_IMPEDIMENTO[d.impedimento] : undefined;
+    // O material digital fica "entregue" assim que é pago (o PDF já está liberado): a API responde ITEM_JA_RETIRADO,
+    // mas não houve retirada na recepção.
+    const digital = compra.item.plataforma === "DIGITAL" && d.impedimento === "ITEM_JA_RETIRADO";
+    const motivo = digital
+      ? "Não dá para desistir de um material digital: o PDF já foi liberado para você."
+      : d.impedimento
+        ? MOTIVO_DO_IMPEDIMENTO[d.impedimento]
+        : undefined;
     if (!motivo) return null;
     return (
       <p className="mt-3 text-[13px] text-ardosia">

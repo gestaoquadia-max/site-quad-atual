@@ -25,6 +25,8 @@ function fimDoPedido(situacao: SituacaoDoPagamento) {
   return FIM_DO_PEDIDO[situacao] ?? { titulo: "Este pedido não está mais ativo", texto: "Se ainda quiser os itens, faça o pedido de novo." };
 }
 
+const AVISO_DO_PIX_VENCIDO = "rounded-xl border border-[#F1C4C4] bg-[#FFF5F5] p-4 text-sm leading-[1.55] text-[#9B1C1C]";
+
 function dataEHora(iso: string) {
   return new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
@@ -61,6 +63,8 @@ export default function AguardandoPagamento({ id }: { id: string }) {
   const [erro, setErro] = useState("");
   const [conferindo, setConferindo] = useState(false);
   const [avisoDaConferencia, setAvisoDaConferencia] = useState("");
+  // A hora da última consulta: é contra ela que a validade do PIX é conferida (a cada 5 s, junto com a situação).
+  const [agora, setAgora] = useState(() => Date.now());
 
   const aguardando = !fechamento || fechamento.situacao === "AGUARDANDO_PAGAMENTO" || fechamento.situacao === "CRIADA";
 
@@ -70,7 +74,11 @@ export default function AguardandoPagamento({ id }: { id: string }) {
     let cancelado = false;
     const consultar = () =>
       buscarFechamento(id)
-        .then((f) => !cancelado && setFechamento(f))
+        .then((f) => {
+          if (cancelado) return;
+          setFechamento(f);
+          setAgora(Date.now());
+        })
         .catch((e) => !cancelado && setErro(e instanceof ErroDaApi && e.status === 404 ? "Pedido não encontrado." : "Não foi possível consultar o pagamento agora."));
     consultar();
     const intervalo = setInterval(consultar, INTERVALO_DA_CONSULTA_MS);
@@ -95,6 +103,8 @@ export default function AguardandoPagamento({ id }: { id: string }) {
   }
 
   const pix = fechamento?.pagamento?.pix;
+  // A validade é o expiraEm da API (30 minutos); depois dele o código não paga mais.
+  const vencido = !!pix?.expiraEm && Date.parse(pix.expiraEm) <= agora;
 
   let conteudo: React.ReactNode;
   if (sessaoAtiva === false) {
@@ -154,7 +164,13 @@ export default function AguardandoPagamento({ id }: { id: string }) {
           Total de <strong className="text-tinta">{emReais(fechamento.totalEmCentavos)}</strong>. Esta página atualiza sozinha quando o pagamento for confirmado.
         </p>
 
-        {pix && (
+        {pix && vencido && (
+          <p className={`mt-6 ${AVISO_DO_PIX_VENCIDO}`}>
+            Este PIX venceu{pix.expiraEm ? ` em ${dataEHora(pix.expiraEm)}` : ""} e não pode mais ser pago. Se ainda quiser, volte ao carrinho e faça a compra de novo.
+          </p>
+        )}
+
+        {pix && !vencido && (
           <div className="mt-6 grid items-start gap-6 sm:grid-cols-[220px_minmax(0,1fr)]">
             {pix.imagemUrl && (
               // eslint-disable-next-line @next/next/no-img-element -- QR Code gerado pelo Pagar.me, endereço temporário
