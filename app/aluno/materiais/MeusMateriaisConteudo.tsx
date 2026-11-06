@@ -30,9 +30,14 @@ export const ROTULO_DO_TIPO: Record<MaterialDaTurma["tipo"], string> = {
 // Duas fontes (06/11/2026): o material de aula das turmas (/api/materiais/eu, por matrícula) e os PDFs comprados na
 // loja (as compras pagas do material DIGITAL, que se baixam pela própria compra). Se as compras não carregarem, os
 // materiais das turmas aparecem mesmo assim.
-async function carregarMateriais(): Promise<{ daTurma: MaterialDaTurma[]; comprados: Compra[] }> {
-  const [daTurma, compras] = await Promise.all([listarMeusMateriais(), listarMinhasComprasEmReais().catch(() => [] as Compra[])]);
-  return { daTurma, comprados: compras.filter((c) => c.situacao === "PAGA" && c.item.plataforma === "DIGITAL") };
+async function carregarMateriais(): Promise<{ daTurma: MaterialDaTurma[]; comprados: Compra[]; erroDosComprados: string }> {
+  const [daTurma, compras] = await Promise.all([
+    listarMeusMateriais(),
+    listarMinhasComprasEmReais().catch((e: unknown) => (e instanceof Error ? e.message : "erro desconhecido")),
+  ]);
+  // A falha das compras não some calada: a tela avisa que os PDFs comprados não carregaram.
+  if (typeof compras === "string") return { daTurma, comprados: [], erroDosComprados: compras };
+  return { daTurma, comprados: compras.filter((c) => c.situacao === "PAGA" && c.item.plataforma === "DIGITAL"), erroDosComprados: "" };
 }
 
 function formatarTamanho(bytes: number | null) {
@@ -105,6 +110,11 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
       vazioAcao={{ href: "/produtos", label: "Ver materiais à venda" }}
     >
       <div className="flex flex-col gap-5">
+        {dados?.erroDosComprados && (
+          <p role="alert" className="rounded-xl border border-[#F1C4C4] bg-[#FFF5F5] px-4 py-3 text-[13.5px] text-[#9B1C1C]">
+            Não foi possível carregar os PDFs que você comprou ({dados.erroDosComprados}). Eles continuam em Compras.
+          </p>
+        )}
         {/* PDFs comprados na loja: baixados pela própria compra (o mesmo botão de Compras). */}
         {comprados.length > 0 && (
           <section aria-labelledby="titulo-comprados" className="flex flex-col gap-2.5">
