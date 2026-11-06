@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import EstadoLista from "@/components/EstadoLista";
 import { CLASSE_DO_BOTAO_PEQUENO, CLASSE_DO_CARTAO, CLASSE_DO_SELO } from "@/components/aluno/CabecalhoDoAluno";
@@ -40,6 +41,8 @@ async function carregarMateriais(): Promise<{ daTurma: MaterialDaTurma[]; compra
   return { daTurma, comprados: compras.filter((c) => c.situacao === "PAGA" && c.item.plataforma === "DIGITAL"), erroDosComprados: "" };
 }
 
+type Aba = "diarios" | "comprados";
+
 function formatarTamanho(bytes: number | null) {
   if (!bytes) return "";
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
@@ -58,6 +61,10 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
 
   const materiais = dados?.daTurma ?? [];
   const comprados = dados?.comprados ?? [];
+  // Duas abas, coisas distintas (06/11/2026): os materiais diários das turmas e os PDFs comprados no site. Abre nos
+  // diários; se só houver comprados, abre neles.
+  const [abaEscolhida, setAba] = useState<Aba | null>(null);
+  const aba: Aba = abaEscolhida ?? (materiais.length === 0 && comprados.length > 0 ? "comprados" : "diarios");
   const turmas = [...new Map(materiais.map((m) => [m.turmaId, m.turmaNome])).entries()];
   const daTurma = materiais.filter((m) => !turma || m.turmaId === turma);
   const materias = [...new Map(daTurma.map((m) => [m.materiaId, m.materiaNome])).entries()];
@@ -104,21 +111,51 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
       carregando={carregandoUsuario || carregando}
       erro={erro}
       onTentarNovamente={tentarNovamente}
-      vazio={materiais.length === 0 && comprados.length === 0}
-      vazioTitulo="Nenhum material por aqui ainda"
-      vazioTexto="Os materiais publicados nas suas turmas e os PDFs que você comprar na loja aparecem aqui."
-      vazioAcao={{ href: "/produtos", label: "Ver materiais à venda" }}
+      // Cada aba tem a própria lista vazia: a da página nunca aparece.
+      vazio={false}
+      vazioTitulo=""
     >
       <div className="flex flex-col gap-5">
-        {dados?.erroDosComprados && (
-          <p role="alert" className="rounded-xl border border-[#F1C4C4] bg-[#FFF5F5] px-4 py-3 text-[13.5px] text-[#9B1C1C]">
-            Não foi possível carregar os PDFs que você comprou ({dados.erroDosComprados}). Eles continuam em Compras.
-          </p>
-        )}
-        {/* PDFs comprados na loja: baixados pela própria compra (o mesmo botão de Compras). */}
-        {comprados.length > 0 && (
-          <section aria-labelledby="titulo-comprados" className="flex flex-col gap-2.5">
-            <h2 id="titulo-comprados" className="font-display text-lg font-extrabold">Comprados</h2>
+        <div role="tablist" aria-label="Tipo de material" className="flex gap-2">
+          {(
+            [
+              ["diarios", "Materiais diários", materiais.length],
+              ["comprados", "Materiais comprados", comprados.length],
+            ] as [Aba, string, number][]
+          ).map(([id, rotulo, quantidade]) => {
+            const ligada = aba === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                id={`aba-${id}`}
+                aria-selected={ligada}
+                aria-controls={`painel-${id}`}
+                onClick={() => setAba(id)}
+                className={`inline-flex h-11 items-center gap-2 rounded-full border px-5 font-display text-[14.5px] font-bold transition-colors ${
+                  ligada ? "border-marinho-950 bg-marinho-950 text-white" : "border-linha-forte bg-superficie text-ardosia-escura hover:border-azul hover:text-azul"
+                }`}
+              >
+                {rotulo}
+                <span className={`rounded-full px-2 py-0.5 text-[11.5px] ${ligada ? "bg-white/15" : "bg-nevoa"}`}>{quantidade}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {aba === "comprados" && (
+          <section role="tabpanel" id="painel-comprados" aria-labelledby="aba-comprados" className="flex flex-col gap-3">
+            <p className="text-[14px] text-ardosia">Os PDFs que você comprou na loja do site. Cada conta baixa os seus, com o seu nome no arquivo.</p>
+            {dados?.erroDosComprados && (
+              <p role="alert" className="rounded-xl border border-[#F1C4C4] bg-[#FFF5F5] px-4 py-3 text-[13.5px] text-[#9B1C1C]">
+                Não foi possível carregar os PDFs que você comprou ({dados.erroDosComprados}). Eles continuam em Compras.
+              </p>
+            )}
+            {comprados.length === 0 && !dados?.erroDosComprados && (
+              <Vazio texto="Você ainda não tem PDFs comprados. Os materiais digitais que você comprar aparecem aqui." acao={{ href: "/produtos", rotulo: "Ver materiais à venda" }} />
+            )}
+            {comprados.length > 0 && (
             <div className={`${CLASSE_DO_CARTAO} overflow-hidden`}>
               {comprados.map((c, i) => {
                 const id = `compra-${c.id}`;
@@ -143,10 +180,16 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
                 );
               })}
             </div>
+            )}
           </section>
         )}
 
-        {materiais.length > 0 && comprados.length > 0 && <h2 className="font-display text-lg font-extrabold">Das suas turmas</h2>}
+        {aba === "diarios" && (
+        <section role="tabpanel" id="painel-diarios" aria-labelledby="aba-diarios" className="flex flex-col gap-4">
+        <p className="text-[14px] text-ardosia">O material de aula que a coordenação publica nas turmas em que você está matriculado.</p>
+        {materiais.length === 0 && (
+          <Vazio texto="Nenhum material diário por aqui ainda. Os materiais publicados nas suas turmas aparecem aqui assim que forem liberados." acao={{ href: "/aluno/turmas", rotulo: "Ver minhas turmas" }} />
+        )}
         {turmas.length > 1 && (
           <Filtros
             rotulo="Filtrar por turma"
@@ -215,8 +258,22 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
           })}
         </div>
         )}
+        </section>
+        )}
       </div>
     </EstadoLista>
+  );
+}
+
+// A lista vazia de cada aba, com o caminho para encher.
+function Vazio({ texto, acao }: { texto: string; acao: { href: string; rotulo: string } }) {
+  return (
+    <div className={`${CLASSE_DO_CARTAO} flex flex-col items-center gap-3 px-6 py-10 text-center`}>
+      <p className="max-w-[460px] text-[15px] text-ardosia">{texto}</p>
+      <Link href={acao.href} className={CLASSE_DO_BOTAO_PEQUENO}>
+        {acao.rotulo}
+      </Link>
+    </div>
   );
 }
 
