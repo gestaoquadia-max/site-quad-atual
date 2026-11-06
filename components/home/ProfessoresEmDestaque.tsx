@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Professor } from "@/lib/data";
-import { getIniciais } from "@/lib/format";
 import Reveal from "@/components/Reveal";
 import { SetaDoLink } from "@/components/Trilho";
 
@@ -18,15 +17,13 @@ function partesDoNome(nome: string) {
   return { primeiro: resto.length ? primeiro : "", sobrenome: resto.length ? resto.join(" ") : primeiro };
 }
 
-// Fundo do painel: as iniciais gigantes, só no contorno, sobre uma grade fina. A foto do cadastro é um recorte sem
-// fundo (PNG transparente; hoje 512 × 512, a original é 1080 × 1350): fica inteira, "em pé" na base do painel, na frente das iniciais, como um pôster.
+// Fundo do painel: o brilho azul sobre uma grade fina (as iniciais gigantes saíram em 06/11/2026). A foto do cadastro
+// é um recorte sem fundo (PNG transparente; hoje 512 × 512, a original é 1080 × 1350): fica inteira, "em pé" na base
+// do painel, como um pôster.
 function Fundo({ professor }: { professor: Professor }) {
   return (
     <div aria-hidden="true" className="absolute inset-0 overflow-hidden bg-[radial-gradient(90%_70%_at_80%_10%,#1E5BD8_0%,#0B2A55_45%,#060F1E_100%)]">
       <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,0.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.35)_1px,transparent_1px)] [background-size:44px_44px] [mask-image:radial-gradient(80%_70%_at_70%_20%,#000,transparent)]" />
-      <span className="absolute -right-[4%] top-[2%] select-none font-display text-[clamp(180px,22vw,320px)] font-extrabold leading-none tracking-[-0.06em] text-transparent [-webkit-text-stroke:1.5px_rgba(111,174,255,0.45)]">
-        {getIniciais(professor.nome)}
-      </span>
       {/* Altura fixa (88% do painel, que vai até 580 px) e a foto ajustada pela altura: a quadrada antiga (512 × 512)
           fica no tamanho do arquivo, sem esticar, e a original 4:5 (aceita pela API desde o PR #139) cabe inteira. */}
       {professor.fotoUrl && (
@@ -39,7 +36,7 @@ function Fundo({ professor }: { professor: Professor }) {
   );
 }
 
-// O conteúdo do painel aberto: matéria na vertical, nome em duas linhas e o convite.
+// O conteúdo do painel aberto: matéria no alto, nome em duas linhas e o convite.
 function Aberto({ professor }: { professor: Professor }) {
   const { primeiro, sobrenome } = partesDoNome(professor.nome);
   return (
@@ -131,7 +128,7 @@ export default function ProfessoresEmDestaque({ professores }: { professores: Pr
           {janela.map((indice, posicao) => {
             const p = professores[indice];
             const aberto = posicao === ativo;
-            const { sobrenome } = partesDoNome(p.nome);
+            const { primeiro, sobrenome } = partesDoNome(p.nome);
             return (
               <Link
                 key={p.slug}
@@ -146,8 +143,10 @@ export default function ProfessoresEmDestaque({ professores }: { professores: Pr
                   <Aberto professor={p} />
                 </div>
                 <div aria-hidden="true" className={`absolute inset-0 transition-opacity duration-300 ${aberto ? "opacity-0" : "opacity-100 delay-200"}`}>
-                  <span className="absolute bottom-6 left-1/2 -translate-x-1/2 rotate-180 whitespace-nowrap font-display text-[20px] font-extrabold uppercase tracking-[0.02em] text-white [writing-mode:vertical-rl]">
-                    {sobrenome}
+                  {/* Os dois nomes, sempre: o primeiro mais leve e o sobrenome forte, na vertical. */}
+                  <span className="absolute bottom-6 left-1/2 max-h-[calc(100%-48px)] -translate-x-1/2 rotate-180 overflow-hidden text-ellipsis whitespace-nowrap font-display text-[20px] uppercase tracking-[0.02em] text-white [writing-mode:vertical-rl]">
+                    {primeiro && <span className="font-semibold text-white/75">{primeiro} </span>}
+                    <span className="font-extrabold">{sobrenome}</span>
                   </span>
                 </div>
               </Link>
