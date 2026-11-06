@@ -30,7 +30,7 @@ const config: Config = {
         // 06/11/2026, à tarde: o primeiro tom (#E6ECF4) ainda parecia branco na tela; agora o azul-acinzentado aparece.
         nevoa: {
           DEFAULT: "#D7E0EB",
-          clara: "#DFE6EF",
+          clara: "#D7E0EB", // igual ao DEFAULT desde 06/11/2026: todas as partes claras com a mesma cor
         },
         superficie: "#E9EEF5",
         linha: {
