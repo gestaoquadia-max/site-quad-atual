@@ -167,12 +167,12 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 3 — CONTEÚDO REAL DAS PÁGINAS
 
-**Status:** EM ANDAMENTO
+**Status:** CONCLUÍDA
 
 | Tarefa | Status |
 |---|---|
-| Links da Tutory em cada curso online | PENDENTE |
-| Fotos reais nas galerias | PENDENTE |
+| Links da Tutory em cada mentoria (por concurso e plano) | FEITO |
+| Fotos reais nas galerias | NÃO SE APLICA |
 | Revisar textos de exemplo (datas de 2025, nomes, vagas) | FEITO |
 | Botão de WhatsApp para atendimento | FEITO |
 
@@ -370,11 +370,11 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 1 — DEFINIÇÃO DA FERRAMENTA
 
-**Status:** PENDENTE
+**Status:** CONCLUÍDA · **Início:** 06/11/2026 · **Término:** 06/11/2026
 
 | Tarefa | Status |
 |---|---|
-| Decidir entre painel próprio, painel do backend ou sistema de conteúdo (CMS) | PENDENTE |
+| Decidir a ferramenta do painel administrativo (decidido: o console da API) | FEITO |
 
 **Campos adicionais**
 - **Descrição:** Alguém do Quad precisa cadastrar turmas, materiais, eventos e posts sem mexer no código
@@ -473,14 +473,14 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 3 — PEDIDO E LIBERAÇÃO DE ACESSO
 
-**Status:** EM ANDAMENTO
+**Status:** CONCLUÍDA
 
 | Tarefa | Status |
 |---|---|
 | Registrar o pedido na API | FEITO |
 | Liberar o acesso automaticamente após o pagamento | FEITO |
 | Validar cupons no backend (hoje estão no código) | FEITO |
-| E-mails de compra confirmada, boleto gerado e acesso liberado | PENDENTE |
+| E-mails da compra (confirmada, PIX aguardando, PIX vencido e devolução) | FEITO |
 
 **Campos adicionais**
 - **Descrição:** O que acontece depois que o aluno paga
@@ -603,7 +603,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 |---|---|
 | Escolher a hospedagem (provável Vercel) | FEITO |
 | Apontar o domínio para o site | PENDENTE |
-| Configurar as variáveis de produção (API e Pagar.me) | PENDENTE |
+| Configurar as variáveis de produção (API e Pagar.me) | FEITO |
 
 **Campos adicionais**
 - **Descrição:** Colocar o site no ar
@@ -617,7 +617,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Tarefa | Status |
 |---|---|
 | Ambiente de homologação com API e Pagar.me em modo de teste | PENDENTE |
-| Teste completo: cadastro → compra (cartão, PIX, boleto) → acesso ao material | PENDENTE |
+| Teste completo: cadastro → compra (cartão e PIX) → acesso ao material | PENDENTE |
 
 **Campos adicionais**
 - **Descrição:** Validar tudo antes de abrir para os alunos
