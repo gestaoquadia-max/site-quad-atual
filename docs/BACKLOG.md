@@ -42,7 +42,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | 10 | Segurança e LGPD | 2 | 6 | 1 |
 | 11 | Analytics e marketing | 1 | 4 | 0 |
 | 12 | Deploy e operação | 3 | 7 | 1 |
-| 13 | Redesenho do site | 9 | 29 | 25 |
+| 13 | Redesenho do site | 10 | 37 | 33 |
 
 ---
 
@@ -770,6 +770,26 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Páginas de não encontrada e de erro | FEITO |
 
 **Campos adicionais**
+- **Prioridade:** Alta
+- **Depende de:** Etapa 13, Bloco 1
+
+### Bloco 10 — AJUSTES DE NOVEMBRO
+
+**Status:** CONCLUÍDA · **Início:** 06/11/2026 · **Término:** 06/11/2026
+
+| Tarefa | Status |
+|---|---|
+| Menu do topo em cápsula, com os links no centro | FEITO |
+| Faixa de avisos transparente | FEITO |
+| Entrada dos itens com desfoque, sem travar a rolagem | FEITO |
+| Fundo claro azulado, sem branco, com sombras nos cartões | FEITO |
+| Professores da Home em painéis, com os dois nomes | FEITO |
+| Mentorias da Home nas cores do site e página das Mentorias toda em vinho | FEITO |
+| Material com impresso e digital à escolha | FEITO |
+| Aviso de PIX vencido e compras por cupom em Minhas compras | FEITO |
+
+**Campos adicionais**
+- **Descrição:** Ajustes de 03 a 06/11/2026, registrados num bloco novo porque o Painel não deixa concluir tarefa nova num bloco já concluído
 - **Prioridade:** Alta
 - **Depende de:** Etapa 13, Bloco 1
 
