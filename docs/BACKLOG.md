@@ -37,12 +37,12 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | 5 | Conteúdo via API | 4 | 11 | 5 |
 | 6 | Painel administrativo | 3 | 6 | 0 |
 | 7 | Carrinho | 1 | 7 | 4 |
-| 8 | Checkout e pagamento | 4 | 15 | 10 |
+| 8 | Checkout e pagamento | 4 | 15 | 11 |
 | 9 | SEO e performance | 2 | 8 | 8 |
 | 10 | Segurança e LGPD | 2 | 6 | 1 |
 | 11 | Analytics e marketing | 1 | 4 | 0 |
 | 12 | Deploy e operação | 3 | 7 | 1 |
-| 13 | Redesenho do site | 9 | 28 | 25 |
+| 13 | Redesenho do site | 9 | 29 | 25 |
 
 ---
 
@@ -489,12 +489,12 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 4 — FINANCEIRO
 
-**Status:** PENDENTE
+**Status:** EM ANDAMENTO · **Início:** 06/11/2026
 
 | Tarefa | Status |
 |---|---|
 | Emissão de nota fiscal | PENDENTE |
-| Reembolso e cancelamento (melhoria futura) | PENDENTE |
+| Desistência da compra e reembolso pela área do aluno | FEITO |
 
 **Campos adicionais**
 - **Descrição:** Regras financeiras além da compra avulsa
@@ -654,7 +654,8 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Menu do topo novo (desktop e celular) | FEITO |
 | Rodapé novo | FEITO |
 | Botão flutuante do WhatsApp | FEITO |
-| Home nova com carrossel de destaques | FEITO |
+| Home nova com a escolha do concurso e a próxima turma | FEITO |
+| Menu do topo em cápsula, com os links no centro | PENDENTE |
 
 **Campos adicionais**
 - **Prioridade:** Alta
