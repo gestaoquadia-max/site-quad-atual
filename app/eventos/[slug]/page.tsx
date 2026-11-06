@@ -28,9 +28,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 const CORES_DO_SELO = {
   aberta: "bg-sucesso-fundo text-sucesso",
-  breve: "bg-azul/15 text-azul-ceu",
-  esgotado: "bg-[rgba(245,158,11,0.14)] text-[#F5C46A]",
-  encerrado: "bg-nevoa-clara text-ardosia",
+  breve: "bg-azul-palido text-azul-forte",
+  esgotado: "bg-[#FFF0D9] text-[#8A4B00]",
+  encerrado: "bg-nevoa-clara text-[#4A5A70]",
 };
 
 export default async function EventoDetalhe({ params }: { params: Promise<{ slug: string }> }) {
@@ -141,7 +141,7 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
                 <ol className="relative max-w-[820px]">
                   {d.programacao.map((item) => (
                     <li key={item.horario} className="relative grid grid-cols-[64px_24px_minmax(0,1fr)] gap-x-3 pb-3 last:pb-0">
-                      <span className="pt-4 font-display text-[15px] font-extrabold text-azul-ceu">{item.horario}</span>
+                      <span className="pt-4 font-display text-[15px] font-extrabold text-azul-forte">{item.horario}</span>
                       <span aria-hidden="true" className="relative flex justify-center">
                         <span className="absolute inset-y-0 w-px bg-linha-forte" />
                         <span className="relative mt-[19px] h-3 w-3 rounded-full border-[2.5px] border-azul-vivo bg-nevoa" />
@@ -162,7 +162,7 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
                 <ul className="grid max-w-[820px] gap-2.5 sm:grid-cols-2">
                   {d.incluso.map((item) => (
                     <li key={item} className="flex items-start gap-3 rounded-xl border border-linha bg-superficie shadow-cartao px-5 py-4 text-[15px] leading-[1.5] text-ardosia-escura">
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="mt-0.5 flex-none text-azul-ceu">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="mt-0.5 flex-none text-azul">
                         <path d="M3 8.5l3.2 3L13 4.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                       {item}
@@ -214,7 +214,7 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
                   <ul>
                     {outros.map((o) => (
                       <li key={o.slug}>
-                        <Link href={`/eventos/${o.slug}`} className="flex items-center gap-3 py-3 text-tinta hover:text-azul-ceu">
+                        <Link href={`/eventos/${o.slug}`} className="flex items-center gap-3 py-3 text-tinta hover:text-azul">
                           <span className="grid h-14 w-14 flex-none place-items-center rounded-xl bg-marinho-900 px-1 text-center font-display text-[11px] font-extrabold leading-tight text-white">
                             {o.tag.split(" · ")[0]}
                           </span>

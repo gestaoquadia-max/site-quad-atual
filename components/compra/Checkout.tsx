@@ -46,7 +46,7 @@ function centavosDoTexto(texto: string) {
 }
 
 export const CARTAO = "rounded-[18px] border border-linha bg-superficie shadow-cartao p-6";
-export const AVISO_DE_ERRO = "rounded-xl border border-[rgba(248,113,113,0.38)] bg-[rgba(220,38,38,0.14)] p-4 text-sm leading-[1.55] text-[#FF9C9C]";
+export const AVISO_DE_ERRO = "rounded-xl border border-[#F1C4C4] bg-[#FFF5F5] p-4 text-sm leading-[1.55] text-[#9B1C1C]";
 export const PAGAMENTO_INDISPONIVEL = "O pagamento online está indisponível no momento. Tente mais tarde ou fale com o nosso atendimento pelo WhatsApp.";
 
 // As opções de parcelamento de um valor, lidas da API com o acréscimo de cada uma. null enquanto carrega (ou se a
@@ -387,14 +387,14 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                           aria-checked={marcado}
                           onClick={() => setMetodo(id)}
                           className={`flex items-center gap-3 rounded-xl border-[1.5px] px-4 py-3.5 text-left transition-colors hover:border-azul ${
-                            marcado ? "border-azul bg-azul/15" : "border-linha-forte bg-superficie"
+                            marcado ? "border-azul bg-azul-gelo" : "border-linha-forte bg-superficie"
                           }`}
                         >
-                          <span aria-hidden="true" className={`grid h-[18px] w-[18px] place-items-center rounded-full border-2 ${marcado ? "border-azul" : "border-linha-forte"}`}>
+                          <span aria-hidden="true" className={`grid h-[18px] w-[18px] place-items-center rounded-full border-2 ${marcado ? "border-azul" : "border-[#B5C1D1]"}`}>
                             {marcado && <span className="h-2 w-2 rounded-full bg-azul" />}
                           </span>
                           <span className="font-display text-[15px] font-bold">{rotulo}</span>
-                          <Icone size={24} weight={marcado ? "duotone" : "regular"} aria-hidden="true" className={`ml-auto ${marcado ? "text-azul-ceu" : "text-ardosia"}`} />
+                          <Icone size={24} weight={marcado ? "duotone" : "regular"} aria-hidden="true" className={`ml-auto ${marcado ? "text-azul" : "text-ardosia"}`} />
                         </button>
                       );
                     })}
@@ -517,7 +517,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                 type="submit"
                 disabled={!podePagar}
                 aria-busy={enviando || undefined}
-                className="btn-q btn-q-azul h-14 w-full rounded-xl text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_12px_26px_-14px_rgba(0,107,255,1)] disabled:cursor-not-allowed disabled:bg-linha-forte disabled:shadow-none"
+                className="btn-q btn-q-azul h-14 w-full rounded-xl text-base shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_12px_26px_-14px_rgba(0,107,255,1)] disabled:cursor-not-allowed disabled:bg-[#C9D3E0] disabled:shadow-none"
               >
                 {enviando ? "Processando…" : rotuloDoPagamento}
               </button>
@@ -563,7 +563,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                               {ROTULO_DO_TIPO[item.tipo]}
                               {item.tag ? ` · ${item.tag}` : ""}
                             </span>
-                            {motivo && <span className="mt-1 block text-[12.5px] font-semibold text-[#FF9C9C]">{motivo}</span>}
+                            {motivo && <span className="mt-1 block text-[12.5px] font-semibold text-[#B42323]">{motivo}</span>}
                           </span>
                           <span className="whitespace-nowrap font-semibold [font-variant-numeric:tabular-nums]">{linhaSimulada ? emReais(linhaSimulada.subtotalEmCentavos) : "—"}</span>
                         </li>
@@ -574,12 +574,12 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                   {simulacao && simulacao.descontoEmCentavos > 0 && (
                     <div className="flex items-center justify-between border-b border-linha py-2.5 text-sm">
                       <span className="flex items-center gap-2 text-ardosia-escura">
-                        Cupom <span className="font-semibold text-azul-ceu">{cupom}</span>
-                        <button type="button" onClick={() => aplicar(null)} aria-label="Remover cupom" className="text-ardosia hover:text-[#FF9C9C]">
+                        Cupom <span className="font-semibold text-azul-forte">{cupom}</span>
+                        <button type="button" onClick={() => aplicar(null)} aria-label="Remover cupom" className="text-ardosia hover:text-[#B42323]">
                           ✕
                         </button>
                       </span>
-                      <span className="font-semibold text-[#5FD39A]">− {emReais(simulacao.descontoEmCentavos)}</span>
+                      <span className="font-semibold text-[#13774A]">− {emReais(simulacao.descontoEmCentavos)}</span>
                     </div>
                   )}
 
@@ -607,7 +607,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                         </button>
                       </form>
                       {erroDoCupom && (
-                        <p role="alert" className="mt-2 text-[12.5px] text-[#FF9C9C]">
+                        <p role="alert" className="mt-2 text-[12.5px] text-[#B42323]">
                           {erroDoCupom}
                         </p>
                       )}
@@ -632,7 +632,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                   )}
                 </>
               )}
-              <Link href="/carrinho" className="mt-3 flex min-h-11 items-center justify-center text-sm font-semibold text-ardosia-escura hover:text-azul-ceu">
+              <Link href="/carrinho" className="mt-3 flex min-h-11 items-center justify-center text-sm font-semibold text-[#3E4A5E] hover:text-azul">
                 Editar carrinho
               </Link>
             </aside>

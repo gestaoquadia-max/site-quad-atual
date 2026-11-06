@@ -22,13 +22,13 @@ function Canal({ titulo, valor, campo, href, destaque = false }: { titulo: strin
   const partes = valor.includes("@") && !valor.startsWith("@") ? valor.split("@") : null;
   return (
     <div className={`flex flex-col gap-2 rounded-[18px] border p-6 ${destaque ? "border-transparent bg-marinho-900 text-white" : "border-linha bg-superficie"}`}>
-      <div className={`text-xs font-bold uppercase tracking-[0.12em] ${destaque ? "text-azul-ceu" : "text-azul-ceu"}`}>{titulo}</div>
+      <div className={`text-xs font-bold uppercase tracking-[0.12em] ${destaque ? "text-azul-ceu" : "text-azul-forte"}`}>{titulo}</div>
       {valor && href ? (
         <a
           href={href}
           target={externo ? "_blank" : undefined}
           rel={externo ? "noopener noreferrer" : undefined}
-          className={`font-display ${longo ? "text-[17px]" : "text-xl"} font-extrabold underline-offset-4 [overflow-wrap:anywhere] hover:underline ${destaque ? "text-white hover:text-white" : "text-tinta hover:text-azul-ceu"}`}
+          className={`font-display ${longo ? "text-[17px]" : "text-xl"} font-extrabold underline-offset-4 [overflow-wrap:anywhere] hover:underline ${destaque ? "text-white hover:text-white" : "text-tinta hover:text-azul"}`}
         >
           {partes ? (
             <>
@@ -97,7 +97,7 @@ export default function ContatoPage() {
           )}
           <p className="mt-8 text-[15px] text-ardosia">
             Para pedidos sobre os seus dados pessoais (acesso, correção ou exclusão), veja a{" "}
-            <Link href="/privacidade" className="font-semibold text-azul-ceu underline underline-offset-4 hover:text-azul-ceu">
+            <Link href="/privacidade" className="font-semibold text-azul-forte underline underline-offset-4 hover:text-azul">
               Política de privacidade
             </Link>
             .

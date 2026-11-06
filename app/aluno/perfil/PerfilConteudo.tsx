@@ -35,7 +35,7 @@ const classeInput =
   "mb-4 h-12 w-full rounded-[10px] border border-linha-forte bg-superficie px-3.5 text-[15px] text-tinta outline-none transition-[border-color,box-shadow] focus:border-azul focus:shadow-[0_0_0_4px_rgba(0,107,255,0.15)] disabled:cursor-not-allowed disabled:bg-nevoa disabled:text-ardosia";
 const classeBotao = "btn-q btn-q-azul mt-2 h-12 w-full text-[15px] disabled:cursor-not-allowed disabled:opacity-60";
 const classeBotaoContorno =
-  "inline-flex h-12 items-center justify-center whitespace-nowrap rounded-[10px] border border-linha-forte bg-superficie px-4 font-display text-sm font-bold text-tinta transition-colors hover:border-azul hover:text-azul-ceu disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex h-12 items-center justify-center whitespace-nowrap rounded-[10px] border border-linha-forte bg-superficie px-4 font-display text-sm font-bold text-tinta transition-colors hover:border-azul hover:text-azul disabled:cursor-not-allowed disabled:opacity-60";
 
 function mensagemDoErro(e: unknown) {
   if (e instanceof ErroDaApi) {
@@ -104,8 +104,8 @@ function CartaoCarregando() {
 
 function Aviso({ tipo, children }: { tipo: "sucesso" | "erro" | "info"; children: React.ReactNode }) {
   const cores = {
-    sucesso: "border-[rgba(95,211,154,0.38)] bg-[rgba(34,197,94,0.14)] text-[#5FD39A]",
-    erro: "border-[rgba(248,113,113,0.38)] bg-[rgba(220,38,38,0.14)] text-[#FF9C9C]",
+    sucesso: "border-[#BFE3CC] bg-[#E4F4EA] text-[#1D6B3A]",
+    erro: "border-[#F1C4C4] bg-[#FFF5F5] text-[#9B1C1C]",
     info: "border-linha bg-nevoa text-ardosia-escura",
   };
   return (
@@ -118,7 +118,7 @@ function Aviso({ tipo, children }: { tipo: "sucesso" | "erro" | "info"; children
 function Cartao({ eyebrow, titulo, children }: { eyebrow: string; titulo: string; children: React.ReactNode }) {
   return (
     <section className="rounded-[18px] border border-linha bg-superficie p-[clamp(20px,2.4vw,28px)] shadow-cartao">
-      <span className="text-xs font-bold uppercase tracking-[0.12em] text-azul-ceu">{eyebrow}</span>
+      <span className="text-xs font-bold uppercase tracking-[0.12em] text-azul-forte">{eyebrow}</span>
       <h2 className="mb-5 mt-1.5 font-display text-[22px] font-extrabold tracking-[-0.02em]">{titulo}</h2>
       {children}
     </section>
@@ -225,7 +225,7 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
 
 function SeloConfirmado() {
   return (
-    <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-[rgba(34,197,94,0.14)] px-2 py-0.5 align-middle text-[11.5px] font-bold text-[#5FD39A]">
+    <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-[#E3F3EA] px-2 py-0.5 align-middle text-[11.5px] font-bold text-[#13774A]">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M5 12.5l4.5 4.5L19 7.5" />
       </svg>
@@ -236,7 +236,7 @@ function SeloConfirmado() {
 
 function AlertaCelularNaoVerificado() {
   return (
-    <div role="alert" className="rounded-[12px] border border-[rgba(245,158,11,0.38)] bg-[rgba(245,158,11,0.14)] px-4 py-3.5 text-[13.5px] text-[#F5C46A]">
+    <div role="alert" className="rounded-[12px] border border-[#F0DDA0] bg-[#FFF8E5] px-4 py-3.5 text-[13.5px] text-[#7A5A00]">
       <p className="mb-2 font-semibold">Seu celular ainda não foi confirmado.</p>
       <p className="mb-2.5 leading-relaxed">Confirme com o código que enviamos por SMS para liberar todos os recursos da sua conta.</p>
       <Link href="/confirmar-celular?redirect=%2Faluno%2Fperfil" className="font-semibold underline underline-offset-4">
@@ -264,7 +264,7 @@ function AlertaEmailNaoVerificado() {
   }
 
   return (
-    <div role="alert" className="rounded-[12px] border border-[rgba(245,158,11,0.38)] bg-[rgba(245,158,11,0.14)] px-4 py-3.5 text-[13.5px] text-[#F5C46A]">
+    <div role="alert" className="rounded-[12px] border border-[#F0DDA0] bg-[#FFF8E5] px-4 py-3.5 text-[13.5px] text-[#7A5A00]">
       <p className="mb-2 font-semibold">Seu e-mail ainda não foi verificado.</p>
       <p className="mb-2.5 leading-relaxed">
         Abra o link que enviamos para a sua caixa de entrada para confirmar. Confira também o spam.
@@ -278,7 +278,7 @@ function AlertaEmailNaoVerificado() {
         {enviando ? "Enviando..." : "Reenviar e-mail de confirmação"}
       </button>
       {resultado && (
-        <p className={`mt-2 ${resultado.tipo === "erro" ? "text-[#FF9C9C]" : "text-[#5FD39A]"}`}>{resultado.texto}</p>
+        <p className={`mt-2 ${resultado.tipo === "erro" ? "text-[#9B1C1C]" : "text-[#1D6B3A]"}`}>{resultado.texto}</p>
       )}
     </div>
   );
@@ -299,7 +299,7 @@ function TrocaDeTelefone({
     return (
       <div className="mb-4 rounded-xl border border-linha bg-nevoa p-4 text-[13.5px] leading-relaxed text-ardosia-escura">
         Seu telefone já está confirmado. Para trocar por outro número, fale com a coordenação pelo{" "}
-        <a href={linkDoWhatsApp(institucional.whatsapp)} target="_blank" rel="noopener noreferrer" className="font-semibold text-azul-ceu underline underline-offset-4">
+        <a href={linkDoWhatsApp(institucional.whatsapp)} target="_blank" rel="noopener noreferrer" className="font-semibold text-azul-forte underline underline-offset-4">
           WhatsApp
         </a>
         .
@@ -377,7 +377,7 @@ function TrocaDeTelefoneNaoVerificado({ telefoneAtual, onTrocado }: { telefoneAt
     );
   }
 
-  const linkPequeno = "text-[13px] font-semibold text-azul-ceu underline-offset-4 hover:underline disabled:cursor-not-allowed disabled:text-ardosia disabled:no-underline";
+  const linkPequeno = "text-[13px] font-semibold text-azul-forte underline-offset-4 hover:underline disabled:cursor-not-allowed disabled:text-ardosia disabled:no-underline";
 
   return (
     <div className="mb-4 rounded-xl border border-linha bg-nevoa p-4">
@@ -580,7 +580,7 @@ function FormularioEndereco({ endereco, onSalvo }: { endereco: Endereco; onSalvo
         className={`${classeInput} ${avisoCep || buscandoCep ? "mb-1.5" : ""}`}
       />
       {buscandoCep && <p className="mb-4 text-[13px] text-ardosia">Buscando endereço...</p>}
-      {avisoCep && <p className="mb-4 text-[13px] text-[#FF9C9C]">{avisoCep}</p>}
+      {avisoCep && <p className="mb-4 text-[13px] text-[#9B1C1C]">{avisoCep}</p>}
 
       <label className={classeLabel} htmlFor="end-rua">
         Endereço
@@ -806,7 +806,7 @@ function CopiaEExclusao() {
         Para receber uma cópia dos seus dados ou corrigir algum deles, escreva para{" "}
         <a
           href={`mailto:${institucional.emailPrivacidade}?subject=${encodeURIComponent("Pedido sobre os meus dados (LGPD)")}`}
-          className="font-semibold text-azul-ceu underline underline-offset-2"
+          className="font-semibold text-azul-forte underline underline-offset-2"
         >
           {institucional.emailPrivacidade}
         </a>{" "}
@@ -845,7 +845,7 @@ function CopiaEExclusao() {
               setConfirmando(true);
               setAviso("");
             }}
-            className={`${classeBotaoContorno} w-full hover:border-[#C0392B] hover:text-[#FF9C9C]`}
+            className={`${classeBotaoContorno} w-full hover:border-[#C0392B] hover:text-[#9B1C1C]`}
           >
             Pedir a exclusão da conta
           </button>
@@ -853,7 +853,7 @@ function CopiaEExclusao() {
       ) : (
         <>
           {perdas.length > 0 && (
-            <div className="mb-4 rounded-[10px] border border-[rgba(248,113,113,0.38)] bg-[rgba(220,38,38,0.14)] px-3.5 py-3 text-[13.5px] leading-[1.5] text-[#FF9C9C]">
+            <div className="mb-4 rounded-[10px] border border-[#F1C4C4] bg-[#FFF5F5] px-3.5 py-3 text-[13.5px] leading-[1.5] text-[#9B1C1C]">
               <p className="mb-1.5 font-semibold">Com a exclusão, você perde:</p>
               <ul className="list-disc pl-5">
                 {perdas.map((p) => (

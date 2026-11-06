@@ -354,9 +354,9 @@ export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]
               onClick={() => setMenuCelular((v) => !v)}
               className="flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-full"
             >
-              <span className={`block h-0.5 w-5 rounded bg-linha-forte transition-transform duration-200 ${menuCelular ? "translate-y-[7px] rotate-45" : ""}`} />
-              <span className={`block h-0.5 w-5 rounded bg-linha-forte transition-opacity duration-200 ${menuCelular ? "opacity-0" : ""}`} />
-              <span className={`block h-0.5 w-5 rounded bg-linha-forte transition-transform duration-200 ${menuCelular ? "-translate-y-[7px] -rotate-45" : ""}`} />
+              <span className={`block h-0.5 w-5 rounded bg-[#DCE4EF] transition-transform duration-200 ${menuCelular ? "translate-y-[7px] rotate-45" : ""}`} />
+              <span className={`block h-0.5 w-5 rounded bg-[#DCE4EF] transition-opacity duration-200 ${menuCelular ? "opacity-0" : ""}`} />
+              <span className={`block h-0.5 w-5 rounded bg-[#DCE4EF] transition-transform duration-200 ${menuCelular ? "-translate-y-[7px] -rotate-45" : ""}`} />
             </button>
           </div>
         </div>

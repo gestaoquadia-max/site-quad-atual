@@ -41,7 +41,7 @@ export default function MatriculaGratuita({ turmaId }: { turmaId: string }) {
         {enviando ? "Matriculando…" : "Fazer matrícula gratuita"}
       </button>
       {erro && (
-        <p role="alert" className="rounded-xl border border-[rgba(248,113,113,0.38)] bg-[rgba(220,38,38,0.14)] p-3 text-[13.5px] leading-[1.5] text-[#FF9C9C]">
+        <p role="alert" className="rounded-xl border border-[#F1C4C4] bg-[#FFF5F5] p-3 text-[13.5px] leading-[1.5] text-[#9B1C1C]">
           {erro}
         </p>
       )}

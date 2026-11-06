@@ -26,7 +26,7 @@ export default function BotoesDeCompra({
       <button
         type="button"
         disabled
-        className={`btn-q h-14 w-full cursor-not-allowed rounded-xl text-base ${tema === "escuro" ? "bg-white/10 text-prata" : "bg-linha-forte text-white"} ${className}`}
+        className={`btn-q h-14 w-full cursor-not-allowed rounded-xl text-base ${tema === "escuro" ? "bg-white/10 text-prata" : "bg-[#C9D3E0] text-white"} ${className}`}
       >
         {rotuloDesabilitado ?? "Indisponível"}
       </button>

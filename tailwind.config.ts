@@ -24,23 +24,24 @@ const config: Config = {
           palido: "#E8F1FF",
           gelo: "#F2F7FF",
         },
-        // Site escuro, em tons de azul-marinho (06/11/2026, pedido do usuário; antes, fundos claros). Os nomes ficaram
-        // e os valores viraram: "tinta" é o texto principal (claro), "nevoa" o fundo da página, "nevoa-clara" a seção
-        // alternada, "superficie" os cartões e campos, "linha" as bordas e "ardosia" o texto secundário (prateado).
-        tinta: "#E8EEF6",
+        tinta: "#101B2D",
+        // Sem fundo branco no site (06/11/2026): a página em azul-acinzentado, as seções que eram brancas um tom acima
+        // e os cartões em "superficie" (gelo), destacados pela sombra "cartao".
+        // 06/11/2026, à tarde: o primeiro tom (#E6ECF4) ainda parecia branco na tela; agora o azul-acinzentado aparece.
         nevoa: {
-          DEFAULT: "#071426",
-          clara: "#0B1C33",
+          DEFAULT: "#D7E0EB",
+          clara: "#DFE6EF",
         },
-        superficie: "#102641",
+        superficie: "#E9EEF5",
         linha: {
-          DEFAULT: "#1F3A5E",
-          forte: "#2B4B75",
+          DEFAULT: "#C9D3E0",
+          forte: "#B8C4D4",
         },
-        // Contraste sobre os três fundos (medido): tinta 13:1 a 16:1, ardosia 7,4:1 a 9:1, ardosia-escura 10:1 a 12:1.
+        // Textos secundários: "ardosia" em fundo claro, "prata" em fundo escuro (contraste AA nos dois). Mais escura
+        // desde o fundo novo: #5A6B82 dava 4,1:1 sobre a página; #4A5A70 dá 5,3:1 nela e 6:1 nos cartões.
         ardosia: {
-          DEFAULT: "#A9B6C8",
-          escura: "#C9D5E5",
+          DEFAULT: "#4A5A70",
+          escura: "#2B3647",
         },
         prata: {
           DEFAULT: "#A9B6C8",
@@ -53,7 +54,7 @@ const config: Config = {
           rosa: "#F3A3B1",
           950: "#1E070D",
         },
-        sucesso: { DEFAULT: "#5FD39A", fundo: "#0E3A2B" },
+        sucesso: { DEFAULT: "#13774A", fundo: "#E3F3EA" },
       },
       fontFamily: {
         display: ["var(--font-display)"],
@@ -63,9 +64,9 @@ const config: Config = {
         tela: "1440px",
       },
       boxShadow: {
-        // Cartões sobre o fundo escuro: um brilho fino no alto e uma sombra preta longa; "cartao-alto" no hover.
-        cartao: "inset 0 1px 0 rgba(255,255,255,0.05), 0 18px 40px -18px rgba(0,0,0,0.75)",
-        "cartao-alto": "inset 0 1px 0 rgba(255,255,255,0.07), 0 28px 56px -20px rgba(0,0,0,0.85), 0 0 0 1px rgba(111,174,255,0.18)",
+        // Cartões sobre o fundo claro: um contorno curto e uma sombra azulada longa; "cartao-alto" no hover e nos painéis.
+        cartao: "0 1px 2px rgba(11,28,51,0.06), 0 14px 32px -16px rgba(11,28,51,0.28)",
+        "cartao-alto": "0 2px 4px rgba(11,28,51,0.07), 0 24px 48px -20px rgba(11,28,51,0.38)",
       },
     },
   },

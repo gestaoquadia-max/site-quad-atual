@@ -230,10 +230,10 @@ export default function CadastroPage() {
 
   const linksDaConta = mostrarLinksDaConta && (
     <span className="mt-2 flex gap-4">
-      <LinkDeAcesso para="/entrar" className="font-semibold text-[#FF9C9C] underline underline-offset-4 hover:text-white">
+      <LinkDeAcesso para="/entrar" className="font-semibold text-[#9B1C1C] underline underline-offset-4 hover:text-tinta">
         Entrar
       </LinkDeAcesso>
-      <Link href="/esqueci-senha" className="font-semibold text-[#FF9C9C] underline underline-offset-4 hover:text-white">
+      <Link href="/esqueci-senha" className="font-semibold text-[#9B1C1C] underline underline-offset-4 hover:text-tinta">
         Esqueci minha senha
       </Link>
     </span>
@@ -266,7 +266,7 @@ export default function CadastroPage() {
         />
         <div aria-hidden="true" className="grid grid-cols-3 gap-1.5">
           {[1, 2, 3].map((n) => (
-            <span key={n} className={`h-1 rounded ${n <= passo ? "bg-azul" : "bg-linha-forte"}`} />
+            <span key={n} className={`h-1 rounded ${n <= passo ? "bg-azul" : "bg-[#D3DCE7]"}`} />
           ))}
         </div>
 
@@ -316,7 +316,7 @@ export default function CadastroPage() {
               <div>
                 <Campo obrigatorio rotulo="CEP" placeholder="44002-022" autoComplete="postal-code" valor={cep} aoMudar={handleCepChange} maxLength={9} inputMode="numeric" />
                 {buscandoCep && <p className="mt-1.5 text-xs text-ardosia">Buscando endereço…</p>}
-                {cepErro && <p className="mt-1.5 text-xs text-[#FF9C9C]">CEP não encontrado — preencha manualmente.</p>}
+                {cepErro && <p className="mt-1.5 text-xs text-[#9B1C1C]">CEP não encontrado — preencha manualmente.</p>}
               </div>
               <Campo obrigatorio rotulo="Endereço" placeholder="Nome da rua" autoComplete="address-line1" valor={endereco} aoMudar={setEndereco} className="col-span-full" />
               <Campo obrigatorio rotulo="Número" placeholder="Só números" valor={numero} aoMudar={setNumero} mascara={(v) => v.replace(/\D/g, "").slice(0, 6)} />
@@ -339,11 +339,11 @@ export default function CadastroPage() {
               />
               <span>
                 Li e aceito os{" "}
-                <Link href="/termos" target="_blank" className="font-semibold text-azul-ceu underline underline-offset-2">
+                <Link href="/termos" target="_blank" className="font-semibold text-azul-forte underline underline-offset-2">
                   Termos de uso
                 </Link>{" "}
                 e a{" "}
-                <Link href="/privacidade" target="_blank" className="font-semibold text-azul-ceu underline underline-offset-2">
+                <Link href="/privacidade" target="_blank" className="font-semibold text-azul-forte underline underline-offset-2">
                   Política de privacidade
                 </Link>
                 .
@@ -373,7 +373,7 @@ export default function CadastroPage() {
         {passo < 3 && (
           <p className="text-center text-sm text-ardosia">
             Já tem uma conta?{" "}
-            <LinkDeAcesso para="/entrar" className="font-semibold text-azul-ceu hover:text-azul-ceu">
+            <LinkDeAcesso para="/entrar" className="font-semibold text-azul-forte hover:text-azul">
               Entrar
             </LinkDeAcesso>
           </p>

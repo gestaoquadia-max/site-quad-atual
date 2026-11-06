@@ -24,7 +24,7 @@ export default function ListaDaLoja({ produtos }: { produtos: ProdutoDaLoja[] })
                 aria-pressed={ligado}
                 onClick={() => setCategoria(id)}
                 className={`h-10 whitespace-nowrap rounded-full border px-4 text-sm font-semibold transition-colors ${
-                  ligado ? "border-marinho-950 bg-marinho-950 text-white" : "border-linha-forte bg-superficie text-ardosia-escura hover:border-azul hover:text-azul-ceu"
+                  ligado ? "border-marinho-950 bg-marinho-950 text-white" : "border-linha-forte bg-superficie text-ardosia-escura hover:border-azul hover:text-azul"
                 }`}
               >
                 {id ? categoriasDaLoja.find((c) => c.id === id)?.nome : "Todos"}
@@ -46,7 +46,7 @@ export default function ListaDaLoja({ produtos }: { produtos: ProdutoDaLoja[] })
           ))}
         </div>
       ) : (
-        <div className="flex flex-col gap-1.5 rounded-[18px] border-[1.5px] border-dashed border-linha-forte px-5 py-12 text-center">
+        <div className="flex flex-col gap-1.5 rounded-[18px] border-[1.5px] border-dashed border-[#C9D3E0] px-5 py-12 text-center">
           <span className="font-display text-lg font-extrabold">Nenhum produto por aqui ainda</span>
           <span className="text-sm text-ardosia">Novos produtos aparecem aqui assim que forem cadastrados.</span>
         </div>

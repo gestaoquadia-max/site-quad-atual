@@ -32,7 +32,7 @@ export default function SobrePage() {
       <section className="bg-nevoa-clara py-[clamp(56px,7vw,104px)]">
         <div className="conteiner grid gap-[clamp(28px,5vw,80px)] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div>
-            <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">Nossa história</span>
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-forte">Nossa história</span>
             <h2 className="titulo-secao mt-2.5">De uma banca de reforço a uma missão</h2>
           </div>
           <div className="space-y-4 text-[17px] leading-[1.75] text-ardosia-escura">
@@ -62,12 +62,12 @@ export default function SobrePage() {
 
       <section className="bg-nevoa py-[clamp(56px,7vw,104px)]">
         <div className="conteiner">
-          <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">O que nos guia</span>
+          <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-forte">O que nos guia</span>
           <h2 className="titulo-secao mb-8 mt-2.5">Nossos valores</h2>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,300px),1fr))] gap-5">
             {valores.map((v, i) => (
               <article key={v.nome} className="rounded-[18px] border border-linha bg-superficie shadow-cartao p-6">
-                <span className="font-display text-sm font-extrabold text-azul-ceu">{String(i + 1).padStart(2, "0")}</span>
+                <span className="font-display text-sm font-extrabold text-azul-forte">{String(i + 1).padStart(2, "0")}</span>
                 <h3 className="mb-2 mt-3 font-display text-xl font-extrabold tracking-[-0.015em]">{v.nome}</h3>
                 <p className="text-[15px] leading-[1.6] text-ardosia">{v.texto}</p>
               </article>

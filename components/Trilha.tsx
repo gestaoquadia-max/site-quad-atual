@@ -20,7 +20,7 @@ export default function Trilha({
         <Fragment key={item.rotulo + i}>
           {i > 0 && <span aria-hidden="true">/</span>}
           {item.href ? (
-            <Link href={item.href} className={claro ? "text-ardosia hover:text-azul-ceu" : "text-prata hover:text-white"}>
+            <Link href={item.href} className={claro ? "text-ardosia hover:text-azul" : "text-prata hover:text-white"}>
               {item.rotulo}
             </Link>
           ) : (

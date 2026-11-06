@@ -129,13 +129,13 @@ export default function CatalogoDeMateriais({ produtos: lista }: { produtos: Pro
 
           <Link
             href="/simulados?modo=individual"
-            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-linha bg-superficie px-6 py-5 text-tinta shadow-[0_1px_2px_rgba(16,27,45,0.04)] transition-colors hover:border-azul/50 hover:text-white"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-linha bg-superficie px-6 py-5 text-tinta shadow-[0_1px_2px_rgba(16,27,45,0.04)] transition-colors hover:border-azul/50 hover:text-tinta"
           >
             <span className="flex flex-col gap-1">
               <span className="font-display text-xl font-extrabold tracking-[-0.01em]">Simulados do Quad</span>
               <span className="text-sm text-ardosia">Individuais e combos · PDF, plataforma ou impresso</span>
             </span>
-            <span className="font-display text-sm font-bold text-azul-ceu">Ver edições →</span>
+            <span className="font-display text-sm font-bold text-azul-forte">Ver edições →</span>
           </Link>
 
           <div>
@@ -146,11 +146,11 @@ export default function CatalogoDeMateriais({ produtos: lista }: { produtos: Pro
               </span>
             </div>
             {lista === null ? (
-              <p role="alert" className="rounded-2xl border border-[#9B3535]/30 bg-[#9B3535]/[0.06] p-6 text-center text-sm text-[#FF9C9C]">
+              <p role="alert" className="rounded-2xl border border-[#9B3535]/30 bg-[#9B3535]/[0.06] p-6 text-center text-sm text-[#9B3535]">
                 Não foi possível carregar os materiais agora. Tente novamente em instantes.
               </p>
             ) : produtos.length === 0 ? (
-              <p className="rounded-[18px] border-[1.5px] border-dashed border-linha-forte px-5 py-12 text-center font-display text-xl font-extrabold">
+              <p className="rounded-[18px] border-[1.5px] border-dashed border-[#C9D3E0] px-5 py-12 text-center font-display text-xl font-extrabold">
                 Nenhum material à venda no momento
               </p>
             ) : grade.length > 0 ? (
@@ -160,7 +160,7 @@ export default function CatalogoDeMateriais({ produtos: lista }: { produtos: Pro
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-3 rounded-[18px] border-[1.5px] border-dashed border-linha-forte px-5 py-12 text-center">
+              <div className="flex flex-col items-center gap-3 rounded-[18px] border-[1.5px] border-dashed border-[#C9D3E0] px-5 py-12 text-center">
                 <span className="font-display text-xl font-extrabold">Nenhum material encontrado</span>
                 <button
                   type="button"

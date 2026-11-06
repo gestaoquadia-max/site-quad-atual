@@ -18,7 +18,7 @@ function IconeDeImagem({ className = "" }: { className?: string }) {
 
 export function SeloExemplo() {
   return (
-    <span className="pointer-events-none inline-flex h-6 items-center whitespace-nowrap rounded-full border border-dashed border-white/25 bg-marinho-950/80 px-[9px] text-[11px] font-semibold text-ardosia">
+    <span className="pointer-events-none inline-flex h-6 items-center whitespace-nowrap rounded-full border border-dashed border-[#9DB0C8] bg-white/90 px-[9px] text-[11px] font-semibold text-[#4A5A70]">
       Exemplo ilustrativo
     </span>
   );
@@ -83,7 +83,7 @@ export function CartaoProdutoDaLoja({ produto, fundo = "nevoa" }: { produto: Pro
   return (
     <Link
       href={`/loja/${produto.id}`}
-      className={`flex h-full flex-col rounded-[18px] border border-linha ${fundo === "branco" ? "bg-superficie shadow-cartao hover:shadow-cartao-alto" : "bg-nevoa"} p-2 text-tinta transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:text-white`}
+      className={`flex h-full flex-col rounded-[18px] border border-linha ${fundo === "branco" ? "bg-superficie shadow-cartao hover:shadow-cartao-alto" : "bg-nevoa"} p-2 text-tinta transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:text-tinta`}
     >
       <div className="relative grid aspect-square place-items-center overflow-hidden rounded-xl bg-nevoa text-[#8A97AA]">
         {produto.imagemUrl ? <Image src={produto.imagemUrl} alt="" fill sizes="(min-width: 1024px) 320px, 50vw" className="object-cover" /> : <IconeDeImagem />}
@@ -160,9 +160,9 @@ export function CartaoAprovado({ aprovado }: { aprovado: Aprovado }) {
           Quad Aprovado
         </span>
         <p className="mt-4 font-display text-[clamp(22px,2.4vw,27px)] font-extrabold leading-[1.12] tracking-[-0.025em]">
-          {cargo} <span className="block text-azul-ceu">{resultado}</span>
+          {cargo} <span className="block text-azul">{resultado}</span>
         </p>
-        <p className="mt-3.5 text-[14.5px] font-semibold text-ardosia-escura">{aprovado.nome}</p>
+        <p className="mt-3.5 text-[14.5px] font-semibold text-[#3E4A5E]">{aprovado.nome}</p>
       </div>
     </article>
   );

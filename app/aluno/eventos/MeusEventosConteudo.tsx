@@ -41,7 +41,7 @@ function CartaoDaAtividade({ atividade, passada }: { atividade: AtividadeDoAluno
         <div className={`mt-1 text-[11px] font-bold tracking-[0.12em] ${passada ? "" : "text-azul-vivo"}`}>{mes ? MESES[Number(mes) - 1] : ""}</div>
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-[11.5px] font-bold uppercase tracking-[0.12em] text-azul-ceu">
+        <div className="text-[11.5px] font-bold uppercase tracking-[0.12em] text-azul-forte">
           {atividade.tipo === "SIMULADO" ? "Simulado" : "Evento"} · {atividade.presencial ? "Presencial" : "Online"}
         </div>
         <h3 className="mt-1 font-display text-[17px] font-extrabold leading-tight">{atividade.nome}</h3>

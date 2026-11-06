@@ -60,7 +60,7 @@ export default function RevisaoDoPedido({
         className="flex max-h-[92vh] w-full max-w-[520px] animate-[q-aparecer_220ms_ease_both] flex-col overflow-hidden rounded-[20px] bg-superficie shadow-[0_40px_80px_-30px_rgba(7,20,38,0.6)]"
       >
         <div className="border-b border-linha px-6 pb-4 pt-6">
-          <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">Revise antes de confirmar</span>
+          <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-forte">Revise antes de confirmar</span>
           <h2 id="revisao-titulo" className="mt-1.5 font-display text-[24px] font-extrabold tracking-[-0.02em] text-tinta">
             Seu pedido
           </h2>
@@ -86,11 +86,11 @@ export default function RevisaoDoPedido({
               <span className="text-ardosia-escura">
                 {desconto.rotulo ?? (
                   <>
-                    Cupom <span className="font-semibold text-azul-ceu">{desconto.cupom}</span>
+                    Cupom <span className="font-semibold text-azul-forte">{desconto.cupom}</span>
                   </>
                 )}
               </span>
-              <span className="font-semibold text-[#5FD39A]">− {emReais(desconto.valorEmCentavos)}</span>
+              <span className="font-semibold text-[#13774A]">− {emReais(desconto.valorEmCentavos)}</span>
             </div>
           )}
           {acrescimoEmCentavos > 0 && (

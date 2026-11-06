@@ -141,7 +141,7 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
           <span className="font-display text-[clamp(32px,4vw,40px)] font-extrabold">Valor a confirmar</span>
         )}
         {lote && (
-          <span className="ml-1 inline-flex items-center rounded-full bg-[rgba(245,158,11,0.14)] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#F5C46A]">{lote}</span>
+          <span className="ml-1 inline-flex items-center rounded-full bg-[#FFF0D9] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#8A4B00]">{lote}</span>
         )}
       </div>
       <p className="mt-2 text-[13px] text-prata">

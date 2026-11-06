@@ -11,7 +11,7 @@ function emailValido(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
-const classeLink = "text-sm font-semibold text-azul-ceu transition-colors hover:text-azul-ceu disabled:cursor-default disabled:text-ardosia";
+const classeLink = "text-sm font-semibold text-azul-forte transition-colors hover:text-azul disabled:cursor-default disabled:text-ardosia";
 
 export default function EsqueciSenhaPage() {
   const [email, setEmail] = useState("");
@@ -91,7 +91,7 @@ export default function EsqueciSenhaPage() {
       </BotaoPrincipal>
       <p className="text-center text-sm text-ardosia">
         Lembrou a senha?{" "}
-        <Link href="/entrar" className="font-semibold text-azul-ceu hover:text-azul-ceu">
+        <Link href="/entrar" className="font-semibold text-azul-forte hover:text-azul">
           Entrar
         </Link>
       </p>

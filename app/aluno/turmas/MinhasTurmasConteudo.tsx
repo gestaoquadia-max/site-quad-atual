@@ -97,7 +97,7 @@ export default function MinhasTurmasConteudo() {
               </div>
               <div className="flex flex-col p-[clamp(20px,2.4vw,28px)]">
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
-                  <span className="text-xs font-bold uppercase tracking-[0.12em] text-azul-ceu">{descreverHorario(turma)}</span>
+                  <span className="text-xs font-bold uppercase tracking-[0.12em] text-azul-forte">{descreverHorario(turma)}</span>
                   <Etiqueta tom={situacao[matricula.situacao].tom}>{situacao[matricula.situacao].label}</Etiqueta>
                 </div>
                 <h2 className="mb-1.5 font-display text-[22px] font-extrabold leading-tight tracking-[-0.02em]">{turma.nome}</h2>
@@ -129,7 +129,7 @@ export default function MinhasTurmasConteudo() {
 
                 <Link
                   href={`/aluno/materiais?turma=${turma.id}`}
-                  className="mt-auto inline-flex items-center gap-2 self-start font-display text-[15px] font-bold text-azul-ceu hover:text-azul-ceu"
+                  className="mt-auto inline-flex items-center gap-2 self-start font-display text-[15px] font-bold text-azul-forte hover:text-azul"
                 >
                   Ver materiais da turma <span aria-hidden="true">→</span>
                 </Link>

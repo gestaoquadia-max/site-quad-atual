@@ -41,7 +41,7 @@ export default async function ComboPage({ params }: { params: Promise<{ slug: st
 
             {/* Preço e compra. */}
             <div className="flex flex-col gap-4 rounded-[20px] border border-white/10 bg-white/[0.04] p-[clamp(22px,2.4vw,30px)]">
-              {economia && <span className="self-start rounded-full bg-[rgba(34,197,94,0.14)] px-3 py-1 text-[12.5px] font-bold text-[#5FD39A]">{economia}</span>}
+              {economia && <span className="self-start rounded-full bg-[#E3F3EA] px-3 py-1 text-[12.5px] font-bold text-[#13774A]">{economia}</span>}
               <div>
                 {combo.precoCheioEmCentavos !== null && combo.precoCheioEmCentavos > precoDoCombo(combo) && (
                   <span className="text-[15px] text-prata">
@@ -78,9 +78,9 @@ export default async function ComboPage({ params }: { params: Promise<{ slug: st
               return (
                 <li key={p.tipo + p.id} className="flex items-center justify-between gap-4 rounded-2xl border border-linha bg-superficie shadow-cartao p-5">
                   <div className="min-w-0">
-                    <span className="text-[11.5px] font-bold uppercase tracking-[0.1em] text-azul-ceu">{rotuloDaParte(p)}</span>
+                    <span className="text-[11.5px] font-bold uppercase tracking-[0.1em] text-azul-forte">{rotuloDaParte(p)}</span>
                     <p className="mt-1 font-display text-[17px] font-extrabold">{p.nome}</p>
-                    {!p.aVenda && <p className="mt-1 text-[13px] font-semibold text-[#FF9C9C]">Fora de venda agora</p>}
+                    {!p.aVenda && <p className="mt-1 text-[13px] font-semibold text-[#B42323]">Fora de venda agora</p>}
                     {p.variacoes.length > 0 && <p className="mt-1 text-[13px] text-ardosia">Você escolhe a opção ({p.variacoes.map((v) => v.nome).join(", ")}) no pagamento.</p>}
                   </div>
                   <div className="flex flex-none flex-col items-end gap-1.5">
@@ -88,7 +88,7 @@ export default async function ComboPage({ params }: { params: Promise<{ slug: st
                       <span className="text-[14px] text-ardosia [font-variant-numeric:tabular-nums]">{emReais(p.precoEmCentavos)}</span>
                     )}
                     {link && (
-                      <Link href={link} className="text-[13px] font-semibold text-azul-ceu hover:text-white">
+                      <Link href={link} className="text-[13px] font-semibold text-azul-forte hover:text-marinho-600">
                         Ver detalhes
                       </Link>
                     )}
