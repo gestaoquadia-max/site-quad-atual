@@ -120,7 +120,7 @@ export default function MinhasTurmasConteudo() {
                       aria-valuenow={pct}
                       aria-valuemin={0}
                       aria-valuemax={100}
-                      className="h-2 w-full overflow-hidden rounded-full bg-[#E6ECF4]"
+                      className="h-2 w-full overflow-hidden rounded-full bg-nevoa"
                     >
                       <div className="h-full rounded-full bg-azul" style={{ width: `${pct}%` }} />
                     </div>

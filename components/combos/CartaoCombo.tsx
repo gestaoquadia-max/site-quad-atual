@@ -20,7 +20,7 @@ export default function CartaoCombo({ combo }: { combo: Combo }) {
         )}
       </div>
       <h3 className="font-display text-[21px] font-extrabold leading-[1.15] tracking-[-0.02em]">{combo.nome}</h3>
-      <ul className="flex flex-col gap-2 border-t border-[#EEF2F7] pt-3.5">
+      <ul className="flex flex-col gap-2 border-t border-linha pt-3.5">
         {combo.componentes.map((p) => (
           <li key={p.tipo + p.id} className="flex items-baseline justify-between gap-3 text-[14px]">
             <span className="min-w-0">
@@ -33,7 +33,7 @@ export default function CartaoCombo({ combo }: { combo: Combo }) {
           </li>
         ))}
       </ul>
-      <div className="mt-auto flex flex-wrap items-end justify-between gap-3 border-t border-[#EEF2F7] pt-4">
+      <div className="mt-auto flex flex-wrap items-end justify-between gap-3 border-t border-linha pt-4">
         <div className="flex flex-col">
           {combo.precoCheioEmCentavos !== null && combo.precoCheioEmCentavos > precoDoCombo(combo) && (
             <s className="text-[13px] text-ardosia [font-variant-numeric:tabular-nums]">{emReais(combo.precoCheioEmCentavos)}</s>

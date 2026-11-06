@@ -38,7 +38,7 @@ type EdicaoComSituacao = Edicao & { st: Situacao };
 
 const SELOS = {
   abertas: "bg-sucesso-fundo text-sucesso",
-  breve: "bg-[#EEF2F7] text-[#4A5A70]",
+  breve: "bg-nevoa-clara text-[#4A5A70]",
   esgotado: "bg-[#FFF0D9] text-[#8A4B00]",
   estudo: "bg-azul-palido text-azul-forte",
 };

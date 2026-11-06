@@ -25,7 +25,7 @@ export function Etiqueta({ tom, children }: { tom: "verde" | "amarelo" | "vermel
     verde: "bg-[#E4F4EA] text-[#1D6B3A]",
     amarelo: "bg-[#FFF4D6] text-[#7A5A00]",
     vermelho: "bg-[#FDECEC] text-[#9B1C1C]",
-    cinza: "bg-[#EEF2F7] text-ardosia-escura",
+    cinza: "bg-nevoa-clara text-ardosia-escura",
     azul: "bg-azul-palido text-azul-forte",
   };
   return (

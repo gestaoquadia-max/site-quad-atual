@@ -69,7 +69,7 @@ export default function RevisaoDoPedido({
         <div className="overflow-y-auto px-6 py-4">
           <ul>
             {linhas.map((l) => (
-              <li key={l.id} className="flex justify-between gap-4 border-b border-[#EEF2F7] py-3 text-sm">
+              <li key={l.id} className="flex justify-between gap-4 border-b border-linha py-3 text-sm">
                 <span className="min-w-0">
                   <span className="block font-semibold text-tinta">{l.nome}</span>
                   <span className="text-[12.5px] text-ardosia">{l.detalhe}</span>
@@ -82,7 +82,7 @@ export default function RevisaoDoPedido({
           </ul>
 
           {desconto && (
-            <div className="flex justify-between gap-4 border-b border-[#EEF2F7] py-2.5 text-sm">
+            <div className="flex justify-between gap-4 border-b border-linha py-2.5 text-sm">
               <span className="text-ardosia-escura">
                 {desconto.rotulo ?? (
                   <>
@@ -94,7 +94,7 @@ export default function RevisaoDoPedido({
             </div>
           )}
           {acrescimoEmCentavos > 0 && (
-            <div className="flex justify-between gap-4 border-b border-[#EEF2F7] py-2.5 text-sm">
+            <div className="flex justify-between gap-4 border-b border-linha py-2.5 text-sm">
               <span className="text-ardosia-escura">Acréscimo do parcelamento</span>
               <span className="whitespace-nowrap font-semibold [font-variant-numeric:tabular-nums]">+ {emReais(acrescimoEmCentavos)}</span>
             </div>

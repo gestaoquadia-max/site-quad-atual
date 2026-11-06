@@ -35,7 +35,7 @@ function CartaoDaAtividade({ atividade, passada }: { atividade: AtividadeDoAluno
     <article className={`${CLASSE_DO_CARTAO} flex items-center gap-4 p-[18px] ${passada ? "opacity-90" : ""}`}>
       <div
         aria-hidden="true"
-        className={`grid h-[68px] w-[64px] flex-none place-content-center rounded-[14px] text-center ${passada ? "bg-[#EEF2F7] text-ardosia-escura" : "bg-marinho-900 text-white"}`}
+        className={`grid h-[68px] w-[64px] flex-none place-content-center rounded-[14px] text-center ${passada ? "bg-nevoa-clara text-ardosia-escura" : "bg-marinho-900 text-white"}`}
       >
         <div className="font-display text-[26px] font-extrabold leading-none tracking-[-0.03em]">{dia ?? "—"}</div>
         <div className={`mt-1 text-[11px] font-bold tracking-[0.12em] ${passada ? "" : "text-azul-vivo"}`}>{mes ? MESES[Number(mes) - 1] : ""}</div>

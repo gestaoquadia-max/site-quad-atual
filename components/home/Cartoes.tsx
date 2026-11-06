@@ -85,7 +85,7 @@ export function CartaoProdutoDaLoja({ produto, fundo = "nevoa" }: { produto: Pro
       href={`/loja/${produto.id}`}
       className={`flex h-full flex-col rounded-[18px] border border-linha ${fundo === "branco" ? "bg-superficie shadow-cartao hover:shadow-cartao-alto" : "bg-nevoa"} p-2 text-tinta transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:text-tinta`}
     >
-      <div className="relative grid aspect-square place-items-center overflow-hidden rounded-xl bg-[#E6ECF4] text-[#8A97AA]">
+      <div className="relative grid aspect-square place-items-center overflow-hidden rounded-xl bg-nevoa text-[#8A97AA]">
         {produto.imagemUrl ? <Image src={produto.imagemUrl} alt="" fill sizes="(min-width: 1024px) 320px, 50vw" className="object-cover" /> : <IconeDeImagem />}
         {produto.exemplo && (
           <span className="absolute left-2.5 top-2.5">

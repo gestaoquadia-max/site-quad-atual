@@ -60,7 +60,7 @@ export default function PainelConteudo() {
       <div className="flex flex-col gap-5">
         <div className={`${CLASSE_DO_CARTAO} px-6 py-[22px]`}>
           {carregandoUsuario ? (
-            <span className="inline-block h-6 w-64 animate-pulse rounded bg-[#E6ECF4] align-middle" aria-label="Carregando" />
+            <span className="inline-block h-6 w-64 animate-pulse rounded bg-nevoa align-middle" aria-label="Carregando" />
           ) : (
             <div className="font-display text-[22px] font-extrabold tracking-[-0.02em]">Bem-vindo de volta{primeiroNome ? `, ${primeiroNome}` : ""}.</div>
           )}
@@ -85,7 +85,7 @@ export default function PainelConteudo() {
           </div>
 
           <div className={`${CLASSE_DO_CARTAO} overflow-hidden`}>
-            <div className="flex items-center justify-between gap-3 border-b border-[#EEF2F7] px-[22px] py-[18px]">
+            <div className="flex items-center justify-between gap-3 border-b border-linha px-[22px] py-[18px]">
               <h2 className="font-display text-lg font-extrabold">Materiais recentes</h2>
               <Link href="/aluno/materiais" className="text-[13.5px] font-semibold text-azul-forte hover:text-azul">
                 Ver todos
@@ -95,7 +95,7 @@ export default function PainelConteudo() {
               <p className="px-[22px] py-6 text-[15px] text-ardosia">Os materiais das suas turmas aparecem aqui assim que forem publicados.</p>
             ) : (
               recentes.map((m, i) => (
-                <div key={m.id} className={`flex items-center gap-3.5 px-[22px] py-3.5 ${i > 0 ? "border-t border-[#EEF2F7]" : ""}`}>
+                <div key={m.id} className={`flex items-center gap-3.5 px-[22px] py-3.5 ${i > 0 ? "border-t border-linha" : ""}`}>
                   <span className={CLASSE_DO_SELO}>{ROTULO_DO_TIPO[m.tipo]}</span>
                   <div className="min-w-0 flex-1">
                     <div className="line-clamp-2 text-[15px] font-semibold leading-snug">{m.titulo}</div>

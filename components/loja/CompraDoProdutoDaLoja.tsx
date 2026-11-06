@@ -22,7 +22,7 @@ export default function CompraDoProdutoDaLoja({ produto }: { produto: ProdutoDaL
   const preco = produto.preco === null ? null : precoSemCentavosZerados(produto.preco);
   const estoque =
     produto.estoque === null
-      ? { texto: "Disponibilidade a confirmar", classe: "bg-[#EEF2F7] text-ardosia-escura" }
+      ? { texto: "Disponibilidade a confirmar", classe: "bg-nevoa-clara text-ardosia-escura" }
       : esgotado
         ? { texto: "Esgotado", classe: "bg-[#FFF0D9] text-[#8A4B00]" }
         : { texto: "Em estoque", classe: "bg-[#E3F3EA] text-[#13774A]" };

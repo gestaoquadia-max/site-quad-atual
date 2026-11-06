@@ -77,7 +77,7 @@ function ImagemDoConcurso({ aba }: { aba: string }) {
 }
 
 const SITUACAO: Record<Turma["status"], { rotulo: string; cor: string }> = {
-  aberta: { rotulo: "Matrículas abertas", cor: "bg-[#EEF2F7] text-[#4A5A70]" },
+  aberta: { rotulo: "Matrículas abertas", cor: "bg-nevoa-clara text-[#4A5A70]" },
   breve: { rotulo: "Em breve", cor: "bg-[#E6ECFF] text-[#1238C4]" },
   encerrada: { rotulo: "Turma lotada", cor: "bg-[#FFF0D9] text-[#8A4B00]" },
 };
@@ -414,7 +414,7 @@ function TurmasDoCargo({ turmas, aba }: { turmas: Turma[]; aba: string }) {
         visiveis.map((t) => <CartaoDaTurma key={t.slug} turma={t} titulo={t.nome} />)
       ) : (
         <div className="flex flex-col items-start gap-3 rounded-2xl border border-linha bg-superficie shadow-cartao p-[clamp(24px,3vw,36px)]">
-          <span className="inline-flex h-[26px] items-center rounded-full bg-[#EEF2F7] px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">Sem oferta no momento</span>
+          <span className="inline-flex h-[26px] items-center rounded-full bg-nevoa-clara px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">Sem oferta no momento</span>
           <span className="font-display text-xl font-extrabold">Ainda não há turmas abertas para este cargo</span>
           <span className="max-w-[560px] text-[15px] leading-[1.55] text-[#3E4A5E] [text-wrap:pretty]">Avisamos pelo WhatsApp quando abrir uma turma.</span>
           <AviseMe assunto={`turma ${aba}`} destaque />
@@ -668,7 +668,7 @@ export default function EscolhaDeModalidade({
                   visiveis.map((t) => <CartaoDaTurma key={t.slug} turma={t} titulo={t.nome} concurso={aba === TODOS ? t.concurso : undefined} />)
                 ) : (
                   <div className="flex flex-col items-start gap-3 rounded-2xl border border-linha bg-superficie shadow-cartao p-[clamp(24px,3vw,36px)]">
-                    <span className="inline-flex h-[26px] items-center rounded-full bg-[#EEF2F7] px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">Sem oferta no momento</span>
+                    <span className="inline-flex h-[26px] items-center rounded-full bg-nevoa-clara px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">Sem oferta no momento</span>
                     <span className="font-display text-xl font-extrabold">
                       Ainda não há turmas abertas nesta modalidade
                     </span>

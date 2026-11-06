@@ -38,7 +38,7 @@ export default async function ProdutoDaLojaPage({ params }: { params: Promise<{ 
       <div className="conteiner pb-[clamp(64px,8vw,112px)] pt-[clamp(24px,3vw,40px)]">
         <Trilha tom="claro" itens={[{ rotulo: "Início", href: "/" }, { rotulo: "Loja", href: "/loja" }, { rotulo: produto.nome }]} className="mb-[clamp(20px,3vw,32px)]" />
         <div className="flex flex-wrap items-start gap-[clamp(28px,4vw,72px)]">
-          <div className="relative grid aspect-square min-w-0 flex-[1_1_520px] place-items-center overflow-hidden rounded-[20px] border border-linha bg-[#EAF0F7] text-ardosia">
+          <div className="relative grid aspect-square min-w-0 flex-[1_1_520px] place-items-center overflow-hidden rounded-[20px] border border-linha bg-nevoa-clara text-ardosia">
             {produto.imagemUrl ? (
               <Image src={produto.imagemUrl} alt={produto.nome} fill priority sizes="(min-width: 1024px) 640px, 92vw" className="object-cover" />
             ) : (

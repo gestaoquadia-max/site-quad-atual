@@ -28,7 +28,7 @@ export default function AbasDeAcesso({ atual }: { atual: "/entrar" | "/cadastro"
     { para: "/cadastro" as const, rotulo: "Criar conta" },
   ];
   return (
-    <nav aria-label="Acesso" className="grid grid-cols-2 rounded-[14px] bg-[#E6ECF4] p-[5px]">
+    <nav aria-label="Acesso" className="grid grid-cols-2 rounded-[14px] bg-nevoa p-[5px]">
       {abas.map((a) =>
         a.para === atual ? (
           <span

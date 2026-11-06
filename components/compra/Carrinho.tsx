@@ -114,7 +114,7 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
                   const motivo = indisponiveis.get(item.id);
                   const unitario = parsePreco(item.preco);
                   return (
-                    <li key={item.id} className={`flex items-center gap-4 px-5 py-[18px] ${i > 0 ? "border-t border-[#EEF2F7]" : ""}`}>
+                    <li key={item.id} className={`flex items-center gap-4 px-5 py-[18px] ${i > 0 ? "border-t border-linha" : ""}`}>
                       <div
                         aria-hidden="true"
                         className="grid aspect-square w-[clamp(64px,8vw,88px)] flex-none place-items-center rounded-xl border border-linha bg-[linear-gradient(160deg,#12305A,#071426)] font-display text-xs font-extrabold uppercase tracking-[0.1em] text-prata"
@@ -129,7 +129,7 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
                           <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-azul-forte">{ROTULO_DO_TIPO[item.tipo]}</span>
-                          {ehFisico(item) && <span className={`${SELO} bg-[#EEF2F7] text-[#3E4A5E]`}>{item.tipo === "loja" ? "Físico" : "Impresso"}</span>}
+                          {ehFisico(item) && <span className={`${SELO} bg-nevoa-clara text-[#3E4A5E]`}>{item.tipo === "loja" ? "Físico" : "Impresso"}</span>}
                           {item.formato === "digital" && <span className={`${SELO} bg-azul-palido text-azul-forte`}>Digital</span>}
                         </div>
                         <div className="mt-1 font-display text-[17px] font-extrabold tracking-[-0.015em]">{item.nome}</div>
@@ -197,7 +197,7 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
                   <span className="font-semibold text-[#13774A]">Grátis</span>
                 </div>
               )}
-              <div className="mt-2.5 flex items-baseline justify-between border-t border-[#E3E9F1] pt-4">
+              <div className="mt-2.5 flex items-baseline justify-between border-t border-linha pt-4">
                 <span className="font-semibold">Total</span>
                 <span className="font-display text-[28px] font-extrabold tracking-[-0.03em] [font-variant-numeric:tabular-nums]">{formatarValor(totalValor)}</span>
               </div>

@@ -189,7 +189,7 @@ export default function AguardandoPagamento({ id }: { id: string }) {
           </div>
         )}
 
-        <div className="mt-7 flex flex-wrap items-center gap-3 border-t border-[#EEF2F7] pt-5">
+        <div className="mt-7 flex flex-wrap items-center gap-3 border-t border-linha pt-5">
           <button type="button" onClick={jaPaguei} disabled={conferindo} className="btn-q btn-q-contorno h-11 px-5 text-sm disabled:opacity-60">
             {conferindo ? "Conferindo…" : "Já paguei"}
           </button>

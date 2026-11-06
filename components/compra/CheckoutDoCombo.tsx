@@ -224,7 +224,7 @@ export default function CheckoutDoCombo({ combo }: { combo: Combo }) {
               <p className="mb-3 text-[14px] font-semibold text-azul-forte">{combo.nome}</p>
               <ul>
                 {combo.componentes.map((p) => (
-                  <li key={p.tipo + p.id} className="flex justify-between gap-3 border-b border-[#EEF2F7] py-2.5 text-sm">
+                  <li key={p.tipo + p.id} className="flex justify-between gap-3 border-b border-linha py-2.5 text-sm">
                     <span className="min-w-0">
                       <span className="block font-semibold">{p.nome}</span>
                       <span className="text-[12.5px] text-ardosia">{detalheDaParte(p)}</span>
@@ -234,7 +234,7 @@ export default function CheckoutDoCombo({ combo }: { combo: Combo }) {
                 ))}
               </ul>
               {!!acrescimo && (
-                <div className="flex items-center justify-between gap-3 border-b border-[#EEF2F7] py-2.5 text-sm">
+                <div className="flex items-center justify-between gap-3 border-b border-linha py-2.5 text-sm">
                   <span className="text-ardosia-escura">Acréscimo do parcelamento</span>
                   <span className="whitespace-nowrap font-semibold [font-variant-numeric:tabular-nums]">+ {emReais(acrescimo)}</span>
                 </div>

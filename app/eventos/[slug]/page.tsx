@@ -30,7 +30,7 @@ const CORES_DO_SELO = {
   aberta: "bg-sucesso-fundo text-sucesso",
   breve: "bg-azul-palido text-azul-forte",
   esgotado: "bg-[#FFF0D9] text-[#8A4B00]",
-  encerrado: "bg-[#EEF2F7] text-[#4A5A70]",
+  encerrado: "bg-nevoa-clara text-[#4A5A70]",
 };
 
 export default async function EventoDetalhe({ params }: { params: Promise<{ slug: string }> }) {

@@ -9,10 +9,10 @@ export function ListaCarregando({ linhas = 3, altura = "h-[76px]" }: { linhas?: 
       {Array.from({ length: linhas }, (_, i) => (
         <div key={i} className={`animate-pulse rounded-[18px] border border-linha bg-superficie shadow-cartao ${altura}`}>
           <div className="flex h-full items-center gap-3.5 px-5">
-            <span className="h-11 w-11 flex-shrink-0 rounded-[10px] bg-[#E6ECF4]" />
+            <span className="h-11 w-11 flex-shrink-0 rounded-[10px] bg-nevoa" />
             <div className="flex-1">
-              <div className="mb-2 h-3.5 w-2/5 rounded bg-[#E6ECF4]" />
-              <div className="h-3 w-1/4 rounded bg-[#EEF2F7]" />
+              <div className="mb-2 h-3.5 w-2/5 rounded bg-nevoa" />
+              <div className="h-3 w-1/4 rounded bg-nevoa-clara" />
             </div>
           </div>
         </div>

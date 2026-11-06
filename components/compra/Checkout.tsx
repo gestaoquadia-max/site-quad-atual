@@ -552,7 +552,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                       const linhaSimulada = simulacao?.linhas.find((l) => l.linhaId === linha?.id);
                       const motivo = recusados.get(item.id);
                       return (
-                        <li key={item.id} className="flex justify-between gap-3 border-b border-[#EEF2F7] py-2.5 text-sm">
+                        <li key={item.id} className="flex justify-between gap-3 border-b border-linha py-2.5 text-sm">
                           <span className="min-w-0">
                             <span className="block font-semibold">
                               {/* O nome que o aluno viu no site ("RONDESP 1"); o da linha é o do cadastro ("Rondesp Manhã"). */}
@@ -572,7 +572,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                   </ul>
 
                   {simulacao && simulacao.descontoEmCentavos > 0 && (
-                    <div className="flex items-center justify-between border-b border-[#EEF2F7] py-2.5 text-sm">
+                    <div className="flex items-center justify-between border-b border-linha py-2.5 text-sm">
                       <span className="flex items-center gap-2 text-ardosia-escura">
                         Cupom <span className="font-semibold text-azul-forte">{cupom}</span>
                         <button type="button" onClick={() => aplicar(null)} aria-label="Remover cupom" className="text-ardosia hover:text-[#B42323]">
@@ -584,7 +584,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                   )}
 
                   {simulacao && !cupom && (
-                    <div className="border-b border-[#EEF2F7] py-3.5">
+                    <div className="border-b border-linha py-3.5">
                       <form
                         className="flex gap-2"
                         onSubmit={(e) => {
@@ -615,7 +615,7 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                   )}
 
                   {!!acrescimo && (
-                    <div className="flex items-center justify-between gap-3 border-b border-[#EEF2F7] py-2.5 text-sm">
+                    <div className="flex items-center justify-between gap-3 border-b border-linha py-2.5 text-sm">
                       <span className="text-ardosia-escura">Acréscimo do parcelamento</span>
                       <span className="whitespace-nowrap font-semibold [font-variant-numeric:tabular-nums]">+ {emReais(acrescimo)}</span>
                     </div>

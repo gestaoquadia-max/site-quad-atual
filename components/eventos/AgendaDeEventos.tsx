@@ -19,7 +19,7 @@ const CORES_DO_SELO = {
   aberta: "bg-sucesso-fundo text-sucesso",
   breve: "bg-azul-palido text-azul-forte",
   esgotado: "bg-[#FFF0D9] text-[#8A4B00]",
-  encerrado: "bg-[#EEF2F7] text-[#4A5A70]",
+  encerrado: "bg-nevoa-clara text-[#4A5A70]",
 };
 
 // Arte do evento (1:1). Enquanto não há arte cadastrada, o fundo leva o logo do Quad em marca d'água.

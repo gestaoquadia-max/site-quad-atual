@@ -94,8 +94,8 @@ function CartaoCarregando() {
     <div className="animate-pulse rounded-[18px] border border-linha bg-superficie shadow-cartao p-7">
       {[0, 1, 2].map((j) => (
         <div key={j} className="mb-5">
-          <div className="mb-2 h-3 w-24 rounded bg-[#E6ECF4]" />
-          <div className="h-12 rounded-[10px] bg-[#EEF2F7]" />
+          <div className="mb-2 h-3 w-24 rounded bg-nevoa" />
+          <div className="h-12 rounded-[10px] bg-nevoa-clara" />
         </div>
       ))}
     </div>
@@ -822,7 +822,7 @@ function CopiaEExclusao() {
           Não foi possível consultar agora. Se quiser excluir a conta, escreva para {institucional.emailPrivacidade}.
         </p>
       ) : !exclusao ? (
-        <div role="status" aria-label="Carregando" className="h-12 animate-pulse rounded-[10px] bg-[#EEF2F7]" />
+        <div role="status" aria-label="Carregando" className="h-12 animate-pulse rounded-[10px] bg-nevoa-clara" />
       ) : exclusao.agendadaPara ? (
         <>
           <Aviso tipo="info">

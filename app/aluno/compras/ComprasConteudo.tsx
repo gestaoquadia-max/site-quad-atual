@@ -280,7 +280,7 @@ export default function ComprasConteudo() {
           // O que ESTA compra pagou; o valor do pagamento é o do carrinho inteiro, quando ele tinha várias compras.
           const valor = c.aPagarEmCentavos ?? c.pagamento?.valorEmCentavos;
           return (
-            <div key={c.id} className={`px-[22px] py-4 ${i > 0 ? "border-t border-[#EEF2F7]" : ""}`}>
+            <div key={c.id} className={`px-[22px] py-4 ${i > 0 ? "border-t border-linha" : ""}`}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <div className="text-[15px] font-semibold">

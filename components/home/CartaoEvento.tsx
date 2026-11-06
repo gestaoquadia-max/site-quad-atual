@@ -12,7 +12,7 @@ const CORES_DO_SELO: Record<TomDoSelo, string> = {
   aberta: "bg-sucesso-fundo text-sucesso",
   breve: "bg-azul-palido text-azul-forte",
   esgotado: "bg-[#FFF0D9] text-[#8A4B00]",
-  encerrado: "bg-[#EEF2F7] text-[#4A5A70]",
+  encerrado: "bg-nevoa-clara text-[#4A5A70]",
 };
 
 export default function CartaoEvento({ evento }: { evento: DadosDoCartaoEvento }) {
@@ -68,7 +68,7 @@ export default function CartaoEvento({ evento }: { evento: DadosDoCartaoEvento }
           </svg>
         </button>
         {aberto && (
-          <div id={idDoPainel} className="mt-3.5 animate-[q-surgir_220ms_ease_both] rounded-xl border border-[#E3E9F1] bg-[#F6F9FD] px-4 pb-4 pt-[18px]">
+          <div id={idDoPainel} className="mt-3.5 animate-[q-surgir_220ms_ease_both] rounded-xl border border-linha bg-nevoa-clara px-4 pb-4 pt-[18px]">
             <p className="text-[14.5px] leading-[1.55] text-ardosia-escura [text-wrap:pretty]">{evento.descricao}</p>
             {evento.preco && (
               <div className="mt-3.5">

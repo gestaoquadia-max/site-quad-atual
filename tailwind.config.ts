@@ -27,18 +27,20 @@ const config: Config = {
         tinta: "#101B2D",
         // Sem fundo branco no site (06/11/2026): a página em azul-acinzentado, as seções que eram brancas um tom acima
         // e os cartões em "superficie" (gelo), destacados pela sombra "cartao".
+        // 06/11/2026, à tarde: o primeiro tom (#E6ECF4) ainda parecia branco na tela; agora o azul-acinzentado aparece.
         nevoa: {
-          DEFAULT: "#E6ECF4",
-          clara: "#EDF1F7",
+          DEFAULT: "#D7E0EB",
+          clara: "#DFE6EF",
         },
-        superficie: "#F3F6FB",
+        superficie: "#E9EEF5",
         linha: {
-          DEFAULT: "#D5DEEA",
-          forte: "#C4CFDD",
+          DEFAULT: "#C9D3E0",
+          forte: "#B8C4D4",
         },
-        // Textos secundários: "ardosia" em fundo claro, "prata" em fundo escuro (contraste AA nos dois).
+        // Textos secundários: "ardosia" em fundo claro, "prata" em fundo escuro (contraste AA nos dois). Mais escura
+        // desde o fundo novo: #5A6B82 dava 4,1:1 sobre a página; #4A5A70 dá 5,3:1 nela e 6:1 nos cartões.
         ardosia: {
-          DEFAULT: "#5A6B82",
+          DEFAULT: "#4A5A70",
           escura: "#2B3647",
         },
         prata: {

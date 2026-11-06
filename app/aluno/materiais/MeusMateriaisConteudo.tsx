@@ -109,7 +109,7 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
               m.tipo === "VIDEO" && m.duracaoEmMinutos ? `${m.duracaoEmMinutos} min` : formatarTamanho(m.tamanhoEmBytes),
             ].filter(Boolean);
             return (
-              <div key={m.id} className={`px-[22px] py-3.5 ${i > 0 ? "border-t border-[#EEF2F7]" : ""}`}>
+              <div key={m.id} className={`px-[22px] py-3.5 ${i > 0 ? "border-t border-linha" : ""}`}>
                 <div className="flex items-center gap-3.5">
                   <span className={CLASSE_DO_SELO}>{ROTULO_DO_TIPO[m.tipo]}</span>
                   <div className="min-w-0 flex-1">
