@@ -30,9 +30,9 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 | Etapa | Título | Blocos | Tarefas | Feitas |
 |---|---|---|---|---|
-| 1 | Cadastro e login | 4 | 28 | 23 |
+| 1 | Cadastro e login | 4 | 28 | 27 |
 | 2 | Páginas públicas | 3 | 17 | 11 |
-| 3 | Área do aluno | 4 | 17 | 13 |
+| 3 | Área do aluno | 4 | 17 | 14 |
 | 4 | Qualidade de código | 3 | 11 | 10 |
 | 5 | Conteúdo via API | 4 | 11 | 5 |
 | 6 | Painel administrativo | 3 | 6 | 0 |
@@ -75,10 +75,10 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Mensagens de erro de cada campo vindas da API | FEITO |
 | Caixa de aceite dos Termos de uso e da Política de privacidade | FEITO |
 | Registro do aceite dos termos na API | FEITO |
-| Passo 3 do cadastro: tela de verificação do e-mail e do celular | EM ANDAMENTO |
-| Envio e conferência do código de verificação por e-mail | EM ANDAMENTO |
-| Envio e conferência do código de verificação por SMS ou WhatsApp | EM ANDAMENTO |
-| Reenviar o código e corrigir e-mail ou celular digitado errado | EM ANDAMENTO |
+| Passo 3 do cadastro: tela de verificação do e-mail e do celular | FEITO |
+| Confirmação do e-mail por link (falta a API usar o endereço do site nos e-mails) | EM ANDAMENTO |
+| Envio e conferência do código de verificação por SMS ou WhatsApp | FEITO |
+| Reenviar o código e corrigir e-mail ou celular digitado errado | FEITO |
 | Definir se a conta só é liberada depois da verificação | FEITO |
 | Avisar já no passo 1 quando e-mail, CPF ou telefone já estiverem cadastrados | FEITO |
 
@@ -101,7 +101,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Migrar o login para cookie protegido | FEITO |
 | Proteção da área do aluno também no servidor | FEITO |
 | Voltar para a página anterior depois do login | FEITO |
-| Login com Google (melhoria futura) | PENDENTE |
+| Login com Google (melhoria futura) | FEITO |
 
 **Campos adicionais**
 - **Descrição:** Manter o aluno logado com segurança e encerrar a sessão quando necessário. Testado no navegador: login normal, token vencido e renovação inválida
@@ -213,7 +213,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | Trocar senha | FEITO |
 | Exibir e editar o endereço | FEITO |
 | CPF e e-mail apenas para leitura | FEITO |
-| Alterar telefone pede nova verificação | EM ANDAMENTO |
+| Alterar telefone pede nova verificação | FEITO |
 | Foto de perfil (melhoria futura) | PENDENTE |
 
 **Campos adicionais**
