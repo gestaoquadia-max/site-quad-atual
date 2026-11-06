@@ -56,13 +56,14 @@ const BOTAO_VINHO =
 export default function MentoriasPage() {
   return (
     <>
-      <section className="relative overflow-hidden bg-[#1A060C] pb-[clamp(72px,8vw,128px)] pt-[clamp(28px,3vw,40px)] text-white">
+      {/* data-tema="vinho": o rodapé (que é o mesmo em todo o site) troca o marinho pelo vinho nesta página (app/globals.css). */}
+      <section data-tema="vinho" className="relative overflow-hidden bg-[#1A060C] pb-[clamp(72px,8vw,128px)] pt-[clamp(28px,3vw,40px)] text-white">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[image:radial-gradient(48%_70%_at_82%_30%,rgba(176,38,62,0.42),transparent_70%),radial-gradient(40%_60%_at_10%_100%,rgba(110,20,38,0.35),transparent_70%),linear-gradient(160deg,#3A0E1A_0%,#22080F_45%,#0E0306_100%)]"
         />
         <div className="conteiner relative">
-          <Trilha itens={[{ rotulo: "Início", href: "/" }, { rotulo: "Mentorias do Quad" }]} className="mb-[clamp(32px,4vw,56px)] [&_a]:text-[#B9B0C4]" />
+          <Trilha itens={[{ rotulo: "Início", href: "/" }, { rotulo: "Mentorias do Quad" }]} className="mb-[clamp(32px,4vw,56px)] !text-[#B9B0C4] [&_a]:text-[#B9B0C4]" />
 
           {/* Abertura: o que é a mentoria e para onde seguir. */}
           <div className="grid items-end gap-[clamp(28px,5vw,88px)] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">

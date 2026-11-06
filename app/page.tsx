@@ -58,8 +58,9 @@ export default async function Home() {
         </Trilho>
       </Secao>
 
-      <Secao className="bg-[linear-gradient(160deg,#3A0E1A_0%,#22080F_45%,#0E0306_100%)] text-white" brilho="bg-[radial-gradient(45%_70%_at_85%_20%,rgba(176,38,62,0.32),transparent_70%)]">
-        <Trilho titulo="Mentorias do Quad" link={{ href: "/mentorias", label: "Ver todas as mentorias" }} rotulo="Planos das Mentorias do Quad" tema="vinho">
+      {/* Nas cores do site, como as turmas (06/11/2026; antes, no vinho das Mentorias). */}
+      <Secao className="bg-nevoa-clara">
+        <Trilho titulo="Mentorias do Quad" link={{ href: "/mentorias", label: "Ver todas as mentorias" }} rotulo="Planos das Mentorias do Quad">
           {mentorias.map((m) => (
             <CartaoMentoria key={m.nome} {...{ nome: m.nome, duracao: m.duracao, descricao: m.descricao, destaque: m.destaque }} />
           ))}

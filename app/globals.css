@@ -88,3 +88,8 @@ body {
   .sem-barra::-webkit-scrollbar { display: none; }
 
 }
+
+/* Página das Mentorias, toda no vinho: o rodapé troca o marinho e o azul do botão de acessibilidade. */
+body:has([data-tema="vinho"]) footer { background-color: #1E070D; }
+body:has([data-tema="vinho"]) footer .bg-azul { background-color: #8E1B2E; }
+body:has([data-tema="vinho"]) footer .bg-azul:hover { background-color: #A51E36; }
