@@ -1,4 +1,4 @@
-# Pedidos para o backend — Site do Quad Concursos
+c# Pedidos para o backend — Site do Quad Concursos
 
 **De:** time do site (Next.js) · **Atualizado em:** 07/11/2026
 **Base:** testes na API local (`localhost:8080`), leituras públicas da API de produção (`https://api.quadconcursos.com.br`) e o **site de teste publicado** em `https://teste.quadconcursos.com.br` (Vercel, ligado à API de produção).
@@ -43,6 +43,7 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 5.5 | Notícias de concursos na barra do topo, editáveis pelo console e atualizadas em tempo real | Média |
 | 6.3 | Armazenamento de arquivos no ambiente local (endereço do S3 configurável) | Média |
 | 6.4 | Aprovados, depoimentos em vídeo e blog pela API | Baixa |
+| 6.5 | Origem da venda: a campanha (primeira e última) gravada em cada compra e filtrável no painel administrativo | Alta |
 
 ---
 
@@ -286,6 +287,39 @@ As outras quatro viram pedidos:
 - **Aprovados:** nome, foto, concurso, colocação, turma e ano, e um depoimento curto, numa rota pública.
 - **Depoimentos em vídeo:** título e link do vídeo (YouTube ou arquivo).
 - **Blog:** título, slug, resumo, texto, autor (professor), categoria, imagem de capa e data de publicação. O blog está fora do ar no site desde 23/10/2026 e volta quando a API tiver os artigos.
+
+### 6.5 Origem da venda: a campanha em cada compra (prioridade alta)
+
+**Por que o Quad precisa.** O Quad vai anunciar no Google Ads e na Meta e quer saber, por campanha, **quem** comprou **o quê** e **quando**: "na campanha de julho, 45 pessoas compraram a RONDESP; quem são elas". O Google Analytics (que o site vai ligar) mostra os **totais** por campanha, mas nunca o nome de quem comprou: as regras do Google proíbem enviar dado pessoal. O nome só existe no sistema do Quad, então a campanha precisa ficar **gravada dentro da compra**.
+
+**Como está hoje (conferido no código, 07/11/2026).** A compra não guarda nenhuma origem: não há campo de campanha nem de UTM em `compras`, e os fechamentos não aceitam esse dado.
+
+**Como o site sabe a campanha.** Todo anúncio leva a campanha no link (as UTMs: `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`; no Google Ads, também o `gclid`). O site guarda no navegador a **primeira** e a **última** campanha pelas quais o aluno chegou, por **90 dias**, e manda as duas no momento da compra.
+
+**O pedido.**
+
+1. **Aceitar a origem nos fechamentos**, num campo opcional `origem`, em `POST /api/loja/carrinho/eu/fechamento`, no fechamento do combo e na inscrição e matrícula gratuitas:
+
+   ```json
+   "origem": {
+     "primeira": { "fonte": "meta", "midia": "pago", "campanha": "2026-07-rondesp", "conteudo": "video-depoimento", "termo": null, "gclid": null, "em": "2026-07-03T14:20:00Z" },
+     "ultima":   { "fonte": "google", "midia": "cpc", "campanha": "2026-09-rondesp", "conteudo": null, "termo": "curso pmba", "gclid": "EAIaIQ…", "em": "2026-09-10T18:05:00Z" }
+   }
+   ```
+
+   - Tudo opcional: quem chegou direto (sem campanha) manda `origem` sem `primeira`/`ultima`, ou não manda nada. A ausência **nunca** recusa a compra.
+   - É informação de marketing, e não de pagamento: a API só guarda, sem validar contra uma lista de campanhas. Limitar o tamanho (por exemplo, 150 caracteres por campo) e aceitar só texto simples.
+   - `em` é quando o aluno chegou por aquela campanha.
+
+2. **Gravar a origem em cada compra** do fechamento (todas as compras de um carrinho recebem a mesma origem). Ela é congelada como o resto da compra: não muda depois.
+
+3. **Mostrar e filtrar no painel administrativo:** a coluna "Campanha" (a última; a primeira ao abrir a compra) na lista de compras, com filtro por campanha, fonte e período, e a exportação em planilha com nome do aluno, item, valor, data da compra e as duas campanhas. Isso também pode ir na rota de leitura das compras usada pelo painel.
+
+**LGPD.** A origem é dado de marketing ligado a uma pessoa. A proposta é tratá-la como **interesse legítimo** (é só a origem da venda feita no próprio site, sem seguir o aluno por outros sites) e citar isso na política de privacidade; a confirmação fica com quem fez a revisão jurídica. O site só manda a origem no fechamento, e o aluno pode pedir a exclusão como qualquer outro dado (o canal já existe).
+
+**Do lado do site:** quando a API aceitar o campo, o site passa a guardar a primeira e a última campanha e a mandá-las nos fechamentos. É uma mudança pequena. Enquanto isso, o Google Analytics já mostra os totais por campanha.
+
+**Como conferir:** abrir o site de teste com `?utm_source=teste&utm_medium=pago&utm_campaign=teste-origem`, comprar algo e ver a compra no painel administrativo com a campanha `teste-origem`.
 
 ---
 
