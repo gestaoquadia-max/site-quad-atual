@@ -40,7 +40,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 | 8 | Checkout e pagamento | 4 | 15 | 11 |
 | 9 | SEO e performance | 2 | 8 | 8 |
 | 10 | Segurança e LGPD | 2 | 6 | 1 |
-| 11 | Analytics e marketing | 1 | 4 | 0 |
+| 11 | Analytics e marketing | 1 | 4 | 1 |
 | 12 | Deploy e operação | 3 | 7 | 1 |
 | 13 | Redesenho do site | 10 | 37 | 33 |
 
@@ -581,7 +581,7 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 | Tarefa | Status |
 |---|---|
-| Google Analytics | PENDENTE |
+| Google Analytics | FEITO |
 | Pixel da Meta com eventos de cadastro, checkout e compra | PENDENTE |
 | Origem da visita (UTMs) mantida até a compra | PENDENTE |
 | Captura de leads (melhoria futura) | PENDENTE |

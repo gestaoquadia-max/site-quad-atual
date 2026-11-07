@@ -125,7 +125,7 @@
 "10";"SEGURANÇA E LGPD";"2";"SEGURANÇA";"API aceitando chamadas só do domínio do site, com HTTPS";"PENDENTE";"EM ANDAMENTO";"";"";"";"Descrição";"Proteção do site e da API contra uso indevido";"Alta (HTTPS) · Média (demais)";"Backend"
 "10";"SEGURANÇA E LGPD";"2";"SEGURANÇA";"Cabeçalhos de segurança no site";"FEITO";"EM ANDAMENTO";"";"";"";"Descrição";"Proteção do site e da API contra uso indevido";"Alta (HTTPS) · Média (demais)";"Backend"
 "10";"SEGURANÇA E LGPD";"2";"SEGURANÇA";"Limite de tentativas no login e no cadastro";"FEITO";"EM ANDAMENTO";"";"";"";"Descrição";"Proteção do site e da API contra uso indevido";"Alta (HTTPS) · Média (demais)";"Backend"
-"11";"ANALYTICS E MARKETING";"1";"MEDIÇÃO";"Google Analytics";"PENDENTE";"PENDENTE";"";"";"";"Descrição";"Saber de onde vêm as vendas";"Média";"Decisão"
+"11";"ANALYTICS E MARKETING";"1";"MEDIÇÃO";"Google Analytics";"FEITO";"PENDENTE";"";"";"";"Descrição";"Saber de onde vêm as vendas";"Média";"Decisão"
 "11";"ANALYTICS E MARKETING";"1";"MEDIÇÃO";"Pixel da Meta com eventos de cadastro, checkout e compra";"PENDENTE";"PENDENTE";"";"";"";"Descrição";"Saber de onde vêm as vendas";"Média";"Decisão"
 "11";"ANALYTICS E MARKETING";"1";"MEDIÇÃO";"Origem da visita (UTMs) mantida até a compra";"PENDENTE";"PENDENTE";"";"";"";"Descrição";"Saber de onde vêm as vendas";"Média";"Decisão"
 "11";"ANALYTICS E MARKETING";"1";"MEDIÇÃO";"Captura de leads (melhoria futura)";"PENDENTE";"PENDENTE";"";"";"";"Descrição";"Saber de onde vêm as vendas";"Média";"Decisão"
