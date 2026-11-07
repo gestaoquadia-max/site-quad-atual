@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { login as eventoDeLogin } from "@/lib/analytics";
 import { login } from "@/lib/auth";
 import { ErroDaApi } from "@/lib/http";
 import { destinoAposLogin } from "@/lib/redirecionamento";
@@ -24,6 +25,7 @@ export default function EntrarPage() {
     setCarregando(true);
     try {
       await login(email.trim(), senha);
+      eventoDeLogin("senha");
       router.push(destinoAposLogin());
     } catch (e) {
       setErro(e instanceof ErroDaApi ? e.message : "Não foi possível conectar. Verifique sua internet e tente novamente.");

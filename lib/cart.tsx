@@ -5,6 +5,27 @@ import { temSessao } from "./auth";
 import { parsePreco } from "./format";
 import { esvaziarCarrinhoDoServidor, type Alvo } from "./loja";
 import { atualizarVagas } from "./vagas";
+import { adicionarAoCarrinho, type ItemDoAnalytics } from "./analytics";
+
+const CATEGORIA_NO_ANALYTICS: Record<CartItem["tipo"], string> = {
+  produto: "Material",
+  turma: "Turma",
+  evento: "Evento",
+  simulado: "Simulado",
+  loja: "Loja",
+};
+
+// O item do carrinho no formato do Google Analytics (lib/analytics.ts): nome, categoria, formato e preço unitário.
+export function paraOAnalytics(item: CartItem): ItemDoAnalytics {
+  return {
+    item_id: item.id,
+    item_name: item.nome,
+    item_category: CATEGORIA_NO_ANALYTICS[item.tipo],
+    item_variant: item.formato ?? item.simulado?.modalidade,
+    price: parsePreco(item.preco) ?? undefined,
+    quantity: item.quantidade,
+  };
+}
 
 // As vagas e o estoque só são reservados no servidor ao abrir o checkout (lib/usePedido.ts), por 30 minutos. Mudar o
 // carrinho fora dele libera essas reservas na hora, senão a vaga continua presa para os outros alunos; ao voltar
@@ -84,6 +105,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items, carregado]);
 
   function addItem(item: Omit<CartItem, "quantidade">, quantidade = 1) {
+    adicionarAoCarrinho(paraOAnalytics({ ...item, quantidade }));
     clearTimeout(temporizadorDoAviso.current);
     setAviso(item.nome);
     temporizadorDoAviso.current = setTimeout(() => setAviso(null), 3200);

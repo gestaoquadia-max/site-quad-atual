@@ -8,19 +8,24 @@ const origemDaApi = API_URL ? new URL(API_URL).origin : "";
 // Política de conteúdo (CSP): de onde o navegador aceita carregar scripts, imagens e chamadas (docs/seguranca.md, S10).
 // Sem nonce, de propósito: o nonce obriga a gerar cada página a cada visita e acabaria com o cache das páginas.
 // Por isso os scripts em linha do Next continuam liberados ('unsafe-inline'), mas nenhum script de outro site entra.
-// Analytics ou Pixel (Etapa 11) vão exigir acrescentar os domínios deles aqui.
+// Google Analytics (07/11/2026, lib/analytics.ts): o script vem de googletagmanager.com e os dados vão para
+// *.google-analytics.com, *.analytics.google.com e www.google.com/g/collect (conferido no navegador em 07/11/2026).
+// O Pixel da Meta, quando entrar, acrescenta os domínios dele.
+const DOMINIOS_DO_ANALYTICS =
+  "https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://www.google.com";
+
 const politicaDeConteudo = [
   "default-src 'self'",
   // 'unsafe-eval' só em desenvolvimento: o React usa eval para mostrar os erros. Em produção não precisa.
   // accounts.google.com: o botão "Entrar com o Google" (script, estilo e o quadro do botão).
-  `script-src 'self' 'unsafe-inline' https://accounts.google.com${emDesenvolvimento ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://accounts.google.com https://www.googletagmanager.com${emDesenvolvimento ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline' https://accounts.google.com",
   "frame-src https://accounts.google.com",
   // Imagens da API (S3) e fotos de aprovados vêm de outros endereços https.
   "img-src 'self' data: blob: https:",
   "font-src 'self'",
   // A API, a busca de endereço pelo CEP e a tokenização do cartão no Pagar.me (lib/pagarme.ts).
-  ["connect-src 'self'", origemDaApi, "https://viacep.com.br", "https://api.pagar.me", "https://accounts.google.com"].filter(Boolean).join(" "),
+  ["connect-src 'self'", origemDaApi, "https://viacep.com.br", "https://api.pagar.me", "https://accounts.google.com", DOMINIOS_DO_ANALYTICS].filter(Boolean).join(" "),
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

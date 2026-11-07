@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import VerItem from "@/components/VerItem";
+import { parsePreco } from "@/lib/format";
 import { metadadosDaPagina } from "@/lib/seo";
 import { buscarMaterial, listarMateriais } from "@/lib/vitrine";
 import CapaDoLivro, { CORES_DA_CAPA } from "@/components/CapaDoLivro";
@@ -35,6 +37,7 @@ export default async function ProdutoDetalhe({ params }: { params: Promise<{ slu
 
   return (
     <>
+      <VerItem item={{ item_id: produto.slug, item_name: produto.nome, item_category: "Material", price: parsePreco(produto.preco) ?? undefined }} />
       <section className="relative overflow-hidden bg-marinho-950 pb-[clamp(56px,7vw,88px)] pt-[clamp(32px,5vw,56px)] text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(45%_70%_at_20%_40%,rgba(0,107,255,0.24),transparent_70%)]" />
         <div className="relative mx-auto max-w-[1200px] px-[clamp(20px,4vw,32px)]">

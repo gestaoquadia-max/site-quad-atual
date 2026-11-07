@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import VerItem from "@/components/VerItem";
+import { parsePreco } from "@/lib/format";
 import { metadadosDaPagina } from "@/lib/seo";
 import { modalidades } from "@/lib/conteudo";
 import { dadosDoCurso } from "@/lib/dados-estruturados";
@@ -51,6 +53,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
 
   return (
     <>
+      <VerItem item={{ item_id: turma.slug, item_name: turma.nome, item_category: "Turma", item_variant: turma.turno, price: parsePreco(turma.preco) ?? undefined }} />
       <DadosEstruturados dados={dadosDoCurso(turma)} />
 
       <section className="relative overflow-hidden bg-marinho-950 pb-[clamp(56px,7vw,88px)] pt-[clamp(32px,5vw,56px)] text-white">

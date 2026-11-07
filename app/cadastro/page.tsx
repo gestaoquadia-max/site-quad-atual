@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { conferirDisponibilidade, criarAluno } from "@/lib/api";
+import { cadastro as eventoDeCadastro } from "@/lib/analytics";
 import { login } from "@/lib/auth";
 import { ErroDaApi } from "@/lib/http";
 import { formatarCpf, formatarTelefone } from "@/lib/format";
@@ -216,6 +217,8 @@ export default function CadastroPage() {
       return;
     }
 
+    // A conta foi criada: conta como cadastro no Analytics.
+    eventoDeCadastro();
     try {
       await login(email, senha);
       // A conta só é liberada depois de confirmar o celular (passo 3).

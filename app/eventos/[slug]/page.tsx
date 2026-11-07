@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import VerItem from "@/components/VerItem";
 import { idDoItem } from "@/lib/itens";
 import { metadadosDaPagina } from "@/lib/seo";
-import { getIniciais } from "@/lib/format";
+import { getIniciais, parsePreco } from "@/lib/format";
 import { seloDoEvento } from "@/lib/eventos";
 import { dadosDoEvento } from "@/lib/dados-estruturados";
 import { buscarEvento, listarEventos } from "@/lib/vitrine";
@@ -59,6 +60,7 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
 
   return (
     <>
+      <VerItem item={{ item_id: evento.slug, item_name: evento.nome, item_category: "Evento", price: parsePreco(evento.preco) ?? undefined }} />
       <DadosEstruturados dados={dadosDoEvento(evento)} />
 
       <section className="relative overflow-hidden bg-marinho-950 pb-[clamp(56px,7vw,88px)] pt-[clamp(32px,5vw,56px)] text-white">

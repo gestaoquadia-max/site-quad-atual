@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CreditCard, PixLogo } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
+import { compra, guardarItensDoFechamento, iniciarPagamento, type ItemDoAnalytics } from "@/lib/analytics";
 import { precoDoCombo, rotuloDaParte, type Combo } from "@/lib/combos";
 import { ErroDaApi } from "@/lib/http";
 import { buscarConfiguracaoDoPagamento, emReais, fecharCombo, type ConfiguracaoDoPagamento, type DadosDaCompraDoCombo } from "@/lib/loja";
@@ -47,6 +48,15 @@ export default function CheckoutDoCombo({ combo }: { combo: Combo }) {
   }, [logado]);
 
   const total = precoDoCombo(combo);
+  // Analytics: o combo é um item só, com o preço de hoje (em reais).
+  const itemDoAnalytics: ItemDoAnalytics = { item_id: combo.id, item_name: combo.nome, item_category: "Combo", price: total / 100, quantity: 1 };
+  const inicioContado = useRef(false);
+  useEffect(() => {
+    if (inicioContado.current) return;
+    inicioContado.current = true;
+    iniciarPagamento([itemDoAnalytics]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- conta uma vez por visita
+  }, []);
   const comVariacoes = combo.componentes.filter((p) => p.tipo === "ITEM" && p.variacoes.length > 0);
   const faltaVariacao = comVariacoes.find((p) => !variacoes[p.id]);
   const pagamentoDisponivel = !!config?.disponivel;
@@ -93,6 +103,8 @@ export default function CheckoutDoCombo({ combo }: { combo: Combo }) {
     chaveDoPagamento.current ??= crypto.randomUUID();
     try {
       const fechamento = await fecharCombo(combo.id, dados, chaveDoPagamento.current);
+      guardarItensDoFechamento(fechamento.id, [itemDoAnalytics]);
+      if (fechamento.situacao === "PAGA") compra(fechamento, [itemDoAnalytics]);
       if (fechamento.situacao === "PAGA") router.push("/checkout/confirmacao?status=aprovado");
       else if (fechamento.situacao === "AGUARDANDO_PAGAMENTO" || fechamento.situacao === "CRIADA") router.push(`/checkout/pagamento/${fechamento.id}`);
       else {

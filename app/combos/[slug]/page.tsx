@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import VerItem from "@/components/VerItem";
 import Trilha from "@/components/Trilha";
 import { buscarCombo, economiaEmTexto, linkDaParte, precoDoCombo, rotuloDaParte } from "@/lib/combos";
 import { emReais } from "@/lib/loja";
@@ -28,6 +29,7 @@ export default async function ComboPage({ params }: { params: Promise<{ slug: st
 
   return (
     <>
+      <VerItem item={{ item_id: combo.id, item_name: combo.nome, item_category: "Combo", price: precoDoCombo(combo) / 100 }} />
       <section className="relative overflow-hidden bg-marinho-950 pb-[clamp(48px,6vw,80px)] pt-[clamp(28px,3vw,40px)] text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_60%_at_80%_0%,rgba(0,107,255,0.28),transparent_70%)]" />
         <div className="conteiner relative">

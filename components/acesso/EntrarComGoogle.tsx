@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { login as eventoDeLogin } from "@/lib/analytics";
 import { loginComGoogle } from "@/lib/auth";
 import { ErroDaApi } from "@/lib/http";
 
@@ -51,6 +52,7 @@ export default function EntrarComGoogle({ aoEntrar }: { aoEntrar: () => void }) 
           setEntrando(true);
           try {
             await loginComGoogle(credential);
+            eventoDeLogin("google");
             aoEntrarAtual.current();
           } catch (e) {
             setErro(e instanceof ErroDaApi ? (MENSAGENS[e.codigo ?? ""] ?? e.message) : "Não foi possível conectar. Tente de novo.");

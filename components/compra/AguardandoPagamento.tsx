@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { compra } from "@/lib/analytics";
 import { ErroDaApi } from "@/lib/http";
 import { buscarFechamento, conferirPagamento, emReais, type Fechamento, type SituacaoDoPagamento } from "@/lib/loja";
 import { rotaComDestino } from "@/lib/redirecionamento";
@@ -67,6 +68,15 @@ export default function AguardandoPagamento({ id }: { id: string }) {
   const [agora, setAgora] = useState(() => Date.now());
 
   const aguardando = !fechamento || fechamento.situacao === "AGUARDANDO_PAGAMENTO" || fechamento.situacao === "CRIADA";
+
+  // Analytics: o PIX pago conta como compra aqui (uma vez por fechamento; os itens com preço vêm do checkout).
+  useEffect(() => {
+    if (fechamento?.situacao !== "PAGA") return;
+    compra(
+      fechamento,
+      fechamento.compras.map((c) => ({ item_id: c.id, item_name: c.item.nome, item_variant: c.item.variacao?.nome, quantity: c.quantidade })),
+    );
+  }, [fechamento]);
 
   // Consulta a situação até o pagamento ser confirmado (ou vencer). O aviso do Pagar.me chega à API, não ao site.
   useEffect(() => {

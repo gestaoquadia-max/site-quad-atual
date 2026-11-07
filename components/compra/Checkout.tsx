@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Cards, CreditCard, PixLogo } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
-import { useCart } from "@/lib/cart";
+import { compra, guardarItensDoFechamento, iniciarPagamento } from "@/lib/analytics";
+import { paraOAnalytics, useCart } from "@/lib/cart";
 import { ErroDaApi } from "@/lib/http";
 import {
   buscarConfiguracaoDoPagamento,
@@ -138,6 +139,13 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
   const [revisando, setRevisando] = useState(false);
   // Mesma chave enquanto o aluno tenta pagar o mesmo pedido: um reenvio não vira uma segunda cobrança.
   const chaveDoPagamento = useRef<string | null>(null);
+  // Analytics: o início do pagamento conta uma vez por visita ao checkout, com o carrinho já carregado.
+  const inicioContado = useRef(false);
+  useEffect(() => {
+    if (!carregado || items.length === 0 || inicioContado.current) return;
+    inicioContado.current = true;
+    iniciarPagamento(items.map(paraOAnalytics));
+  }, [carregado, items]);
 
   useEffect(() => {
     if (!logado) return;
@@ -274,7 +282,11 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
     chaveDoPagamento.current ??= crypto.randomUUID();
     try {
       const fechamento = await fecharCarrinho(dados, chaveDoPagamento.current);
+      // Os itens do carrinho (com o preço de cada um) ficam guardados até a compra ser paga: no PIX, em outra tela.
+      const itensDoAnalytics = items.map(paraOAnalytics);
+      guardarItensDoFechamento(fechamento.id, itensDoAnalytics);
       if (fechamento.situacao === "PAGA") {
+        compra(fechamento, itensDoAnalytics);
         clear();
         router.push(`/checkout/confirmacao?status=${gratuito ? "inscricao" : "aprovado"}`);
       } else if (fechamento.situacao === "AGUARDANDO_PAGAMENTO" || fechamento.situacao === "CRIADA") {
