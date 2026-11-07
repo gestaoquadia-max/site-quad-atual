@@ -288,13 +288,13 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 3 — TESTES E VERIFICAÇÃO AUTOMÁTICA
 
-**Status:** EM ANDAMENTO
+**Status:** CONCLUÍDA · **Término:** 07/11/2026
 
 | Tarefa | Status |
 |---|---|
 | Escolher a ferramenta de testes | FEITO |
 | Testes de login, cadastro e checkout | FEITO |
-| Verificação automática a cada envio ao GitHub | EM ANDAMENTO |
+| Verificação automática a cada envio ao GitHub | FEITO |
 
 **Campos adicionais**
 - **Descrição:** Evitar que uma mudança quebre os fluxos principais sem ninguém perceber. Ferramenta: Playwright (`npm run test:e2e`), com 16 testes em `tests/e2e/` (páginas públicas, login, cadastro, área do aluno e checkout), usando o Chrome do computador e a API local com os dados de teste. Verificação no GitHub em `.github/workflows/verificacao.yml` (tipos, lint, build e vulnerabilidades), ainda não executada porque o código não foi enviado ao GitHub
