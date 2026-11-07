@@ -1,40 +1,19 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
-import { confirmarEmail } from "@/lib/auth";
-import { ErroDaApi } from "@/lib/http";
-import { AvisoDeErro, BotaoPrincipal, TituloDoFormulario } from "@/components/acesso/Campos";
 import TelaDeResultado from "@/components/acesso/TelaDeResultado";
 
-// A confirmação só acontece no clique: o link é de uso único, e confirmar sozinho ao abrir a página
-// poderia gastá-lo (ex.: pré-visualização do link pelo app de e-mail).
-export default function ConfirmarEmailConteudo({ token }: { token: string | null }) {
-  const [estado, setEstado] = useState<"inicial" | "confirmando" | "confirmado" | "invalido" | "erro">(token ? "inicial" : "invalido");
-  const [mensagem, setMensagem] = useState("");
+// O resultado da confirmação do e-mail, já feita pela API (07/11/2026). O link do e-mail abre a rota da API, que
+// confirma na hora e manda o aluno para cá com ?resultado= (docs/pedidos-backend.md, item 4.7). A página só mostra
+// a tela de cada resultado: não confirma nada nem chama a API.
+export type ResultadoDaConfirmacao = "CONFIRMADO" | "JA_CONFIRMADO" | "INVALIDO";
 
-  async function confirmar() {
-    setEstado("confirmando");
-    try {
-      await confirmarEmail(token!);
-      setEstado("confirmado");
-    } catch (e) {
-      if (e instanceof ErroDaApi && (e.codigo === "TOKEN_INVALIDO" || e.codigo === "TOKEN_EXPIRADO")) {
-        setEstado("invalido");
-      } else {
-        setMensagem(e instanceof ErroDaApi ? e.message : "Não foi possível conectar. Verifique sua internet e tente novamente.");
-        setEstado("erro");
-      }
-    }
-  }
-
+export default function ConfirmarEmailConteudo({ resultado }: { resultado: ResultadoDaConfirmacao | null }) {
   const irAoPerfil = (
     <Link href="/aluno/perfil" className="btn-q btn-q-azul h-[54px] w-full text-base">
       Ir para o meu perfil
     </Link>
   );
 
-  if (estado === "confirmado") {
+  if (resultado === "CONFIRMADO") {
     return (
       <TelaDeResultado tom="sucesso" titulo="E-mail confirmado" acoes={irAoPerfil}>
         Obrigado! Você vai receber por e-mail os avisos das suas compras e turmas.
@@ -42,22 +21,18 @@ export default function ConfirmarEmailConteudo({ token }: { token: string | null
     );
   }
 
-  if (estado === "invalido") {
+  if (resultado === "JA_CONFIRMADO") {
     return (
-      <TelaDeResultado tom="erro" titulo="Link inválido ou vencido" acoes={irAoPerfil}>
-        Este link não é válido ou já venceu. Você pode pedir um novo na página do seu perfil.
+      <TelaDeResultado tom="sucesso" titulo="Seu e-mail já estava confirmado" acoes={irAoPerfil}>
+        Está tudo certo: este e-mail já tinha sido confirmado antes. Não precisa fazer mais nada.
       </TelaDeResultado>
     );
   }
 
+  // INVALIDO, ou a página aberta sem resultado (endereço digitado à mão ou link cortado).
   return (
-    <div className="flex flex-col gap-[18px]">
-      <TituloDoFormulario titulo="Confirmar e-mail" />
-      <p className="text-[15px] text-ardosia-escura">Clique no botão abaixo para confirmar o seu e-mail.</p>
-      {estado === "erro" && <AvisoDeErro>{mensagem}</AvisoDeErro>}
-      <BotaoPrincipal type="button" onClick={confirmar} carregando={estado === "confirmando"} textoCarregando="Confirmando…">
-        Confirmar meu e-mail
-      </BotaoPrincipal>
-    </div>
+    <TelaDeResultado tom="erro" titulo="Link inválido ou vencido" acoes={irAoPerfil}>
+      Este link não é válido, já foi usado ou venceu (ele vale 24 horas). Você pode pedir um novo na página do seu perfil.
+    </TelaDeResultado>
   );
 }

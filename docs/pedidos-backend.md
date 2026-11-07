@@ -35,7 +35,7 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 3 | Professores: fotos e só os professores do site | Média |
 | 3.1 | Foto do professor: a API já aceita a original 4:5 (PR #139); falta o console enviar sem reduzir e reenviar as fotos de 512 × 512 | Alta |
 | 4.6 | Conferir o CPF na Receita no cadastro (cpfcnpj.com.br) | Média |
-| 4.7 | Confirmação do e-mail pela página do site: o link do e-mail aponta para `/confirmar-email` e uma rota `POST` em JSON confirma | Alta |
+| 4.7 | Depois de confirmar o e-mail no clique (como hoje), redirecionar para a página do site com o resultado | Alta |
 | 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
 | 4.5 | Foto de perfil | Baixa |
 | 5.3 | Simulados: formatos de estudo (os combos já existem) | Média |
@@ -193,31 +193,29 @@ Além disso, nada impede o envio de uma imagem pequena ou fora de proporção, q
 
 **LGPD.** Mandar o CPF para o fornecedor é compartilhamento de dado pessoal: a política de privacidade do site passa a citar a conferência na Receita por um prestador, com a finalidade de evitar fraude (o site atualiza o texto quando a conferência entrar).
 
-### 4.7 Confirmação do e-mail pela página do site (prioridade alta)
+### 4.7 Depois de confirmar o e-mail, mostrar a página do site (prioridade alta)
 
-**Como está hoje (conferido no código, 07/11/2026).** O link do e-mail de confirmação aponta para a **própria API**: `LinkDeConfirmacao` monta `<api>/auth/email/confirmacao?token=…` com a `UrlDaApi`, e o `GET` dessa rota (`ConfirmacaoDoEmailController`) responde uma **página HTML** feita pela API, sempre com 200: confirmado, já confirmado ou link inválido. Funciona, mas o aluno sai do site: vê uma página fora do visual do Quad e sem o caminho de volta.
+**Como está hoje (conferido no código, 07/11/2026).** O link do e-mail de confirmação aponta para a **própria API** (`LinkDeConfirmacao` monta `<api>/auth/email/confirmacao?token=…` com a `UrlDaApi`). No clique, o `GET` dessa rota (`ConfirmacaoDoEmailController`) **confirma na hora** e responde uma **página HTML feita pela API**, sempre com 200: confirmado, já confirmado ou link inválido.
 
-O site já tem a página da confirmação no visual novo (`/confirmar-email?token=…`, com as telas de confirmado e de link inválido ou vencido), mas ela não recebe ninguém: nenhum e-mail leva até ela, e não existe uma rota em JSON para ela chamar.
+**O que fica igual:** a confirmação automática no clique. O Quad quer manter assim: o aluno clica no link e o e-mail já está confirmado, sem passo a mais. O link do e-mail também continua o mesmo.
 
-**Por que mudar.** É o mesmo caminho do "Esqueci a senha", que já funciona assim: o e-mail leva para a página do site (`/redefinir-senha?token=…`), e a página chama a API. O aluno fica no site do começo ao fim e, no final, vai direto para o perfil.
+**O que muda:** só a página que o aluno vê depois. Hoje ele fica numa página simples da API, fora do visual do Quad e sem caminho de volta para o site. O site já tem essa página no visual novo, com uma tela para cada resultado e o botão "Ir para o meu perfil".
 
-**O pedido.**
+**O pedido.** No `GET /auth/email/confirmacao`, depois de confirmar (`ConfirmarEmail`, sem nenhuma mudança na regra), **redirecionar para a página do site** em vez de responder o HTML:
 
-1. **O link do e-mail aponta para o site:** `LinkDeConfirmacao` passa a usar a `UrlDoSite` (a mesma `SITE_URL` dos outros e-mails) com o caminho `/confirmar-email?token=<token>`, no lugar de `<api>/auth/email/confirmacao`. Vale para o e-mail do cadastro, para o reenvio (`POST /auth/email/confirmacao/reenvio`) e para a troca de e-mail (`ConfirmacaoAoTrocarEmail`).
-2. **Uma rota pública em JSON para confirmar:** `POST /auth/email/confirmacao`, sem login, com o corpo `{ "token": "…" }`. Ela faz exatamente o que o `GET` faz hoje (`ConfirmarEmail`) e responde 200 com o resultado:
+```
+303 See Other
+Location: <SITE_URL>/confirmar-email?resultado=CONFIRMADO
+```
 
-   ```json
-   { "resultado": "CONFIRMADO" }
-   ```
+- `resultado` é o valor que `ResultadoDaConfirmacao` já devolve: `CONFIRMADO`, `JA_CONFIRMADO` ou `INVALIDO` (link que não existe, já usado ou vencido depois das 24 horas).
+- O endereço vem da `UrlDoSite` (a mesma `SITE_URL` dos outros e-mails): no teste, `https://teste.quadconcursos.com.br`; no lançamento, `https://quadconcursos.com.br`.
+- O token **não** vai para o site: só o resultado. A página do site não chama a API nem confirma nada; ela só mostra a tela do resultado.
+- O HTML que a API monta hoje pode sair (ou ficar só como reserva, se a `SITE_URL` não estiver configurada).
 
-   `resultado` é um dos três valores que `ResultadoDaConfirmacao` já tem: `CONFIRMADO`, `JA_CONFIRMADO` ou `INVALIDO` (link que não existe, já usado ou vencido depois das 24 horas). Pode responder sempre 200, como o `GET`: o site mostra uma tela para cada resultado.
+**Do lado do site: pronto (07/11/2026).** A página `/confirmar-email?resultado=…` mostra "E-mail confirmado", "Seu e-mail já estava confirmado" ou "Link inválido ou vencido" (também quando abre sem resultado), todas com o botão para o perfil.
 
-   **Por que `POST`, e não `GET`:** o site só confirma quando o aluno clica no botão "Confirmar meu e-mail". Muitos aplicativos de e-mail abrem os links sozinhos para mostrar a prévia, e um `GET` que confirma gastaria o link de uso único antes do aluno.
-3. **O `GET` atual pode continuar** por um tempo, para os links que já foram enviados com o endereço da API (eles vencem em 24 horas). Depois disso, pode sair.
-
-**Do lado do site:** quando a rota existir, o site troca a chamada atual (`POST /auth/email/confirmar`, que não existe na API) por `POST /auth/email/confirmacao` e lê o `resultado`. É uma mudança pequena, feita junto com a publicação da API.
-
-**Como conferir:** criar uma conta no site de teste (ou pedir "Reenviar e-mail de confirmação" no Perfil). O link do e-mail deve abrir `https://teste.quadconcursos.com.br/confirmar-email?token=…`. Ao clicar em "Confirmar meu e-mail", a tela mostra "E-mail confirmado", e o aviso de e-mail não confirmado some do Perfil. Abrir o mesmo link de novo deve mostrar que o e-mail já está confirmado.
+**Como conferir:** criar uma conta no site de teste (ou pedir "Reenviar e-mail de confirmação" no Perfil) e clicar no link do e-mail. O navegador passa pela API e para em `https://teste.quadconcursos.com.br/confirmar-email?resultado=CONFIRMADO`, com a tela "E-mail confirmado"; o aviso de e-mail não confirmado some do Perfil. Abrir o mesmo link de novo deve parar em `?resultado=JA_CONFIRMADO`.
 
 ### 4.4 `GET /api/usuarios/eu` para conta sem cadastro de aluno (prioridade baixa)
 

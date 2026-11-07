@@ -168,19 +168,3 @@ export async function redefinirSenha(token: string, novaSenha: string): Promise<
     throw await lerErro(res, "Não foi possível redefinir a senha.");
   }
 }
-
-// Confirma o e-mail pelo link recebido (/confirmar-email?token=...). Rota pública proposta ao backend (item 2.6).
-export async function confirmarEmail(token: string): Promise<void> {
-  const res = await fetch(`${API_URL}/auth/email/confirmar`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token }),
-  });
-
-  if ([401, 404, 405].includes(res.status)) {
-    throw new ErroDaApi(res.status, "A confirmação de e-mail ainda não está disponível.", "INDISPONIVEL");
-  }
-  if (!res.ok) {
-    throw await lerErro(res, "Não foi possível confirmar o e-mail.");
-  }
-}
