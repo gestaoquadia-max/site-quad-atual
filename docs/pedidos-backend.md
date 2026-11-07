@@ -1,10 +1,12 @@
 # Pedidos para o backend — Site do Quad Concursos
 
-**De:** time do site (Next.js) · **Atualizado em:** 04/11/2026
+**De:** time do site (Next.js) · **Atualizado em:** 07/11/2026
 **Base:** testes na API local (`localhost:8080`), leituras públicas da API de produção (`https://api.quadconcursos.com.br`) e o **site de teste publicado** em `https://teste.quadconcursos.com.br` (Vercel, ligado à API de produção).
 
 Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: material digital em PDF à venda, acréscimo do parcelamento pago pelo aluno, atividades gratuitas na vitrine e matrícula gratuita em turma, limite de tentativas por rota, lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
 
+> **07/11/2026: atendido na API**, e por isso saiu da lista: **e-mails da compra (antigo 6.2)**. A API envia compra confirmada, PIX aguardando, PIX vencido e devolução (desde 28/10, e com o comprovante do Pagar.me desde 06/11), além da inscrição e da matrícula gratuitas, a partir dos modelos de [`docs/modelos-de-email.md`](modelos-de-email.md).
+>
 > **04/11/2026: atendidos e conferidos no site de teste**, e por isso saíram da lista:
 > - **CORS e cookies do teste:** a pré-verificação vinda de `https://teste.quadconcursos.com.br` responde 200, com a origem, `Allow-Credentials` e `idempotency-key` liberados; o login no teste funciona.
 > - **Entrada pelo Google no teste:** o client ID está na API (a rota responde `TOKEN_DE_PROVEDOR_INVALIDO` a um token falso, e não mais 503) e no site, que mostra o botão.
@@ -33,12 +35,12 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 3 | Professores: fotos e só os professores do site | Média |
 | 3.1 | Foto do professor: a API já aceita a original 4:5 (PR #139); falta o console enviar sem reduzir e reenviar as fotos de 512 × 512 | Alta |
 | 4.6 | Conferir o CPF na Receita no cadastro (cpfcnpj.com.br) | Média |
+| 4.7 | Confirmação do e-mail pela página do site: o link do e-mail aponta para `/confirmar-email` e uma rota `POST` em JSON confirma | Alta |
 | 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
 | 4.5 | Foto de perfil | Baixa |
 | 5.3 | Simulados: formatos de estudo (os combos já existem) | Média |
 | 5.4 | Textos de venda da turma e programação do evento | Média |
 | 5.5 | Notícias de concursos na barra do topo, editáveis pelo console e atualizadas em tempo real | Média |
-| 6.2 | E-mails da compra (confirmada, aguardando PIX, acesso liberado) | Alta |
 | 6.3 | Armazenamento de arquivos no ambiente local (endereço do S3 configurável) | Média |
 | 6.4 | Aprovados, depoimentos em vídeo e blog pela API | Baixa |
 
@@ -191,6 +193,32 @@ Além disso, nada impede o envio de uma imagem pequena ou fora de proporção, q
 
 **LGPD.** Mandar o CPF para o fornecedor é compartilhamento de dado pessoal: a política de privacidade do site passa a citar a conferência na Receita por um prestador, com a finalidade de evitar fraude (o site atualiza o texto quando a conferência entrar).
 
+### 4.7 Confirmação do e-mail pela página do site (prioridade alta)
+
+**Como está hoje (conferido no código, 07/11/2026).** O link do e-mail de confirmação aponta para a **própria API**: `LinkDeConfirmacao` monta `<api>/auth/email/confirmacao?token=…` com a `UrlDaApi`, e o `GET` dessa rota (`ConfirmacaoDoEmailController`) responde uma **página HTML** feita pela API, sempre com 200: confirmado, já confirmado ou link inválido. Funciona, mas o aluno sai do site: vê uma página fora do visual do Quad e sem o caminho de volta.
+
+O site já tem a página da confirmação no visual novo (`/confirmar-email?token=…`, com as telas de confirmado e de link inválido ou vencido), mas ela não recebe ninguém: nenhum e-mail leva até ela, e não existe uma rota em JSON para ela chamar.
+
+**Por que mudar.** É o mesmo caminho do "Esqueci a senha", que já funciona assim: o e-mail leva para a página do site (`/redefinir-senha?token=…`), e a página chama a API. O aluno fica no site do começo ao fim e, no final, vai direto para o perfil.
+
+**O pedido.**
+
+1. **O link do e-mail aponta para o site:** `LinkDeConfirmacao` passa a usar a `UrlDoSite` (a mesma `SITE_URL` dos outros e-mails) com o caminho `/confirmar-email?token=<token>`, no lugar de `<api>/auth/email/confirmacao`. Vale para o e-mail do cadastro, para o reenvio (`POST /auth/email/confirmacao/reenvio`) e para a troca de e-mail (`ConfirmacaoAoTrocarEmail`).
+2. **Uma rota pública em JSON para confirmar:** `POST /auth/email/confirmacao`, sem login, com o corpo `{ "token": "…" }`. Ela faz exatamente o que o `GET` faz hoje (`ConfirmarEmail`) e responde 200 com o resultado:
+
+   ```json
+   { "resultado": "CONFIRMADO" }
+   ```
+
+   `resultado` é um dos três valores que `ResultadoDaConfirmacao` já tem: `CONFIRMADO`, `JA_CONFIRMADO` ou `INVALIDO` (link que não existe, já usado ou vencido depois das 24 horas). Pode responder sempre 200, como o `GET`: o site mostra uma tela para cada resultado.
+
+   **Por que `POST`, e não `GET`:** o site só confirma quando o aluno clica no botão "Confirmar meu e-mail". Muitos aplicativos de e-mail abrem os links sozinhos para mostrar a prévia, e um `GET` que confirma gastaria o link de uso único antes do aluno.
+3. **O `GET` atual pode continuar** por um tempo, para os links que já foram enviados com o endereço da API (eles vencem em 24 horas). Depois disso, pode sair.
+
+**Do lado do site:** quando a rota existir, o site troca a chamada atual (`POST /auth/email/confirmar`, que não existe na API) por `POST /auth/email/confirmacao` e lê o `resultado`. É uma mudança pequena, feita junto com a publicação da API.
+
+**Como conferir:** criar uma conta no site de teste (ou pedir "Reenviar e-mail de confirmação" no Perfil). O link do e-mail deve abrir `https://teste.quadconcursos.com.br/confirmar-email?token=…`. Ao clicar em "Confirmar meu e-mail", a tela mostra "E-mail confirmado", e o aviso de e-mail não confirmado some do Perfil. Abrir o mesmo link de novo deve mostrar que o e-mail já está confirmado.
+
 ### 4.4 `GET /api/usuarios/eu` para conta sem cadastro de aluno (prioridade baixa)
 
 **Por que o site precisa.** Com o login em cookie, o site não lê mais o token. Ele pega o id e os dados da conta em `GET /api/alunos/eu`, que responde **409** para professor e administrador. Nesse caso, o site mostra só "Minha conta", sem nome nem e-mail.
@@ -247,12 +275,6 @@ As sete perguntas foram respondidas. Três não pedem nada ao backend:
 - **Situações do pagamento:** paga, aguardando, recusada, expirada, cancelada e estornada, que são as da API (`SituacaoDaCompra`). O site trata todas.
 
 As outras quatro viram pedidos:
-
-### 6.2 E-mails da compra
-
-**Resposta:** ainda não existem. **O pedido:** criar os e-mails de **compra confirmada** (com o que foi comprado e o valor), **PIX aguardando pagamento** (com o código e o prazo) e **acesso liberado** (turma, material ou evento disponível na área do aluno). O boleto saiu do site, então não precisa do e-mail de boleto.
-
-**Modelos prontos (27/10/2026):** em [`docs/modelos-de-email.md`](modelos-de-email.md) estão os seis e-mails (PIX aguardando, compra confirmada, PIX vencido, devolução, inscrição gratuita e matrícula gratuita), com assunto, texto, HTML, variáveis e o momento de cada um, no mesmo formato da `MensagemDeConfirmacao`.
 
 ### 6.3 Armazenamento de arquivos no ambiente local
 
