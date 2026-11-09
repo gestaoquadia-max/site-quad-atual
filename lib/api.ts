@@ -71,6 +71,26 @@ export type MeuPerfil = Aluno & {
   telefoneVerificadoEm?: string | null;
 };
 
+// A conta logada, de qualquer papel: GET /api/usuarios/eu (MinhaContaResponse da API). Serve às contas sem cadastro
+// de aluno (professor, administrador), que recebem 409 em /api/alunos/eu.
+export type TipoDeConta = "ALUNO" | "PROFESSOR" | "ADMINISTRADOR";
+export type MinhaConta = {
+  id: string;
+  nome: string;
+  email: string | null;
+  telefone: string | null;
+  cpf: string | null;
+  tipo: TipoDeConta;
+  emailVerificadoEm: string | null;
+  telefoneVerificadoEm: string | null;
+};
+
+export async function buscarMinhaConta(): Promise<MinhaConta> {
+  const res = await fetchAutenticado("/api/usuarios/eu");
+  if (!res.ok) throw await lerErro(res, "Não foi possível carregar os dados da conta.");
+  return res.json();
+}
+
 // Responde 409 CADASTRO_DE_ALUNO_AUSENTE para contas que não são de aluno (professor, administrador).
 export async function buscarAlunoAtual(): Promise<MeuPerfil> {
   const res = await fetchAutenticado("/api/alunos/eu");

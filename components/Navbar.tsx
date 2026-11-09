@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 import type { Evento, Produto, Turma } from "@/lib/data";
 import { ehKit } from "@/lib/materiais";
+import { EM_ESPERA } from "@/lib/em-espera";
+import { useVeAreasEmEspera } from "@/components/AreaEmEspera";
 import { LINK_DAS_MENTORIAS } from "@/lib/conteudo";
 import { useCart } from "@/lib/cart";
 import { useUsuarioAtual } from "@/lib/usuario";
@@ -242,9 +244,17 @@ function ItemSanfona({ link, aberto, onAlternar }: { link: LinkDoMenu; aberto: b
 
 // Cabeçalho fixo no topo: faixa de avisos + navegação. Abaixo de 1220px de largura vira o menu do celular.
 export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]; eventos: Evento[]; materiais: Produto[] }) {
-  const links = montarLinks(turmas, eventos, materiais);
+  // Áreas em espera (lib/em-espera.ts): a aba fica, sem o submenu, e leva ao aviso de desenvolvimento. O administrador
+  // vê o menu completo.
+  const veEmEspera = useVeAreasEmEspera();
+  const links = montarLinks(turmas, eventos, materiais).map((l) =>
+    !veEmEspera && ((l.href === "/mentorias" && EM_ESPERA.mentorias) || (l.href === "/produtos" && EM_ESPERA.materiais))
+      ? { href: l.href, label: l.label }
+      : l,
+  );
   const pathname = usePathname();
-  const vinho = ehDasMentorias(pathname);
+  // Em espera, a página das mentorias é o aviso no azul do site: o menu também fica azul.
+  const vinho = (veEmEspera || !EM_ESPERA.mentorias) && ehDasMentorias(pathname);
   const tema: Tema = vinho ? TEMAS.vinho : TEMAS.azul;
   const { totalCount } = useCart();
   const usuario = useUsuarioAtual();

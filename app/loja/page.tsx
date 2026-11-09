@@ -4,6 +4,7 @@ import { metadadosDaPagina } from "@/lib/seo";
 import { listarProdutosDaLoja } from "@/lib/vitrine";
 import SecaoDeCombos from "@/components/combos/SecaoDeCombos";
 import { listarCombosDaArea } from "@/lib/combos";
+import PaginaEmEspera from "@/components/PaginaEmEspera";
 
 export const metadata = metadadosDaPagina({
   titulo: "Loja Quad",
@@ -17,7 +18,7 @@ export const revalidate = 60;
 export default async function LojaPage() {
   const [produtos, combos] = await Promise.all([listarProdutosDaLoja().then((p) => p ?? []), listarCombosDaArea("loja")]);
   return (
-    <>
+    <PaginaEmEspera area="loja" titulo="Loja Quad">
       <section className="relative overflow-hidden bg-marinho-950 pb-[clamp(48px,5vw,72px)] pt-[clamp(28px,3vw,40px)] text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_70%_at_80%_20%,rgba(0,107,255,0.26),transparent_70%)]" />
         <div className="conteiner relative">
@@ -39,6 +40,6 @@ export default async function LojaPage() {
         descricao="Produtos da loja junto com turmas, materiais ou simulados, por um preço menor que a soma. O combo é pago à parte do carrinho, numa compra só."
         fundo="branco"
       />
-    </>
+    </PaginaEmEspera>
   );
 }

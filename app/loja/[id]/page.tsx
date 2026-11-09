@@ -6,6 +6,7 @@ import CompraDoProdutoDaLoja from "@/components/loja/CompraDoProdutoDaLoja";
 import { categoriasDaLoja } from "@/lib/conteudo";
 import { metadadosDaPagina } from "@/lib/seo";
 import { buscarProdutoDaLoja, listarProdutosDaLoja } from "@/lib/vitrine";
+import PaginaEmEspera from "@/components/PaginaEmEspera";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts).
 export const revalidate = 60;
@@ -34,6 +35,7 @@ export default async function ProdutoDaLojaPage({ params }: { params: Promise<{ 
   const categoria = categoriasDaLoja.find((c) => c.id === produto.categoria)?.nome;
 
   return (
+    <PaginaEmEspera area="loja" titulo="Loja Quad">
     <div className="bg-nevoa">
       <div className="conteiner pb-[clamp(64px,8vw,112px)] pt-[clamp(24px,3vw,40px)]">
         <Trilha tom="claro" itens={[{ rotulo: "Início", href: "/" }, { rotulo: "Loja", href: "/loja" }, { rotulo: produto.nome }]} className="mb-[clamp(20px,3vw,32px)]" />
@@ -62,5 +64,6 @@ export default async function ProdutoDaLojaPage({ params }: { params: Promise<{ 
         </div>
       </div>
     </div>
+    </PaginaEmEspera>
   );
 }

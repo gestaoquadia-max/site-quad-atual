@@ -2,6 +2,7 @@ import Trilha from "@/components/Trilha";
 import PlanosDasMentorias from "@/components/mentorias/PlanosDasMentorias";
 import { LINK_DAS_MENTORIAS } from "@/lib/conteudo";
 import { metadadosDaPagina } from "@/lib/seo";
+import PaginaEmEspera from "@/components/PaginaEmEspera";
 
 export const metadata = metadadosDaPagina({
   titulo: "Mentorias do Quad",
@@ -59,7 +60,7 @@ const BOTAO_VINHO =
 
 export default function MentoriasPage() {
   return (
-    <>
+    <PaginaEmEspera area="mentorias" titulo="Mentorias do Quad">
       {/* data-tema="vinho": o rodapé (que é o mesmo em todo o site) troca o marinho pelo vinho nesta página (app/globals.css). */}
       <section data-tema="vinho" className="relative overflow-hidden bg-[#1A060C] pb-[clamp(72px,8vw,128px)] pt-[clamp(28px,3vw,40px)] text-white">
         <div
@@ -146,6 +147,6 @@ export default function MentoriasPage() {
           </a>
         </div>
       </section>
-    </>
+    </PaginaEmEspera>
   );
 }

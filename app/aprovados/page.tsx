@@ -1,6 +1,7 @@
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
-import AprovadosEmDesenvolvimento from "@/components/AprovadosEmDesenvolvimento";
+import EmDesenvolvimento from "@/components/EmDesenvolvimento";
+import { TEXTO_DOS_APROVADOS } from "@/lib/em-espera";
 import { institucional } from "@/lib/institucional";
 import { metadadosDaPagina } from "@/lib/seo";
 
@@ -29,7 +30,7 @@ export default function AprovadosPage() {
       />
       <section className="bg-nevoa py-[clamp(48px,6vw,88px)]">
         <div className="conteiner">
-          <AprovadosEmDesenvolvimento />
+          <EmDesenvolvimento texto={TEXTO_DOS_APROVADOS} />
         </div>
       </section>
       <section className="bg-nevoa-clara py-[clamp(56px,7vw,96px)]">

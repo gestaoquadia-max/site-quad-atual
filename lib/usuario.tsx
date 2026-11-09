@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { assinarSessao, temSessao } from "./auth";
-import { buscarAlunoAtual, type Aluno } from "./api";
+import { buscarAlunoAtual, buscarMinhaConta, type Aluno, type TipoDeConta } from "./api";
 import { ErroDaApi } from "./http";
 
 export type UsuarioAtual = {
@@ -21,6 +21,8 @@ export type UsuarioAtual = {
   // false quando os dados da conta não vieram: salvar o nome por cima do de guerra seria errado.
   podeEditarCadastro: boolean;
   aluno: Aluno | null;
+  // O papel da conta. null = não deu para saber (a conta não é de aluno e /api/usuarios/eu não respondeu).
+  tipo: TipoDeConta | null;
 };
 
 type Estado = { usuario: UsuarioAtual | null; carregando: boolean; recarregar: () => void };
@@ -33,9 +35,9 @@ export function useSessaoAtiva(): boolean | undefined {
   return useSyncExternalStore(assinarSessao, temSessao, () => undefined);
 }
 
-// Tudo vem de /api/alunos/eu, que traz também o id da conta (usuarioId). Conta sem cadastro de aluno
-// (professor, administrador) recebe 409 ali; sem um /api/usuarios/eu (pedido ao backend), o site não tem como
-// ler os dados dela e mostra só o essencial.
+// Para o aluno, tudo vem de /api/alunos/eu, que traz também o id da conta (usuarioId). Conta sem cadastro de aluno
+// (professor, administrador) recebe 409 ali, e os dados e o papel dela vêm de /api/usuarios/eu; se nem essa
+// responder, o site mostra só o essencial.
 async function carregarUsuarioAtual(): Promise<UsuarioAtual> {
   try {
     const a = await buscarAlunoAtual();
@@ -50,9 +52,29 @@ async function carregarUsuarioAtual(): Promise<UsuarioAtual> {
       dadosDaContaDisponiveis: !!a.nomeCompleto,
       podeEditarCadastro: !!a.nomeCompleto,
       aluno: a,
+      tipo: "ALUNO",
     };
   } catch (e) {
     if (!(e instanceof ErroDaApi && e.status === 409)) throw e;
+  }
+  try {
+    const c = await buscarMinhaConta();
+    return {
+      id: c.id,
+      nome: c.nome || "Minha conta",
+      email: c.email,
+      telefone: c.telefone,
+      cpf: c.cpf,
+      emailVerificado: c.emailVerificadoEm !== null,
+      telefoneVerificado: c.telefoneVerificadoEm !== null,
+      // A edição do cadastro pelo site é a do aluno (PerfilConteudo): para as outras contas, continua fechada.
+      dadosDaContaDisponiveis: false,
+      podeEditarCadastro: false,
+      aluno: null,
+      tipo: c.tipo,
+    };
+  } catch {
+    // Sem /api/usuarios/eu: só o essencial, abaixo.
   }
   return {
     id: "",
@@ -65,6 +87,7 @@ async function carregarUsuarioAtual(): Promise<UsuarioAtual> {
     dadosDaContaDisponiveis: false,
     podeEditarCadastro: false,
     aluno: null,
+    tipo: null,
   };
 }
 

@@ -8,6 +8,7 @@ import { buscarMaterial, listarMateriais } from "@/lib/vitrine";
 import CapaDoLivro, { CORES_DA_CAPA } from "@/components/CapaDoLivro";
 import CompraDoMaterial from "@/components/materiais/CompraDoMaterial";
 import { ehKit } from "@/lib/materiais";
+import PaginaEmEspera from "@/components/PaginaEmEspera";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts). Material que entrar na vitrine depois do build é gerado na primeira visita.
 export const revalidate = 60;
@@ -36,7 +37,7 @@ export default async function ProdutoDetalhe({ params }: { params: Promise<{ slu
   const resumo = produto.tag.split(" · ")[1];
 
   return (
-    <>
+    <PaginaEmEspera area="materiais" titulo="Materiais de estudo">
       <VerItem item={{ item_id: produto.slug, item_name: produto.nome, item_category: "Material", price: parsePreco(produto.preco) ?? undefined }} />
       <section className="relative overflow-hidden bg-marinho-950 pb-[clamp(56px,7vw,88px)] pt-[clamp(32px,5vw,56px)] text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(45%_70%_at_20%_40%,rgba(0,107,255,0.24),transparent_70%)]" />
@@ -86,6 +87,6 @@ export default async function ProdutoDetalhe({ params }: { params: Promise<{ slu
           </Link>
         </div>
       </section>
-    </>
+    </PaginaEmEspera>
   );
 }
