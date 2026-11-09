@@ -299,7 +299,9 @@ function CartaoDaTurma({ turma, titulo, concurso }: { turma: Turma; titulo: stri
         ))}
       </dl>
       <div className="flex flex-col items-stretch gap-2.5">
-        <div className="flex items-baseline justify-between gap-3">
+        {/* Com preço promocional, "De R$ X por" fica colado ao preço, à direita (09/11/2026); sem ele, o rótulo "Valor"
+            fica na ponta oposta. */}
+        <div className={`flex items-baseline gap-2 ${preco && turma.precoCheio ? "justify-end" : "justify-between"}`}>
           {/* Preço promocional (lote atual mais barato que o último): o cheio vem riscado no lugar do rótulo. */}
           {preco && turma.precoCheio ? (
             <span className="text-[13px] text-ardosia">
