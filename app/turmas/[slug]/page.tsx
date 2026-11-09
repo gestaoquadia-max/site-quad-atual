@@ -82,7 +82,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
                 <Image src={turma.imagem} alt={`Turma ${grupo.nome}`} fill priority sizes="(min-width: 900px) 520px, 100vw" className="object-cover" />
               ) : (
                 <>
-                  {/* Turma sem imagem na API: a insígnia de outra turma da mesma modalidade ou, sem nenhuma, a marca do Quad. */}
+                  {/* Turma sem imagem na API: a insígnia fixa da modalidade (lib/turmas.ts) ou, sem ela, a marca do Quad. */}
                   <InsigniaDaTurma
                     insignia={insigniaDaModalidade(todas, turma.modalidadeId)}
                     tamanho={240}

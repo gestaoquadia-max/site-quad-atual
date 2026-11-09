@@ -24,7 +24,7 @@ export function SeloExemplo() {
   );
 }
 
-// `insignia`: a imagem de uma turma da modalidade cadastrada na API (insigniaDaModalidade); null = a marca do Quad.
+// `insignia`: a insígnia da modalidade (insigniaDaModalidade: a fixa ou a de uma turma na API); null = a marca do Quad.
 export function CartaoModalidade({ modalidade, insignia }: { modalidade: Modalidade; insignia: string | null }) {
   return (
     <Link
