@@ -1,21 +1,16 @@
-import Link from "next/link";
-import { aprovados } from "@/lib/data";
 import { bannersPublicados, mentorias, modalidades } from "@/lib/conteudo";
 import { listarEventos, listarMateriais, listarProfessores, listarTurmas } from "@/lib/vitrine";
 import { insigniaDaModalidade } from "@/lib/turmas";
 import { dadosDaOrganizacao } from "@/lib/dados-estruturados";
 import DadosEstruturados from "@/components/DadosEstruturados";
 import Reveal from "@/components/Reveal";
-import Trilho, { SetaDoLink } from "@/components/Trilho";
+import Trilho from "@/components/Trilho";
 import PrimeiroContato from "@/components/home/PrimeiroContato";
 import CartaoMaterial from "@/components/home/CartaoMaterial";
 import CartaoEvento from "@/components/home/CartaoEvento";
 import { CARTAO_DOS_SIMULADOS, paraCartao } from "@/lib/eventos";
-import {
-  CartaoAprovado,
-  CartaoMentoria,
-  CartaoModalidade,
-} from "@/components/home/Cartoes";
+import { CartaoMentoria, CartaoModalidade } from "@/components/home/Cartoes";
+import AprovadosEmDesenvolvimento from "@/components/AprovadosEmDesenvolvimento";
 import ProfessoresEmDestaque from "@/components/home/ProfessoresEmDestaque";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts): os eventos vêm da API.
@@ -93,19 +88,9 @@ export default async function Home() {
         <Reveal className="mb-[clamp(32px,4vw,48px)]">
           <h2 className="titulo-secao">Aprovados</h2>
         </Reveal>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,460px),1fr))] gap-5">
-          {aprovados.slice(0, 4).map((a, i) => (
-            <Reveal key={a.nome} className="h-full" delay={Math.min(i, 5) * 60}>
-              <CartaoAprovado aprovado={a} />
-            </Reveal>
-          ))}
-        </div>
-        <div className="mt-9 flex justify-center">
-          <Link href="/aprovados" className="btn-q btn-q-contorno h-[50px] gap-2.5 px-6 text-[15px] hover:-translate-y-px">
-            Ver todos os aprovados
-            <SetaDoLink />
-          </Link>
-        </div>
+        <Reveal>
+          <AprovadosEmDesenvolvimento />
+        </Reveal>
       </Secao>
     </>
   );

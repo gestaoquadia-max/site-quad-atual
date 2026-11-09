@@ -1,9 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
-import { aprovados, type Aprovado } from "@/lib/data";
-import { getIniciais } from "@/lib/format";
 import PageHeader from "@/components/PageHeader";
-import { SeloExemplo } from "@/components/home/Cartoes";
+import AprovadosEmDesenvolvimento from "@/components/AprovadosEmDesenvolvimento";
 import { institucional } from "@/lib/institucional";
 import { metadadosDaPagina } from "@/lib/seo";
 
@@ -21,35 +18,7 @@ export const metadata = metadadosDaPagina({
   caminho: "/aprovados",
 });
 
-// "Soldado PM-BA — 8º lugar geral" → cargo + resultado (como no cartão da home).
-function CartaoComDepoimento({ aprovado }: { aprovado: Aprovado }) {
-  const [cargo, resultado = "Aprovado"] = aprovado.concurso.split(" — ");
-  return (
-    <article className="flex h-full flex-col gap-5 rounded-[20px] border border-linha bg-superficie p-[clamp(20px,2.4vw,28px)] shadow-cartao">
-      <div className="flex items-center gap-4">
-        <span className="relative grid h-16 w-16 flex-none place-items-center overflow-hidden rounded-2xl bg-[linear-gradient(160deg,#1B3A63_0%,#071426_80%)] font-display text-lg font-extrabold text-white">
-          {aprovado.fotoUrl ? <Image src={aprovado.fotoUrl} alt="" fill sizes="64px" className="object-cover" /> : getIniciais(aprovado.nome)}
-        </span>
-        <div className="min-w-0">
-          {aprovado.exemplo && (
-            <span className="mb-1.5 block">
-              <SeloExemplo />
-            </span>
-          )}
-          <h2 className="font-display text-lg font-extrabold leading-tight">{aprovado.nome}</h2>
-          <p className="mt-0.5 text-[13.5px] text-ardosia">
-            {aprovado.turma} · {aprovado.ano}
-          </p>
-        </div>
-      </div>
-      <p className="font-display text-[clamp(20px,2vw,24px)] font-extrabold leading-[1.15] tracking-[-0.02em]">
-        {cargo} <span className="block text-azul-forte">{resultado}</span>
-      </p>
-      <blockquote className="mt-auto border-l-[3px] border-azul pl-4 text-[15.5px] leading-[1.65] text-ardosia-escura">“{aprovado.depoimento}”</blockquote>
-    </article>
-  );
-}
-
+// Os cartões com depoimento (CartaoComDepoimento, no histórico do git) voltam quando as histórias reais vierem da API.
 export default function AprovadosPage() {
   return (
     <>
@@ -60,11 +29,7 @@ export default function AprovadosPage() {
       />
       <section className="bg-nevoa py-[clamp(48px,6vw,88px)]">
         <div className="conteiner">
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,340px),1fr))] gap-5">
-            {aprovados.map((a) => (
-              <CartaoComDepoimento key={a.nome} aprovado={a} />
-            ))}
-          </div>
+          <AprovadosEmDesenvolvimento />
         </div>
       </section>
       <section className="bg-nevoa-clara py-[clamp(56px,7vw,96px)]">
