@@ -56,9 +56,13 @@ export type TurmaComTurnos = {
   ofertas: OfertaDaTurma[];
 };
 
-// MODALIDADE + EDIÇÃO fazem o nome ("RONDESP 2"); sem modalidade, fica o nome cadastrado.
-export function nomeDaTurma(o: Pick<OfertaDaTurma, "modalidade" | "edicao" | "nomeOriginal">) {
+// MODALIDADE + o dia de início fazem o nome ("BOPE 09/11", decisão de 09/11/2026: a data diz mais ao aluno que o
+// número da turma); sem a data, MODALIDADE + EDIÇÃO ("RONDESP 2"); sem modalidade, fica o nome cadastrado.
+export function nomeDaTurma(o: Pick<OfertaDaTurma, "modalidade" | "edicao" | "inicio" | "nomeOriginal">) {
   if (!o.modalidade) return o.nomeOriginal;
+  // "2026-11-09" → "09/11"
+  const dia = o.inicio?.match(/^\d{4}-(\d{2})-(\d{2})/);
+  if (dia) return `${o.modalidade} ${dia[2]}/${dia[1]}`;
   return o.edicao ? `${o.modalidade} ${o.edicao}` : o.modalidade;
 }
 
