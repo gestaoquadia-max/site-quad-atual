@@ -96,9 +96,10 @@ export function lerNomeDaTurma(nome: string) {
 }
 
 // Insígnias fixas dos níveis da PMBA (09/11/2026: antes vinham só da API, e a modalidade sem turma com imagem ficava
-// com a marca do Quad). Copiadas das imagens cadastradas nas turmas. A do PATAMO entra quando o arquivo existir.
+// com a marca do Quad). RONDESP e BOPE copiadas das imagens cadastradas nas turmas; PATAMO enviada pelo Quad.
 const INSIGNIA_FIXA: Record<string, string> = {
   rondesp: "/images/turmas-insignias/rondesp.webp",
+  patamo: "/images/turmas-insignias/patamo.webp",
   bope: "/images/turmas-insignias/bope.webp",
 };
 
