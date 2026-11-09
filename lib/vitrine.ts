@@ -13,6 +13,7 @@ import {
   juntarTurnos,
   lerNomeDaTurma,
   nomeDaTurma,
+  nomeLimpoDaTurma,
   ORDEM_DOS_TURNOS,
   seloDoCargoEConcurso,
   type OfertaDaTurma,
@@ -333,7 +334,8 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     modalidade: nivel,
     // A imagem cadastrada na turma é a insígnia dela (sem imagem: a marca do Quad).
     insignia: a.imagemUrl ?? null,
-    modalidadeNome: colunas.modalidade ?? a.nome,
+    // Sem modalidade, o cartão da escolha de modalidade leva o nome limpo ("MISSÃO 1º PASSO"), sem turno nem data.
+    modalidadeNome: colunas.modalidade ?? nomeLimpoDaTurma(a.nome),
     modalidadeId: slugDoNome(colunas.modalidade ?? a.nome),
     concurso: colunas.cargo || colunas.concurso ? seloDoCargoEConcurso(colunas.cargo, colunas.concurso) : undefined,
     turno: turnos || undefined,
@@ -344,7 +346,7 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     imagem: a.imagemUrl ?? undefined,
     // Sem o tipo da API (Regular, Nivelamento...): a planilha da coordenação não tem essa coluna (decisão de 21/10/2026).
     tag: "Turma presencial",
-    // MODALIDADE + dia de início ("BOPE 09/11"); sem a data, MODALIDADE + EDIÇÃO; fora do padrão, o nome cadastrado.
+    // MODALIDADE + dia de início ("BOPE 09/11"); sem modalidade, o nome cadastrado limpo + dia (lib/turmas.ts).
     nome: nomeDaTurma({ ...colunas, inicio: d.inicio ?? null, nomeOriginal: a.nome }),
     desc: resumo.join(" · "),
     // A turma é cobrada pelo valor fechado da duração, nunca por mês (e o preço aparece sem a duração ao lado).

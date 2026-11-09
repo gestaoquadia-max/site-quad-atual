@@ -56,13 +56,30 @@ export type TurmaComTurnos = {
   ofertas: OfertaDaTurma[];
 };
 
-// MODALIDADE + o dia de início fazem o nome ("BOPE 09/11", decisão de 09/11/2026: a data diz mais ao aluno que o
-// número da turma); sem a data, MODALIDADE + EDIÇÃO ("RONDESP 2"); sem modalidade, fica o nome cadastrado.
+// O nome cadastrado sem o que o site já mostra à parte: a palavra "TURMA" do começo, o turno ("[T]") e a data
+// ("(09/11)"). "TURMA MISSÃO 1º PASSO [T] (09/11)" → "MISSÃO 1º PASSO". Se sobrar nada, fica o nome como veio.
+export function nomeLimpoDaTurma(nome: string) {
+  const limpo = nome
+    .replace(/\[[^\]]*\]|\([^)]*\)/g, " ")
+    .replace(/^\s*turma\b\s*[-–—]?\s*/i, "")
+    .replace(/\s*[-–—]\s*$/, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return limpo || nome.trim();
+}
+
+// O nome da turma (decisão de 09/11/2026: o dia de início diz mais ao aluno que o número da turma):
+// - com modalidade: MODALIDADE + dia de início ("BOPE 09/11"); sem a data, MODALIDADE + EDIÇÃO ("RONDESP 2");
+// - sem modalidade: o nome cadastrado, limpo, + dia de início ("MISSÃO 1º PASSO 16/11").
 export function nomeDaTurma(o: Pick<OfertaDaTurma, "modalidade" | "edicao" | "inicio" | "nomeOriginal">) {
-  if (!o.modalidade) return o.nomeOriginal;
   // "2026-11-09" → "09/11"
-  const dia = o.inicio?.match(/^\d{4}-(\d{2})-(\d{2})/);
-  if (dia) return `${o.modalidade} ${dia[2]}/${dia[1]}`;
+  const partes = o.inicio?.match(/^\d{4}-(\d{2})-(\d{2})/);
+  const dia = partes ? `${partes[2]}/${partes[1]}` : null;
+  if (!o.modalidade) {
+    const nome = nomeLimpoDaTurma(o.nomeOriginal);
+    return dia ? `${nome} ${dia}` : nome;
+  }
+  if (dia) return `${o.modalidade} ${dia}`;
   return o.edicao ? `${o.modalidade} ${o.edicao}` : o.modalidade;
 }
 
