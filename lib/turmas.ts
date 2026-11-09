@@ -56,11 +56,13 @@ export type TurmaComTurnos = {
   ofertas: OfertaDaTurma[];
 };
 
-// O nome cadastrado sem o que o site já mostra à parte: a palavra "TURMA" do começo, o turno ("[T]") e a data
-// ("(09/11)"). "TURMA MISSÃO 1º PASSO [T] (09/11)" → "MISSÃO 1º PASSO". Se sobrar nada, fica o nome como veio.
+// O nome cadastrado sem o que o site já mostra à parte: a palavra "TURMA" do começo, o turno ("[T]") e a data, entre
+// parênteses ou solta no fim ("(09/11)", "16/11"): o site põe a data de início. "TURMA MISSÃO 1º PASSO [T] (09/11)" e
+// "MISSÃO 1º PASSO 16/11" → "MISSÃO 1º PASSO". Se sobrar nada, fica o nome como veio.
 export function nomeLimpoDaTurma(nome: string) {
   const limpo = nome
     .replace(/\[[^\]]*\]|\([^)]*\)/g, " ")
+    .replace(/\s+\d{1,2}\/\d{1,2}(\/\d{2,4})?\s*$/, " ")
     .replace(/^\s*turma\b\s*[-–—]?\s*/i, "")
     .replace(/\s*[-–—]\s*$/, "")
     .replace(/\s+/g, " ")
