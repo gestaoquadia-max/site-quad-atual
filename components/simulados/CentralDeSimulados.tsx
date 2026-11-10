@@ -87,8 +87,14 @@ function Numero({ n, destaque }: { n: number; destaque: boolean }) {
   );
 }
 
-function LinhaDaEdicao({ e, selecionada, onSelecionar, tipo, acao }: {
+// Título do simulado: SIMULADO + NÚMERO + CONCURSO ("Simulado 80 SD-PMBA", decisão de 10/11/2026).
+function tituloDoSimulado(numero: number, concurso: string) {
+  return [`Simulado ${numero}`, concurso].filter(Boolean).join(" ");
+}
+
+function LinhaDaEdicao({ e, concurso, selecionada, onSelecionar, tipo, acao }: {
   e: EdicaoComSituacao;
+  concurso: string;
   selecionada: boolean;
   onSelecionar: () => void;
   tipo: "aberta" | "breve" | "anterior";
@@ -113,7 +119,7 @@ function LinhaDaEdicao({ e, selecionada, onSelecionar, tipo, acao }: {
         <span className="flex min-w-0 flex-col gap-1">
           <span className="flex flex-wrap items-center gap-2">
             <span className="font-display text-lg font-extrabold tracking-[-0.01em]">
-              Simulado {e.numero}
+              {tituloDoSimulado(e.numero, concurso)}
               {tipo === "anterior" ? " — Já realizado" : ""}
             </span>
             {tipo === "aberta" && <Selo tom={e.st.inscricao === "esgotado" ? "esgotado" : "abertas"}>{e.st.inscricao === "esgotado" ? "Esgotado" : "Inscrições abertas"}</Selo>}
@@ -262,7 +268,7 @@ export default function CentralDeSimulados({
       {
         id: `simulado:${carreira.id}:${e.numero}:presencial`,
         tipo: "simulado",
-        nome: `Simulado ${e.numero} — ${carreira.curto} — Inscrição presencial`,
+        nome: `${tituloDoSimulado(e.numero, carreira.curto)} — Inscrição presencial`,
         tag: e.data ? `${dataCurta(e.data)} · ${e.horario}` : undefined,
         preco: precoOuACadastrar(e.presencial?.preco ?? null),
         simulado: { carreira: carreira.id, edicao: e.numero, modalidade: "presencial", sku: e.presencial!.sku },
@@ -426,6 +432,7 @@ export default function CentralDeSimulados({
                       {abertas.length === 0 && <Vazio>Nenhuma edição com inscrições abertas no momento.</Vazio>}
                       {abertas.map((e) => (
                         <LinhaDaEdicao
+                          concurso={carreira.curto}
                           key={e.numero}
                           e={e}
                           tipo="aberta"
@@ -460,6 +467,7 @@ export default function CentralDeSimulados({
                       <div className="flex flex-col gap-2.5">
                         {emBreve.map((e) => (
                           <LinhaDaEdicao
+                            concurso={carreira.curto}
                             key={e.numero}
                             e={e}
                             tipo="breve"
@@ -486,7 +494,7 @@ export default function CentralDeSimulados({
                     <div className="flex flex-col gap-2.5">
                       {anteriores.length === 0 && <Vazio>Nenhuma edição anterior disponível para compra.</Vazio>}
                       {anteriores.map((e) => (
-                        <LinhaDaEdicao key={e.numero} e={e} tipo="anterior" selecionada={atual?.numero === e.numero} onSelecionar={() => selecionar(e.numero)} />
+                        <LinhaDaEdicao key={e.numero} e={e} concurso={carreira.curto} tipo="anterior" selecionada={atual?.numero === e.numero} onSelecionar={() => selecionar(e.numero)} />
                       ))}
                     </div>
                   </div>
@@ -503,7 +511,7 @@ export default function CentralDeSimulados({
                   <div className="flex flex-col gap-2.5">
                     {paraEstudo.length === 0 && <Vazio>Nenhuma edição disponível para compra individual.</Vazio>}
                     {paraEstudo.map((e) => (
-                      <LinhaDaEdicao key={e.numero} e={e} tipo="anterior" selecionada={atual?.numero === e.numero} onSelecionar={() => selecionar(e.numero)} />
+                      <LinhaDaEdicao key={e.numero} e={e} concurso={carreira.curto} tipo="anterior" selecionada={atual?.numero === e.numero} onSelecionar={() => selecionar(e.numero)} />
                     ))}
                   </div>
                 </div>
@@ -544,7 +552,7 @@ export default function CentralDeSimulados({
                       {
                         id: `simulado:${carreira.id}:${atual.numero}:${f}`,
                         tipo: "simulado",
-                        nome: `Simulado ${atual.numero} — ${carreira.curto} — ${ROTULO_DO_FORMATO[f].curto}`,
+                        nome: `${tituloDoSimulado(atual.numero, carreira.curto)} — ${ROTULO_DO_FORMATO[f].curto}`,
                         tag: f === "impresso" ? "Retirada no Quad" : undefined,
                         preco: precoOuACadastrar(atual[f]?.preco ?? null),
                         simulado: { carreira: carreira.id, edicao: atual.numero, modalidade: f, sku: atual[f]!.sku },
@@ -595,7 +603,7 @@ function PainelDaEdicao({ carreira, e, formato, onFormato, onInscrever, onCompra
   return (
     <div className="rounded-[20px] bg-marinho-950 p-[clamp(22px,2.4vw,28px)] text-white shadow-[0_30px_60px_-30px_rgba(7,20,38,0.8)]">
       <div className="text-[13px] text-prata">{carreira.curto}</div>
-      <h3 className="mb-2.5 mt-1 font-display text-[28px] font-extrabold tracking-[-0.03em]">Simulado {e.numero}</h3>
+      <h3 className="mb-2.5 mt-1 font-display text-[28px] font-extrabold tracking-[-0.03em]">{tituloDoSimulado(e.numero, carreira.curto)}</h3>
       {presencial ? (
         <>
           {e.st.confirmada && e.st.inscricao === "abertas" ? (

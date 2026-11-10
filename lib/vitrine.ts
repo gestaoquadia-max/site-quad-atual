@@ -523,9 +523,11 @@ export async function buscarEvento(slug: string): Promise<Evento | null> {
 // "Simulado 77 — Soldado PMBA". Sem esse padrão, o simulado entra em "Outros simulados".
 function edicaoDoSimulado(a: AtividadeDaVitrine, ordem: number): { carreira: string; edicao: Edicao } {
   const d = a.detalhe ?? {};
-  // Edição e concurso vêm da API desde 23/10/2026; os simulados antigos (sem eles) ainda os tiram do nome
-  // ("Simulado 77 — Soldado PMBA").
-  const numero = d.edicao ?? Number(a.nome.match(/simulado\s*(?:n[ºo°]?\s*)?(\d+)/i)?.[1] ?? ordem + 1);
+  // O número é o do nome ("SIMULADO 80 SD PMBA (15/11)" → 80; decisão de 10/11/2026): a "edição" da API não é
+  // editável, ela só conta os simulados criados de cada concurso (1, 2, 3…), e a numeração do Quad é outra.
+  // Sem número no nome, vale a edição da API; sem as duas, a ordem da lista. O concurso vem da API desde 23/10/2026.
+  const doNome = a.nome.match(/simulado\s*(?:n[ºo°]?\s*)?(\d+)/i)?.[1];
+  const numero = doNome ? Number(doNome) : (d.edicao ?? ordem + 1);
   const carreira = d.concurso?.nome || a.nome.split(/\s+[—–-]\s+/)[1]?.trim() || "Outros simulados";
   const online = d.modalidade === "ONLINE";
   return {
