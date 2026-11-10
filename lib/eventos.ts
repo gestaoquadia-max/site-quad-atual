@@ -14,6 +14,8 @@ export type DadosDoCartaoEvento = {
   selo: { texto: string; tom: TomDoSelo };
   // Selo de data sobre a arte ("09 AGO · Presencial · SIC/SIQ").
   data?: { dia: string; mes: string; local: string };
+  // Arte cadastrada na API (por enquanto só a excursão manda): cobre a arte padrão do cartão.
+  imagem?: string;
   preco?: string;
   // Presente quando a inscrição pode ir para o carrinho.
   item?: Omit<CartItem, "quantidade">;

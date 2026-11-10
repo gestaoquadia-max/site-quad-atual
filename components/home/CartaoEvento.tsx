@@ -37,6 +37,7 @@ export default function CartaoEvento({ evento }: { evento: DadosDoCartaoEvento }
           height={44}
           className="pointer-events-none absolute left-1/2 top-[44%] w-[42%] -translate-x-1/2 -translate-y-1/2 opacity-[0.12]"
         />
+        {evento.imagem && <Image src={evento.imagem} alt="" fill sizes="(min-width: 1024px) 320px, 90vw" className="object-cover" />}
         {evento.data && (
           <div className="pointer-events-none absolute bottom-3 left-3 flex items-stretch overflow-hidden rounded-[10px] bg-superficie shadow-[0_10px_24px_-10px_rgba(0,0,0,0.55)]">
             <div className="bg-azul px-3 pb-[9px] pt-2 text-center text-white">

@@ -139,6 +139,8 @@ export function paraCartaoDeExcursao(v: ViagemDeExcursao): DadosDoCartaoEvento {
     selo,
     data: v.data ? { dia: v.data.slice(8, 10), mes: MESES[Number(v.data.slice(5, 7)) - 1], local: "Excursão" } : undefined,
     preco: maisBarata.preco ?? undefined,
+    // A imagem da opção do link (a mais barata) ou, sem ela, a de outra opção da mesma viagem.
+    imagem: maisBarata.imagemUrl ?? v.opcoes.find((o) => o.imagemUrl)?.imagemUrl ?? undefined,
     item: v.opcoes.length === 1 ? (itemDoCarrinho(maisBarata) ?? undefined) : undefined,
   };
 }
