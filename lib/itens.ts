@@ -24,6 +24,9 @@ export function alvoDoItem(item: CartItem): Alvo | null {
     case "simulado":
       // Só a edição presencial existe na API (o sku é o id da atividade).
       return item.simulado?.modalidade === "presencial" && item.simulado.edicao !== null ? { atividade: { tipo: "SIMULADO", id: item.simulado.sku } } : null;
+    case "excursao":
+      // A excursão é um item da loja na API (tipo EXCURSOES): quem põe no carrinho manda o id em item.alvo.
+      return null;
     case "loja":
       // Produto com tamanho precisa do id da variação, que vem em item.alvo; sem tamanho, basta o id do item.
       return id && !item.id.slice(item.id.indexOf(id) + id.length) ? { itemId: id } : null;

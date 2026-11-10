@@ -79,7 +79,7 @@ const COR_DO_TURNO: Record<string, string> = {
   Noite: "bg-[#2F6BFF] shadow-[0_0_8px_#2F6BFF]",
 };
 
-function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): LinkDoMenu[] {
+function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[], temExcursoes: boolean): LinkDoMenu[] {
   const kit = materiais.find(ehKit);
   const turmaDestaque = turmas.find((t) => t.status === "aberta") ?? turmas[0];
   return [
@@ -179,6 +179,8 @@ function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[]): 
         rotulo: "Agenda",
         items: [
           { href: "/simulados", nome: "Simulados do Quad", meta: "Presenciais, individuais e combos", status: "aberta" },
+          // Excursões para o dia da prova (lib/excursoes.ts): a seção de /eventos, só quando há alguma à venda.
+          ...(temExcursoes ? [{ href: "/eventos#excursoes", nome: "Excursões para provas", meta: "Viagem para o dia da prova", status: "aberta" as const }] : []),
           ...eventos.map((e) => ({ href: `/eventos/${e.slug}`, nome: e.nome, meta: e.tag, status: e.status })),
         ],
         featured: {
@@ -243,11 +245,11 @@ function ItemSanfona({ link, aberto, onAlternar }: { link: LinkDoMenu; aberto: b
 }
 
 // Cabeçalho fixo no topo: faixa de avisos + navegação. Abaixo de 1220px de largura vira o menu do celular.
-export default function Navbar({ turmas, eventos, materiais }: { turmas: Turma[]; eventos: Evento[]; materiais: Produto[] }) {
+export default function Navbar({ turmas, eventos, materiais, temExcursoes = false }: { turmas: Turma[]; eventos: Evento[]; materiais: Produto[]; temExcursoes?: boolean }) {
   // Áreas em espera (lib/em-espera.ts): a aba fica, sem o submenu, e leva ao aviso de desenvolvimento. O administrador
   // vê o menu completo.
   const veEmEspera = useVeAreasEmEspera();
-  const links = montarLinks(turmas, eventos, materiais).map((l) =>
+  const links = montarLinks(turmas, eventos, materiais, temExcursoes).map((l) =>
     !veEmEspera && ((l.href === "/mentorias" && EM_ESPERA.mentorias) || (l.href === "/produtos" && EM_ESPERA.materiais))
       ? { href: l.href, label: l.label }
       : l,

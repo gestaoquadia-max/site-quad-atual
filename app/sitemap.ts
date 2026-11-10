@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { URL_DO_SITE } from "@/lib/seo";
-import { listarEventos, listarMateriais, listarProdutosDaLoja, listarProfessores, listarTurmas } from "@/lib/vitrine";
+import { listarEventos, listarExcursoes, listarMateriais, listarProdutosDaLoja, listarProfessores, listarTurmas } from "@/lib/vitrine";
 
 const PAGINAS_FIXAS = ["/", "/turmas", "/produtos", "/simulados", "/eventos", "/mentorias", "/loja", "/aprovados", "/professores", "/sobre", "/contato", "/termos", "/privacidade", "/acessibilidade", "/entrar", "/cadastro"];
 
@@ -10,12 +10,13 @@ export const revalidate = 60;
 // Lista das páginas públicas para os buscadores. As de detalhe seguem o mesmo filtro das próprias páginas
 // (sem `detalhe`, a página responde 404). Turmas, eventos, materiais, produtos da loja e professores vêm da vitrine da API; se ela não responder, ficam de fora.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [turmas, eventos, materiais, loja, professores] = await Promise.all([listarTurmas(), listarEventos(), listarMateriais(), listarProdutosDaLoja(), listarProfessores()]);
+  const [turmas, eventos, materiais, loja, professores, excursoes] = await Promise.all([listarTurmas(), listarEventos(), listarMateriais(), listarProdutosDaLoja(), listarProfessores(), listarExcursoes()]);
   const caminhos = [
     ...PAGINAS_FIXAS,
     ...(turmas ?? []).map((t) => `/turmas/${t.slug}`),
     ...(materiais ?? []).map((p) => `/produtos/${p.slug}`),
     ...(eventos ?? []).map((e) => `/eventos/${e.slug}`),
+    ...(excursoes ?? []).flatMap((v) => v.opcoes.map((o) => `/excursoes/${o.slug}`)),
     ...(loja ?? []).map((p) => `/loja/${p.id}`),
     ...(professores ?? []).map((p) => `/professores/${p.slug}`),
   ];

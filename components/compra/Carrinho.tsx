@@ -14,6 +14,7 @@ export const ROTULO_DO_TIPO: Record<CartItem["tipo"], string> = {
   evento: "Evento",
   simulado: "Simulado",
   loja: "Loja",
+  excursao: "Excursão",
 };
 
 // Simulado no carrinho que deixou de estar à venda (edição despublicada, esgotada, formato retirado...).

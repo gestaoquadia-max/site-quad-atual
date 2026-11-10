@@ -13,6 +13,7 @@ const CATEGORIA_NO_ANALYTICS: Record<CartItem["tipo"], string> = {
   evento: "Evento",
   simulado: "Simulado",
   loja: "Loja",
+  excursao: "Excursão",
 };
 
 // O item do carrinho no formato do Google Analytics (lib/analytics.ts): nome, categoria, formato e preço unitário.
@@ -39,7 +40,8 @@ function liberarReservasDoServidor() {
 
 export type CartItem = {
   id: string;
-  tipo: "produto" | "turma" | "evento" | "simulado" | "loja";
+  // excursao: viagem para o dia da prova (lib/excursoes.ts), uma por aluno, como os eventos.
+  tipo: "produto" | "turma" | "evento" | "simulado" | "loja" | "excursao";
   nome: string;
   tag?: string;
   preco: string;

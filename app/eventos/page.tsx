@@ -1,6 +1,7 @@
 import { metadadosDaPagina } from "@/lib/seo";
-import { listarEventos } from "@/lib/vitrine";
+import { listarEventos, listarExcursoes } from "@/lib/vitrine";
 import AgendaDeEventos from "@/components/eventos/AgendaDeEventos";
+import SecaoDeExcursoes from "@/components/eventos/SecaoDeExcursoes";
 import SecaoDeCombos from "@/components/combos/SecaoDeCombos";
 import { listarCombosDaArea } from "@/lib/combos";
 
@@ -10,15 +11,16 @@ export const revalidate = 60;
 export const metadata = metadadosDaPagina({
   titulo: "Agenda de eventos",
   descricao:
-    "Aulões, palestras e encontros do Quad Concursos em Feira de Santana, e a central de simulados presenciais, individuais e combos.",
+    "Aulões, palestras e encontros do Quad Concursos em Feira de Santana, excursões para o dia da prova e a central de simulados presenciais, individuais e combos.",
   caminho: "/eventos",
 });
 
 export default async function EventosPage() {
-  const [eventos, combos] = await Promise.all([listarEventos(), listarCombosDaArea("eventos")]);
+  const [eventos, excursoes, combos] = await Promise.all([listarEventos(), listarExcursoes(), listarCombosDaArea("eventos")]);
   return (
     <>
       <AgendaDeEventos eventos={eventos} />
+      <SecaoDeExcursoes viagens={excursoes} />
       <SecaoDeCombos
         combos={combos}
         titulo="Combos com eventos"

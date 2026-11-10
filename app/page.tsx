@@ -1,5 +1,6 @@
 import { bannersPublicados, mentorias, modalidades } from "@/lib/conteudo";
-import { listarEventos, listarMateriais, listarProfessores, listarTurmas } from "@/lib/vitrine";
+import { listarEventos, listarExcursoes, listarMateriais, listarProfessores, listarTurmas } from "@/lib/vitrine";
+import { paraCartaoDeExcursao } from "@/lib/excursoes";
 import { insigniaDaModalidade } from "@/lib/turmas";
 import { dadosDaOrganizacao } from "@/lib/dados-estruturados";
 import DadosEstruturados from "@/components/DadosEstruturados";
@@ -52,13 +53,15 @@ function EsperaDaSecao({ area, titulo, className, children }: { area: AreaDoSite
 
 export default async function Home() {
   // A Loja saiu da Home (03/11/2026): fica só no menu, em /loja.
-  const [eventos, materiais, professores, turmas] = await Promise.all([
+  const [eventos, materiais, professores, turmas, excursoes] = await Promise.all([
     listarEventos(),
     listarMateriais(),
     listarProfessores(),
     listarTurmas(),
+    listarExcursoes(),
   ]);
-  const cartoesDeEvento = [CARTAO_DOS_SIMULADOS, ...(eventos ?? []).map(paraCartao)];
+  // As excursões para provas (lib/excursoes.ts) entram depois dos eventos, na ordem da data da viagem.
+  const cartoesDeEvento = [CARTAO_DOS_SIMULADOS, ...(eventos ?? []).map(paraCartao), ...(excursoes ?? []).map(paraCartaoDeExcursao)];
 
   return (
     <>

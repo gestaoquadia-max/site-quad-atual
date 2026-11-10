@@ -11,7 +11,7 @@ import { OuvinteDoBrilho } from "@/components/Brilho";
 import { CartProvider } from "@/lib/cart";
 import { UsuarioProvider } from "@/lib/usuario";
 import { DESCRICAO_DO_SITE, NAO_INDEXAR, NOME_DO_SITE, SITE_DE_TESTE, URL_DO_SITE } from "@/lib/seo";
-import { listarEventos, listarMateriais, listarTurmas } from "@/lib/vitrine";
+import { listarEventos, listarExcursoes, listarMateriais, listarTurmas } from "@/lib/vitrine";
 
 // Títulos em Manrope e textos em Inter (novo visual). As classes font-display e font-body apontam para elas.
 // As duas são fontes variáveis: um arquivo só cobre todos os pesos, então não se lista "weight".
@@ -43,7 +43,7 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   // Menu e barra de avisos de turmas e eventos. A resposta da API fica em cache (lib/vitrine.ts), então não pesa em cada página.
-  const [turmas, eventos, materiais] = await Promise.all([listarTurmas(), listarEventos(), listarMateriais()]);
+  const [turmas, eventos, materiais, excursoes] = await Promise.all([listarTurmas(), listarEventos(), listarMateriais(), listarExcursoes()]);
 
   return (
     <html lang="pt-BR" className={`${fonteDisplay.variable} ${fonteCorpo.variable}`} suppressHydrationWarning>
@@ -59,7 +59,7 @@ export default async function RootLayout({
               Pular para o conteúdo
             </a>
             <SoNoSite>
-              <Navbar turmas={turmas ?? []} eventos={eventos ?? []} materiais={materiais ?? []} />
+              <Navbar turmas={turmas ?? []} eventos={eventos ?? []} materiais={materiais ?? []} temExcursoes={!!excursoes?.length} />
             </SoNoSite>
             <main id="conteudo" tabIndex={-1} className="flex-1 outline-none">
               {children}

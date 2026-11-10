@@ -7,6 +7,7 @@ import type { ProdutoDaLoja } from "./conteudo";
 import type { Carreira, Edicao } from "./simulados";
 import { formatarHora, precoSemCentavosZerados } from "./format";
 import { API_URL, lerErro } from "./http";
+import { agruparViagens, jaPassou, lerNomeDaExcursao, linhasDaDescricao, type Excursao, type ViagemDeExcursao } from "./excursoes";
 import {
   ehNivelDaPmba,
   horarioDoDia,
@@ -752,6 +753,50 @@ export async function listarProdutosDaLoja(): Promise<ProdutoDaLoja[] | null> {
   } catch {
     return null;
   }
+}
+
+// ---------- Excursões (itens EXCURSOES, lib/excursoes.ts) ----------
+
+function paraExcursao(i: ItemDaVitrine): Excursao {
+  const cheio = precoCheioDa(i);
+  return {
+    slug: slugDa(i),
+    idNaApi: i.id,
+    nomeCadastrado: i.nome,
+    ...lerNomeDaExcursao(i.nome),
+    detalhes: linhasDaDescricao(i.descricao),
+    preco: i.preco === null ? null : precoEmTexto(emReais(i.preco)),
+    precoCheio: cheio === null ? null : precoEmTexto(emReais(cheio)),
+    lote: rotuloDoLote(i.lote),
+    restantes: i.restantes,
+    ofertadas: i.ofertadas,
+    imagemUrl: i.imagemUrl,
+  };
+}
+
+// As viagens que ainda não saíram, na ordem da data. null = a API não respondeu.
+export async function listarExcursoes(): Promise<ViagemDeExcursao[] | null> {
+  try {
+    const excursoes = (await listarItens()).filter((i) => i.tipo === "EXCURSOES").map(paraExcursao);
+    return agruparViagens(excursoes).filter((v) => !jaPassou(v.data));
+  } catch {
+    return null;
+  }
+}
+
+// A excursão do endereço e as outras opções da mesma viagem (com e sem café).
+export async function buscarExcursao(slug: string): Promise<{ atual: Excursao; viagem: ViagemDeExcursao } | null> {
+  const item = await buscarItem(slug);
+  if (item?.tipo !== "EXCURSOES") return null;
+  const atual = paraExcursao(item);
+  const todas = (await listarItens()).filter((i) => i.tipo === "EXCURSOES").map(paraExcursao);
+  const viagem = agruparViagens(todas).find((v) => v.opcoes.some((o) => o.idNaApi === atual.idNaApi)) ?? {
+    titulo: atual.titulo,
+    concurso: atual.concurso,
+    data: atual.data,
+    opcoes: [atual],
+  };
+  return { atual, viagem };
 }
 
 export async function buscarProdutoDaLoja(slug: string): Promise<ProdutoDaLoja | null> {
