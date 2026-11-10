@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Turma } from "@/lib/data";
 import type { Banner } from "@/lib/conteudo";
 import { brasaoDoConcurso } from "@/lib/brasoes";
+import CabecalhoDaTurma from "./CabecalhoDaTurma";
 
 // Primeira dobra da Home (no lugar do carrossel de banners, 04/11/2026): o aluno escolhe o concurso e cai nas turmas
 // dele (/turmas?cargo=...). À direita, a próxima turma com matrícula aberta. Os banners continuam como a pílula de
@@ -79,19 +80,7 @@ function ProximaTurma({ turma }: { turma: Turma }) {
       <div aria-hidden="true" className="pointer-events-none absolute -inset-10 rounded-full bg-[radial-gradient(closest-side,rgba(0,107,255,0.35),transparent)]" />
       <div className="relative overflow-hidden rounded-[24px] border border-[rgba(111,174,255,0.22)] bg-[linear-gradient(160deg,rgba(20,48,90,0.92)_0%,rgba(10,26,48,0.94)_60%)] p-6 shadow-[0_40px_80px_-32px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-[10px]">
         <div aria-hidden="true" className="absolute inset-x-6 top-0 h-px bg-[linear-gradient(90deg,transparent,#4D9BFF,transparent)]" />
-        <div className="flex items-start justify-between gap-4">
-          <span className="text-[11.5px] font-bold uppercase tracking-[0.16em] text-azul-ceu">Turma presencial</span>
-          <Image
-            src={turma.insignia ?? "/images/quad-logo-branco.png"}
-            alt=""
-            width={64}
-            height={64}
-            unoptimized
-            className={`flex-none object-contain ${turma.insignia ? "h-16 w-16" : "h-8 w-auto opacity-70"}`}
-          />
-        </div>
-
-        <h2 className="mt-4 font-display text-[clamp(1.9rem,2.6vw,2.4rem)] font-extrabold leading-none tracking-[-0.03em]">{turma.nome}</h2>
+        <CabecalhoDaTurma nome={turma.nome} insignia={turma.insignia ?? null} />
 
         {linhas.length > 0 && (
           <dl className="mt-5 grid grid-cols-3 gap-3 border-y border-white/[0.08] py-4">
