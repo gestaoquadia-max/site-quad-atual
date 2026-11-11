@@ -12,6 +12,8 @@ import PrecoDigitando from "./PrecoDigitando";
 
 // Fonte das faixas "BLACK FRIDAY" e do "GRUPO VIP" do modelo; só as páginas da campanha a carregam.
 const fonteDaCampanha = Russo_One({ weight: "400", subsets: ["latin"], variable: "--font-campanha" });
+// Classe que carrega a fonte num trecho fora das páginas da campanha (o bloco da Black Friday na Home).
+export const VARIAVEL_DA_FONTE_DA_CAMPANHA = fonteDaCampanha.variable;
 export const FONTE_DA_CAMPANHA = "font-[family-name:var(--font-campanha)]";
 
 export const ABERTURA_DAS_OFERTAS = "2026-11-27T00:00:00-03:00";
@@ -120,7 +122,7 @@ export function AberturaDaBlackFriday({
 
 // Faixa inclinada com "BLACK FRIDAY" repetido (decorativa, parada; 11/11/2026: a que rolava deixava a borda serrilhada
 // no Chrome). `[backface-visibility:hidden]` e o contorno transparente suavizam a borda da faixa girada.
-function Faixa({ className, tom, comData = false }: { className: string; tom: "laranja" | "grafite"; comData?: boolean }) {
+export function Faixa({ className, tom, comData = false }: { className: string; tom: "laranja" | "grafite"; comData?: boolean }) {
   const cores =
     tom === "laranja" ? "bg-[linear-gradient(180deg,#FF7A2E,#E5530A)] text-breu-800" : "bg-[linear-gradient(180deg,#3A3533,#1D1A18)] text-[#E8E2DD]";
   const itens = Array.from({ length: 20 }, (_, i) => (

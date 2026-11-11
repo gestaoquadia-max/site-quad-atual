@@ -126,7 +126,7 @@ export default function PrimeiroContato({ banners, turmas }: { banners: Banner[]
   return (
     <section aria-labelledby="titulo-da-home" className="relative overflow-hidden bg-marinho-950 text-white">
       {/* Fundo: brilhos azuis e a grade fina, como no restante do site. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_60%_at_82%_30%,rgba(0,107,255,0.34),transparent_70%),radial-gradient(35%_50%_at_8%_70%,rgba(20,74,255,0.14),transparent_70%),radial-gradient(70%_40%_at_50%_115%,rgba(0,107,255,0.24),transparent_70%),linear-gradient(180deg,#071426_0%,#081830_100%)]" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_60%_at_82%_30%,rgba(0,107,255,0.34),transparent_70%),radial-gradient(35%_50%_at_8%_70%,rgba(20,74,255,0.14),transparent_70%),linear-gradient(180deg,#151A24_0%,#0B1A36_18%,#081530_82%,#151A24_100%)]" />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[length:64px_64px]"

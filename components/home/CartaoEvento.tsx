@@ -1,12 +1,7 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { useId, useState } from "react";
-import { useCart } from "@/lib/cart";
 import type { DadosDoCartaoEvento, TomDoSelo } from "@/lib/eventos";
 import { Brilho } from "../Brilho";
-import { PrecoEmDestaque } from "./CartaoMaterial";
 
 const CORES_DO_SELO: Record<TomDoSelo, string> = {
   aberta: "bg-sucesso-fundo text-sucesso",
@@ -15,15 +10,22 @@ const CORES_DO_SELO: Record<TomDoSelo, string> = {
   encerrado: "bg-nevoa-clara text-[#4A5A70]",
 };
 
-export default function CartaoEvento({ evento }: { evento: DadosDoCartaoEvento }) {
-  const { addItem } = useCart();
-  const [aberto, setAberto] = useState(false);
-  const idDoPainel = useId();
+// O texto do botão: os simulados levam à central deles; um evento com inscrição aberta ou em breve, à vaga; esgotado
+// ou encerrado, só aos detalhes.
+function rotuloDoBotao(evento: DadosDoCartaoEvento) {
+  if (evento.id === "simulados") return "Ver simulados";
+  if (evento.selo.tom === "aberta" || evento.selo.tom === "breve") return "Garantir minha vaga";
+  return "Ver detalhes";
+}
 
+// Cartão de evento (Home e Agenda). Desde 11/11/2026 (entrega da designer), o cartão inteiro é um link para a página do
+// evento, e o botão fica sempre à vista (antes, o acordeão "Informações" com o carrinho e os detalhes).
+export default function CartaoEvento({ evento }: { evento: DadosDoCartaoEvento }) {
   return (
-    <article
+    <Link
+      href={evento.href}
       data-glow=""
-      className="relative flex h-full flex-col rounded-[18px] border border-linha bg-superficie p-2 shadow-cartao transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-[3px] hover:border-azul/45 hover:shadow-cartao-alto"
+      className="group relative flex h-full flex-col rounded-[18px] border border-linha bg-superficie p-2 text-tinta shadow-cartao transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 hover:border-azul/45 hover:text-tinta hover:shadow-cartao-alto"
     >
       <Brilho intensidade={0.08} />
       {/* Arte do evento (1:1). Enquanto não há arte, o fundo leva o logo do Quad em marca d'água. */}
@@ -48,47 +50,22 @@ export default function CartaoEvento({ evento }: { evento: DadosDoCartaoEvento }
           </div>
         )}
       </div>
-      <div className="relative flex flex-col px-3.5 pb-3 pt-[18px]">
-        <div className="flex min-h-[84px] flex-col items-start gap-2">
+      <div className="relative flex flex-1 flex-col px-3.5 pb-3 pt-[18px]">
+        <div className="flex flex-col items-start gap-2.5">
           <h3 className="line-clamp-2 font-display text-[21px] font-extrabold leading-[1.15] tracking-[-0.02em] [text-wrap:pretty]">{evento.titulo}</h3>
           <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${CORES_DO_SELO[evento.selo.tom]}`}>
             <span className="h-1.5 w-1.5 rounded-full bg-current" />
             {evento.selo.texto}
           </span>
         </div>
-        <button
-          type="button"
-          aria-expanded={aberto}
-          aria-controls={idDoPainel}
-          onClick={() => setAberto((a) => !a)}
-          className="btn-q btn-q-contorno mt-[18px] h-[46px] w-full px-3.5 text-sm"
-        >
-          Informações
-          <svg width="11" height="7" viewBox="0 0 10 6" fill="none" aria-hidden="true" className={`transition-transform duration-200 ${aberto ? "rotate-180" : ""}`}>
-            <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          </svg>
-        </button>
-        {aberto && (
-          <div id={idDoPainel} className="mt-3.5 animate-[q-surgir_220ms_ease_both] rounded-xl border border-linha bg-nevoa-clara px-4 pb-4 pt-[18px]">
-            <p className="text-[14.5px] leading-[1.55] text-ardosia-escura [text-wrap:pretty]">{evento.descricao}</p>
-            {evento.preco && (
-              <div className="mt-3.5">
-                <PrecoEmDestaque preco={evento.preco} claro />
-              </div>
-            )}
-            <div className="mt-3.5 flex flex-wrap gap-2">
-              {evento.item && (
-                <button type="button" onClick={() => evento.item && addItem(evento.item)} className="btn-q btn-q-azul h-11 min-w-[150px] flex-1 px-3.5 text-sm">
-                  Adicionar ao carrinho
-                </button>
-              )}
-              <Link href={evento.href} className="btn-q btn-q-contorno h-11 min-w-[120px] flex-1 px-3.5 text-sm">
-                Detalhes
-              </Link>
-            </div>
-          </div>
-        )}
+        {/* Parece um botão, mas o link é o cartão inteiro. */}
+        <span className="mt-auto block pt-[18px]">
+          <span className="btn-q btn-q-azul h-12 w-full px-3.5 text-[15.5px] group-hover:bg-azul-vivo">
+            {rotuloDoBotao(evento)}
+            <span aria-hidden="true" className="transition-transform duration-150 group-hover:translate-x-0.5">→</span>
+          </span>
+        </span>
       </div>
-    </article>
+    </Link>
   );
 }

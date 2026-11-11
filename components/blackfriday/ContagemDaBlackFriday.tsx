@@ -13,13 +13,14 @@ const semRelogio = () => null;
 
 const dois = (n: number) => String(n).padStart(2, "0");
 
-export default function ContagemDaBlackFriday({ alvo, dataPorExtenso }: { alvo: string; dataPorExtenso: string }) {
+// `compacta`: a versão menor, do bloco da Black Friday na Home.
+export default function ContagemDaBlackFriday({ alvo, dataPorExtenso, compacta = false }: { alvo: string; dataPorExtenso: string; compacta?: boolean }) {
   const agora = useSyncExternalStore(assinar, segundoAtual, semRelogio);
   const restante = agora === null ? null : Math.max(0, Math.floor(new Date(alvo).getTime() / 1000) - agora);
 
   if (restante === 0) {
     return (
-      <p className="mt-[clamp(40px,5vw,64px)] font-display text-[clamp(14px,1.3vw,16px)] font-extrabold uppercase tracking-[0.2em] text-[#CFC5BE]">
+      <p className={`${compacta ? "mt-[clamp(26px,3vw,36px)]" : "mt-[clamp(40px,5vw,64px)]"} font-display text-[clamp(14px,1.3vw,16px)] font-extrabold uppercase tracking-[0.2em] text-[#CFC5BE]`}>
         A Black Friday começou
       </p>
     );
@@ -34,7 +35,7 @@ export default function ContagemDaBlackFriday({ alvo, dataPorExtenso }: { alvo: 
 
   return (
     <>
-      <p className="mt-[clamp(40px,5vw,64px)] flex flex-wrap items-center justify-center gap-x-3.5 gap-y-2.5 font-display text-[clamp(14px,1.3vw,16px)] font-extrabold uppercase tracking-[0.2em] text-[#CFC5BE]">
+      <p className={`${compacta ? "mt-[clamp(26px,3vw,36px)]" : "mt-[clamp(40px,5vw,64px)]"} flex flex-wrap items-center justify-center gap-x-3.5 gap-y-2.5 font-display text-[clamp(14px,1.3vw,16px)] font-extrabold uppercase tracking-[0.2em] text-[#CFC5BE]`}>
         As ofertas abrem em
         <span className="inline-flex h-10 items-center rounded-lg bg-laranja px-4 text-[clamp(18px,1.8vw,22px)] normal-case tracking-[-0.01em] text-white shadow-[0_10px_30px_-10px_rgba(242,90,12,0.9)]">
           {dataPorExtenso}
@@ -42,12 +43,12 @@ export default function ContagemDaBlackFriday({ alvo, dataPorExtenso }: { alvo: 
       </p>
       {/* Leitores de tela: o tempo restante por extenso, sem anunciar a cada segundo. */}
       <p className="sr-only">{restante === null ? "" : `Faltam ${unidades.map((u) => `${u.valor} ${u.rotulo}`).join(", ")}.`}</p>
-      <div aria-hidden="true" className="mt-[34px] flex items-start justify-center gap-[clamp(10px,2.6vw,36px)]">
+      <div aria-hidden="true" className={`${compacta ? "mt-[22px]" : "mt-[34px]"} flex items-start justify-center gap-[clamp(10px,2.6vw,36px)]`}>
         {unidades.map((u, i) => (
           <Fragment key={u.rotulo}>
             {i > 0 && <span className="-mt-[1.6em] h-[9px] w-[9px] self-center rounded-[2px] bg-laranja" />}
             <div className="flex min-w-[1.9ch] flex-col items-center gap-1.5">
-              <span className="font-display text-[clamp(3.4rem,9vw,7.4rem)] font-extrabold leading-none tracking-[-0.05em] text-white [font-variant-numeric:tabular-nums]">
+              <span className={`font-display ${compacta ? "text-[clamp(2.6rem,6.4vw,4.8rem)]" : "text-[clamp(3.4rem,9vw,7.4rem)]"} font-extrabold leading-none tracking-[-0.05em] text-white [font-variant-numeric:tabular-nums]`}>
                 {u.valor === null ? "--" : dois(u.valor)}
               </span>
               <span className="font-display text-[clamp(14px,1.3vw,17px)] font-bold text-laranja-suave">{u.rotulo}</span>

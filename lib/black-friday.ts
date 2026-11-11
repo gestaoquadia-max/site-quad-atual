@@ -5,4 +5,6 @@
 export const BLACK_FRIDAY = {
   // /produtos: a página da campanha no lugar do catálogo de materiais (components/materiais/CatalogoDeMateriais.tsx).
   materiais: true,
+  // Home: o bloco da campanha (components/home/BlackFridayDaHome.tsx) no lugar das seções de Mentorias e de Materiais.
+  home: true,
 };

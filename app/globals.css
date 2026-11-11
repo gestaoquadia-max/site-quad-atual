@@ -104,3 +104,7 @@ body:has([data-tema="vinho"]) footer .bg-azul:hover { background-color: #A51E36;
 body:has([data-tema="black"]) footer { background-color: #0A0908; }
 body:has([data-tema="black"]) footer .bg-azul { background-color: #F25A0C; }
 body:has([data-tema="black"]) footer .bg-azul:hover { background-color: #FF7A2E; }
+/* Home (11/11/2026): a última seção termina na onda escura (components/home/Onda.tsx), e o rodapé começa na mesma cor. */
+body:has([data-home-com-ondas]) footer { background-image: linear-gradient(180deg, #151A24, #081530); }
+/* Faixa dos vídeos dos aprovados na Home (components/home/AprovadosEmVideo.tsx): metade da lista mais meio espaço. */
+@keyframes q-aprovados { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 10px)); } }

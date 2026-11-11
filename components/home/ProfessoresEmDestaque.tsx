@@ -94,8 +94,9 @@ export default function ProfessoresEmDestaque({ professores }: { professores: Pr
   const setas = "grid size-11 place-items-center rounded-full border border-white/20 text-white transition-colors hover:border-azul-ceu hover:bg-azul/[0.12]";
 
   return (
-    <section id="professores" className="secao relative overflow-hidden bg-marinho-950 text-white">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(45%_55%_at_0%_0%,rgba(0,107,255,0.18),transparent_70%)]" />
+    // Entre duas ondas (components/home/Onda.tsx): o fundo começa e termina na cor delas.
+    <section id="professores" className="relative overflow-hidden bg-[image:linear-gradient(180deg,#151A24_0%,#0B1A36_18%,#081530_82%,#151A24_100%)] py-[clamp(40px,5vw,64px)] text-white">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_60%_at_60%_60%,rgba(37,99,235,0.3),transparent_70%)]" />
       <div className="conteiner relative">
         <Reveal className="mb-[clamp(28px,3.4vw,44px)] flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
           <h2 className="titulo-secao">Conheça nossos professores</h2>
