@@ -208,7 +208,8 @@ function FaixaDeModalidades({ rolavel, className, children }: { rolavel: boolean
         aria-label="Modalidades das turmas"
         tabIndex={0}
         className="sem-barra -m-2 grid snap-x snap-mandatory grid-flow-col items-stretch overflow-x-auto overscroll-x-contain p-2 [scroll-padding-inline:8px]"
-        style={{ gridAutoColumns: `min(86%, calc((100% - ${2 * ESPACO_ENTRE_CARTOES}px) / 3))`, gap: ESPACO_ENTRE_CARTOES }}
+        // Três por vez no computador; no celular, um cartão de até 300 px por vez (antes ficavam três espremidos).
+        style={{ gridAutoColumns: `max(calc((100% - ${2 * ESPACO_ENTRE_CARTOES}px) / 3), min(86%, 300px))`, gap: ESPACO_ENTRE_CARTOES }}
       >
         {Children.map(children, (cartao) => (
           <div className="flex min-w-0 snap-start [&>*]:flex-1">{cartao}</div>
