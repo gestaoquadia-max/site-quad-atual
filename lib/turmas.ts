@@ -105,8 +105,13 @@ export function lerNomeDaTurma(nome: string) {
   const modalidade = primeira?.[1]?.trim().toUpperCase() || null;
   const edicao = primeira?.[2] ? Number(primeira[2]) : null;
   const palavras = partes[1].split(/\s+/);
-  const concurso = palavras.length ? palavras[palavras.length - 1].toUpperCase() : null;
-  const cargo = palavras.length > 1 ? palavras.slice(0, -1).join(" ") : null;
+  // O concurso é uma sigla de letras ("PMBA", "PCBA"). Fora disso o nome não segue o padrão ("DUPLA DOIS - PARTE 19"
+  // daria o concurso "19", e a turma viraria um concurso na escolha de /turmas): fica sem cargo e sem concurso, e a
+  // turma aparece em "Todos os concursos".
+  const ultima = palavras.length ? palavras[palavras.length - 1].toUpperCase() : "";
+  const temConcurso = /^[A-Z]{2,6}$/.test(ultima);
+  const concurso = temConcurso ? ultima : null;
+  const cargo = temConcurso && palavras.length > 1 ? palavras.slice(0, -1).join(" ") : null;
   const turnoTexto = partes[2]
     ?.normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
