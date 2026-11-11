@@ -36,7 +36,9 @@ export default function PrecoDigitando({ texto, className = "" }: { texto: strin
       {/* O degradê ocupa a largura do texto inteiro: cada letra já nasce na cor final dela. */}
       <span aria-hidden="true" className={`absolute inset-0 flex items-baseline ${className}`}>
         <span>{texto.slice(0, letras)}</span>
-        {cursor && <span className="ml-[0.04em] inline-block h-[0.8em] w-[0.06em] translate-y-[0.06em] animate-[q-cursor_1s_steps(1)_infinite] self-center bg-laranja-claro" />}
+        {cursor && (
+          <span className="ml-[0.04em] inline-block h-[0.8em] w-[0.06em] translate-y-[0.06em] animate-[q-cursor_1s_steps(1)_infinite] self-center bg-laranja-claro" />
+        )}
       </span>
     </span>
   );

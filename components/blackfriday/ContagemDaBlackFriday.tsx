@@ -41,9 +41,7 @@ export default function ContagemDaBlackFriday({ alvo, dataPorExtenso }: { alvo: 
         </span>
       </p>
       {/* Leitores de tela: o tempo restante por extenso, sem anunciar a cada segundo. */}
-      <p className="sr-only">
-        {restante === null ? "" : `Faltam ${unidades.map((u) => `${u.valor} ${u.rotulo}`).join(", ")}.`}
-      </p>
+      <p className="sr-only">{restante === null ? "" : `Faltam ${unidades.map((u) => `${u.valor} ${u.rotulo}`).join(", ")}.`}</p>
       <div aria-hidden="true" className="mt-[34px] flex items-start justify-center gap-[clamp(10px,2.6vw,36px)]">
         {unidades.map((u, i) => (
           <Fragment key={u.rotulo}>

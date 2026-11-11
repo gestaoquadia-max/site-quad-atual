@@ -7,6 +7,7 @@ import { useRef, useState } from "react";
 import type { Evento, Produto, Turma } from "@/lib/data";
 import { ehKit } from "@/lib/materiais";
 import { EM_ESPERA } from "@/lib/em-espera";
+import { BLACK_FRIDAY } from "@/lib/black-friday";
 import { useVeAreasEmEspera } from "@/components/AreaEmEspera";
 import { LINK_DAS_MENTORIAS } from "@/lib/conteudo";
 import { useCart } from "@/lib/cart";
@@ -267,8 +268,11 @@ export default function Navbar({ turmas, eventos, materiais, temExcursoes = fals
       : l,
   );
   const pathname = usePathname();
-  // Em espera, a página das mentorias é o aviso no azul do site: o menu também fica azul.
-  const tomDoTopo: TomDoTopo = (veEmEspera || !EM_ESPERA.mentorias) && ehDasMentorias(pathname) ? TOM_DAS_MENTORIAS : "azul";
+  // Em espera, a página da área é o aviso no azul do site: o menu também fica azul. Na Black Friday dos materiais
+  // (lib/black-friday.ts), a página /produtos é a da campanha, no preto e laranja; as páginas de cada material, não.
+  const blackDosMateriais = BLACK_FRIDAY.materiais && (veEmEspera || !EM_ESPERA.materiais) && pathname === "/produtos";
+  const tomDoTopo: TomDoTopo =
+    (veEmEspera || !EM_ESPERA.mentorias) && ehDasMentorias(pathname) ? TOM_DAS_MENTORIAS : blackDosMateriais ? "black" : "azul";
   const tema: Tema = TEMAS[tomDoTopo];
   const { totalCount } = useCart();
   const usuario = useUsuarioAtual();
