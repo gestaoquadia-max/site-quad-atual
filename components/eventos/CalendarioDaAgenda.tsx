@@ -7,7 +7,8 @@ import { MESES_CURTOS, ROTULO_DO_TIPO, type ItemDaAgenda, type TipoNaAgenda } fr
 // Calendário da Agenda Quad (/eventos, entrega da designer de 11/11/2026): a grade do mês com uma barrinha colorida
 // por evento no dia e, ao lado, os eventos do dia escolhido. Os itens vêm de lib/agenda.ts.
 
-const COR_DO_TIPO: Record<TipoNaAgenda, string> = { simulado: "#006BFF", excursao: "#E11D48", aulao: "#16A34A" };
+// O simulado na cor principal do site (azul; laranja na Black Friday, app/tema-black.css).
+const COR_DO_TIPO: Record<TipoNaAgenda, string> = { simulado: "rgb(var(--c-azul))", excursao: "#E11D48", aulao: "#16A34A" };
 const LEGENDA: { tipo: TipoNaAgenda; rotulo: string }[] = [
   { tipo: "simulado", rotulo: "Simulados" },
   { tipo: "excursao", rotulo: "Excursões" },
