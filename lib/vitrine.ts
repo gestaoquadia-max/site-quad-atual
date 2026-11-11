@@ -338,6 +338,7 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     // Sem modalidade, o cartão da escolha de modalidade leva o nome limpo ("MISSÃO 1º PASSO"), sem turno nem data.
     modalidadeNome: colunas.modalidade ?? nomeLimpoDaTurma(a.nome),
     modalidadeId: slugDoNome(colunas.modalidade ?? a.nome),
+    isolada: d.tipo === "ISOLADA",
     concurso: colunas.cargo || colunas.concurso ? seloDoCargoEConcurso(colunas.cargo, colunas.concurso) : undefined,
     turno: turnos || undefined,
     horario: horario || undefined,

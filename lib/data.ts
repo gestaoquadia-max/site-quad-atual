@@ -14,7 +14,10 @@ export type Turma = {
   // MODALIDADE da planilha, em qualquer cargo ("RONDESP", "INVESTIGADOR"); id = nome em minúsculas, sem acento.
   // Sem modalidade no cadastro, o nome da turma faz o papel.
   modalidadeNome: string;
-  modalidadeId: string;  concurso?: string;
+  modalidadeId: string;
+  // Turma isolada (tipo ISOLADA na API): curta, de um tema só ("DUPLA DOIS"). Em /turmas fica numa seção própria.
+  isolada?: boolean;
+  concurso?: string;
   turno?: string;
   // Os blocos de horário de um dia de aula ("8h às 9h30 · 9h40 às 11h").
   horario?: string;
