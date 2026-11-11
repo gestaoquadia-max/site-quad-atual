@@ -17,13 +17,13 @@ html[data-tema-site="black"] {
   --c-azul-forte: 255 122 46;  /* #FF7A2E laranja do hover */
   --c-azul-vivo: 255 122 46;   /* #FF7A2E */
   --c-azul-ceu: 255 154 92;    /* #FF9A5C laranja claro: rótulos e links sobre o escuro */
-  --c-azul-palido: 46 26 16;   /* #2E1A10 fundo de selo */
-  --c-azul-gelo: 28 23 20;     /* #1C1714 */
+  --c-azul-palido: 58 34 20;   /* #3A2214 fundo de selo */
+  --c-azul-gelo: 42 34 30;     /* #2A221E */
   --c-tinta: 243 238 234;      /* #F3EEEA texto principal */
-  --c-nevoa: 18 15 13;         /* #120F0D fundo de seção */
-  --c-superficie: 28 23 20;    /* #1C1714 cartão */
-  --c-linha: 46 38 33;         /* #2E2621 borda do cartão */
-  --c-linha-forte: 61 51 45;   /* #3D332D */
+  --c-nevoa: 31 25 22;         /* #1F1916 seção "clara": um tom acima das escuras (#0E0C0B), para alternar */
+  --c-superficie: 42 34 30;    /* #2A221E cartão, um tom acima da seção clara */
+  --c-linha: 61 50 44;         /* #3D322C borda do cartão */
+  --c-linha-forte: 77 64 56;   /* #4D4038 */
   --c-ardosia: 181 170 162;    /* #B5AAA2 texto secundário */
   --c-ardosia-escura: 207 197 190; /* #CFC5BE */
   --c-prata: 181 170 162;      /* #B5AAA2 */
@@ -35,8 +35,9 @@ html[data-tema-site="black"] {
 html[data-tema-site="black"] :focus-visible { outline-color: #FF7A2E; }
 html[data-tema-site="black"] ::selection { background: rgba(242, 90, 12, 0.45); color: #fff; }
 
-/* Fundo branco vira cartão escuro (o botão das preferências de cookies continua branco). */
-html[data-tema-site="black"] .bg-white:not(img) { background-color: #1C1714; }
+/* Fundo branco vira cartão escuro (o botão das preferências de cookies continua branco). Nas páginas da campanha
+   (Mentorias e Materiais, data-tema="black"), os cartões brancos ficam como a designer fez. */
+html[data-tema-site="black"] .bg-white:not(img):not([data-tema="black"] *) { background-color: #2A221E; }
 html[data-tema-site="black"] .bg-white.shadow { background-color: #fff; }
 /* "marinho" como cor de texto só aparece sobre fundo claro, que agora é escuro. */
 html[data-tema-site="black"] :is(.text-marinho-950, .text-marinho-900, .text-marinho-800, .hover\:text-marinho-950:hover) { color: #F3EEEA; }
@@ -62,8 +63,8 @@ html[data-tema-site="black"] :is([class*="text-[#2F86FF]"], [class*="text-[#006B
 html[data-tema-site="black"] :is([class*="bg-[#2F86FF]"], [class*="bg-[#006BFF]"], [class*="bg-[#4D8DFF]"], [class*="bg-[#2F6BFF]"], [class*="bg-[#0B63F6]"]) { background-color: #F25A0C; }
 html[data-tema-site="black"] :is([class*="border-[#2F86FF]"], [class*="border-[#006BFF]"], [class*="border-[#6FAEFF]"], [class*="border-[#93B4F0]"]) { border-color: #FF7A2E; }
 /* Bordas e fundos claros. */
-html[data-tema-site="black"] :is([class*="border-[#C9D3E0]"], [class*="border-[#D3DCE7]"], [class*="border-[#B9C6D6]"], [class*="border-[#CBD5E1]"], [class*="border-[#DCE4EF]"], [class*="border-[#B8C4D4]"]) { border-color: #2E2621; }
-html[data-tema-site="black"] :is([class*="bg-[#D6E6FF]"], [class*="bg-[#CFE2FF]"], [class*="bg-[#E6ECFF]"], [class*="bg-[#F2F7FF]"], [class*="bg-[#E8F1FF]"], [class*="bg-[#EEF3F9]"], [class*="bg-[#E9EEF5]"], [class*="bg-[#D7E0EB]"]) { background-color: #2A221D; }
+html[data-tema-site="black"] :is([class*="border-[#C9D3E0]"], [class*="border-[#D3DCE7]"], [class*="border-[#B9C6D6]"], [class*="border-[#CBD5E1]"], [class*="border-[#DCE4EF]"], [class*="border-[#B8C4D4]"]) { border-color: #3D322C; }
+html[data-tema-site="black"] :is([class*="bg-[#D6E6FF]"], [class*="bg-[#CFE2FF]"], [class*="bg-[#E6ECFF]"], [class*="bg-[#F2F7FF]"], [class*="bg-[#E8F1FF]"], [class*="bg-[#EEF3F9]"], [class*="bg-[#E9EEF5]"], [class*="bg-[#D7E0EB]"]) { background-color: #33291F; }
 /* Fundos azul-escuros: os pretos quentes. */
 html[data-tema-site="black"] :is([class*="bg-[#0B1C33]"], [class*="bg-[#071426]"], [class*="bg-[#0F2645]"], [class*="bg-[#151A24]"], [class*="bg-[#0B1A33]"], [class*="bg-[#102641]"]) { background-color: #17120F; }
 html[data-tema-site="black"] [class*="rgba(11,28,51"]:not([aria-hidden="true"]) { background-color: rgba(28, 23, 20, 0.75); }
@@ -82,9 +83,9 @@ html[data-tema-site="black"] :is([class*="rgba(0,107,255"], [class*="rgba(47,134
 }
 
 /* ---------- 4. Ondas nas cores do tema ---------- */
-/* Em cima, a cor das seções "claras" (agora #120F0D); embaixo, a das escuras (#0E0C0B); no meio, as faixas laranja. */
+/* Em cima, a cor das seções "claras" (agora #1F1916); embaixo, a das escuras (#0E0C0B); no meio, as faixas laranja. */
 html[data-tema-site="black"] {
-  --onda-fundo-1: #120F0D; --onda-fundo-2: #1A1310; --onda-fundo-3: #2B1910; --onda-fundo-4: #3D200E;
+  --onda-fundo-1: #1F1916; --onda-fundo-2: #241A15; --onda-fundo-3: #321D12; --onda-fundo-4: #43230F;
   --onda-tras-1: #C2560F; --onda-tras-2: #D2600F; --onda-tras-3: #A9480B;
   --onda-meio-1: #9C3F08; --onda-meio-2: #7E3307; --onda-meio-3: #5C2606;
   --onda-escuro-1: #15100D; --onda-escuro-2: #110E0C; --onda-escuro-3: #0E0C0B;
@@ -114,3 +115,13 @@ html[data-tema-site="black"] :is([class*="rgba(7,20,38"], [class*="rgba(10,26,48
 html[data-tema-site="black"] [class*="rgba(5,14,28,0.92)_6%"] {
   background-image: linear-gradient(0deg, rgba(14, 12, 11, 0.92) 6%, rgba(14, 12, 11, 0.55) 26%, rgba(14, 12, 11, 0) 50%);
 }
+/* Sombras azuis de botões, cartões e campos: as mesmas, em laranja. */
+html[data-tema-site="black"] [class*="shadow-[inset_0_1px_0_rgba(255,255,255,0.2"][class*="rgba(0,107,255"] {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 14px 30px -14px rgba(242, 90, 12, 0.9);
+}
+html[data-tema-site="black"] :is([class*="shadow-[0_0_0_3px_rgba(0,107,255"], [class*="shadow-[0_0_0_4px_rgba(0,107,255"]) { box-shadow: 0 0 0 4px rgba(242, 90, 12, 0.2); }
+html[data-tema-site="black"] [class*="shadow-[0_0_0_4px_rgba(0,107,255,0.18),0_30px"] { box-shadow: 0 0 0 4px rgba(242, 90, 12, 0.22), 0 30px 60px -30px rgba(0, 0, 0, 0.9); }
+html[data-tema-site="black"] [class*="shadow-[0_0_48px_rgba(0,107,255"] { box-shadow: 0 0 48px rgba(242, 90, 12, 0.3), inset 0 0 48px rgba(242, 90, 12, 0.16); }
+html[data-tema-site="black"] [class*="shadow-[0_16px_32px_-18px_rgba(0,107,255"] { box-shadow: 0 16px 32px -18px rgba(242, 90, 12, 0.9); }
+/* Branco translúcido feito para o fundo claro (dias do calendário, listas vazias): vira o tom do cartão. */
+html[data-tema-site="black"] :is(.bg-white\/45, .bg-white\/50, .bg-white\/60, .bg-white\/70, .bg-white\/80, .bg-white\/90):not([data-tema="black"] *) { background-color: rgba(42, 34, 30, 0.6); }
