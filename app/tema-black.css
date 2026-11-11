@@ -46,7 +46,8 @@ html[data-tema-site="black"] :is(.text-marinho-950, .text-marinho-900, .text-mar
 html[data-tema-site="black"] .fundo-escuro-da-onda {
   background-image: linear-gradient(180deg, #0E0C0B 0%, #120F0D 18%, #0A0908 82%, #0E0C0B 100%);
 }
-html[data-tema-site="black"] footer { background-color: #0A0908; background-image: none; }
+/* O rodapé na mesma cor do pé da onda (--onda-escuro-3), sem faixa entre os dois. */
+html[data-tema-site="black"] footer { background-color: #0E0C0B; background-image: none; }
 
 /* ---------- 2. Cores escritas nos componentes ---------- */
 /* Textos escuros feitos para o fundo claro: viram os textos claros da especificação. */
@@ -78,7 +79,7 @@ html[data-tema-site="black"] [class*="#7DB8FF_0%"] {
 }
 
 /* ---------- 3. Brilhos azuis decorativos: girados para o laranja ---------- */
-html[data-tema-site="black"] :is([class*="rgba(0,107,255"], [class*="rgba(47,134,255"], [class*="rgba(37,99,235"], [class*="rgba(20,74,255"], [class*="rgba(111,174,255"], [class*="#1E5BD8"], [class*="#12305A"], [class*="#0B2A55"], [class*="#16325C"], [class*="#4D9BFF"])[aria-hidden="true"]:not(.bg-clip-text):not(:has(img)) {
+html[data-tema-site="black"] :is([class*="rgba(0,107,255"], [class*="rgba(47,134,255"], [class*="rgba(37,99,235"], [class*="rgba(20,74,255"], [class*="rgba(111,174,255"], [class*="#1E5BD8"], [class*="#12305A"], [class*="#0B2A55"], [class*="#16325C"], [class*="#4D9BFF"]):is([aria-hidden="true"], .pointer-events-none):not(.bg-clip-text):not(:has(img, video, picture, canvas)) {
   filter: hue-rotate(168deg) saturate(1.15);
 }
 
@@ -93,7 +94,7 @@ html[data-tema-site="black"] {
 
 /* ---------- 5. Ajustes depois de ver as páginas ---------- */
 /* O giro de cor não pode pegar fotos: o fundo dos cartões dos professores (com a foto dentro) troca de degradê. */
-html[data-tema-site="black"] [aria-hidden="true"]:has(img) { filter: none; }
+html[data-tema-site="black"] :is([aria-hidden="true"], .pointer-events-none):has(img, video, picture, canvas) { filter: none; }
 /* Fundos azul-escuros em degradê (cartões das turmas, dos professores, painéis): o preto quente com brilho laranja. */
 html[data-tema-site="black"] :is([class*="#1E5BD8"], [class*="#0F2645"], [class*="#12305A"], [class*="#16325C"], [class*="#1B3A63"], [class*="#14304F"], [class*="#081830"], [class*="#0B2A55"], [class*="#060F1E"]):not(:is([aria-hidden="true"]:not(:has(img)))) {
   background-image: radial-gradient(80% 60% at 50% 0%, rgba(242, 90, 12, 0.2), transparent 70%), linear-gradient(180deg, #1C1714, #120F0D);
@@ -125,3 +126,13 @@ html[data-tema-site="black"] [class*="shadow-[0_0_48px_rgba(0,107,255"] { box-sh
 html[data-tema-site="black"] [class*="shadow-[0_16px_32px_-18px_rgba(0,107,255"] { box-shadow: 0 16px 32px -18px rgba(242, 90, 12, 0.9); }
 /* Branco translúcido feito para o fundo claro (dias do calendário, listas vazias): vira o tom do cartão. */
 html[data-tema-site="black"] :is(.bg-white\/45, .bg-white\/50, .bg-white\/60, .bg-white\/70, .bg-white\/80, .bg-white\/90):not([data-tema="black"] *) { background-color: rgba(42, 34, 30, 0.6); }
+/* Bordas azuis translúcidas (cartões das modalidades, painéis): o laranja, com a mesma transparência aproximada. */
+html[data-tema-site="black"] :is([class*="border-[rgba(111,174,255,0.08)]"], [class*="border-[rgba(111,174,255,0.16)]"], [class*="border-[rgba(111,174,255,0.2)]"], [class*="border-[rgba(111,174,255,0.22)]"]) { border-color: rgba(255, 154, 92, 0.18); }
+html[data-tema-site="black"] :is([class*="border-[rgba(111,174,255,0.45)]"], [class*="border-[rgba(111,174,255,0.5)]"], [class*="border-[rgba(47,134,255,0.7)]"]) { border-color: rgba(255, 122, 46, 0.55); }
+html[data-tema-site="black"] :is([class*="hover:border-[rgba(111,174,255"]):hover { border-color: rgba(255, 122, 46, 0.55); }
+/* Selos de turno (Manhã, Tarde, Noite, Integral): a escala de laranja, do mais claro ao mais escuro, no lugar da azul. */
+html[data-tema-site="black"] [class*="bg-[#BCD5FF]"] { background-color: #6E3010; }
+html[data-tema-site="black"] [class*="text-[#0C3594]"] { color: #FFD2B0; }
+html[data-tema-site="black"] [class*="text-[#D6E6FF]"] { color: #FFB27A; }
+html[data-tema-site="black"] [class*="bg-[#D6E5FF]"] { background-color: #4A2410; }
+html[data-tema-site="black"] [class*="text-[#123E9C]"] { color: #FF9A5C; }
