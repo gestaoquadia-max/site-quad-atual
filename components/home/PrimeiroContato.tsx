@@ -87,12 +87,12 @@ function CartaoDoConcurso({ href, titulo, brasao }: { href: string; titulo: stri
     <li>
       <Link
         href={href}
-        className={`group flex h-full min-h-[132px] flex-col justify-between gap-3 rounded-[12px] p-[14px] transition-[transform,border-color] duration-150 hover:-translate-y-0.5 ${CORES.cartao}`}
+        className={`group flex h-full min-h-[150px] flex-col justify-between gap-3 rounded-[12px] p-[14px] transition-[transform,border-color] duration-150 hover:-translate-y-0.5 ${CORES.cartao}`}
       >
         {brasao ? (
-          <Image src={brasao} alt="" width={44} height={44} className="h-10 w-10 object-contain [filter:drop-shadow(0_4px_8px_rgba(0,0,0,0.35))]" />
+          <Image src={brasao} alt="" width={64} height={64} className="h-14 w-14 object-contain [filter:drop-shadow(0_4px_8px_rgba(0,0,0,0.35))]" />
         ) : (
-          <span className="h-10" />
+          <span className="h-14" />
         )}
         <span className="flex flex-col gap-1.5">
           <span className="font-display text-[15.5px] font-bold leading-tight">{titulo}</span>
@@ -131,7 +131,11 @@ function BarraDaTurma({ turma }: { turma: Turma }) {
       )}
       <div className="ml-auto flex flex-wrap items-center gap-x-7 gap-y-3">
         <span className="flex flex-col sm:items-end">
-          {turma.precoCheio && <s className="text-[12.5px] text-white/60">{turma.precoCheio}</s>}
+          {turma.precoCheio && (
+            <span className="text-[13px] text-white/70">
+              De <s>{turma.precoCheio}</s> por
+            </span>
+          )}
           <b className="font-display text-[clamp(1.5rem,2.2vw,1.9rem)] font-extrabold">{turma.preco}</b>
         </span>
         <Link href={`/turmas/${turma.slug}`} className={`btn-q h-[54px] rounded-full px-6 text-[15.5px] text-white hover:text-white ${CORES.botao}`}>
@@ -171,7 +175,7 @@ export default function PrimeiroContato({ banners, turmas }: { banners: Banner[]
             <span
               className={`block bg-clip-text pb-2 pr-3 text-[clamp(3.6rem,7vw,6.25rem)] italic leading-[1] text-transparent ${CORES.destaque}`}
             >
-              aprovação
+              Aprovação
             </span>
           </h1>
           <p className="mt-5 max-w-[540px] text-[clamp(16px,1.5vw,20px)] leading-[1.55] text-white/85 [text-wrap:pretty]">
