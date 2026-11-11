@@ -13,7 +13,7 @@ const NAVEGACAO = [
   ["Eventos", "/eventos"],
   ["Combos", "/combos"],
   ["Loja", "/loja"],
-  ["Aprovados", "/aprovados"],
+  ["Aprovados", "/#aprovados"],
   ["Professores", "/professores"],
 ];
 

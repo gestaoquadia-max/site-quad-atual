@@ -69,6 +69,8 @@ const nextConfig = {
   async redirects() {
     return [
       { source: "/cursos", destination: "/mentorias", permanent: true },
+      // A página /aprovados saiu em 11/11/2026: os aprovados ficam só na Home (seção #aprovados).
+      { source: "/aprovados", destination: "/#aprovados", permanent: false },
       { source: "/blog", destination: "/", permanent: false },
       { source: "/blog/:slug*", destination: "/", permanent: false },
     ];

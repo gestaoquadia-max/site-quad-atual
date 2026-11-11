@@ -1,4 +1,4 @@
-// Fotos dos alunos aprovados na página /aprovados (11/11/2026): 10 das fotos enviadas pela equipe, em
+// Fotos dos alunos aprovados na seção Aprovados da Home (11/11/2026; a página /aprovados saiu): 10 das fotos enviadas pela equipe, em
 // public/images/aprovados. A palavra (APROVADO, APROVADA, APROVADOS, APROVADAS) e o concurso saem do nome de cada
 // arquivo recebido ("APROVADA CFO PMBA.JPG" → APROVADA, CFO • PMBA). Quando a API tiver o cadastro dos aprovados
 // (foto + concurso, pelo Painel), a lista passa a vir de lá.

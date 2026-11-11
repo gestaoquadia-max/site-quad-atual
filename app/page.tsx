@@ -17,7 +17,8 @@ import { EM_ESPERA, TEXTO_EM_ESPERA, type AreaDoSite } from "@/lib/em-espera";
 import ProfessoresEmDestaque from "@/components/home/ProfessoresEmDestaque";
 import Onda from "@/components/home/Onda";
 import BlackFridayDaHome from "@/components/home/BlackFridayDaHome";
-import AprovadosEmVideo from "@/components/home/AprovadosEmVideo";
+import CarrosselDeAprovados from "@/components/aprovados/CarrosselDeAprovados";
+import { FOTOS_DE_APROVADOS } from "@/lib/aprovados";
 import { BLACK_FRIDAY } from "@/lib/black-friday";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts): os eventos vêm da API.
@@ -157,12 +158,10 @@ export default async function Home() {
         </>
       )}
 
-      {/* Os vídeos dos alunos aprovados (public/videos/aprovados), da entrega da designer. */}
-      <Secao className="bg-nevoa" espaco={ESPACO_JUNTO_DAS_ONDAS}>
-        <Reveal className="mb-[clamp(32px,4vw,48px)]">
-          <h2 className="titulo-secao">Aprovados</h2>
-        </Reveal>
-        <AprovadosEmVideo />
+      {/* Aprovados: o carrossel de fotos da entrega da designer (11/11/2026), as fotos em lib/aprovados.ts; /aprovados redireciona para cá.
+          Os vídeos de antes estão em components/home/AprovadosEmVideo.tsx. */}
+      <Secao id="aprovados" className="scroll-mt-[110px] bg-nevoa" espaco={ESPACO_JUNTO_DAS_ONDAS}>
+        <CarrosselDeAprovados fotos={FOTOS_DE_APROVADOS} titulo="h2" />
       </Secao>
       {/* A onda para o rodapé vem com ele (components/Footer.tsx). */}
     </>

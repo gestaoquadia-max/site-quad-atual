@@ -26,7 +26,8 @@ function Check() {
   );
 }
 
-export default function CarrosselDeAprovados({ fotos }: { fotos: FotoDeAprovado[] }) {
+// `titulo`: o nível do título (h2 na seção da Home).
+export default function CarrosselDeAprovados({ fotos, titulo: Titulo = "h1" }: { fotos: FotoDeAprovado[]; titulo?: "h1" | "h2" }) {
   const [vis, setVis] = useState(4);
   const [indice, setIndice] = useState(0);
 
@@ -46,7 +47,7 @@ export default function CarrosselDeAprovados({ fotos }: { fotos: FotoDeAprovado[
     <div className="flex flex-col gap-10">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div className="flex flex-wrap items-center gap-7">
-          <h1 className="font-display text-[clamp(2.6rem,5vw,4.2rem)] font-extrabold leading-none tracking-[-0.045em] text-tinta">Aprovados</h1>
+          <Titulo className="font-display text-[clamp(2.6rem,5vw,4.2rem)] font-extrabold leading-none tracking-[-0.045em] text-tinta">Aprovados</Titulo>
           <p className="max-w-[520px] border-l border-tinta/20 pl-6 text-[clamp(16px,1.5vw,20px)] leading-[1.45] text-ardosia-escura">
             Histórias reais de alunos que confiaram no nosso método e hoje fazem parte das forças de segurança.
           </p>
