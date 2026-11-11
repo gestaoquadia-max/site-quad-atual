@@ -72,7 +72,7 @@ function CartaoDoConcurso({ href, titulo, brasao }: { href: string; titulo: stri
         className={`group flex h-full min-h-[150px] flex-col justify-between gap-3 rounded-[12px] p-[14px] transition-[transform,border-color] duration-150 hover:-translate-y-0.5 ${CORES.cartao}`}
       >
         {brasao ? (
-          <Image src={brasao} alt="" width={64} height={64} className="h-14 w-14 object-contain [filter:drop-shadow(0_4px_8px_rgba(0,0,0,0.35))]" />
+          <Image src={brasao} alt="" width={64} height={64} className="mx-auto h-14 w-14 object-contain [filter:drop-shadow(0_4px_8px_rgba(0,0,0,0.35))]" />
         ) : (
           <span className="h-14" />
         )}
