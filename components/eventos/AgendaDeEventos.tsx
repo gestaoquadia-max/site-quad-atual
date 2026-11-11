@@ -155,7 +155,15 @@ export default function AgendaDeEventos({ eventos }: { eventos: Evento[] | null 
               </p>
               <span className="btn-q btn-q-azul mt-2 h-[52px] px-6 text-base">Explorar simulados</span>
             </div>
-            <ArteDoEvento className="!aspect-auto min-h-[260px]" />
+            <div className="relative aspect-[1920/953] bg-marinho-900 md:aspect-auto md:min-h-[300px]">
+              <Image
+                src="/images/capa-simulados/banner-simulado.png"
+                alt="Painel de desempenho nos simulados do Quad, com cartão-resposta e gráfico de evolução"
+                fill
+                sizes="(min-width: 768px) 50vw, 100vw"
+                className="object-cover"
+              />
+            </div>
           </Link>
         </div>
       </section>
