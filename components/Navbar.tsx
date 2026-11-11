@@ -344,7 +344,14 @@ export default function Navbar({ turmas, eventos, materiais, temExcursoes = fals
                       ativo ? "bg-white/[0.09] font-semibold" : "font-medium"
                     } ${ativo || aberto ? "text-white" : "text-prata hover:bg-white/[0.05] hover:text-white"}`}
                   >
-                    {l.label}
+                    {/* O item da página atual fica em negrito; a cópia invisível, sempre em negrito, guarda a largura
+                        dele em todas as páginas, para os itens não mudarem de lugar de uma página para outra. */}
+                    <span className="grid">
+                      <span aria-hidden="true" className="invisible col-start-1 row-start-1 font-semibold">
+                        {l.label}
+                      </span>
+                      <span className="col-start-1 row-start-1 text-center">{l.label}</span>
+                    </span>
                     {l.menu && <Seta className="opacity-70" />}
                   </Link>
                   {/* O <li> não é posicionado: o submenu se alinha ao centro da barra inteira. */}

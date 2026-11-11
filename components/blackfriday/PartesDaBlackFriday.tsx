@@ -73,7 +73,9 @@ export function AberturaDaBlackFriday({
   segundoBotao: { rotulo: string; href: string; externo?: boolean };
 }) {
   return (
-    <section className="relative overflow-hidden pb-[clamp(88px,9vw,136px)] pt-[clamp(28px,3vw,40px)]">
+    // A abertura sobe por trás do menu flutuante (o espaço de 106/110px que app/globals.css reserva no topo da página,
+    // `.com-menu-flutuante`): o degradê dela começa atrás da cápsula, e não numa faixa de outra cor acima dela.
+    <section className="relative -mt-[106px] overflow-hidden pb-[clamp(88px,9vw,136px)] pt-[calc(106px+clamp(28px,3vw,40px))] min-[1220px]:-mt-[110px] min-[1220px]:pt-[calc(110px+clamp(28px,3vw,40px))]">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[image:radial-gradient(60%_55%_at_50%_62%,rgba(242,90,12,0.26),transparent_70%),linear-gradient(180deg,#1C1714_0%,#120F0D_55%,#0A0908_100%)]"
