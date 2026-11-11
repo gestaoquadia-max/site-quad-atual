@@ -1,4 +1,4 @@
-import { bannersPublicados, mentorias, modalidades } from "@/lib/conteudo";
+import { mentorias, modalidades } from "@/lib/conteudo";
 import { listarEventos, listarExcursoes, listarMateriais, listarProfessores, listarTurmas } from "@/lib/vitrine";
 import { paraCartaoDeExcursao } from "@/lib/excursoes";
 import { insigniaDaModalidade } from "@/lib/turmas";
@@ -87,7 +87,7 @@ export default async function Home() {
     <>
       <DadosEstruturados dados={dadosDaOrganizacao()} />
       {/* O carrossel (components/home/CarrosselDeDestaques.tsx) saiu da Home em 04/11/2026; os banners viraram os cartões "Agora no Quad". */}
-      <PrimeiroContato banners={bannersPublicados()} turmas={turmas} />
+      <PrimeiroContato turmas={turmas} />
       <Onda para="claro" />
 
       <Secao className="bg-nevoa" espaco={ESPACO_JUNTO_DAS_ONDAS}>

@@ -469,6 +469,7 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
   return {
     slug: slugDa(a),
     idNaApi: a.id,
+    imagem: a.imagemUrl ?? undefined,
     tag: [data && diaEMes(data), formato].filter(Boolean).join(" · "),
     nome: a.nome,
     desc,

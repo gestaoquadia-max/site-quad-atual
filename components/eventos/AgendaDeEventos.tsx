@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Evento } from "@/lib/data";
 import { paraCartao } from "@/lib/eventos";
-import { MESES_CURTOS, ROTULO_DO_TIPO, type ItemDaAgenda } from "@/lib/agenda";
+import { MESES_CURTOS, ROTULO_DO_TIPO, ehAulao, type ItemDaAgenda } from "@/lib/agenda";
 import CartaoEvento from "../home/CartaoEvento";
 import Onda from "@/components/home/Onda";
 
@@ -44,7 +44,9 @@ function ProximosNaAgenda({ itens }: { itens: ItemDaAgenda[] }) {
 }
 
 export default function AgendaDeEventos({ eventos, proximos }: { eventos: Evento[] | null; proximos: ItemDaAgenda[] }) {
-  const auloes = eventos ?? [];
+  // Aulões e os outros eventos (Treinão, palestras, encontros), cada grupo na sua seção, só quando houver.
+  const auloes = (eventos ?? []).filter(ehAulao);
+  const outros = (eventos ?? []).filter((e) => !ehAulao(e));
   return (
     <>
       <section className="relative overflow-hidden bg-marinho-950 fundo-escuro-da-onda pb-[clamp(56px,7vw,90px)] pt-[clamp(40px,5vw,56px)] text-white">
@@ -120,6 +122,22 @@ export default function AgendaDeEventos({ eventos, proximos }: { eventos: Evento
             </div>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-6">
               {auloes.map((e) => (
+                <CartaoEvento key={e.slug} evento={paraCartao(e)} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {outros.length > 0 && (
+        <section id="outros-eventos" className="scroll-mt-[120px] bg-nevoa pt-[clamp(48px,6vw,72px)]">
+          <div className="conteiner flex flex-col gap-7">
+            <div className="flex flex-col gap-2">
+              <h2 className="titulo-secao">Outros eventos</h2>
+              <p className="text-[16.5px] leading-[1.55] text-ardosia [text-wrap:pretty]">Treinões, palestras e encontros da comunidade Quad.</p>
+            </div>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-6">
+              {outros.map((e) => (
                 <CartaoEvento key={e.slug} evento={paraCartao(e)} />
               ))}
             </div>

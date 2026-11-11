@@ -6,7 +6,11 @@ import { paraCartao } from "./eventos";
 import { paraCartaoDeExcursao, type ViagemDeExcursao } from "./excursoes";
 import { situacaoDa, type Carreira } from "./simulados";
 
-export type TipoNaAgenda = "simulado" | "excursao" | "aulao";
+export type TipoNaAgenda = "simulado" | "excursao" | "aulao" | "evento";
+
+// A API não separa aulão de outro evento (11/11/2026): é aulão o evento com "aulão" no nome; o resto (o Treinão do Quad,
+// palestras, encontros) entra como evento.
+export const ehAulao = (e: Pick<Evento, "nome">) => /aul[ãa]o/i.test(e.nome);
 
 export type ItemDaAgenda = {
   id: string;
@@ -20,7 +24,7 @@ export type ItemDaAgenda = {
   acao: string;
 };
 
-export const ROTULO_DO_TIPO: Record<TipoNaAgenda, string> = { simulado: "Simulado", excursao: "Excursão", aulao: "Aulão" };
+export const ROTULO_DO_TIPO: Record<TipoNaAgenda, string> = { simulado: "Simulado", excursao: "Excursão", aulao: "Aulão", evento: "Evento" };
 
 export const MESES_CURTOS = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
 
@@ -51,7 +55,7 @@ function doEvento(eventos: Evento[]): ItemDaAgenda[] {
       const cartao = paraCartao(e);
       return {
         id: `evento:${e.slug}`,
-        tipo: "aulao" as const,
+        tipo: ehAulao(e) ? ("aulao" as const) : ("evento" as const),
         data: e.detalhe!.inicio!.slice(0, 10),
         titulo: e.nome,
         descricao: e.desc,

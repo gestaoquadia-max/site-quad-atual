@@ -67,6 +67,8 @@ export type Produto = {
 
 export type Evento = {
   slug: string;
+  // A arte cadastrada no evento (imagemUrl da API); sem ela, o fundo com a marca do Quad.
+  imagem?: string;
   // O id da atividade na API: é o que o carrinho do servidor reserva (o endereço é o slug).
   idNaApi?: string;
   tag: string;

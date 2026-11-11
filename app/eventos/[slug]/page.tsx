@@ -82,7 +82,7 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
           </nav>
 
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,400px),1fr))] items-start gap-[clamp(32px,5vw,80px)]">
-            <ArteDoEvento className="max-w-[620px] rounded-[20px] border border-white/10 shadow-[0_40px_80px_-40px_rgba(0,0,0,0.85)]" />
+            <ArteDoEvento src={evento.imagem} alt={evento.nome} className="max-w-[620px] rounded-[20px] border border-white/10 shadow-[0_40px_80px_-40px_rgba(0,0,0,0.85)]" />
 
             <div>
               <div className="flex flex-wrap items-center gap-3">

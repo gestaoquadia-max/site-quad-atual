@@ -8,11 +8,12 @@ import { MESES_CURTOS, ROTULO_DO_TIPO, type ItemDaAgenda, type TipoNaAgenda } fr
 // por evento no dia e, ao lado, os eventos do dia escolhido. Os itens vêm de lib/agenda.ts.
 
 // O simulado na cor principal do site (azul; laranja na Black Friday, app/tema-black.css).
-const COR_DO_TIPO: Record<TipoNaAgenda, string> = { simulado: "rgb(var(--c-azul))", excursao: "#E11D48", aulao: "#16A34A" };
+const COR_DO_TIPO: Record<TipoNaAgenda, string> = { simulado: "rgb(var(--c-azul))", excursao: "#E11D48", aulao: "#16A34A", evento: "#8B5CF6" };
 const LEGENDA: { tipo: TipoNaAgenda; rotulo: string }[] = [
   { tipo: "simulado", rotulo: "Simulados" },
   { tipo: "excursao", rotulo: "Excursões" },
   { tipo: "aulao", rotulo: "Aulões" },
+  { tipo: "evento", rotulo: "Outros eventos" },
 ];
 const MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 const SEMANA_CURTA = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];

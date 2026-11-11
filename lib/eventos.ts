@@ -47,6 +47,7 @@ export function paraCartao(e: Evento): DadosDoCartaoEvento {
     titulo: e.nome,
     href: `/eventos/${e.slug}`,
     descricao: e.desc,
+    imagem: e.imagem,
     selo: seloDoEvento(e),
     data: inicio
       ? { dia: inicio.slice(8, 10), mes: MESES[Number(inicio.slice(5, 7)) - 1], local: e.tag.split(" · ").slice(1).join(" · ") }

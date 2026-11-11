@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Turma } from "@/lib/data";
-import type { Banner } from "@/lib/conteudo";
 import { brasaoDoConcurso } from "@/lib/brasoes";
 import { BLACK_FRIDAY } from "@/lib/black-friday";
 
@@ -9,7 +8,7 @@ import { BLACK_FRIDAY } from "@/lib/black-friday";
 // forças à direita (que some nas bordas pela máscara, sem faixa de cor), os dois caminhos (turmas e mentorias), a faixa
 // "Escolha o seu concurso e comece agora" com os concursos (e as insígnias deles) e a barra da próxima turma aberta.
 // Duas versões: o azul de sempre e a da Black Friday (BLACK_FRIDAY.site, lib/black-friday.ts), com a imagem e as cores
-// de cada uma. O banner publicado continua como a pílula "Destaque" acima do título.
+// de cada uma. Sem a pílula "Destaque" do banner acima do título (tirada em 11/11/2026, pedido do usuário).
 
 const CONCURSOS = [
   { id: "sd-pmba", titulo: "Soldado PMBA" },
@@ -62,23 +61,6 @@ function proximaTurmaAberta(turmas: Turma[] | null): Turma | null {
   const abertas = (turmas ?? []).filter((t) => t.status === "aberta");
   abertas.sort((a, b) => (a.dataDeInicio ?? "9999").localeCompare(b.dataDeInicio ?? "9999"));
   return abertas[0] ?? null;
-}
-
-// Pílula de aviso acima do título: o banner da vez.
-function Aviso({ banner }: { banner: Banner }) {
-  const cor = banner.botao.cor ?? "#2F86FF";
-  return (
-    <Link
-      href={banner.botao.link}
-      className="group mb-6 inline-flex max-w-full items-center gap-2.5 rounded-full border border-white/[0.12] bg-white/[0.05] py-1.5 pl-1.5 pr-4 text-[13.5px] text-prata-clara backdrop-blur-[6px] transition-colors hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
-    >
-      <span style={{ background: cor }} className="flex-none rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.1em] text-white">
-        Destaque
-      </span>
-      <span className="truncate font-medium">{banner.titulo ?? banner.nome}</span>
-      <Seta className="flex-none transition-transform group-hover:translate-x-0.5" />
-    </Link>
-  );
 }
 
 // Cartão de um concurso na faixa: a insígnia, o nome e a seta.
@@ -146,8 +128,7 @@ function BarraDaTurma({ turma }: { turma: Turma }) {
   );
 }
 
-export default function PrimeiroContato({ banners, turmas }: { banners: Banner[]; turmas: Turma[] | null }) {
-  const aviso = banners.find((b) => b.tipo !== "danilo") ?? null;
+export default function PrimeiroContato({ turmas }: { turmas: Turma[] | null }) {
   const turma = proximaTurmaAberta(turmas);
 
   return (
@@ -169,7 +150,6 @@ export default function PrimeiroContato({ banners, turmas }: { banners: Banner[]
 
       <div className="conteiner relative pb-[clamp(40px,5vw,72px)] pt-[clamp(24px,4vw,72px)]">
         <div className="max-w-[600px] lg:min-h-[clamp(380px,32vw,470px)]">
-          {aviso && <Aviso banner={aviso} />}
           <h1 id="titulo-da-home" className="font-display font-extrabold tracking-[-0.045em]">
             <span className="block text-[clamp(2.6rem,5vw,4.2rem)] leading-[1.02]">Conquiste a sua</span>
             <span

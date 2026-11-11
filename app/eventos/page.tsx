@@ -38,7 +38,7 @@ export default async function EventosPage() {
         <div className="conteiner flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <h2 className="titulo-secao">Calendário</h2>
-            <p className="text-[16.5px] text-ardosia">Todas as datas de simulados, excursões e aulões do mês.</p>
+            <p className="text-[16.5px] text-ardosia">Todas as datas de simulados, excursões, aulões e outros eventos do mês.</p>
           </div>
           <CalendarioDaAgenda itens={agenda} hoje={hoje} />
         </div>
