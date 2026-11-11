@@ -7,7 +7,8 @@ export type AreaDoSite = "materiais" | "loja" | "mentorias";
 export const EM_ESPERA: Record<AreaDoSite, boolean> = {
   materiais: true,
   loja: true,
-  mentorias: true,
+  // Reaberta em 11/11/2026, com a página da Black Friday (app/mentorias/page.tsx).
+  mentorias: false,
 };
 
 export const TEXTO_EM_ESPERA = {

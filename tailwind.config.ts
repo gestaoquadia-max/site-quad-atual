@@ -54,6 +54,18 @@ const config: Config = {
           rosa: "#F3A3B1",
           950: "#1E070D",
         },
+        // Black Friday das Mentorias (11/2026): preto quente e laranja, do modelo da campanha.
+        laranja: {
+          DEFAULT: "#F25A0C",
+          claro: "#FF7A2E",
+          suave: "#FF9A5C",
+          escuro: "#C94A08",
+        },
+        breu: {
+          DEFAULT: "#0E0C0B",
+          900: "#141110",
+          800: "#17120F",
+        },
         sucesso: { DEFAULT: "#13774A", fundo: "#E3F3EA" },
       },
       fontFamily: {

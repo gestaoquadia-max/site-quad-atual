@@ -35,15 +35,20 @@ const REPETICOES = 4;
 
 // Texto em movimento precisa poder ser pausado (WCAG 2.2.2): botão de pausa e pausa ao passar o mouse. Com
 // "menos movimento" no sistema, rola mais devagar (app/globals.css). Leitores de tela recebem a lista uma vez só, sem a animação.
-// `vinho`: nas páginas das Mentorias a faixa acompanha o vinho delas (components/Navbar.tsx).
-export default function NewsTicker({ turmas, eventos, vinho = false }: { turmas: Turma[]; eventos: Evento[]; vinho?: boolean }) {
-  // Transparente (05/11/2026): só um véu leve e o desfoque do que passa por trás. A sombra no texto o mantém legível
-  // quando um bloco claro passa por trás ao rolar.
-  const fundo = vinho
-    ? "border-b border-white/[0.1] bg-[rgba(60,12,22,0.22)] backdrop-blur-[16px] backdrop-saturate-150"
-    : "border-b border-white/[0.1] bg-[rgba(7,20,38,0.22)] backdrop-blur-[16px] backdrop-saturate-150";
-  // O botão de pausa fica por cima do texto que rola: um pouco mais fechado, para o texto não aparecer através dele.
-  const fundoDoBotao = vinho ? "bg-[rgba(60,12,22,0.55)] backdrop-blur-[16px]" : "bg-[rgba(7,20,38,0.55)] backdrop-blur-[16px]";
+// Transparente (05/11/2026): só um véu leve e o desfoque do que passa por trás. A sombra no texto o mantém legível
+// quando um bloco claro passa por trás ao rolar. O botão de pausa fica por cima do texto que rola: um pouco mais
+// fechado, para o texto não aparecer através dele.
+const VEUS = {
+  azul: { fundo: "bg-[rgba(7,20,38,0.22)]", botao: "bg-[rgba(7,20,38,0.55)]" },
+  vinho: { fundo: "bg-[rgba(60,12,22,0.22)]", botao: "bg-[rgba(60,12,22,0.55)]" },
+  black: { fundo: "bg-[rgba(20,16,14,0.3)]", botao: "bg-[rgba(20,16,14,0.6)]" },
+};
+export type TomDoTopo = keyof typeof VEUS;
+
+// `tom`: nas páginas das Mentorias a faixa acompanha a cor delas (components/Navbar.tsx).
+export default function NewsTicker({ turmas, eventos, tom = "azul" }: { turmas: Turma[]; eventos: Evento[]; tom?: TomDoTopo }) {
+  const fundo = `border-b border-white/[0.1] backdrop-blur-[16px] backdrop-saturate-150 ${VEUS[tom].fundo}`;
+  const fundoDoBotao = `backdrop-blur-[16px] ${VEUS[tom].botao}`;
   const [pausado, setPausado] = useState(false);
   const noticias = montarAvisos(turmas, eventos);
   const faixa = Array.from({ length: REPETICOES }, () => noticias).flat();

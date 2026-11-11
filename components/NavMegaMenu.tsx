@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import InsigniaDaTurma from "./turmas/InsigniaDaTurma";
+import type { TomDoTopo } from "./NewsTicker";
 
 // Decisão de 30/10/2026: cada submenu mostra no máximo 4 itens (no computador e no celular); o resto fica no "Ver todos".
 export const ITENS_NO_MENU = 4;
@@ -33,8 +34,8 @@ export type MegaMenuFeatured = {
   ctaHref: string;
   // Imagem do destaque (insígnia da turma, capa do material). Sem ela, o logo do Quad em marca d'água.
   imagem?: string | null;
-  // Vinho nas Mentorias; azul no resto.
-  tom?: "azul" | "vinho";
+  // Vinho (ou o preto da Black Friday) nas Mentorias; azul no resto.
+  tom?: "azul" | "vinho" | "black";
 };
 
 // Links para fora do site (landing das Mentorias) abrem na mesma aba, como os demais itens do menu.
@@ -53,6 +54,20 @@ function LinkDoMenu({ href, className, children }: { href: string; className: st
 const FUNDO_DO_DESTAQUE = {
   azul: "bg-[linear-gradient(160deg,#1A4278,#0B1C33_80%)]",
   vinho: "bg-[linear-gradient(160deg,#5A1424,#1A060C_80%)]",
+  black: "bg-[linear-gradient(160deg,#4A2210,#0E0C0B_80%)]",
+};
+
+const COR_DO_DESTAQUE = {
+  azul: { rotulo: "text-azul-ceu", botao: "btn-q-azul" },
+  vinho: { rotulo: "text-vinho-rosa", botao: "btn-q-vinho" },
+  black: { rotulo: "text-laranja-suave", botao: "btn-q-laranja" },
+};
+
+// O painel do submenu, na cor do topo.
+const PAINEL_DO_TOPO: Record<TomDoTopo, string> = {
+  azul: "border-[rgba(111,174,255,0.16)] bg-marinho-900",
+  vinho: "border-[rgba(243,163,177,0.16)] bg-[#24080F]",
+  black: "border-[rgba(255,122,46,0.18)] bg-breu-800",
 };
 
 // Painel azul-marinho solto abaixo da barra, no estilo de cartão: à esquerda o nome da seção e até 4 itens, em duas
@@ -63,10 +78,10 @@ export default function NavMegaMenu({
   featured,
   viewAllHref,
   viewAllLabel,
-  vinho = false,
+  tomDoTopo = "azul",
 }: {
-  // Nas páginas das Mentorias o painel acompanha o topo vinho (components/Navbar.tsx).
-  vinho?: boolean;
+  // Nas páginas das Mentorias o painel acompanha a cor do topo (components/Navbar.tsx).
+  tomDoTopo?: TomDoTopo;
   rotulo: string;
   items: MegaMenuItem[];
   featured: MegaMenuFeatured;
@@ -78,7 +93,7 @@ export default function NavMegaMenu({
   return (
     // A centralização (translate) fica no elemento de fora; a animação de entrada, que também usa transform, no de dentro.
     <div className="absolute left-1/2 top-full w-[min(980px,calc(100vw-40px))] -translate-x-1/2 pt-2.5">
-      <div className={`grid animate-[q-surgir_200ms_cubic-bezier(.2,.7,.2,1)_both] grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)] gap-2 rounded-[20px] border p-2.5 shadow-[0_30px_70px_-24px_rgba(0,0,0,0.75)] ${vinho ? "border-[rgba(243,163,177,0.16)] bg-[#24080F]" : "border-[rgba(111,174,255,0.16)] bg-marinho-900"}`}>
+      <div className={`grid animate-[q-surgir_200ms_cubic-bezier(.2,.7,.2,1)_both] grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)] gap-2 rounded-[20px] border p-2.5 shadow-[0_30px_70px_-24px_rgba(0,0,0,0.75)] ${PAINEL_DO_TOPO[tomDoTopo]}`}>
         <div className="flex flex-col px-5 pb-3 pt-5">
           <span className="mb-2 text-xs font-medium text-[#8FA0B8]">{rotulo}</span>
           {visiveis.length === 0 && <p className="py-2 text-sm text-prata">Nada aberto no momento.</p>}
@@ -131,13 +146,13 @@ export default function NavMegaMenu({
             />
           )}
           <div className="relative flex flex-col gap-2">
-            <span className={`text-[11px] font-bold uppercase tracking-[0.16em] ${tom === "vinho" ? "text-vinho-rosa" : "text-azul-ceu"}`}>{featured.eyebrow}</span>
+            <span className={`text-[11px] font-bold uppercase tracking-[0.16em] ${COR_DO_DESTAQUE[tom].rotulo}`}>{featured.eyebrow}</span>
             <span className="max-w-[300px] font-display text-[22px] font-extrabold leading-[1.15] tracking-[-0.02em]">{featured.title}</span>
             <span className="line-clamp-2 max-w-[340px] text-[13.5px] leading-[1.5] text-[#C9D5E5]">{featured.desc}</span>
             {featured.meta && <span className="text-xs font-bold uppercase tracking-[0.1em] text-white/80">{featured.meta}</span>}
             <LinkDoMenu
               href={featured.ctaHref}
-              className={`btn-q mt-2 h-11 self-start rounded-[9px] px-[18px] text-sm ${tom === "vinho" ? "btn-q-vinho" : "btn-q-azul"}`}
+              className={`btn-q mt-2 h-11 self-start rounded-[9px] px-[18px] text-sm ${COR_DO_DESTAQUE[tom].botao}`}
             >
               {featured.ctaLabel}
             </LinkDoMenu>

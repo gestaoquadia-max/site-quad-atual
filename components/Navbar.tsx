@@ -11,10 +11,11 @@ import { useVeAreasEmEspera } from "@/components/AreaEmEspera";
 import { LINK_DAS_MENTORIAS } from "@/lib/conteudo";
 import { useCart } from "@/lib/cart";
 import { useUsuarioAtual } from "@/lib/usuario";
-import NewsTicker from "./NewsTicker";
+import NewsTicker, { type TomDoTopo } from "./NewsTicker";
 import NavMegaMenu, { ITENS_NO_MENU, type MegaMenuFeatured, type MegaMenuItem } from "./NavMegaMenu";
 
-// Cores do topo: azul em todo o site e vinho nas páginas das Mentorias (barra de avisos, menu e botões).
+// Cores do topo: azul em todo o site e, nas páginas das Mentorias, a cor delas (TOM_DAS_MENTORIAS): barra de avisos,
+// menu e botões.
 // Atrás da cápsula fica a própria primeira dobra da página (ver `.com-menu-flutuante` em app/globals.css).
 const TEMAS = {
   azul: {
@@ -29,7 +30,17 @@ const TEMAS = {
     botao: "btn-q-vinho shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_8px_20px_-10px_rgba(196,42,68,0.9)]",
     selo: "bg-vinho-forte shadow-[0_0_0_2px_#1A060C]",
   },
+  black: {
+    capsula: "bg-[rgba(20,16,14,0.93)]",
+    painelDoCelular: "bg-breu",
+    botao: "btn-q-laranja shadow-[inset_0_1px_0_rgba(255,255,255,0.22),0_8px_20px_-10px_rgba(242,90,12,0.9)]",
+    selo: "bg-laranja shadow-[0_0_0_2px_#0E0C0B]",
+  },
 };
+
+// Black Friday das Mentorias (11/2026): o topo das páginas delas fica no preto e laranja da campanha. Para voltar ao
+// vinho, trocar aqui por "vinho" (e o data-tema da página em app/mentorias/page.tsx).
+const TOM_DAS_MENTORIAS: TomDoTopo = "black";
 type Tema = (typeof TEMAS)["azul"];
 
 function ehDasMentorias(caminho: string) {
@@ -129,13 +140,14 @@ function montarLinks(turmas: Turma[], eventos: Evento[], materiais: Produto[], t
           { href: `${LINK_DAS_MENTORIAS}#plus`, nome: "Mentoria+", meta: "3 meses de acesso", status: "aberta" },
           { href: `${LINK_DAS_MENTORIAS}#comparativo`, nome: "Combo Mentoria + Mentoria Plus", meta: "12 meses + 3 meses Plus" },
         ],
+        // Black Friday (27/11/2026): o destaque leva à página da campanha (app/mentorias/page.tsx).
         featured: {
-          eyebrow: "Mentorias do Quad",
-          title: "Você estuda. O Quad direciona.",
-          desc: "Estratégia, cronograma personalizado e análise de desempenho para uma preparação direcionada ao seu concurso.",
-          ctaLabel: "Saiba mais sobre a mentoria",
-          ctaHref: LINK_DAS_MENTORIAS,
-          tom: "vinho",
+          eyebrow: "Black Friday · 27/11",
+          title: "Mentoria por R$ 277,00",
+          desc: "12 meses de estratégia, cronograma personalizado e análise de desempenho para o seu concurso.",
+          ctaLabel: "Ver a oferta",
+          ctaHref: "/mentorias",
+          tom: TOM_DAS_MENTORIAS,
         },
         viewAllHref: "/mentorias",
         viewAllLabel: "Ver Mentorias do Quad",
@@ -256,8 +268,8 @@ export default function Navbar({ turmas, eventos, materiais, temExcursoes = fals
   );
   const pathname = usePathname();
   // Em espera, a página das mentorias é o aviso no azul do site: o menu também fica azul.
-  const vinho = (veEmEspera || !EM_ESPERA.mentorias) && ehDasMentorias(pathname);
-  const tema: Tema = vinho ? TEMAS.vinho : TEMAS.azul;
+  const tomDoTopo: TomDoTopo = (veEmEspera || !EM_ESPERA.mentorias) && ehDasMentorias(pathname) ? TOM_DAS_MENTORIAS : "azul";
+  const tema: Tema = TEMAS[tomDoTopo];
   const { totalCount } = useCart();
   const usuario = useUsuarioAtual();
   const [suspenso, setSuspenso] = useState<string | null>(null);
@@ -279,7 +291,7 @@ export default function Navbar({ turmas, eventos, materiais, temExcursoes = fals
 
   return (
     <div className="com-menu-flutuante sticky top-0 z-[60] -mb-[34px]">
-      <NewsTicker turmas={turmas} eventos={eventos} vinho={vinho} />
+      <NewsTicker turmas={turmas} eventos={eventos} tom={tomDoTopo} />
       {/* Menu em cápsula, sempre flutuando: fica por cima da página (não ocupa espaço) e o conteúdo passa por trás,
           desfocado. A área em volta da cápsula não recebe cliques; só a cápsula, o submenu e o menu do celular. Sem
           respiro embaixo da cápsula: o submenu começa colado nela, e o mouse não "sai" do menu no caminho até ele. */}
@@ -332,7 +344,7 @@ export default function Navbar({ turmas, eventos, materiais, temExcursoes = fals
                     {l.menu && <Seta className="opacity-70" />}
                   </Link>
                   {/* O <li> não é posicionado: o submenu se alinha ao centro da barra inteira. */}
-                  {l.menu && aberto && <NavMegaMenu {...l.menu} vinho={vinho} />}
+                  {l.menu && aberto && <NavMegaMenu {...l.menu} tomDoTopo={tomDoTopo} />}
                 </li>
               );
             })}
