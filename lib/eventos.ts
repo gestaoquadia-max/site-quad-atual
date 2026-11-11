@@ -14,7 +14,7 @@ export type DadosDoCartaoEvento = {
   selo: { texto: string; tom: TomDoSelo };
   // Selo de data sobre a arte ("09 AGO · Presencial · SIC/SIQ").
   data?: { dia: string; mes: string; local: string };
-  // Arte cadastrada na API (por enquanto só a excursão manda): cobre a arte padrão do cartão.
+  // Arte do cartão (a da excursão vem da API; a dos simulados é fixa): cobre a arte padrão.
   imagem?: string;
   preco?: string;
   // Presente quando a inscrição pode ir para o carrinho.
@@ -30,6 +30,7 @@ export const CARTAO_DOS_SIMULADOS: DadosDoCartaoEvento = {
   href: "/simulados",
   descricao: "Escolha sua carreira e encontre simulados presenciais, digitais, impressos e combos para sua preparação.",
   selo: { texto: "Presenciais, individuais e combos", tom: "breve" },
+  imagem: "/images/capa-simulados/Simulados.png",
 };
 
 export function seloDoEvento(e: Evento): DadosDoCartaoEvento["selo"] {
