@@ -10,6 +10,7 @@ const BRASAO_DO_CONCURSO: Record<string, string> = {
   "sd-bmba": `${BRASOES}/bmba.png`,
   "sd-cbmba": `${BRASOES}/bmba.png`,
   "ipc-pcba": `${BRASOES}/civil.png`,
+  "sd-pmpe": `${BRASOES}/pmpe.png`,
 };
 
 export function brasaoDoConcurso(id: string): string | null {
