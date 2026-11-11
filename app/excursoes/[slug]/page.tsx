@@ -7,7 +7,7 @@ import { parsePreco } from "@/lib/format";
 import { metadadosDaPagina } from "@/lib/seo";
 import { diaBarraMes, esgotada, itemDoCarrinho } from "@/lib/excursoes";
 import { buscarExcursao, listarExcursoes } from "@/lib/vitrine";
-import { ArteDoEvento } from "@/components/eventos/AgendaDeEventos";
+import { ArteDoEvento } from "@/components/eventos/ArteDoEvento";
 import CaixaDeInscricao from "@/components/eventos/CaixaDeInscricao";
 import Onda from "@/components/home/Onda";
 

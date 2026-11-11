@@ -10,7 +10,7 @@ import { seloDoEvento } from "@/lib/eventos";
 import { dadosDoEvento } from "@/lib/dados-estruturados";
 import { buscarEvento, listarEventos } from "@/lib/vitrine";
 import DadosEstruturados from "@/components/DadosEstruturados";
-import { ArteDoEvento } from "@/components/eventos/AgendaDeEventos";
+import { ArteDoEvento } from "@/components/eventos/ArteDoEvento";
 import CaixaDeInscricao from "@/components/eventos/CaixaDeInscricao";
 import Onda from "@/components/home/Onda";
 
