@@ -272,7 +272,8 @@ export default function Navbar({ turmas, eventos, materiais, temExcursoes = fals
   // (lib/black-friday.ts), a página /produtos é a da campanha, no preto e laranja; as páginas de cada material, não.
   const blackDosMateriais = BLACK_FRIDAY.materiais && (veEmEspera || !EM_ESPERA.materiais) && pathname === "/produtos";
   const tomDoTopo: TomDoTopo =
-    (veEmEspera || !EM_ESPERA.mentorias) && ehDasMentorias(pathname) ? TOM_DAS_MENTORIAS : blackDosMateriais ? "black" : "azul";
+    // Com o site todo na Black Friday (BLACK_FRIDAY.site), o menu e a barra de avisos também ficam no preto e laranja.
+    BLACK_FRIDAY.site || ((veEmEspera || !EM_ESPERA.mentorias) && ehDasMentorias(pathname)) || blackDosMateriais ? "black" : "azul";
   const tema: Tema = TEMAS[tomDoTopo];
   const { totalCount } = useCart();
   const usuario = useUsuarioAtual();

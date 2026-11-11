@@ -7,4 +7,6 @@ export const BLACK_FRIDAY = {
   materiais: true,
   // Home: o bloco da campanha (components/home/BlackFridayDaHome.tsx) no lugar das seções de Mentorias e de Materiais.
   home: true,
+  // O site todo no laranja e preto da campanha (app/tema-black.css), no lugar do azul. false = volta ao azul.
+  site: true,
 };

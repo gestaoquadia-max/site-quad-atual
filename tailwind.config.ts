@@ -1,5 +1,8 @@
 import type { Config } from "tailwindcss";
 
+// Cor do tema lida de uma variável CSS com os canais RGB ("0 107 255"), para as opacidades do Tailwind (bg-azul/10).
+const cor = (nome: string) => `rgb(var(--c-${nome}) / <alpha-value>)`;
+
 const config: Config = {
   content: [
     "./app/**/*.{ts,tsx}",
@@ -8,46 +11,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Novo visual (entrega da designer, out/2026).
-        marinho: {
-          950: "#071426",
-          900: "#0B1C33",
-          800: "#102641",
-          700: "#14304F",
-          600: "#1B3A63",
-        },
-        azul: {
-          DEFAULT: "#006BFF",
-          forte: "#144AFF",
-          vivo: "#2F86FF",
-          ceu: "#6FAEFF",
-          palido: "#E8F1FF",
-          gelo: "#F2F7FF",
-        },
-        tinta: "#101B2D",
+        // Novo visual (entrega da designer, out/2026). Desde 11/11/2026 as cores do tema saem de variáveis CSS
+        // (app/globals.css): o azul de sempre em :root e o laranja e preto da Black Friday em html[data-tema-site="black"]
+        // (chave BLACK_FRIDAY.site em lib/black-friday.ts). Os valores azuis originais estão em app/globals.css.
+        marinho: { 950: cor("marinho-950"), 900: cor("marinho-900"), 800: cor("marinho-800"), 700: cor("marinho-700"), 600: cor("marinho-600") },
+        azul: { DEFAULT: cor("azul"), forte: cor("azul-forte"), vivo: cor("azul-vivo"), ceu: cor("azul-ceu"), palido: cor("azul-palido"), gelo: cor("azul-gelo") },
+        tinta: cor("tinta"),
         // Sem fundo branco no site (06/11/2026): a página em azul-acinzentado, as seções que eram brancas um tom acima
-        // e os cartões em "superficie" (gelo), destacados pela sombra "cartao".
-        // 06/11/2026, à tarde: o primeiro tom (#E6ECF4) ainda parecia branco na tela; agora o azul-acinzentado aparece.
-        nevoa: {
-          DEFAULT: "#D7E0EB",
-          clara: "#D7E0EB", // igual ao DEFAULT desde 06/11/2026: todas as partes claras com a mesma cor
-        },
-        superficie: "#E9EEF5",
-        linha: {
-          DEFAULT: "#C9D3E0",
-          forte: "#B8C4D4",
-        },
-        // Textos secundários: "ardosia" em fundo claro, "prata" em fundo escuro (contraste AA nos dois). Mais escura
-        // desde o fundo novo: #5A6B82 dava 4,1:1 sobre a página; #4A5A70 dá 5,3:1 nela e 6:1 nos cartões.
-        ardosia: {
-          DEFAULT: "#4A5A70",
-          escura: "#2B3647",
-        },
-        prata: {
-          DEFAULT: "#A9B6C8",
-          clara: "#C9D5E5",
-          escura: "#8696AC",
-        },
+        // e os cartões em "superficie" (gelo), destacados pela sombra "cartao". "nevoa-clara" é igual ao DEFAULT.
+        nevoa: { DEFAULT: cor("nevoa"), clara: cor("nevoa") },
+        superficie: cor("superficie"),
+        linha: { DEFAULT: cor("linha"), forte: cor("linha-forte") },
+        // Textos secundários: "ardosia" em fundo claro, "prata" em fundo escuro (contraste AA nos dois).
+        ardosia: { DEFAULT: cor("ardosia"), escura: cor("ardosia-escura") },
+        prata: { DEFAULT: cor("prata"), clara: cor("prata-clara"), escura: cor("prata-escura") },
         vinho: {
           DEFAULT: "#8E1B2E",
           forte: "#A51E36",
@@ -66,7 +43,7 @@ const config: Config = {
           900: "#141110",
           800: "#17120F",
         },
-        sucesso: { DEFAULT: "#13774A", fundo: "#E3F3EA" },
+        sucesso: { DEFAULT: cor("sucesso"), fundo: cor("sucesso-fundo") },
       },
       fontFamily: {
         display: ["var(--font-display)"],

@@ -2,10 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Cores do tema (tailwind.config.ts), em canais RGB: o azul de sempre. O tema Black Friday troca estes valores em
+   app/tema-black.css. */
+:root {
+  --c-marinho-950: 7 20 38;       /* #071426 */
+  --c-marinho-900: 11 28 51;      /* #0B1C33 */
+  --c-marinho-800: 16 38 65;      /* #102641 */
+  --c-marinho-700: 20 48 79;      /* #14304F */
+  --c-marinho-600: 27 58 99;      /* #1B3A63 */
+  --c-azul: 0 107 255;            /* #006BFF */
+  --c-azul-forte: 20 74 255;      /* #144AFF */
+  --c-azul-vivo: 47 134 255;      /* #2F86FF */
+  --c-azul-ceu: 111 174 255;      /* #6FAEFF */
+  --c-azul-palido: 232 241 255;   /* #E8F1FF */
+  --c-azul-gelo: 242 247 255;     /* #F2F7FF */
+  --c-tinta: 16 27 45;            /* #101B2D */
+  --c-nevoa: 215 224 235;         /* #D7E0EB */
+  --c-superficie: 233 238 245;    /* #E9EEF5 */
+  --c-linha: 201 211 224;         /* #C9D3E0 */
+  --c-linha-forte: 184 196 212;   /* #B8C4D4 */
+  --c-ardosia: 74 90 112;         /* #4A5A70 */
+  --c-ardosia-escura: 43 54 71;   /* #2B3647 */
+  --c-prata: 169 182 200;         /* #A9B6C8 */
+  --c-prata-clara: 201 213 229;   /* #C9D5E5 */
+  --c-prata-escura: 134 150 172;  /* #8696AC */
+  --c-sucesso: 19 119 74;         /* #13774A */
+  --c-sucesso-fundo: 227 243 234; /* #E3F3EA */
+}
+
 body {
   font-family: var(--font-body);
-  background: #D7E0EB;
-  color: #101B2D;
+  background: rgb(var(--c-nevoa));
+  color: rgb(var(--c-tinta));
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }

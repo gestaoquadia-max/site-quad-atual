@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
+import "./tema-black.css";
+import { BLACK_FRIDAY } from "@/lib/black-friday";
+import { VARIAVEL_DA_FONTE_DA_CAMPANHA } from "@/components/blackfriday/PartesDaBlackFriday";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SoNoSite from "@/components/SoNoSite";
@@ -46,7 +49,13 @@ export default async function RootLayout({
   const [turmas, eventos, materiais, excursoes] = await Promise.all([listarTurmas(), listarEventos(), listarMateriais(), listarExcursoes()]);
 
   return (
-    <html lang="pt-BR" className={`${fonteDisplay.variable} ${fonteCorpo.variable}`} suppressHydrationWarning>
+    // Black Friday (lib/black-friday.ts): data-tema-site="black" põe o site todo no laranja e preto (app/tema-black.css).
+    <html
+      lang="pt-BR"
+      data-tema-site={BLACK_FRIDAY.site ? "black" : undefined}
+      className={`${fonteDisplay.variable} ${fonteCorpo.variable} ${BLACK_FRIDAY.site ? VARIAVEL_DA_FONTE_DA_CAMPANHA : ""}`}
+      suppressHydrationWarning
+    >
       {/* Coluna da altura da tela: em página curta (carrinho vazio, 404), o rodapé fica no fim dela. */}
       <body className="flex min-h-dvh flex-col">
         <CartProvider>

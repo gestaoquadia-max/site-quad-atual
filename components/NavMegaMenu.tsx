@@ -1,3 +1,4 @@
+import { BLACK_FRIDAY } from "@/lib/black-friday";
 import Image from "next/image";
 import Link from "next/link";
 import InsigniaDaTurma from "./turmas/InsigniaDaTurma";
@@ -89,7 +90,8 @@ export default function NavMegaMenu({
   viewAllLabel: string;
 }) {
   const visiveis = items.slice(0, ITENS_NO_MENU);
-  const tom = featured.tom ?? "azul";
+  // Com o site todo na Black Friday (lib/black-friday.ts), os destaques dos menus também ficam no preto e laranja.
+  const tom = BLACK_FRIDAY.site ? "black" : (featured.tom ?? "azul");
   return (
     // A centralização (translate) fica no elemento de fora; a animação de entrada, que também usa transform, no de dentro.
     <div className="absolute left-1/2 top-full w-[min(980px,calc(100vw-40px))] -translate-x-1/2 pt-2.5">

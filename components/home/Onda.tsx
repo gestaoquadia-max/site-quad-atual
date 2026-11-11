@@ -78,6 +78,35 @@ export default function Onda({ para }: { para: "escuro" | "claro" }) {
     >
       <Desenho prefixo={`${prefixo}-c`} curvas={CURVAS.celular} virada={virada} className="sm:hidden" />
       <Desenho prefixo={`${prefixo}-p`} curvas={CURVAS.computador} virada={virada} className="hidden sm:block" />
+      <FitaDaBlackFriday inclinacao={para === "escuro" ? "-rotate-[1.6deg]" : "rotate-[1.6deg]"} />
+    </div>
+  );
+}
+
+// No tema Black Friday do site (app/tema-black.css), a onda dá lugar a esta fita "BLACK FRIDAY · 27/11 · OFERTAS DO
+// QUAD · ✦" rolando (especificação da designer): 48 px de faixa num espaço de 96 px, inclinação alternada, duas cópias
+// lado a lado andando 100% em 32 s. Fora do tema, ela fica escondida.
+const TRECHO = Array.from({ length: 6 }, (_, i) => (
+  <span key={i} className="inline-flex items-center gap-[18px]">
+    <span className="text-white">BLACK FRIDAY</span>
+    <span className="text-breu-800">27/11</span>
+    <span className="text-white">OFERTAS DO QUAD</span>
+    <span className="text-breu-800">✦</span>
+  </span>
+));
+
+function FitaDaBlackFriday({ inclinacao }: { inclinacao: string }) {
+  return (
+    <div className="fita-da-onda relative h-24 overflow-hidden leading-normal">
+      <div
+        className={`absolute -left-[6%] top-6 flex h-12 w-[112%] items-center overflow-hidden border-t border-white/[0.22] bg-[linear-gradient(180deg,#FF7A2E,#E5530A)] font-[family-name:var(--font-campanha)] text-xl italic shadow-[0_0_34px_rgba(255,106,26,0.55)] outline outline-1 outline-transparent transform-gpu [backface-visibility:hidden] ${inclinacao}`}
+      >
+        {[0, 1].map((copia) => (
+          <div key={copia} className="flex w-max flex-none animate-[q-fita_32s_linear_infinite] gap-[18px] pr-[18px] [backface-visibility:hidden]">
+            {TRECHO}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
