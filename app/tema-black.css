@@ -146,3 +146,5 @@ html[data-tema-site="black"] .faixa-de-aprovado {
   border-top-color: rgba(255, 154, 92, 0.4);
 }
 html[data-tema-site="black"] [class*="bg-[#94A3B8]"] { background-color: #5A4D45; }
+/* Painéis translúcidos azul-escuros (o "Próximos na agenda" de /eventos): o card translúcido da especificação. */
+html[data-tema-site="black"] :is([class*="bg-[rgba(15,30,60"], [class*="bg-[rgba(8,21,48"]):not([aria-hidden="true"]) { background-color: rgba(28, 23, 20, 0.75); }

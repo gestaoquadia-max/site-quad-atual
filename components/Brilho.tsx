@@ -54,7 +54,7 @@ export function Brilho({ raio = 300, intensidade = 0.16 }: { raio?: number; inte
       className="pointer-events-none absolute inset-0 rounded-[inherit] transition-opacity duration-300"
       style={{
         opacity: "var(--go, 0)",
-        background: `radial-gradient(${raio}px circle at var(--mx, 50%) var(--my, 50%), rgba(0,107,255,${intensidade}), transparent 65%)`,
+        background: `radial-gradient(${raio}px circle at var(--mx, 50%) var(--my, 50%), rgb(var(--c-azul) / ${intensidade}), transparent 65%)`,
       }}
     />
   );
