@@ -3,39 +3,57 @@ import Link from "next/link";
 import type { Turma } from "@/lib/data";
 import type { Banner } from "@/lib/conteudo";
 import { brasaoDoConcurso } from "@/lib/brasoes";
-import CabecalhoDaTurma from "./CabecalhoDaTurma";
+import { BLACK_FRIDAY } from "@/lib/black-friday";
 
-// Primeira dobra da Home (no lugar do carrossel de banners, 04/11/2026): o aluno escolhe o concurso e cai nas turmas
-// dele (/turmas?cargo=...). À direita, a próxima turma com matrícula aberta. Os banners continuam como a pílula de
-// aviso acima do título: um por vez (o primeiro publicado depois do institucional), levando à página da campanha.
+// Primeira dobra da Home, no topo novo da designer (home v2, 11/11/2026): "Conquiste a sua aprovação" com a imagem das
+// forças à direita (que some nas bordas pela máscara, sem faixa de cor), os dois caminhos (turmas e mentorias), a faixa
+// "Escolha o seu concurso e comece agora" com os concursos (e as insígnias deles) e a barra da próxima turma aberta.
+// Duas versões: o azul de sempre e a da Black Friday (BLACK_FRIDAY.site, lib/black-friday.ts), com a imagem e as cores
+// de cada uma. O banner publicado continua como a pílula "Destaque" acima do título.
 
-// `cor`: o fundo do ponteiro (a seta), tirado da cor principal do brasão; `seta`: a cor da seta sobre ele.
 const CONCURSOS = [
-  { id: "sd-pmba", titulo: "Soldado PMBA", cor: "#D5DBE4", seta: "#0B1C33" }, // prata
-  { id: "cfo-pmba", titulo: "CFO PMBA", cor: "#1F5FD0", seta: "#FFFFFF" }, // azul
-  { id: "cfs-pmba", titulo: "Sargento PMBA", cor: "#B8862B", seta: "#FFFFFF" }, // bronze dourado
-  { id: "sd-bmba", titulo: "Soldado BMBA", cor: "#C8202E", seta: "#FFFFFF" }, // vermelho
-  { id: "ipc-pcba", titulo: "Investigador PCBA", cor: "#E6B93C", seta: "#0B1C33" }, // dourado
+  { id: "sd-pmba", titulo: "Soldado PMBA" },
+  { id: "cfo-pmba", titulo: "CFO PMBA" },
+  { id: "cfs-pmba", titulo: "Sargento PMBA" },
+  { id: "sd-bmba", titulo: "Soldado BMBA" },
+  { id: "ipc-pcba", titulo: "Investigador PCBA" },
 ];
+
+// As cores de cada versão (tabela da designer). Valores escritos por extenso, fora das classes que app/tema-black.css
+// troca, para cada versão sair exatamente como no modelo.
+const CORES = BLACK_FRIDAY.site
+  ? {
+      imagem: "/images/home/hero-forcas-black.png",
+      fundo: "bg-[linear-gradient(180deg,#1A0F0A_0%,#120F0D_100%)]",
+      brilho: "bg-[radial-gradient(45%_60%_at_80%_35%,rgba(242,90,12,0.30),transparent_70%)]",
+      destaque: "bg-[linear-gradient(100deg,#FFB27A_0%,#F25A0C_100%)]",
+      textoDestaque: "text-[#F25A0C]",
+      botao: "bg-[#F25A0C] hover:bg-[#FF7A2E] shadow-[0_18px_40px_-16px_rgba(242,90,12,0.9)]",
+      faixa: "bg-[#1C1714] text-[#F3EEEA] border border-white/[0.06]",
+      cartao: "bg-[linear-gradient(160deg,#E5530A,#B8400A)] text-white border border-[#FF9A5C]/50 hover:border-[#FFD2B0]",
+      barra: "bg-[linear-gradient(90deg,#1C1714,#2A1A10)] text-white border border-white/[0.06]",
+      rotuloDaBarra: "text-[#FF9A5C]",
+      dia: "text-[#FF7A2E]",
+    }
+  : {
+      imagem: "/images/home/hero-forcas.png",
+      fundo: "bg-[linear-gradient(180deg,#0B1A36_0%,#081530_100%)]",
+      brilho: "bg-[radial-gradient(45%_60%_at_80%_35%,rgba(43,123,255,0.30),transparent_70%)]",
+      destaque: "bg-[linear-gradient(100deg,#7CC4FF_0%,#2B7BFF_100%)]",
+      textoDestaque: "text-[#0B63F6]",
+      botao: "bg-[#0B63F6] hover:bg-[#2B7BFF] shadow-[0_18px_40px_-16px_rgba(11,99,246,0.9)]",
+      faixa: "bg-[#F4F7FC] text-[#0F172A]",
+      cartao: "bg-[#FFFFFF] text-[#0F172A] border border-[#CBD5E1] hover:border-[#0B63F6]",
+      barra: "bg-[linear-gradient(90deg,#0B1A36,#0E2A5C)] text-white",
+      rotuloDaBarra: "text-[#7CC4FF]",
+      dia: "text-[#5AA2FF]",
+    };
 
 function Seta({ className = "" }: { className?: string }) {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
       <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
-  );
-}
-
-// A seta do cartão num círculo da cor do concurso.
-function Ponteiro({ cor, seta }: { cor: string; seta: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      style={{ background: cor, color: seta }}
-      className="grid h-8 w-8 flex-none place-items-center rounded-full shadow-[0_6px_16px_-6px_rgba(0,0,0,0.6)] transition-transform group-hover:translate-x-0.5"
-    >
-      <Seta />
-    </span>
   );
 }
 
@@ -63,57 +81,62 @@ function Aviso({ banner }: { banner: Banner }) {
   );
 }
 
-// Cartão da próxima turma: insígnia, nome, concurso, início e turno, vagas e preço, e o botão para a página dela.
-function ProximaTurma({ turma }: { turma: Turma }) {
-  const total = turma.detalhe?.vagasTotal;
-  const ocupadas = turma.detalhe?.vagasOcupadas ?? 0;
-  const restantes = total != null ? Math.max(0, total - ocupadas) : null;
-  const linhas = [
+// Cartão de um concurso na faixa: a insígnia, o nome e a seta.
+function CartaoDoConcurso({ href, titulo, brasao }: { href: string; titulo: string; brasao: string | null }) {
+  return (
+    <li>
+      <Link
+        href={href}
+        className={`group flex h-full min-h-[132px] flex-col justify-between gap-3 rounded-[12px] p-[14px] transition-[transform,border-color] duration-150 hover:-translate-y-0.5 ${CORES.cartao}`}
+      >
+        {brasao ? (
+          <Image src={brasao} alt="" width={44} height={44} className="h-10 w-10 object-contain [filter:drop-shadow(0_4px_8px_rgba(0,0,0,0.35))]" />
+        ) : (
+          <span className="h-10" />
+        )}
+        <span className="flex flex-col gap-1.5">
+          <span className="font-display text-[15.5px] font-bold leading-tight">{titulo}</span>
+          <Seta className="transition-transform group-hover:translate-x-0.5" />
+        </span>
+      </Link>
+    </li>
+  );
+}
+
+// Barra da próxima turma aberta: nome (o dia em destaque), início, turno, concurso, preço e o botão.
+function BarraDaTurma({ turma }: { turma: Turma }) {
+  const [, nome, dia] = turma.nome.match(/^(.*?)\s*(\d{1,2}\/\d{1,2})$/) ?? [null, turma.nome, null];
+  const dados = [
     turma.inicio && { rotulo: "Início", valor: turma.inicio },
     turma.turno && { rotulo: "Turno", valor: turma.turno },
     turma.concurso && { rotulo: "Concurso", valor: turma.concurso },
   ].filter(Boolean) as { rotulo: string; valor: string }[];
-
   return (
-    <div className="relative">
-      {/* Brilho atrás do cartão. */}
-      <div aria-hidden="true" className="pointer-events-none absolute -inset-10 rounded-full bg-[radial-gradient(closest-side,rgba(0,107,255,0.35),transparent)]" />
-      <div className="relative overflow-hidden rounded-[24px] border border-[rgba(111,174,255,0.22)] bg-[linear-gradient(160deg,rgba(20,48,90,0.92)_0%,rgba(10,26,48,0.94)_60%)] p-6 shadow-[0_40px_80px_-32px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-[10px]">
-        <div aria-hidden="true" className="absolute inset-x-6 top-0 h-px bg-[linear-gradient(90deg,transparent,#4D9BFF,transparent)]" />
-        <CabecalhoDaTurma nome={turma.nome} insignia={turma.insignia ?? null} />
-
-        {linhas.length > 0 && (
-          <dl className="mt-5 grid grid-cols-3 gap-3 border-y border-white/[0.08] py-4">
-            {linhas.map((l) => (
-              <div key={l.rotulo} className="min-w-0">
-                <dt className="text-[11px] font-bold uppercase tracking-[0.12em] text-prata-escura">{l.rotulo}</dt>
-                <dd className="mt-1 truncate font-display text-[15px] font-bold text-white">{l.valor}</dd>
-              </div>
-            ))}
-          </dl>
-        )}
-
-        {restantes != null && total ? (
-          <div className="mt-4">
-            <span className="text-[13px] font-semibold text-white">{restantes === 1 ? "1 vaga restante" : `${restantes} vagas restantes`}</span>
-            {/* Fiel às vagas: sem matrícula, a barra fica vazia (nunca um mínimo para "parecer cheia"). */}
-            <div aria-hidden="true" className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full rounded-full bg-[linear-gradient(90deg,#2F86FF,#7DB8FF)]" style={{ width: `${Math.min(100, (ocupadas / total) * 100)}%` }} />
+    <div className={`mt-4 flex flex-wrap items-center gap-x-8 gap-y-4 rounded-[16px] px-[clamp(20px,2.4vw,28px)] py-5 ${CORES.barra}`}>
+      <div className="min-w-0">
+        <p className={`text-xs font-extrabold uppercase tracking-[0.16em] ${CORES.rotuloDaBarra}`}>Turma presencial</p>
+        <p className="font-display text-[clamp(1.6rem,2.4vw,2rem)] font-extrabold leading-tight tracking-[-0.02em]">
+          {nome} {dia && <span className={CORES.dia}>{dia}</span>}
+        </p>
+      </div>
+      {dados.length > 0 && (
+        <dl className="flex flex-wrap gap-x-7 gap-y-2">
+          {dados.map((d) => (
+            <div key={d.rotulo}>
+              <dt className="text-[13px] text-white/75">{d.rotulo}</dt>
+              <dd className="font-display text-[17px] font-bold">{d.valor}</dd>
             </div>
-          </div>
-        ) : (
-          <p className="mt-4 text-[13px] font-semibold text-white">{turma.statusLabel}</p>
-        )}
-
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            {turma.precoCheio && <span className="block text-[12.5px] text-prata line-through">{turma.precoCheio}</span>}
-            <span className="font-display text-[22px] font-extrabold tracking-[-0.02em]">{turma.preco}</span>
-          </div>
-          <Link href={`/turmas/${turma.slug}`} className="btn-q btn-q-azul h-12 rounded-full px-6 text-[15px] hover:-translate-y-px">
-            Garantir minha vaga <Seta />
-          </Link>
-        </div>
+          ))}
+        </dl>
+      )}
+      <div className="ml-auto flex flex-wrap items-center gap-x-7 gap-y-3">
+        <span className="flex flex-col sm:items-end">
+          {turma.precoCheio && <s className="text-[12.5px] text-white/60">{turma.precoCheio}</s>}
+          <b className="font-display text-[clamp(1.5rem,2.2vw,1.9rem)] font-extrabold">{turma.preco}</b>
+        </span>
+        <Link href={`/turmas/${turma.slug}`} className={`btn-q h-[54px] rounded-full px-6 text-[15.5px] text-white hover:text-white ${CORES.botao}`}>
+          Garantir minha vaga <Seta />
+        </Link>
       </div>
     </div>
   );
@@ -124,68 +147,72 @@ export default function PrimeiroContato({ banners, turmas }: { banners: Banner[]
   const turma = proximaTurmaAberta(turmas);
 
   return (
-    <section aria-labelledby="titulo-da-home" className="relative overflow-hidden bg-marinho-950 text-white">
-      {/* Fundo: brilhos azuis e a grade fina, como no restante do site. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_60%_at_82%_30%,rgba(0,107,255,0.34),transparent_70%),radial-gradient(35%_50%_at_8%_70%,rgba(20,74,255,0.14),transparent_70%),linear-gradient(180deg,#151A24_0%,#0B1A36_18%,#081530_82%,#151A24_100%)]" />
+    <section aria-labelledby="titulo-da-home" className={`relative overflow-hidden text-white ${CORES.fundo}`}>
+      <div aria-hidden="true" className={`pointer-events-none absolute inset-0 ${CORES.brilho}`} />
+      {/* A imagem das forças: no computador, à direita, atrás do texto; as bordas somem pela máscara. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[length:64px_64px]"
-        style={{ maskImage: "radial-gradient(60% 70% at 75% 35%, #000 0%, transparent 75%)", WebkitMaskImage: "radial-gradient(60% 70% at 75% 35%, #000 0%, transparent 75%)" }}
-      />
-
-      <div
-        className={`conteiner relative grid items-center gap-x-12 gap-y-10 pb-[clamp(48px,6vw,88px)] pt-[clamp(24px,3.5vw,48px)] ${
-          turma ? "min-[1100px]:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]" : ""
-        }`}
+        className="pointer-events-none absolute right-0 top-[120px] hidden aspect-[1672/941] w-[min(64%,1040px)] lg:block"
+        style={{
+          maskImage: "linear-gradient(90deg,transparent 0%,#000 30%), linear-gradient(180deg,transparent 0%,#000 16%,#000 70%,transparent 100%)",
+          WebkitMaskImage: "linear-gradient(90deg,transparent 0%,#000 30%), linear-gradient(180deg,transparent 0%,#000 16%,#000 70%,transparent 100%)",
+          maskComposite: "intersect",
+          WebkitMaskComposite: "source-in",
+        }}
       >
-        <div className="min-w-0">
-          {aviso && <Aviso banner={aviso} />}
-          <h1 id="titulo-da-home" className="font-display text-[clamp(2.3rem,4.4vw,4.2rem)] font-extrabold leading-[1.02] tracking-[-0.04em] [text-wrap:balance]">
-            Sua aprovação começa com a{" "}
-            <em className="bg-[linear-gradient(100deg,#7DB8FF_0%,#2F86FF_45%,#1F5BFF_100%)] bg-clip-text not-italic text-transparent [filter:drop-shadow(0_6px_24px_rgba(0,107,255,0.35))]">
-              preparação certa
-            </em>
-          </h1>
-          <p className="mt-5 max-w-[520px] text-[clamp(16px,1.5vw,18.5px)] leading-[1.6] text-[#B4C1D3] [text-wrap:pretty]">
-            Escolha o seu concurso e veja as turmas do Quad para ele.
-          </p>
+        <Image src={CORES.imagem} alt="" fill priority sizes="(min-width: 1024px) 64vw, 0px" className="object-cover" />
+      </div>
 
-          {/* Escolha do concurso */}
-          <ul aria-label="Escolha o seu concurso" className="mt-[clamp(28px,3.5vw,40px)] grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {CONCURSOS.map((c) => {
-              const brasao = brasaoDoConcurso(c.id);
-              return (
-                <li key={c.id}>
-                  <Link
-                    href={`/turmas?cargo=${c.id}`}
-                    style={{ "--cor": c.cor } as React.CSSProperties}
-                    className="group flex h-full flex-col gap-3 rounded-2xl border border-white/[0.1] bg-[rgba(11,28,51,0.72)] p-4 text-white backdrop-blur-[6px] transition-[border-color,background-color,transform] duration-150 hover:-translate-y-0.5 hover:border-[var(--cor)] hover:bg-[rgba(16,38,65,0.9)] hover:text-white"
-                  >
-                    {/* Em cima, o brasão e a seta colorida; embaixo, o nome do cargo com a largura toda do cartão. */}
-                    <span className="flex items-start justify-between gap-2">
-                      {brasao ? <Image src={brasao} alt="" width={48} height={48} className="h-11 w-11 flex-none object-contain sm:h-12 sm:w-12" /> : <span />}
-                      <Ponteiro cor={c.cor} seta={c.seta} />
-                    </span>
-                    <span className="font-display text-[15px] font-bold leading-tight sm:text-base">{c.titulo}</span>
-                  </Link>
-                </li>
-              );
-            })}
-            <li>
-              <Link
-                href="/turmas"
-                className="group flex h-full flex-col justify-between gap-3 rounded-2xl border border-dashed border-white/[0.18] p-4 text-white transition-colors hover:border-[rgba(111,174,255,0.5)] hover:text-white"
-              >
-                <span className="flex justify-end">
-                  <Ponteiro cor="rgba(255,255,255,0.12)" seta="#FFFFFF" />
-                </span>
-                <span className="font-display text-[15px] font-bold leading-tight sm:text-base">Ainda não decidi</span>
-              </Link>
-            </li>
+      <div className="conteiner relative pb-[clamp(40px,5vw,72px)] pt-[clamp(24px,4vw,72px)]">
+        <div className="max-w-[600px] lg:min-h-[clamp(380px,32vw,470px)]">
+          {aviso && <Aviso banner={aviso} />}
+          <h1 id="titulo-da-home" className="font-display font-extrabold tracking-[-0.045em]">
+            <span className="block text-[clamp(2.6rem,5vw,4.2rem)] leading-[1.02]">Conquiste a sua</span>
+            <span
+              className={`block bg-clip-text pb-2 pr-3 text-[clamp(3.6rem,7vw,6.25rem)] italic leading-[1] text-transparent ${CORES.destaque}`}
+            >
+              aprovação
+            </span>
+          </h1>
+          <p className="mt-5 max-w-[540px] text-[clamp(16px,1.5vw,20px)] leading-[1.55] text-white/85 [text-wrap:pretty]">
+            Turmas, mentorias e materiais para você evoluir com método, disciplina e foco no seu edital.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/turmas" className={`btn-q h-14 rounded-[10px] px-6 text-base text-white hover:-translate-y-0.5 hover:text-white ${CORES.botao}`}>
+              Ver turmas disponíveis <Seta />
+            </Link>
+            <Link href="/mentorias" className="btn-q h-14 rounded-[10px] border border-white/40 px-6 text-base text-white hover:border-white hover:bg-white/[0.06] hover:text-white">
+              Ver mentorias do Quad <Seta />
+            </Link>
+          </div>
+        </div>
+
+        {/* No celular, a imagem entre os botões e a faixa de concursos. */}
+        <div
+          aria-hidden="true"
+          className="relative -mx-[clamp(20px,4vw,56px)] mt-6 aspect-[1672/941] lg:hidden"
+          style={{
+            maskImage: "linear-gradient(180deg,transparent 0%,#000 18%,#000 72%,transparent 100%)",
+            WebkitMaskImage: "linear-gradient(180deg,transparent 0%,#000 18%,#000 72%,transparent 100%)",
+          }}
+        >
+          <Image src={CORES.imagem} alt="" fill sizes="100vw" className="object-cover" />
+        </div>
+
+        {/* Escolha do concurso: o aluno cai nas turmas dele (/turmas?cargo=...). */}
+        <div className={`relative mt-[clamp(8px,2vw,32px)] grid items-center gap-5 rounded-[18px] p-[clamp(18px,2vw,22px)] lg:grid-cols-[240px_minmax(0,1fr)] ${CORES.faixa}`}>
+          <p className="font-display text-[clamp(1.4rem,2vw,1.65rem)] font-extrabold leading-[1.15] tracking-[-0.02em] lg:pl-2">
+            Escolha o seu concurso e <span className={CORES.textoDestaque}>comece agora</span>
+          </p>
+          <ul aria-label="Escolha o seu concurso" className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+            {CONCURSOS.map((c) => (
+              <CartaoDoConcurso key={c.id} href={`/turmas?cargo=${c.id}`} titulo={c.titulo} brasao={brasaoDoConcurso(c.id)} />
+            ))}
+            <CartaoDoConcurso href="/turmas" titulo="Ainda não decidi" brasao={null} />
           </ul>
         </div>
 
-        {turma && <ProximaTurma turma={turma} />}
+        {turma && <BarraDaTurma turma={turma} />}
       </div>
     </section>
   );
