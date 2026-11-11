@@ -28,6 +28,11 @@
   --c-prata-escura: 134 150 172;  /* #8696AC */
   --c-sucesso: 19 119 74;         /* #13774A */
   --c-sucesso-fundo: 227 243 234; /* #E3F3EA */
+  /* Cores da onda das dobras (components/home/Onda.tsx), do SVG da designer. */
+  --onda-fundo-1: #D7E0EB; --onda-fundo-2: #C6D9EF; --onda-fundo-3: #9DBDE2; --onda-fundo-4: #7EA8D8;
+  --onda-tras-1: #6E97CB; --onda-tras-2: #6690C6; --onda-tras-3: #4A79B6;
+  --onda-meio-1: #4A78B4; --onda-meio-2: #3D6CAA; --onda-meio-3: #2C5791;
+  --onda-escuro-1: #0F1A2C; --onda-escuro-2: #121A29; --onda-escuro-3: #151A24;
 }
 
 body {

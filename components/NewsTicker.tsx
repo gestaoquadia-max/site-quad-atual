@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Evento, Turma } from "@/lib/data";
 import { institucional } from "@/lib/institucional";
 import { noticiasDaBarra } from "@/lib/noticias";
+import { BLACK_FRIDAY } from "@/lib/black-friday";
 
 type Aviso = { rotulo: string; texto: string };
 
@@ -52,6 +53,43 @@ export default function NewsTicker({ turmas, eventos, tom = "azul" }: { turmas: 
   const [pausado, setPausado] = useState(false);
   const noticias = montarAvisos(turmas, eventos);
   const faixa = Array.from({ length: REPETICOES }, () => noticias).flat();
+
+  // Black Friday no site todo (lib/black-friday.ts, 11/11/2026): no lugar das notícias de concursos, a faixa laranja
+  // "BLACK FRIDAY · 27/11 · OFERTAS DO QUAD" rolando, com o mesmo botão de pausa.
+  if (BLACK_FRIDAY.site) {
+    const trecho = Array.from({ length: 8 }, (_, i) => (
+      <span key={i} className="inline-flex items-center gap-[18px] pr-[18px]">
+        <span className="text-white">BLACK FRIDAY</span>
+        <span className="text-breu-800">27/11</span>
+        <span className="text-white">OFERTAS DO QUAD</span>
+        <span className="text-breu-800">✦</span>
+      </span>
+    ));
+    return (
+      <aside
+        aria-label="Black Friday do Quad em 27 de novembro"
+        className="group relative flex h-[34px] items-center overflow-hidden whitespace-nowrap border-b border-white/[0.18] bg-[linear-gradient(180deg,#FF7A2E,#E5530A)] font-[family-name:var(--font-campanha)] text-[15px] italic"
+      >
+        <p className="sr-only">Black Friday do Quad em 27 de novembro: ofertas do Quad.</p>
+        <div aria-hidden="true" className={`animate-marquee inline-flex w-max ${pausado ? "[animation-play-state:paused]" : ""}`}>
+          {[0, 1].map((copia) => (
+            <span key={copia} className="inline-flex">
+              {trecho}
+            </span>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => setPausado((v) => !v)}
+          aria-pressed={pausado}
+          aria-label={pausado ? "Retomar a faixa" : "Pausar a faixa"}
+          className="absolute right-0 top-0 flex h-full items-center bg-[#E5530A] px-2.5 font-sans text-[10px] font-bold not-italic text-white"
+        >
+          {pausado ? "▶" : "❚❚"}
+        </button>
+      </aside>
+    );
+  }
 
   return (
     <aside aria-label="Avisos" className={`group relative flex h-[34px] items-center overflow-hidden whitespace-nowrap text-white transition-colors [text-shadow:0_1px_3px_rgba(0,0,0,0.75)] ${fundo}`}>

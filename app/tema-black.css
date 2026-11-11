@@ -2,8 +2,8 @@
    preto no lugar do azul. Vale quando o <html> tem data-tema-site="black" (chave BLACK_FRIDAY.site em
    lib/black-friday.ts); sem a chave, nada daqui se aplica e o site volta ao azul de app/globals.css.
    1. As cores do tema (Tailwind) trocam pelas variáveis. 2. As cores escritas direto nos componentes (classes como
-   text-[#3E4A5E]) trocam pelas equivalentes. 3. Os brilhos azuis decorativos giram para o laranja. 4. As ondas viram
-   as fitas BLACK FRIDAY. */
+   text-[#3E4A5E]) trocam pelas equivalentes. 3. Os brilhos azuis decorativos giram para o laranja. 4. As ondas ganham
+   as cores do tema (o mesmo desenho, em preto e laranja). */
 
 /* ---------- 1. Cores do tema ---------- */
 html[data-tema-site="black"] {
@@ -77,22 +77,24 @@ html[data-tema-site="black"] [class*="#7DB8FF_0%"] {
 }
 
 /* ---------- 3. Brilhos azuis decorativos: girados para o laranja ---------- */
-html[data-tema-site="black"] :is([class*="rgba(0,107,255"], [class*="rgba(47,134,255"], [class*="rgba(37,99,235"], [class*="rgba(20,74,255"], [class*="rgba(111,174,255"], [class*="#1E5BD8"], [class*="#12305A"], [class*="#0B2A55"], [class*="#16325C"], [class*="#4D9BFF"])[aria-hidden="true"]:not(.bg-clip-text) {
+html[data-tema-site="black"] :is([class*="rgba(0,107,255"], [class*="rgba(47,134,255"], [class*="rgba(37,99,235"], [class*="rgba(20,74,255"], [class*="rgba(111,174,255"], [class*="#1E5BD8"], [class*="#12305A"], [class*="#0B2A55"], [class*="#16325C"], [class*="#4D9BFF"])[aria-hidden="true"]:not(.bg-clip-text):not(:has(img)) {
   filter: hue-rotate(168deg) saturate(1.15);
 }
 
-/* ---------- 4. Ondas viram as fitas BLACK FRIDAY ---------- */
-.fita-da-onda { display: none; }
-html[data-tema-site="black"] [data-onda] { background: #100D0C; }
-html[data-tema-site="black"] [data-onda] > svg { display: none; }
-html[data-tema-site="black"] [data-onda] > .fita-da-onda { display: block; }
-@keyframes q-fita { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+/* ---------- 4. Ondas nas cores do tema ---------- */
+/* Em cima, a cor das seções "claras" (agora #120F0D); embaixo, a das escuras (#0E0C0B); no meio, as faixas laranja. */
+html[data-tema-site="black"] {
+  --onda-fundo-1: #120F0D; --onda-fundo-2: #1A1310; --onda-fundo-3: #2B1910; --onda-fundo-4: #3D200E;
+  --onda-tras-1: #C2560F; --onda-tras-2: #D2600F; --onda-tras-3: #A9480B;
+  --onda-meio-1: #9C3F08; --onda-meio-2: #7E3307; --onda-meio-3: #5C2606;
+  --onda-escuro-1: #15100D; --onda-escuro-2: #110E0C; --onda-escuro-3: #0E0C0B;
+}
 
 /* ---------- 5. Ajustes depois de ver as páginas ---------- */
 /* O giro de cor não pode pegar fotos: o fundo dos cartões dos professores (com a foto dentro) troca de degradê. */
 html[data-tema-site="black"] [aria-hidden="true"]:has(img) { filter: none; }
 /* Fundos azul-escuros em degradê (cartões das turmas, dos professores, painéis): o preto quente com brilho laranja. */
-html[data-tema-site="black"] :is([class*="#0F2645"], [class*="#12305A"], [class*="#16325C"], [class*="#1B3A63"], [class*="#14304F"], [class*="#081830"], [class*="#0B2A55"], [class*="#060F1E"]):not(:is([aria-hidden="true"]:not(:has(img)))) {
+html[data-tema-site="black"] :is([class*="#1E5BD8"], [class*="#0F2645"], [class*="#12305A"], [class*="#16325C"], [class*="#1B3A63"], [class*="#14304F"], [class*="#081830"], [class*="#0B2A55"], [class*="#060F1E"]):not(:is([aria-hidden="true"]:not(:has(img)))) {
   background-image: radial-gradient(80% 60% at 50% 0%, rgba(242, 90, 12, 0.2), transparent 70%), linear-gradient(180deg, #1C1714, #120F0D);
 }
 /* Seções escuras escritas com o degradê azul da onda (professores da Home). */
@@ -108,3 +110,7 @@ html[data-tema-site="black"] :is([class*="#9CCBFF_0%"], [class*="#7DB8FF_0%"]) {
 html[data-tema-site="black"] :is([class*="(90deg,#2F86FF"]) { background-image: linear-gradient(90deg, #E5530A, #FF9A5C); }
 /* Véus azul-escuros translúcidos. */
 html[data-tema-site="black"] :is([class*="rgba(7,20,38"], [class*="rgba(10,26,48"]):not([aria-hidden="true"]) { background-color: rgba(14, 12, 11, 0.6); }
+/* Sombra de baixo dos cartões dos professores (sobre a foto): no preto quente, não no azul-escuro. */
+html[data-tema-site="black"] [class*="rgba(5,14,28,0.92)_6%"] {
+  background-image: linear-gradient(0deg, rgba(14, 12, 11, 0.92) 6%, rgba(14, 12, 11, 0.55) 26%, rgba(14, 12, 11, 0) 50%);
+}

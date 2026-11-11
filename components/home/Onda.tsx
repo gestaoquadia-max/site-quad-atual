@@ -5,7 +5,8 @@ import { useId } from "react";
 // O desenho é claro em cima (#D7E0EB, o "nevoa" das seções claras) e escuro embaixo (COR_ESCURA_DA_ONDA); virado
 // (scale(-1,-1)), serve para a passagem do escuro para o claro. Ocupa a largura toda e estica até a altura
 // clamp(48px, 10.7vw, 190px). No celular (abaixo de 640px), a versão de curvas mais longas da designer.
-// Os degradês ganham um prefixo único por onda: a mesma página tem várias, e algumas ficam escondidas (a do rodapé nas
+// As cores saem das variáveis --onda-* (app/globals.css; no tema Black Friday, app/tema-black.css troca para o preto e
+// laranja, com o mesmo desenho). Os degradês ganham um prefixo único por onda: a mesma página tem várias, e algumas ficam escondidas (a do rodapé nas
 // páginas que terminam no escuro, a versão do celular no computador); um id repetido apontaria para uma escondida.
 export const COR_ESCURA_DA_ONDA = "#151A24";
 // Fundo das seções escuras da Home: começa e termina na cor da onda.
@@ -36,25 +37,25 @@ function Desenho({ prefixo, curvas, virada, className }: { prefixo: string; curv
     >
       <defs>
         <linearGradient id={id("fundo-claro")} x1="0" y1="0" x2="0" y2="170" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#D7E0EB" />
-          <stop offset=".3" stopColor="#C6D9EF" />
-          <stop offset=".6" stopColor="#9DBDE2" />
-          <stop offset="1" stopColor="#7EA8D8" />
+          <stop offset="0" style={{ stopColor: "var(--onda-fundo-1)" }} />
+          <stop offset=".3" style={{ stopColor: "var(--onda-fundo-2)" }} />
+          <stop offset=".6" style={{ stopColor: "var(--onda-fundo-3)" }} />
+          <stop offset="1" style={{ stopColor: "var(--onda-fundo-4)" }} />
         </linearGradient>
         <linearGradient id={id("faixa-de-tras")} x1="0" y1="50" x2="0" y2="130" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#6E97CB" stopOpacity=".55" />
-          <stop offset=".25" stopColor="#6690C6" stopOpacity=".9" />
-          <stop offset="1" stopColor="#4A79B6" />
+          <stop offset="0" style={{ stopColor: "var(--onda-tras-1)" }} stopOpacity=".55" />
+          <stop offset=".25" style={{ stopColor: "var(--onda-tras-2)" }} stopOpacity=".9" />
+          <stop offset="1" style={{ stopColor: "var(--onda-tras-3)" }} />
         </linearGradient>
         <linearGradient id={id("faixa-do-meio")} x1="0" y1="64" x2="0" y2="140" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#4A78B4" stopOpacity=".7" />
-          <stop offset=".3" stopColor="#3D6CAA" />
-          <stop offset="1" stopColor="#2C5791" />
+          <stop offset="0" style={{ stopColor: "var(--onda-meio-1)" }} stopOpacity=".7" />
+          <stop offset=".3" style={{ stopColor: "var(--onda-meio-2)" }} />
+          <stop offset="1" style={{ stopColor: "var(--onda-meio-3)" }} />
         </linearGradient>
         <linearGradient id={id("escuro")} x1="0" y1="75" x2="0" y2="170" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#0F1A2C" />
-          <stop offset=".6" stopColor="#121A29" />
-          <stop offset="1" stopColor="#151A24" />
+          <stop offset="0" style={{ stopColor: "var(--onda-escuro-1)" }} />
+          <stop offset=".6" style={{ stopColor: "var(--onda-escuro-2)" }} />
+          <stop offset="1" style={{ stopColor: "var(--onda-escuro-3)" }} />
         </linearGradient>
       </defs>
       <path fill={`url(#${id("fundo-claro")})`} d="M0 0H1586V170H0Z" />
@@ -73,40 +74,12 @@ export default function Onda({ para }: { para: "escuro" | "claro" }) {
       aria-hidden="true"
       data-onda={para}
       className={`relative z-[1] -my-px leading-[0] ${
-        para === "escuro" ? "bg-[linear-gradient(180deg,#D7E0EB_50%,#151A24_50%)]" : "bg-[linear-gradient(180deg,#151A24_50%,#D7E0EB_50%)]"
+        para === "escuro" ? "bg-[linear-gradient(180deg,var(--onda-fundo-1)_50%,var(--onda-escuro-3)_50%)]" : "bg-[linear-gradient(180deg,var(--onda-escuro-3)_50%,var(--onda-fundo-1)_50%)]"
       }`}
     >
       <Desenho prefixo={`${prefixo}-c`} curvas={CURVAS.celular} virada={virada} className="sm:hidden" />
       <Desenho prefixo={`${prefixo}-p`} curvas={CURVAS.computador} virada={virada} className="hidden sm:block" />
-      <FitaDaBlackFriday inclinacao={para === "escuro" ? "-rotate-[1.6deg]" : "rotate-[1.6deg]"} />
     </div>
   );
 }
 
-// No tema Black Friday do site (app/tema-black.css), a onda dá lugar a esta fita "BLACK FRIDAY · 27/11 · OFERTAS DO
-// QUAD · ✦" rolando (especificação da designer): 48 px de faixa num espaço de 96 px, inclinação alternada, duas cópias
-// lado a lado andando 100% em 32 s. Fora do tema, ela fica escondida.
-const TRECHO = Array.from({ length: 6 }, (_, i) => (
-  <span key={i} className="inline-flex items-center gap-[18px]">
-    <span className="text-white">BLACK FRIDAY</span>
-    <span className="text-breu-800">27/11</span>
-    <span className="text-white">OFERTAS DO QUAD</span>
-    <span className="text-breu-800">✦</span>
-  </span>
-));
-
-function FitaDaBlackFriday({ inclinacao }: { inclinacao: string }) {
-  return (
-    <div className="fita-da-onda relative h-24 overflow-hidden leading-normal">
-      <div
-        className={`absolute -left-[6%] top-6 flex h-12 w-[112%] items-center overflow-hidden border-t border-white/[0.22] bg-[linear-gradient(180deg,#FF7A2E,#E5530A)] font-[family-name:var(--font-campanha)] text-xl italic shadow-[0_0_34px_rgba(255,106,26,0.55)] outline outline-1 outline-transparent transform-gpu [backface-visibility:hidden] ${inclinacao}`}
-      >
-        {[0, 1].map((copia) => (
-          <div key={copia} className="flex w-max flex-none animate-[q-fita_32s_linear_infinite] gap-[18px] pr-[18px] [backface-visibility:hidden]">
-            {TRECHO}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
