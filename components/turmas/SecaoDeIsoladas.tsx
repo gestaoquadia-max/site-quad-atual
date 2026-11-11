@@ -4,7 +4,8 @@ import type { Turma } from "@/lib/data";
 
 // Isoladas presenciais em /turmas (entrega da designer, 11/11/2026): as turmas do tipo ISOLADA da API (curtas, de uma
 // matéria ou tema), fora da escolha de modalidade. A seção só existe com alguma isolada cadastrada. O cartão traz a
-// imagem, as vagas, o nome, o preço e "Matricular"; início, dias e horário ficam na página da turma.
+// imagem preenchendo o quadrado, como nos cartões de evento (components/home/CartaoEvento.tsx), as vagas, o nome, o
+// preço e "Matricular"; início, dias e horário ficam na página da turma.
 function vagasRestantes(t: Turma) {
   const total = t.detalhe?.vagasTotal;
   if (total === undefined) return null;
@@ -19,20 +20,21 @@ function CartaoDaIsolada({ turma }: { turma: Turma }) {
       href={`/turmas/${turma.slug}`}
       className="group flex h-full flex-col rounded-[18px] border border-linha bg-superficie p-2 text-tinta shadow-cartao transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 hover:border-azul/45 hover:text-tinta hover:shadow-cartao-alto"
     >
-      <div className="relative aspect-square overflow-hidden rounded-xl bg-[radial-gradient(70%_60%_at_50%_40%,#16325C,#0B1A33)]">
+      <div className="relative aspect-square overflow-hidden rounded-xl bg-marinho-900">
         {imagem ? (
-          <Image src={imagem} alt="" fill sizes="(min-width: 1024px) 300px, 90vw" className="object-contain p-[18%]" />
+          <Image src={imagem} alt="" fill sizes="(min-width: 1024px) 300px, 90vw" className="object-cover" />
         ) : (
           <Image src="/images/quad-logo-branco.png" alt="" width={236} height={88} className="absolute left-1/2 top-1/2 w-[42%] -translate-x-1/2 -translate-y-1/2 opacity-20" />
         )}
       </div>
       <div className="flex flex-1 flex-col items-start gap-2.5 px-3.5 pb-3 pt-[18px]">
+        <h3 className="line-clamp-2 font-display text-[21px] font-extrabold leading-[1.15] tracking-[-0.02em] [text-wrap:pretty]">{turma.nome}</h3>
         {restantes !== null && (
-          <span className="rounded-full bg-sucesso-fundo px-2.5 py-1 text-xs font-bold uppercase tracking-[0.04em] text-sucesso">
-            {restantes === 1 ? "1 vaga restante" : `${restantes} vagas restantes`}
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-sucesso-fundo px-2.5 py-1 text-xs font-semibold text-sucesso">
+            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+            {restantes === 1 ? "1 vaga" : `${restantes} vagas`}
           </span>
         )}
-        <h3 className="font-display text-[25px] font-extrabold leading-[1.1] tracking-[-0.02em] [text-wrap:balance]">{turma.nome}</h3>
         <p className="text-sm text-ardosia">
           {turma.precoCheio ? (
             <>
