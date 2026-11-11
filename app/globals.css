@@ -104,7 +104,18 @@ body:has([data-tema="vinho"]) footer .bg-azul:hover { background-color: #A51E36;
 body:has([data-tema="black"]) footer { background-color: #0A0908; }
 body:has([data-tema="black"]) footer .bg-azul { background-color: #F25A0C; }
 body:has([data-tema="black"]) footer .bg-azul:hover { background-color: #FF7A2E; }
-/* Home (11/11/2026): a última seção termina na onda escura (components/home/Onda.tsx), e o rodapé começa na mesma cor. */
-body:has([data-home-com-ondas]) footer { background-image: linear-gradient(180deg, #151A24, #081530); }
+/* Dobras em ondas no site todo (11/11/2026, components/home/Onda.tsx): as seções escuras ao lado de uma onda começam e
+   terminam na cor dela. O rodapé traz a onda de cima; nas páginas que terminam no escuro, ela some. */
+.fundo-escuro-da-onda { background-image: linear-gradient(180deg, #151A24 0%, #0B1A36 18%, #081530 82%, #151A24 100%); }
+body:has([data-fim-escuro]) .onda-do-rodape,
+body:has([data-tema="black"]) .onda-do-rodape,
+body:has([data-tema="vinho"]) .onda-do-rodape { display: none; }
+body:has([data-tema="black"]) footer,
+body:has([data-tema="vinho"]) footer { background-image: none; }
 /* Faixa dos vídeos dos aprovados na Home (components/home/AprovadosEmVideo.tsx): metade da lista mais meio espaço. */
 @keyframes q-aprovados { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 10px)); } }
+/* Os brilhos dessas seções somem perto das bordas, para não ficarem cortados em reta junto da onda. */
+.fundo-escuro-da-onda > .pointer-events-none.absolute {
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
+}

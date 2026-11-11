@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { Post } from "@/lib/data";
 import Trilha from "../Trilha";
+import Onda from "@/components/home/Onda";
 
 // Busca sem acento e sem diferenciar maiúsculas.
 function normalizar(texto: string) {
@@ -81,7 +82,7 @@ export default function ListaDoBlog({ posts, categoriaInicial, buscaInicial }: {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-marinho-950 pb-[clamp(48px,6vw,64px)] pt-[clamp(40px,5vw,64px)] text-white">
+      <section className="relative overflow-hidden bg-marinho-950 fundo-escuro-da-onda pb-[clamp(48px,6vw,64px)] pt-[clamp(40px,5vw,64px)] text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_60%_at_80%_0%,rgba(0,107,255,0.24),transparent_70%)]" />
         <div className="conteiner relative">
           <Trilha itens={[{ rotulo: "Início", href: "/" }, { rotulo: "Blog" }]} className="mb-[clamp(24px,3vw,36px)]" />
@@ -133,6 +134,7 @@ export default function ListaDoBlog({ posts, categoriaInicial, buscaInicial }: {
           </div>
         </div>
       </section>
+      <Onda para="claro" />
 
       <section className="bg-nevoa py-[clamp(48px,6vw,72px)]">
         <div className="conteiner flex flex-col gap-[clamp(40px,5vw,64px)]">

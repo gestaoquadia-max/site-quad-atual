@@ -1,19 +1,24 @@
 import Trilha from "./Trilha";
+import Onda from "./home/Onda";
 
-// Topo escuro das páginas internas no novo visual: trilha, sobretítulo, título e descrição.
+// Topo escuro das páginas internas no novo visual: trilha, sobretítulo, título e descrição. Termina na onda que leva à
+// seção clara de baixo (components/home/Onda.tsx); `onda={false}` quando a seção seguinte também é escura.
 export default function PageHeader({
   eyebrow,
   title,
   desc,
   children,
+  onda = true,
 }: {
   eyebrow?: string;
   title: string;
   desc?: string;
   children?: React.ReactNode;
+  onda?: boolean;
 }) {
   return (
-    <section className="relative overflow-hidden bg-marinho-950 pb-[clamp(48px,5vw,72px)] pt-[clamp(28px,3vw,40px)] text-white">
+    <>
+    <section className="relative overflow-hidden bg-marinho-950 fundo-escuro-da-onda pb-[clamp(48px,5vw,72px)] pt-[clamp(28px,3vw,40px)] text-white">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_70%_at_80%_20%,rgba(0,107,255,0.26),transparent_70%)]" />
       <div className="conteiner relative">
         <Trilha itens={[{ rotulo: "Início", href: "/" }, { rotulo: title }]} className="mb-[clamp(28px,4vw,48px)]" />
@@ -23,5 +28,7 @@ export default function PageHeader({
         {children}
       </div>
     </section>
+    {onda && <Onda para="claro" />}
+    </>
   );
 }

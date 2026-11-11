@@ -2,6 +2,7 @@ import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import { institucional } from "@/lib/institucional";
 import { metadadosDaPagina } from "@/lib/seo";
+import Onda from "@/components/home/Onda";
 
 // ", desde 2013" quando o ano de fundação estiver confirmado em lib/institucional.ts; senão, nada.
 function desde(separador: string) {
@@ -49,7 +50,8 @@ export default function SobrePage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-marinho-950 py-[clamp(64px,8vw,120px)] text-white">
+      <Onda para="escuro" />
+      <section className="relative overflow-hidden bg-marinho-950 fundo-escuro-da-onda py-[clamp(64px,8vw,120px)] text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(45%_70%_at_15%_20%,rgba(0,107,255,0.22),transparent_70%)]" />
         <div className="conteiner relative">
           <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">Missão</span>
@@ -59,6 +61,7 @@ export default function SobrePage() {
           </p>
         </div>
       </section>
+      <Onda para="claro" />
 
       <section className="bg-nevoa py-[clamp(56px,7vw,104px)]">
         <div className="conteiner">

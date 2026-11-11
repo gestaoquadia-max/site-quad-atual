@@ -6,6 +6,7 @@ import { buscarProfessor, listarProfessores } from "@/lib/vitrine";
 import { getIniciais } from "@/lib/format";
 import Trilha from "@/components/Trilha";
 import { metadadosDaPagina } from "@/lib/seo";
+import Onda from "@/components/home/Onda";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts). Professor cadastrado depois do build é gerado na primeira visita.
 export const revalidate = 60;
@@ -34,7 +35,7 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
 
   return (
     <>
-      <section className="relative overflow-hidden bg-marinho-950 text-white">
+      <section className="relative overflow-hidden bg-marinho-950 fundo-escuro-da-onda text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(45%_70%_at_78%_30%,rgba(0,107,255,0.3),transparent_70%)]" />
         {/* Breadcrumb numa faixa própria no topo; abaixo, texto e foto lado a lado: o texto logo abaixo do breadcrumb e os
             botões embaixo, na altura em que a foto termina. */}
@@ -75,6 +76,7 @@ export default async function ProfessorDetalhe({ params }: { params: Promise<{ s
           </div>
         </div>
       </section>
+      <Onda para="claro" />
 
       {outros.length > 0 && (
         <section className="secao bg-nevoa-clara">

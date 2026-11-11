@@ -9,6 +9,7 @@ import { diaBarraMes, esgotada, itemDoCarrinho } from "@/lib/excursoes";
 import { buscarExcursao, listarExcursoes } from "@/lib/vitrine";
 import { ArteDoEvento } from "@/components/eventos/AgendaDeEventos";
 import CaixaDeInscricao from "@/components/eventos/CaixaDeInscricao";
+import Onda from "@/components/home/Onda";
 
 // A página de uma excursão (lib/excursoes.ts), no visual da página de evento. As opções da mesma viagem (com e sem
 // café) são endereços diferentes, ligados pelo seletor, como os turnos das turmas.
@@ -53,7 +54,7 @@ export default async function ExcursaoPage({ params }: { params: Promise<{ slug:
     <>
       <VerItem item={{ item_id: atual.slug, item_name: item?.nome ?? atual.titulo, item_category: "Excursão", price: parsePreco(atual.preco ?? "") ?? undefined }} />
 
-      <section className="relative overflow-hidden bg-marinho-950 pb-[clamp(56px,7vw,88px)] pt-[clamp(32px,5vw,56px)] text-white">
+      <section className="relative overflow-hidden bg-marinho-950 fundo-escuro-da-onda pb-[clamp(56px,7vw,88px)] pt-[clamp(32px,5vw,56px)] text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_70%_at_85%_20%,rgba(0,107,255,0.24),transparent_70%)]" />
         <div className="conteiner relative">
           <nav aria-label="Trilha" className="mb-[clamp(24px,4vw,40px)] flex flex-wrap gap-2 text-[13px] text-prata-escura">
@@ -136,6 +137,7 @@ export default async function ExcursaoPage({ params }: { params: Promise<{ slug:
           </div>
         </div>
       </section>
+      <Onda para="claro" />
 
       {atual.detalhes.length > 0 && (
         <section className="py-[clamp(56px,7vw,88px)]">

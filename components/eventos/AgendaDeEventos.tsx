@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { Evento } from "@/lib/data";
 import { paraCartao, seloDoEvento } from "@/lib/eventos";
 import CartaoEvento from "../home/CartaoEvento";
+import Onda from "@/components/home/Onda";
 
 type Filtro = "todos" | "abertas" | "breve";
 
@@ -48,7 +49,7 @@ export default function AgendaDeEventos({ eventos }: { eventos: Evento[] | null 
 
   return (
     <>
-      <section className="relative overflow-hidden bg-marinho-950 pb-[clamp(56px,7vw,96px)] pt-[clamp(40px,5vw,64px)] text-white">
+      <section className="relative overflow-hidden bg-marinho-950 fundo-escuro-da-onda pb-[clamp(56px,7vw,96px)] pt-[clamp(40px,5vw,64px)] text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(45%_60%_at_25%_60%,rgba(0,107,255,0.22),transparent_70%)]" />
         <div className="conteiner relative">
           <nav aria-label="Trilha" className="mb-[clamp(28px,4vw,48px)] flex gap-2 text-[13px] text-[#7F90A8]">
@@ -98,6 +99,7 @@ export default function AgendaDeEventos({ eventos }: { eventos: Evento[] | null 
           )}
         </div>
       </section>
+      <Onda para="claro" />
 
       <section className="bg-nevoa py-[clamp(56px,7vw,96px)]">
         <div className="conteiner">

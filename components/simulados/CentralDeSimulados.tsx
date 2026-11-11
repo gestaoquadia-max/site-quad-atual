@@ -12,6 +12,7 @@ import { rotaComDestino } from "@/lib/redirecionamento";
 import { useSessaoAtiva } from "@/lib/usuario";
 import type { Combo as ComboDaLoja } from "@/lib/combos";
 import CartaoCombo from "../combos/CartaoCombo";
+import Onda from "@/components/home/Onda";
 import {
   dataCurta,
   formatosDa,
@@ -287,7 +288,7 @@ export default function CentralDeSimulados({
 
   return (
     <>
-      <section className="relative overflow-hidden bg-marinho-950 pb-[clamp(56px,6vw,80px)] pt-[clamp(40px,5vw,64px)] text-white">
+      <section className="relative overflow-hidden bg-marinho-950 fundo-escuro-da-onda pb-[clamp(56px,6vw,80px)] pt-[clamp(40px,5vw,64px)] text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_60%_at_80%_0%,rgba(0,107,255,0.24),transparent_70%)]" />
         <div className="conteiner relative">
           <nav aria-label="Trilha" className="mb-[clamp(28px,4vw,48px)] flex gap-2 text-[13px] text-[#7F90A8]">
@@ -307,6 +308,7 @@ export default function CentralDeSimulados({
           <p className="max-w-[540px] text-[clamp(16px,1.4vw,18.5px)] leading-[1.6] text-[#B4C1D3]">Escolha sua carreira e encontre a melhor forma de testar seus conhecimentos.</p>
         </div>
       </section>
+      <Onda para="claro" />
 
       <section className="bg-nevoa pb-[clamp(56px,7vw,96px)] pt-[clamp(32px,4vw,44px)]">
         <div className="conteiner">

@@ -12,6 +12,7 @@ import { buscarEvento, listarEventos } from "@/lib/vitrine";
 import DadosEstruturados from "@/components/DadosEstruturados";
 import { ArteDoEvento } from "@/components/eventos/AgendaDeEventos";
 import CaixaDeInscricao from "@/components/eventos/CaixaDeInscricao";
+import Onda from "@/components/home/Onda";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts). Evento que entrar na vitrine depois do build é gerado na primeira visita.
 export const revalidate = 60;
@@ -63,7 +64,7 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
       <VerItem item={{ item_id: evento.slug, item_name: evento.nome, item_category: "Evento", price: parsePreco(evento.preco) ?? undefined }} />
       <DadosEstruturados dados={dadosDoEvento(evento)} />
 
-      <section className="relative overflow-hidden bg-marinho-950 pb-[clamp(56px,7vw,88px)] pt-[clamp(32px,5vw,56px)] text-white">
+      <section className="relative overflow-hidden bg-marinho-950 fundo-escuro-da-onda pb-[clamp(56px,7vw,88px)] pt-[clamp(32px,5vw,56px)] text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_70%_at_85%_20%,rgba(0,107,255,0.24),transparent_70%)]" />
         <div className="conteiner relative">
           <nav aria-label="Trilha" className="mb-[clamp(24px,4vw,40px)] flex flex-wrap gap-2 text-[13px] text-prata-escura">
@@ -122,6 +123,7 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
           </div>
         </div>
       </section>
+      <Onda para="claro" />
 
       <section className="py-[clamp(56px,7vw,88px)]">
         <div className={`conteiner grid items-start gap-[clamp(32px,4vw,64px)] ${temLateral ? "lg:grid-cols-[minmax(0,1fr)_380px]" : ""}`}>

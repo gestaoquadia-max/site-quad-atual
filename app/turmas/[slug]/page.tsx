@@ -13,6 +13,7 @@ import InsigniaDaTurma from "@/components/turmas/InsigniaDaTurma";
 import DadosEstruturados from "@/components/DadosEstruturados";
 import CheckList from "@/components/CheckList";
 import EscolhaDoTurno from "@/components/turmas/EscolhaDoTurno";
+import Onda from "@/components/home/Onda";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts). Turma que entrar na vitrine depois do build é gerada na primeira visita.
 export const revalidate = 60;
@@ -56,7 +57,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
       <VerItem item={{ item_id: turma.slug, item_name: turma.nome, item_category: "Turma", item_variant: turma.turno, price: parsePreco(turma.preco) ?? undefined }} />
       <DadosEstruturados dados={dadosDoCurso(turma)} />
 
-      <section className="relative overflow-hidden bg-marinho-950 pb-[clamp(56px,7vw,88px)] pt-[clamp(32px,5vw,56px)] text-white">
+      <section className="relative overflow-hidden bg-marinho-950 fundo-escuro-da-onda pb-[clamp(56px,7vw,88px)] pt-[clamp(32px,5vw,56px)] text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_70%_at_85%_20%,rgba(0,107,255,0.26),transparent_70%)]" />
         <div className="relative mx-auto max-w-[1200px] px-[clamp(20px,4vw,32px)]">
           <nav aria-label="Trilha" className="mb-[clamp(24px,4vw,40px)] flex flex-wrap gap-2 text-[13px] text-prata-escura">
@@ -111,6 +112,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
           </div>
         </div>
       </section>
+      <Onda para="claro" />
 
       <section className="py-[clamp(56px,7vw,88px)]">
         <div className="mx-auto grid max-w-[1200px] gap-6 px-[clamp(20px,4vw,32px)]">

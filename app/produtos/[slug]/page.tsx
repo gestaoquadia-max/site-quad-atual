@@ -9,6 +9,7 @@ import CapaDoLivro, { CORES_DA_CAPA } from "@/components/CapaDoLivro";
 import CompraDoMaterial from "@/components/materiais/CompraDoMaterial";
 import { ehKit } from "@/lib/materiais";
 import PaginaEmEspera from "@/components/PaginaEmEspera";
+import Onda from "@/components/home/Onda";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts). Material que entrar na vitrine depois do build é gerado na primeira visita.
 export const revalidate = 60;
@@ -39,7 +40,7 @@ export default async function ProdutoDetalhe({ params }: { params: Promise<{ slu
   return (
     <PaginaEmEspera area="materiais" titulo="Materiais de estudo">
       <VerItem item={{ item_id: produto.slug, item_name: produto.nome, item_category: "Material", price: parsePreco(produto.preco) ?? undefined }} />
-      <section className="relative overflow-hidden bg-marinho-950 pb-[clamp(56px,7vw,88px)] pt-[clamp(32px,5vw,56px)] text-white">
+      <section className="relative overflow-hidden bg-marinho-950 fundo-escuro-da-onda pb-[clamp(56px,7vw,88px)] pt-[clamp(32px,5vw,56px)] text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(45%_70%_at_20%_40%,rgba(0,107,255,0.24),transparent_70%)]" />
         <div className="relative mx-auto max-w-[1200px] px-[clamp(20px,4vw,32px)]">
           <nav aria-label="Trilha" className="mb-[clamp(24px,4vw,40px)] flex flex-wrap gap-2 text-[13px] text-prata-escura">
@@ -74,6 +75,7 @@ export default async function ProdutoDetalhe({ params }: { params: Promise<{ slu
           </div>
         </div>
       </section>
+      <Onda para="claro" />
 
       {/* Bloco claro entre o topo escuro e o rodapé (que tem quase a mesma cor): convite para os outros materiais. */}
       <section className="bg-nevoa-clara py-[clamp(56px,7vw,96px)]">

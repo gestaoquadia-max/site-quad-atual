@@ -10,6 +10,7 @@ import { insigniaDaModalidade } from "@/lib/turmas";
 import { brasaoDoConcurso } from "@/lib/brasoes";
 import AviseMe from "../AviseMePeloWhatsApp";
 import InsigniaDaTurma from "./InsigniaDaTurma";
+import Onda from "@/components/home/Onda";
 
 
 // Cartão de modalidade da aba: na PMBA, os três níveis (com perfil, método e barra teoria/questões); nas outras abas,
@@ -488,7 +489,7 @@ export default function EscolhaDeModalidade({
 
   return (
     <>
-      <section ref={topo} className="relative overflow-hidden bg-marinho-950 pb-[clamp(56px,6vw,96px)] pt-[clamp(48px,6vw,88px)] text-white">
+      <section ref={topo} className="relative overflow-hidden bg-marinho-950 fundo-escuro-da-onda pb-[clamp(56px,6vw,96px)] pt-[clamp(48px,6vw,88px)] text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_60%_at_80%_0%,rgba(0,107,255,0.28),transparent_70%),radial-gradient(35%_50%_at_0%_100%,rgba(20,74,255,0.14),transparent_70%)]" />
         <div
           aria-hidden="true"
@@ -601,6 +602,7 @@ export default function EscolhaDeModalidade({
           )}
         </div>
       </section>
+      <Onda para="claro" />
 
       <section id="turmas-modalidade" ref={secaoDasTurmas} className="scroll-mt-[110px] bg-nevoa py-[clamp(56px,7vw,104px)]">
         <div className="conteiner">

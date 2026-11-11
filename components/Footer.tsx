@@ -4,6 +4,7 @@ import { PersonArmsSpread } from "@phosphor-icons/react/dist/ssr";
 import BotaoPreferenciasDeCookies from "./BotaoPreferenciasDeCookies";
 import BotaoWhatsApp from "./BotaoWhatsApp";
 import { institucional } from "@/lib/institucional";
+import Onda from "./home/Onda";
 
 const NAVEGACAO = [
   ["Turmas Presenciais", "/turmas"],
@@ -27,7 +28,12 @@ const INSTITUCIONAL = [
 export default function Footer() {
   return (
     <>
-      <footer className="bg-marinho-950 text-prata">
+      {/* Onda da última seção clara para o rodapé (components/home/Onda.tsx). Some quando a página termina no escuro
+          (app/globals.css: páginas da Black Friday e telas de aviso, marcadas com data-fim-escuro). */}
+      <div className="onda-do-rodape">
+        <Onda para="escuro" />
+      </div>
+      <footer className="bg-marinho-950 bg-[image:linear-gradient(180deg,#151A24,#081530)] text-prata">
         <div className="conteiner pt-[clamp(28px,4vw,40px)]">
           <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-5">
             <Link href="/" aria-label="Quad Concursos — início" className="flex flex-none">

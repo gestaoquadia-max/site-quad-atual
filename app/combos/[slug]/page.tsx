@@ -5,6 +5,7 @@ import Trilha from "@/components/Trilha";
 import { buscarCombo, economiaEmTexto, linkDaParte, precoDoCombo, rotuloDaParte } from "@/lib/combos";
 import { emReais } from "@/lib/loja";
 import { metadadosDaPagina, resumir } from "@/lib/seo";
+import Onda from "@/components/home/Onda";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts); o Next exige um número escrito aqui.
 export const revalidate = 60;
@@ -30,7 +31,7 @@ export default async function ComboPage({ params }: { params: Promise<{ slug: st
   return (
     <>
       <VerItem item={{ item_id: combo.id, item_name: combo.nome, item_category: "Combo", price: precoDoCombo(combo) / 100 }} />
-      <section className="relative overflow-hidden bg-marinho-950 pb-[clamp(48px,6vw,80px)] pt-[clamp(28px,3vw,40px)] text-white">
+      <section className="relative overflow-hidden bg-marinho-950 fundo-escuro-da-onda pb-[clamp(48px,6vw,80px)] pt-[clamp(28px,3vw,40px)] text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_60%_at_80%_0%,rgba(0,107,255,0.28),transparent_70%)]" />
         <div className="conteiner relative">
           <Trilha itens={[{ rotulo: "Início", href: "/" }, { rotulo: "Combos", href: "/combos" }, { rotulo: combo.nome }]} className="mb-[clamp(28px,4vw,48px)]" />
@@ -70,6 +71,7 @@ export default async function ComboPage({ params }: { params: Promise<{ slug: st
           </div>
         </div>
       </section>
+      <Onda para="claro" />
 
       <section className="bg-nevoa py-[clamp(48px,6vw,88px)]">
         <div className="conteiner">

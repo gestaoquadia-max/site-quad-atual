@@ -3,6 +3,7 @@ import PageHeader from "@/components/PageHeader";
 import { CartaoProfessor } from "@/components/home/Cartoes";
 import { metadadosDaPagina } from "@/lib/seo";
 import { listarProfessores } from "@/lib/vitrine";
+import Onda from "@/components/home/Onda";
 
 export const metadata = metadadosDaPagina({
   titulo: "Professores",
@@ -20,8 +21,8 @@ export default async function ProfessoresPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Quem ensina" title="Professores" desc="O time que prepara os alunos do Quad, cada um na matéria em que é referência." />
-      <section className="bg-marinho-950 pb-[clamp(56px,7vw,96px)] pt-[clamp(8px,2vw,24px)] text-white">
+      <PageHeader eyebrow="Quem ensina" title="Professores" desc="O time que prepara os alunos do Quad, cada um na matéria em que é referência." onda={false} />
+      <section className="bg-marinho-950 fundo-escuro-da-onda pb-[clamp(56px,7vw,96px)] pt-[clamp(8px,2vw,24px)] text-white">
         <div className="conteiner">
           {professores && professores.length > 0 ? (
             <ul className="grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(260px,1fr))] sm:gap-5">
@@ -38,6 +39,7 @@ export default async function ProfessoresPage() {
           )}
         </div>
       </section>
+      <Onda para="claro" />
       <section className="bg-nevoa-clara py-[clamp(56px,7vw,96px)]">
         <div className="conteiner flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-[640px]">

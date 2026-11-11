@@ -13,6 +13,7 @@ export default function Onda({ para }: { para: "escuro" | "claro" }) {
   return (
     <div
       aria-hidden="true"
+      data-onda={para}
       className={`relative z-[1] -my-px leading-[0] ${
         paraEscuro ? "bg-[linear-gradient(180deg,#D7E0EB_50%,#151A24_50%)]" : "bg-[linear-gradient(180deg,#151A24_50%,#D7E0EB_50%)]"
       }`}

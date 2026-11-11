@@ -164,10 +164,7 @@ export default async function Home() {
         </Reveal>
         <AprovadosEmVideo />
       </Secao>
-      {/* A última onda leva ao rodapé, que começa na mesma cor (app/globals.css, data-home-com-ondas). */}
-      <Onda para="escuro" />
-      {/* Marca da Home para o rodapé (no fim: o primeiro elemento da página recebe o espaço do menu flutuante). */}
-      <span hidden data-home-com-ondas="" />
+      {/* A onda para o rodapé vem com ele (components/Footer.tsx). */}
     </>
   );
 }
