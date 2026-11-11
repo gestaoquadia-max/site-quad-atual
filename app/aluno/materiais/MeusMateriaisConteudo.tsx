@@ -41,7 +41,11 @@ async function carregarMateriais(): Promise<{ daTurma: MaterialDaTurma[]; compra
   return { daTurma, comprados: compras.filter((c) => c.situacao === "PAGA" && c.item.plataforma === "DIGITAL"), erroDosComprados: "" };
 }
 
-type Aba = "diarios" | "comprados";
+// Três abas (11/11/2026): os materiais diários das turmas e os PDFs comprados, separados em módulos e apostilas e em
+// simulados. A compra não traz a categoria do material: vai para Simulados o PDF de simulado (tipo SIMULADO) ou com
+// "simulado" no nome; o resto, para Módulos e apostilas.
+type Aba = "diarios" | "modulos" | "simulados";
+const ehSimulado = (c: Compra) => c.item.tipo === "SIMULADO" || /simulado/i.test(c.item.nome);
 
 function formatarTamanho(bytes: number | null) {
   if (!bytes) return "";
@@ -61,10 +65,12 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
 
   const materiais = dados?.daTurma ?? [];
   const comprados = dados?.comprados ?? [];
-  // Duas abas, coisas distintas (06/11/2026): os materiais diários das turmas e os PDFs comprados no site. Abre nos
-  // diários; se só houver comprados, abre neles.
+  const modulos = comprados.filter((c) => !ehSimulado(c));
+  const simulados = comprados.filter(ehSimulado);
+  // Abre nos diários; sem nenhum, na primeira aba que tiver alguma coisa.
   const [abaEscolhida, setAba] = useState<Aba | null>(null);
-  const aba: Aba = abaEscolhida ?? (materiais.length === 0 && comprados.length > 0 ? "comprados" : "diarios");
+  const aba: Aba =
+    abaEscolhida ?? (materiais.length > 0 ? "diarios" : modulos.length > 0 ? "modulos" : simulados.length > 0 ? "simulados" : "diarios");
   const turmas = [...new Map(materiais.map((m) => [m.turmaId, m.turmaNome])).entries()];
   const daTurma = materiais.filter((m) => !turma || m.turmaId === turma);
   const materias = [...new Map(daTurma.map((m) => [m.materiaId, m.materiaNome])).entries()];
@@ -116,11 +122,12 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
       vazioTitulo=""
     >
       <div className="flex flex-col gap-5">
-        <div role="tablist" aria-label="Tipo de material" className="flex gap-2">
+        <div role="tablist" aria-label="Tipo de material" className="sem-barra flex gap-2 overflow-x-auto p-0.5">
           {(
             [
               ["diarios", "Materiais diários", materiais.length],
-              ["comprados", "Materiais comprados", comprados.length],
+              ["modulos", "Módulos e apostilas", modulos.length],
+              ["simulados", "Simulados", simulados.length],
             ] as [Aba, string, number][]
           ).map(([id, rotulo, quantidade]) => {
             const ligada = aba === id;
@@ -133,7 +140,7 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
                 aria-selected={ligada}
                 aria-controls={`painel-${id}`}
                 onClick={() => setAba(id)}
-                className={`inline-flex h-11 items-center gap-2 rounded-full border px-5 font-display text-[14.5px] font-bold transition-colors ${
+                className={`inline-flex h-11 flex-none items-center gap-2 whitespace-nowrap rounded-full border px-5 font-display text-[14.5px] font-bold transition-colors ${
                   ligada ? "border-marinho-950 bg-marinho-950 text-white" : "border-linha-forte bg-superficie text-ardosia-escura hover:border-azul hover:text-azul"
                 }`}
               >
@@ -144,20 +151,60 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
           })}
         </div>
 
-        {aba === "comprados" && (
-          <section role="tabpanel" id="painel-comprados" aria-labelledby="aba-comprados" className="flex flex-col gap-3">
-            <p className="text-[14px] text-ardosia">Os PDFs que você comprou na loja do site. Cada conta baixa os seus, com o seu nome no arquivo.</p>
+        {aba === "modulos" && (
+          <section role="tabpanel" id="painel-modulos" aria-labelledby="aba-modulos" className="flex flex-col gap-3">
+            <p className="text-[14px] text-ardosia">Os módulos e apostilas em PDF que você comprou no site. Cada conta baixa os seus, com o seu nome no arquivo.</p>
             {dados?.erroDosComprados && (
               <p role="alert" className="rounded-xl border border-[#F1C4C4] bg-[#FFF5F5] px-4 py-3 text-[13.5px] text-[#9B1C1C]">
                 Não foi possível carregar os PDFs que você comprou ({dados.erroDosComprados}). Eles continuam em Compras.
               </p>
             )}
-            {comprados.length === 0 && !dados?.erroDosComprados && (
-              <Vazio texto="Você ainda não tem PDFs comprados. Os materiais digitais que você comprar aparecem aqui." acao={{ href: "/produtos", rotulo: "Ver materiais à venda" }} />
+            {modulos.length === 0 && !dados?.erroDosComprados && (
+              <Vazio texto="Você ainda não tem módulos ou apostilas em PDF. Os que você comprar aparecem aqui." acao={{ href: "/produtos", rotulo: "Ver materiais à venda" }} />
             )}
-            {comprados.length > 0 && (
+            {modulos.length > 0 && (
             <div className={`${CLASSE_DO_CARTAO} overflow-hidden`}>
-              {comprados.map((c, i) => {
+              {modulos.map((c, i) => {
+                const id = `compra-${c.id}`;
+                return (
+                  <div key={c.id} className={`px-[22px] py-3.5 ${i > 0 ? "border-t border-linha" : ""}`}>
+                    <div className="flex items-center gap-3.5">
+                      <span className={CLASSE_DO_SELO}>PDF</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="line-clamp-2 text-[15px] font-semibold leading-snug">{c.item.nome}</div>
+                        <div className="mt-0.5 text-[13px] text-ardosia">Comprado em {formatarData(c.pagaEm ?? c.criadaEm)}</div>
+                      </div>
+                      <button type="button" onClick={() => baixarComprado(c)} disabled={baixando === id} className={CLASSE_DO_BOTAO_PEQUENO}>
+                        {baixando === id ? "Baixando..." : "Baixar PDF"}
+                      </button>
+                    </div>
+                    {erroDoItem?.id === id && (
+                      <p role="alert" className="mt-2 text-[13px] text-[#9B1C1C]">
+                        {erroDoItem.mensagem}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            )}
+          </section>
+        )}
+
+        {aba === "simulados" && (
+          <section role="tabpanel" id="painel-simulados" aria-labelledby="aba-simulados" className="flex flex-col gap-3">
+            <p className="text-[14px] text-ardosia">Os simulados em PDF que você comprou no site. Cada conta baixa os seus, com o seu nome no arquivo.</p>
+            {dados?.erroDosComprados && (
+              <p role="alert" className="rounded-xl border border-[#F1C4C4] bg-[#FFF5F5] px-4 py-3 text-[13.5px] text-[#9B1C1C]">
+                Não foi possível carregar os PDFs que você comprou ({dados.erroDosComprados}). Eles continuam em Compras.
+              </p>
+            )}
+            {simulados.length === 0 && !dados?.erroDosComprados && (
+              <Vazio texto="Você ainda não tem simulados em PDF. Os que você comprar aparecem aqui." acao={{ href: "/simulados", rotulo: "Ver simulados" }} />
+            )}
+            {simulados.length > 0 && (
+            <div className={`${CLASSE_DO_CARTAO} overflow-hidden`}>
+              {simulados.map((c, i) => {
                 const id = `compra-${c.id}`;
                 return (
                   <div key={c.id} className={`px-[22px] py-3.5 ${i > 0 ? "border-t border-linha" : ""}`}>
