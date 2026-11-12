@@ -58,6 +58,8 @@ export type Produto = {
   // Os campos de cima (slug, idNaApi, preco) são os do primeiro formato à venda.
   ofertas?: Partial<Record<"digital" | "impresso", OfertaDoMaterial>>;
   esgotado?: boolean;
+  // A imagem cadastrada na API (imagemUrl), quando houver.
+  imagem?: string;
   detalhe?: {
     lead: string;
     specs: { label: string; valor: string; destaque?: boolean }[];

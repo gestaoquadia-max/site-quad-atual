@@ -671,6 +671,8 @@ function paraMaterial(itens: ItemDaVitrine[]): Produto {
     preco: primeiro ? ofertas![primeiro]!.preco : "",
     formatos,
     ofertas,
+    // A imagem cadastrada (a de qualquer formato que tenha): miniatura no carrinho.
+    imagem: itens.map((i) => i.imagemUrl).find(Boolean) ?? undefined,
     esgotado: !formatos.some(aVenda),
     detalhe: {
       lead: descricao,

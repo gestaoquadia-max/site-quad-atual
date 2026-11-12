@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import InsigniaDaTurma from "../turmas/InsigniaDaTurma";
 import { useState } from "react";
@@ -76,7 +77,23 @@ function Quantidade({ item }: { item: CartItem }) {
   );
 }
 
-export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }) {
+// A imagem do item: a que veio com ele ou a do cadastro (app/carrinho/page.tsx), pelo id. O id pode ter sufixos do
+// formato ou da variação ("produto:apostila:impresso", "loja:camisa-1:M"): tira um de cada vez até achar.
+function imagemDoItem(item: CartItem, imagens: Record<string, string>, capaDosSimulados?: string) {
+  if (item.imagem) return item.imagem;
+  for (let id = item.id; id.includes(":"); id = id.slice(0, id.lastIndexOf(":"))) if (imagens[id]) return imagens[id];
+  return item.tipo === "simulado" ? capaDosSimulados : undefined;
+}
+
+export default function Carrinho({
+  carreiras,
+  imagens = {},
+  capaDosSimulados,
+}: {
+  carreiras: Carreira[] | null;
+  imagens?: Record<string, string>;
+  capaDosSimulados?: string;
+}) {
   const { items, removeItem, totalCount, totalValor, temItemSobConsulta, carregado } = useCart();
   const [entrega, setEntrega] = useState<"retirada">("retirada");
   const fisicos = items.filter(ehFisico);
@@ -114,15 +131,19 @@ export default function Carrinho({ carreiras }: { carreiras: Carreira[] | null }
                 {items.map((item, i) => {
                   const motivo = indisponiveis.get(item.id);
                   const unitario = parsePreco(item.preco);
+                  const imagem = item.tipo === "turma" ? null : imagemDoItem(item, imagens, capaDosSimulados);
                   return (
                     <li key={item.id} className={`flex items-center gap-4 px-5 py-[18px] ${i > 0 ? "border-t border-linha" : ""}`}>
                       <div
                         aria-hidden="true"
-                        className="grid aspect-square w-[clamp(64px,8vw,88px)] flex-none place-items-center rounded-xl border border-linha bg-[linear-gradient(160deg,#12305A,#071426)] font-display text-xs font-extrabold uppercase tracking-[0.1em] text-prata"
+                        className="relative grid aspect-square w-[clamp(64px,8vw,88px)] flex-none place-items-center overflow-hidden rounded-xl border border-linha bg-[linear-gradient(160deg,#12305A,#071426)] font-display text-xs font-extrabold uppercase tracking-[0.1em] text-prata"
                       >
                         {/* Turma: a insígnia (ou a marca do Quad, nos itens guardados antes da miniatura). */}
                         {item.tipo === "turma" ? (
                           <InsigniaDaTurma insignia={item.imagem} tamanho={88} sizes="88px" className="h-[78%] w-[78%]" />
+                        ) : imagem ? (
+                          // A arte ou a foto do cadastro, preenchendo o quadrado (cantos arredondados pela caixa).
+                          <Image src={imagem} alt="" fill sizes="88px" className="object-cover" />
                         ) : (
                           ROTULO_DO_TIPO[item.tipo].slice(0, 3)
                         )}
