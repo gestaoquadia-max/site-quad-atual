@@ -45,28 +45,32 @@ const CORES = BLACK_FRIDAY.site
     };
 
 function CartaoDoProfessor({ professor }: { professor: Professor }) {
-  const foto = FOTO_TRATADA[professor.slug] ?? professor.fotoUrl;
+  const tratada = FOTO_TRATADA[professor.slug];
+  const foto = tratada ?? professor.fotoUrl;
   return (
     <Link
       href={`/professores/${professor.slug}`}
       aria-label={`${professor.nome}${professor.materia ? `, ${professor.materia}` : ""}: ver perfil`}
-      className="group relative h-[430px] w-[78vw] flex-none snap-start text-white hover:text-white sm:w-[300px]"
+      className="group relative h-[430px] w-[min(78vw,300px)] flex-none snap-start text-white hover:text-white"
     >
       {/* Fundo com brilho e listras finas, mais baixo que o cartão: a cabeça passa por cima (como na entrega). */}
-      <div aria-hidden="true" className={`absolute inset-x-0 bottom-0 h-[350px] overflow-hidden rounded-[20px] ${CORES.fundo}`}>
+      <div aria-hidden="true" className={`absolute inset-x-0 bottom-0 h-[330px] overflow-hidden rounded-[20px] ${CORES.fundo}`}>
         <div className="absolute inset-0 [background:repeating-linear-gradient(90deg,rgba(255,255,255,0.05)_0_1px,transparent_1px_28px)]" />
       </div>
       {foto && (
-        // As fotos do cadastro (1080 × 1350) têm ~10% de margem transparente embaixo: descem esse tanto, para o corte do
-        // corpo ficar atrás da faixa escura e não "voar" acima dela. As tratadas pela designer já vão até a borda.
-        <div className={`absolute inset-x-0 bottom-[112px] top-0 ${FOTO_TRATADA[professor.slug] ? "" : "translate-y-[10.5%]"}`}>
+        // Todos no mesmo tamanho e com a cabeça na mesma altura (~20 px do topo do cartão, 12/11/2026). A foto ocupa a
+        // largura do cartão e sobe pelo enquadramento de cada tipo, medido nos arquivos:
+        // - cadastro (1080 × 1350): a cabeça começa a ~11% do topo e o corpo acaba a ~90% (há margem transparente embaixo),
+        //   então sobe 18 px e o corte do corpo cai na faixa escura;
+        // - tratadas pela designer (750 × 1000): a cabeça começa a 6% e o corpo vai até a borda (fica atrás da faixa).
+        // A cabeça tem ~25% da largura do arquivo nos dois tipos, então sai do mesmo tamanho.
+        <div className={`absolute inset-x-0 ${tratada ? "-top-[4px] aspect-[3/4]" : "-top-[18px] aspect-[4/5]"}`}>
           <Image
             src={foto}
             alt=""
             fill
-            unoptimized={!FOTO_TRATADA[professor.slug]}
             sizes="300px"
-            className={`object-contain object-bottom transition-transform duration-300 group-hover:scale-[1.03] ${CORES.brilhoDaFoto}`}
+            className={`origin-bottom object-contain object-top transition-transform duration-300 group-hover:scale-[1.03] ${CORES.brilhoDaFoto}`}
           />
         </div>
       )}
