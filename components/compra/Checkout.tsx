@@ -283,7 +283,20 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
     try {
       const fechamento = await fecharCarrinho(dados, chaveDoPagamento.current);
       // Os itens do carrinho (com o preço de cada um) ficam guardados até a compra ser paga: no PIX, em outra tela.
-      const itensDoAnalytics = items.map(paraOAnalytics);
+      // O preço de cada item é o da conta do servidor, já com o desconto do cupom (a receita por produto no GA4 bate com
+      // o que o aluno pagou); sem a linha do servidor, fica o preço do carrinho.
+      const itensDoAnalytics = items.map((item) => {
+        const base = paraOAnalytics(item);
+        const linha = pedido?.linhas.get(item.id);
+        const simulada = simulacao?.linhas.find((l) => l.linhaId === linha?.id);
+        if (!simulada) return base;
+        const q = simulada.quantidade || 1;
+        return {
+          ...base,
+          price: simulada.totalEmCentavos / 100 / q,
+          discount: simulada.descontoEmCentavos > 0 ? simulada.descontoEmCentavos / 100 / q : undefined,
+        };
+      });
       guardarItensDoFechamento(fechamento.id, itensDoAnalytics);
       if (fechamento.situacao === "PAGA") {
         compra(fechamento, itensDoAnalytics);

@@ -103,8 +103,10 @@ export default function CheckoutDoCombo({ combo }: { combo: Combo }) {
     chaveDoPagamento.current ??= crypto.randomUUID();
     try {
       const fechamento = await fecharCombo(combo.id, dados, chaveDoPagamento.current);
-      guardarItensDoFechamento(fechamento.id, [itemDoAnalytics]);
-      if (fechamento.situacao === "PAGA") compra(fechamento, [itemDoAnalytics]);
+      // O preço do combo é o total do fechamento (já com o cupom, se houver).
+      const itemPago = { ...itemDoAnalytics, price: fechamento.totalEmCentavos / 100, discount: fechamento.descontoEmCentavos > 0 ? fechamento.descontoEmCentavos / 100 : undefined };
+      guardarItensDoFechamento(fechamento.id, [itemPago]);
+      if (fechamento.situacao === "PAGA") compra(fechamento, [itemPago]);
       if (fechamento.situacao === "PAGA") router.push("/checkout/confirmacao?status=aprovado");
       else if (fechamento.situacao === "AGUARDANDO_PAGAMENTO" || fechamento.situacao === "CRIADA") router.push(`/checkout/pagamento/${fechamento.id}`);
       else {

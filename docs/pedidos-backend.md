@@ -382,11 +382,14 @@ Quem sabe com certeza que a compra foi paga é a API (pelo aviso do Pagar.me). P
    - **`event_id` = id do fechamento.** O Pixel do site manda a mesma compra com esse mesmo id; com isso a Meta conta a venda **uma vez só**, mesmo chegando pelos dois caminhos. É o ponto mais importante do pedido.
    - **E-mail, celular e id vão só em SHA-256**, nunca em texto, e normalizados antes: e-mail em minúsculas e sem espaços; celular só com dígitos e com o 55 (ex.: `5571999999999`). IP e User-Agent vão sem hash (regra da Meta); guardar os do momento do fechamento.
    - `value` é o **total do fechamento** em reais (o `totalEmCentavos` dividido por 100), o mesmo valor que o site manda ao Google Analytics.
-   - Compras gratuitas (inscrição e matrícula sem custo) **não** são enviadas como `Purchase`.
+   - **Total zero não é venda e não vai como `Purchase`:** inscrição e matrícula gratuitas e compras com **cupom de 100%** (cortesia, bolsa, parceria; ex.: `QUAD30`, `SIMULADOSIQ`). O zero está certo e **nunca** deve ser trocado pela soma dos itens. Se quiserem medir as cortesias, mandar como evento personalizado `inscricao_cortesia` (mesmo `event_id`, `value: 0`, `contents` e o cupom em `custom_data.coupon`), o mesmo nome que o site usa no GA4 desde 12/11/2026. No GA4, 13 das 51 "compras" do último mês eram cortesias.
+   - **`item_price` com o desconto:** o valor pago por unidade de cada item (o total da linha, já com o cupom, dividido pela quantidade), para a soma dos itens bater com `value`.
    - **Nunca atrasar nem quebrar a compra:** o envio é em segundo plano, com algumas novas tentativas se a Meta falhar, e a falha só vai para o log.
    - **Devolução:** não precisa avisar a Meta.
 
-3. **Configuração por variáveis de ambiente**, nunca no código: `META_PIXEL_ID` e `META_CAPI_TOKEN`. O token é gerado por quem administra a conta de anúncios do Quad no **Gerenciador de Eventos** da Meta (Pixel → Configurações → API de Conversões → Gerar token de acesso) e entregue à equipe do backend por um canal seguro. Sem as variáveis, a API simplesmente não envia.
+3. **Preço pago em cada compra do fechamento** (`GET /api/loja/fechamentos/{id}`): hoje `compras[]` traz só item, variação e quantidade. Acrescentar `totalEmCentavos` e `descontoEmCentavos` de cada compra. Sem isso, quando o aluno paga o PIX em outro aparelho ou outra sessão, o site não sabe o preço de cada item de um pedido com vários itens e o GA4 registra o item com preço 0 (aconteceu com a TURMA CFO – BOPE [M] e o SIMULADO 80 SD PMBA 15/11).
+
+4. **Configuração por variáveis de ambiente**, nunca no código: `META_PIXEL_ID` e `META_CAPI_TOKEN`. O token é gerado por quem administra a conta de anúncios do Quad no **Gerenciador de Eventos** da Meta (Pixel → Configurações → API de Conversões → Gerar token de acesso) e entregue à equipe do backend por um canal seguro. Sem as variáveis, a API simplesmente não envia.
 
 **LGPD.** O envio usa dados pessoais (e-mail e celular, em hash) para medir anúncios: por isso fica **preso ao consentimento de marketing**, o mesmo que liga o Pixel no navegador. A política de privacidade precisa citar a Meta como destinatária desses dados; a confirmação fica com quem fez a revisão jurídica.
 

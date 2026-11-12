@@ -23,13 +23,15 @@ declare global {
   }
 }
 
-// Um item no formato de comércio do GA4. O preço é unitário, em reais.
+// Um item no formato de comércio do GA4. O preço é unitário, em reais, já com o desconto; `discount` é o desconto
+// por unidade (o GA4 soma price × quantity na receita do item, então ela bate com o que o aluno pagou).
 export type ItemDoAnalytics = {
   item_id: string;
   item_name: string;
   item_category?: string;
   item_variant?: string;
   price?: number;
+  discount?: number;
   quantity?: number;
 };
 
@@ -164,16 +166,31 @@ function jaEnviada(fechamentoId: string) {
   }
 }
 
+type FechamentoDoAnalytics = { id: string; totalEmCentavos: number; subtotalEmCentavos?: number; descontoEmCentavos?: number; cupom?: string | null };
+
+// Os itens da API não trazem preço (só nome e quantidade). Com um item só, o preço sai do próprio fechamento; com
+// vários, fica sem preço (o total do pedido vai sempre).
+function comPrecoDoFechamento(itens: ItemDoAnalytics[], f: FechamentoDoAnalytics): ItemDoAnalytics[] {
+  if (itens.length !== 1 || itens[0].price != null) return itens;
+  const q = itens[0].quantity ?? 1;
+  return [{ ...itens[0], price: f.totalEmCentavos / 100 / q, discount: f.descontoEmCentavos ? f.descontoEmCentavos / 100 / q : undefined }];
+}
+
 // A compra paga. `itensDaApi`: os itens do fechamento (nome e quantidade), usados quando não há os do checkout.
-export function compra(fechamento: { id: string; totalEmCentavos: number; cupom?: string | null }, itensDaApi: ItemDoAnalytics[]) {
+// Total zero = cupom de 100% (cortesia, bolsa, parceria; ex.: QUAD30, SIMULADOSIQ) ou inscrição gratuita: não é venda.
+// Vai como `inscricao_cortesia`, e não `purchase`, para não contar como conversão no Google Ads nem inflar as compras
+// (decisão de 12/11/2026, a partir das 13 compras de R$ 0 no GA4). O total zero está certo e nunca é trocado pela
+// soma dos itens.
+export function compra(fechamento: FechamentoDoAnalytics, itensDaApi: ItemDoAnalytics[]) {
   const c = typeof window === "undefined" ? null : consentimentoAtual();
   if (!c || !(c.analise || c.marketing)) return;
   if (jaEnviada(fechamento.id)) return;
-  enviar("purchase", {
+  const cortesia = fechamento.totalEmCentavos <= 0;
+  enviar(cortesia ? "inscricao_cortesia" : "purchase", {
     transaction_id: fechamento.id,
     currency: MOEDA,
-    value: fechamento.totalEmCentavos / 100,
+    value: Math.max(0, fechamento.totalEmCentavos) / 100,
     coupon: fechamento.cupom ?? undefined,
-    items: itensGuardados(fechamento.id) ?? itensDaApi,
+    items: itensGuardados(fechamento.id) ?? comPrecoDoFechamento(itensDaApi, fechamento),
   });
 }
