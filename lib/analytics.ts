@@ -1,4 +1,4 @@
-// Google Analytics 4 (Etapa 11, 07/11/2026). Regras:
+// Google Analytics 4 (Etapa 11, 07/11/2026) e Google Ads (12/11/2026, na mesma tag, ver aplicarConsentimento). Regras:
 // - Só carrega para quem aceitou "análise" no aviso de cookies (lib/consentimento.ts); ao recusar depois, para de
 //   enviar (ga-disable). Antes de carregar, os eventos são simplesmente descartados.
 // - Fora do domínio oficial (site de teste e localhost), tudo vai com debug_mode: aparece no DebugView do Analytics e
@@ -10,6 +10,8 @@
 import { consentimentoAtual } from "./consentimento";
 
 export const ID_DO_ANALYTICS = "G-DHYL9131J8";
+// Google Ads (conta 532-763-1597), na mesma tag, só com o consentimento de marketing.
+export const ID_DO_GOOGLE_ADS = "AW-18571482116";
 const DOMINIOS_OFICIAIS = ["quadconcursos.com.br", "www.quadconcursos.com.br"];
 const MOEDA = "BRL";
 
@@ -32,43 +34,70 @@ export type ItemDoAnalytics = {
 };
 
 let carregado = false;
+const configurados = new Set<string>();
 
 function ehDominioOficial() {
   return DOMINIOS_OFICIAIS.includes(window.location.hostname);
 }
 
-// Liga ou desliga o Analytics conforme o consentimento. Chamado pelo componente Analytics (no layout).
-export function aplicarConsentimentoDeAnalise(aceito: boolean) {
+type Escolha = { analise: boolean; marketing: boolean };
+const permissao = (sim: boolean) => (sim ? "granted" : "denied");
+
+// Liga ou desliga as tags do Google conforme o aviso de cookies. Chamado pelo componente Analytics (no layout).
+// Uma tag só (gtag.js) atende os dois: o GA4 entra com "análise" e o Google Ads com "marketing" (12/11/2026). O modo
+// de consentimento do Google recebe a mesma escolha, e nada é carregado enquanto o visitante não aceitar algo.
+export function aplicarConsentimento({ analise, marketing }: Escolha) {
   if (typeof window === "undefined") return;
-  (window as unknown as Record<string, boolean>)[`ga-disable-${ID_DO_ANALYTICS}`] = !aceito;
-  if (!aceito || carregado) return;
-  carregado = true;
-  window.dataLayer = window.dataLayer || [];
-  // O gtag precisa empurrar o objeto `arguments`, e não um array: é assim que o script do Google o lê.
-  window.gtag = function gtag() {
-    // eslint-disable-next-line prefer-rest-params
-    window.dataLayer!.push(arguments);
+  (window as unknown as Record<string, boolean>)[`ga-disable-${ID_DO_ANALYTICS}`] = !analise;
+  const estado = {
+    analytics_storage: permissao(analise),
+    ad_storage: permissao(marketing),
+    ad_user_data: permissao(marketing),
+    ad_personalization: permissao(marketing),
   };
-  window.gtag("js", new Date());
-  window.gtag("config", ID_DO_ANALYTICS, {
-    // As mudanças de página do site (navegação sem recarregar) o próprio GA mede pelo histórico do navegador
-    // (medição otimizada, ligada no fluxo).
-    debug_mode: !ehDominioOficial(),
-    // Sem Google Signals nem anúncios personalizados a partir do Analytics.
-    allow_google_signals: false,
-    allow_ad_personalization_signals: false,
-  });
-  const script = document.createElement("script");
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${ID_DO_ANALYTICS}`;
-  document.head.appendChild(script);
+
+  if (!carregado) {
+    if (!analise && !marketing) return;
+    carregado = true;
+    window.dataLayer = window.dataLayer || [];
+    // O gtag precisa empurrar o objeto `arguments`, e não um array: é assim que o script do Google o lê.
+    window.gtag = function gtag() {
+      // eslint-disable-next-line prefer-rest-params
+      window.dataLayer!.push(arguments);
+    };
+    window.gtag("consent", "default", estado);
+    window.gtag("js", new Date());
+    const script = document.createElement("script");
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${analise ? ID_DO_ANALYTICS : ID_DO_GOOGLE_ADS}`;
+    document.head.appendChild(script);
+  } else {
+    window.gtag!("consent", "update", estado);
+  }
+
+  if (analise && !configurados.has(ID_DO_ANALYTICS)) {
+    configurados.add(ID_DO_ANALYTICS);
+    window.gtag!("config", ID_DO_ANALYTICS, {
+      // As mudanças de página do site (navegação sem recarregar) o próprio GA mede pelo histórico do navegador
+      // (medição otimizada, ligada no fluxo).
+      debug_mode: !ehDominioOficial(),
+      // Sem Google Signals. Anúncios personalizados seguem o consentimento de marketing (ad_personalization).
+      allow_google_signals: false,
+    });
+  }
+  if (marketing && !configurados.has(ID_DO_GOOGLE_ADS)) {
+    configurados.add(ID_DO_GOOGLE_ADS);
+    // A compra conta como conversão pela importação do `purchase` do GA4 no Google Ads (vínculo feito em 12/11/2026).
+    window.gtag!("config", ID_DO_GOOGLE_ADS);
+  }
 }
 
 function enviar(nome: string, parametros: Record<string, unknown>) {
   if (typeof window === "undefined") return;
   // Um evento pode vir antes do componente Analytics ligar o gtag (a página do produto conta a visita assim que
   // abre): com o "sim" já dado, liga aqui mesmo.
-  if (!window.gtag && consentimentoAtual()?.analise) aplicarConsentimentoDeAnalise(true);
+  const c = consentimentoAtual();
+  if (!window.gtag && c && (c.analise || c.marketing)) aplicarConsentimento(c);
   if (!window.gtag) return;
   window.gtag("event", nome, parametros);
 }
@@ -137,7 +166,8 @@ function jaEnviada(fechamentoId: string) {
 
 // A compra paga. `itensDaApi`: os itens do fechamento (nome e quantidade), usados quando não há os do checkout.
 export function compra(fechamento: { id: string; totalEmCentavos: number; cupom?: string | null }, itensDaApi: ItemDoAnalytics[]) {
-  if (typeof window === "undefined" || !consentimentoAtual()?.analise) return;
+  const c = typeof window === "undefined" ? null : consentimentoAtual();
+  if (!c || !(c.analise || c.marketing)) return;
   if (jaEnviada(fechamento.id)) return;
   enviar("purchase", {
     transaction_id: fechamento.id,

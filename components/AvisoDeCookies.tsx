@@ -23,7 +23,7 @@ const CATEGORIAS = [
   {
     id: "marketing",
     nome: "Marketing",
-    desc: "Medem o resultado dos nossos anúncios e mostram anúncios do Quad em outras plataformas (ex.: Pixel da Meta).",
+    desc: "Medem o resultado dos nossos anúncios e mostram anúncios do Quad em outras plataformas (ex.: Google Ads e Pixel da Meta).",
   },
 ] as const;
 
