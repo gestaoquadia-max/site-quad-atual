@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Turma } from "@/lib/data";
-import { brasaoDoConcurso } from "@/lib/brasoes";
 import { BLACK_FRIDAY } from "@/lib/black-friday";
 
 // Primeira dobra da Home, no topo novo da designer (home v2, 11/11/2026): "Conquiste a sua aprovação" com a imagem das
@@ -10,12 +9,14 @@ import { BLACK_FRIDAY } from "@/lib/black-friday";
 // Duas versões: o azul de sempre e a da Black Friday (BLACK_FRIDAY.site, lib/black-friday.ts), com a imagem e as cores
 // de cada uma. Sem a pílula "Destaque" do banner acima do título (tirada em 11/11/2026, pedido do usuário).
 
+// As insígnias da faixa (entrega "concursos-professores" da designer, 12/11/2026): PNG transparentes de 320 × 320.
+const INSIGNIAS = "/images/home/insignias";
 const CONCURSOS = [
-  { id: "sd-pmba", titulo: "Soldado PMBA" },
-  { id: "cfo-pmba", titulo: "CFO PMBA" },
-  { id: "cfs-pmba", titulo: "Sargento PMBA" },
-  { id: "sd-bmba", titulo: "Soldado BMBA" },
-  { id: "ipc-pcba", titulo: "Investigador PCBA" },
+  { id: "sd-pmba", titulo: "Soldado PMBA", insignia: `${INSIGNIAS}/sd-pmba.png` },
+  { id: "cfo-pmba", titulo: "CFO PMBA", insignia: `${INSIGNIAS}/cfo-pmba.png` },
+  { id: "cfs-pmba", titulo: "Sargento PMBA", insignia: `${INSIGNIAS}/sgt-pmba.png` },
+  { id: "sd-bmba", titulo: "Soldado BMBA", insignia: `${INSIGNIAS}/sd-bmba.png` },
+  { id: "ipc-pcba", titulo: "Investigador PCBA", insignia: `${INSIGNIAS}/pcba.png` },
 ];
 
 // As cores de cada versão (tabela da designer). Valores escritos por extenso, fora das classes que app/tema-black.css
@@ -29,12 +30,7 @@ const CORES = BLACK_FRIDAY.site
       textoDestaque: "text-[#F25A0C]",
       botao: "bg-[#F25A0C] hover:bg-[#FF7A2E] shadow-[0_18px_40px_-16px_rgba(242,90,12,0.9)]",
       faixa: "bg-[#1C1714] text-[#F3EEEA] border border-white/[0.06]",
-      cartao:
-        "bg-[linear-gradient(180deg,#261C16_0%,#18120F_100%)] text-[#F3EEEA] border border-white/[0.08] hover:border-[#F25A0C] hover:bg-[linear-gradient(180deg,#3A2216_0%,#1E140F_100%)] hover:shadow-[0_18px_36px_-20px_rgba(242,90,12,0.8)]",
-      medalhao:
-        "bg-[radial-gradient(circle_at_50%_30%,#3A2418_0%,#140D09_100%)] ring-2 ring-[#F25A0C]/40 group-hover:ring-[#F25A0C] shadow-[0_0_26px_-8px_rgba(242,90,12,0.7)]",
-      icone: "text-[#FF7A2E]",
-      seta: "bg-[#F25A0C]/15 text-[#FF7A2E] group-hover:bg-[#F25A0C] group-hover:text-white",
+      indeciso: "border-[#FF8A3D] text-[#FF9A5C] hover:border-[#F25A0C] hover:text-[#FFB27A]",
       barra: "bg-[linear-gradient(90deg,#1C1714,#2A1A10)] text-white border border-white/[0.06]",
       rotuloDaBarra: "text-[#FF9A5C]",
       dia: "text-[#FF7A2E]",
@@ -47,11 +43,7 @@ const CORES = BLACK_FRIDAY.site
       textoDestaque: "text-[#0B63F6]",
       botao: "bg-[#0B63F6] hover:bg-[#2B7BFF] shadow-[0_18px_40px_-16px_rgba(11,99,246,0.9)]",
       faixa: "bg-[#F4F7FC] text-[#0F172A]",
-      cartao: "bg-[#FFFFFF] text-[#0F172A] border border-[#CBD5E1] hover:border-[#0B63F6] hover:shadow-[0_18px_36px_-20px_rgba(11,99,246,0.6)]",
-      medalhao:
-        "bg-[radial-gradient(circle_at_50%_30%,#16325C_0%,#0B1A36_100%)] ring-2 ring-[#0B63F6]/30 group-hover:ring-[#0B63F6] shadow-[0_8px_20px_-10px_rgba(11,26,54,0.6)]",
-      icone: "text-[#7CC4FF]",
-      seta: "bg-[#0B63F6]/10 text-[#0B63F6] group-hover:bg-[#0B63F6] group-hover:text-white",
+      indeciso: "border-[#60A5FA] text-[#2B7BFF] hover:border-[#0B63F6] hover:text-[#0B63F6]",
       barra: "bg-[linear-gradient(90deg,#0B1A36,#0E2A5C)] text-white",
       rotuloDaBarra: "text-[#7CC4FF]",
       dia: "text-[#5AA2FF]",
@@ -72,44 +64,20 @@ function proximaTurmaAberta(turmas: Turma[] | null): Turma | null {
   return abertas[0] ?? null;
 }
 
-// Bússola do cartão "Ainda não decidi", no lugar da insígnia.
-function Bussola({ className = "" }: { className?: string }) {
+// Um concurso na faixa: só a insígnia, sem texto (o nome fica no texto alternativo). Encolhe em telas menores, sem
+// quebrar a linha (até 140 px cada).
+function InsigniaDoConcurso({ href, titulo, insignia }: { href: string; titulo: string; insignia: string }) {
   return (
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
-      <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M15.6 8.4 13.4 13.4 8.4 15.6 10.6 10.6Z" fill="currentColor" />
-    </svg>
-  );
-}
-
-// Cartão de um concurso na faixa (reformulado em 12/11/2026): a insígnia num medalhão, o nome no centro e a seta numa
-// bolinha que acende ao passar o mouse.
-function CartaoDoConcurso({ href, titulo, brasao }: { href: string; titulo: string; brasao: string | null }) {
-  return (
-    <li>
-      <Link
-        href={href}
-        className={`group flex h-full min-h-[168px] flex-col items-center justify-between gap-3 rounded-[14px] px-3 pb-3.5 pt-4 text-center transition-[transform,border-color,box-shadow,background] duration-200 hover:-translate-y-1 ${CORES.cartao}`}
-      >
-        <span
-          className={`flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full transition-[box-shadow] duration-200 ${CORES.medalhao}`}
-        >
-          {brasao ? (
-            <Image
-              src={brasao}
-              alt=""
-              width={64}
-              height={64}
-              className="h-[48px] w-[48px] object-contain transition-transform duration-200 group-hover:scale-110 [filter:drop-shadow(0_3px_6px_rgba(0,0,0,0.45))]"
-            />
-          ) : (
-            <Bussola className={`transition-transform duration-300 group-hover:rotate-45 ${CORES.icone}`} />
-          )}
-        </span>
-        <span className="font-display text-[15px] font-bold leading-tight [text-wrap:balance]">{titulo}</span>
-        <span className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors duration-200 ${CORES.seta}`}>
-          <Seta className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-        </span>
+    <li className="flex min-w-0 flex-[0_1_140px] justify-center">
+      <Link href={href} title={titulo} className="block w-full max-w-[140px] transition-transform duration-200 hover:-translate-y-1">
+        <Image
+          src={insignia}
+          alt={titulo}
+          width={320}
+          height={320}
+          sizes="140px"
+          className="aspect-square w-full object-contain [filter:drop-shadow(0_8px_16px_rgba(0,0,0,0.5))]"
+        />
       </Link>
     </li>
   );
@@ -214,15 +182,23 @@ export default function PrimeiroContato({ turmas }: { turmas: Turma[] | null }) 
         </div>
 
         {/* Escolha do concurso: o aluno cai nas turmas dele (/turmas?cargo=...). */}
-        <div className={`relative mt-[clamp(8px,2vw,32px)] grid items-center gap-5 rounded-[18px] p-[clamp(18px,2vw,22px)] lg:grid-cols-[240px_minmax(0,1fr)] ${CORES.faixa}`}>
-          <p className="font-display text-[clamp(1.4rem,2vw,1.65rem)] font-extrabold leading-[1.15] tracking-[-0.02em] lg:pl-2">
+        <div className={`relative mt-[clamp(8px,2vw,32px)] grid items-center gap-5 rounded-[22px] p-[clamp(18px,2vw,22px)] md:grid-cols-[230px_minmax(0,1fr)] md:gap-[22px] md:px-7 ${CORES.faixa}`}>
+          <p className="font-display text-[clamp(1.4rem,2vw,1.625rem)] font-extrabold leading-[1.1] tracking-[-0.03em]">
             Escolha o seu concurso e <span className={CORES.textoDestaque}>comece agora</span>
           </p>
-          <ul aria-label="Escolha o seu concurso" className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+          {/* Sempre numa linha só (entrega da designer de 12/11/2026). */}
+          <ul aria-label="Escolha o seu concurso" className="flex min-w-0 flex-nowrap items-center justify-center gap-1.5">
             {CONCURSOS.map((c) => (
-              <CartaoDoConcurso key={c.id} href={`/turmas?cargo=${c.id}`} titulo={c.titulo} brasao={brasaoDoConcurso(c.id)} />
+              <InsigniaDoConcurso key={c.id} href={`/turmas?cargo=${c.id}`} titulo={c.titulo} insignia={c.insignia} />
             ))}
-            <CartaoDoConcurso href="/turmas" titulo="Ainda não decidi" brasao={null} />
+            <li className="flex min-w-0 flex-[0_1_140px] justify-center">
+              <Link
+                href="/turmas"
+                className={`flex aspect-square w-full max-w-[140px] items-center justify-center overflow-hidden rounded-full border-2 border-dashed p-1.5 text-center font-display text-[clamp(10px,1.1vw,16px)] font-extrabold leading-[1.1] transition-[transform,color,border-color] duration-200 hover:-translate-y-1 ${CORES.indeciso}`}
+              >
+                Ainda não decidi
+              </Link>
+            </li>
           </ul>
         </div>
 

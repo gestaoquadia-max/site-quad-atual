@@ -2,178 +2,126 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRef } from "react";
 import type { Professor } from "@/lib/data";
 import Reveal from "@/components/Reveal";
-import { SetaDoLink } from "@/components/Trilho";
+import { BLACK_FRIDAY } from "@/lib/black-friday";
 
-// Painéis à vista no computador; o destacado se abre e mostra tudo.
-const NO_COMPUTADOR = 4;
-const SEGUNDOS_POR_PROFESSOR = 5;
+// Professores na Home, na entrega "concursos-professores" da designer (12/11/2026): faixa horizontal com rolagem (setas
+// no computador, arrastar no celular). Cada cartão: fundo com brilho, a foto recortada (sem fundo) por cima e a faixa
+// escura com matéria, nome e o botão de perfil. Nome, matéria e página vêm da API; sem minibio (fica na página dele).
 
-// "Bruno Araújo Agostinho" → "Bruno" em cima e "ARAÚJO AGOSTINHO" grande embaixo.
-function partesDoNome(nome: string) {
-  const [primeiro, ...resto] = nome.trim().split(/\s+/);
-  return { primeiro: resto.length ? primeiro : "", sobrenome: resto.length ? resto.join(" ") : primeiro };
-}
+// Fotos já tratadas pela designer (fundo removido, 750 × 1000, encostadas na base), pelo slug da API. Quem não está aqui
+// usa a foto do cadastro.
+const FOTOS = "/images/home/professores";
+const FOTO_TRATADA: Record<string, string> = {
+  "marcello-reuter-e-esquivel": `${FOTOS}/marcello-esquivel.webp`,
+  "elielmo-barbosa-miranda": `${FOTOS}/minho-show.webp`,
+  "moab-kigran-de-oliveira-araujo": `${FOTOS}/moab-kigran.webp`,
+  "wilson-gabriel-souza-santos": `${FOTOS}/wilson.webp`,
+  "roberto-fabian-santos-de-araujo": `${FOTOS}/fabian.webp`,
+};
 
-// Fundo do painel: o brilho azul sobre uma grade fina (as iniciais gigantes saíram em 06/11/2026). A foto do cadastro
-// é um recorte sem fundo (PNG transparente; hoje 512 × 512, a original é 1080 × 1350): fica inteira, "em pé" na base
-// do painel, como um pôster.
-function Fundo({ professor }: { professor: Professor }) {
+// Quanto cada seta anda (a largura de um cartão e o espaço entre eles).
+const PASSO = 320;
+
+// Cores da entrega: o tema da Black Friday e, fora dele, a troca indicada pela designer (laranja → azul).
+const CORES = BLACK_FRIDAY.site
+  ? {
+      rotulo: "text-[#FF9A5C]",
+      setaCheia: "bg-[#F25A0C] hover:bg-[#FF7A2E]",
+      fundo: "bg-[radial-gradient(90%_70%_at_50%_15%,#FF8A3D_0%,#E5530A_30%,#7A2A06_62%,#1A110C_100%)]",
+      brilhoDaFoto: "[filter:drop-shadow(0_-2px_14px_rgba(255,122,46,0.45))_drop-shadow(0_18px_24px_rgba(0,0,0,0.5))]",
+      linha: "border-[#F25A0C]",
+      botao: "border-[#FF7A2E] text-[#FF9A5C] group-hover:bg-[#F25A0C] group-hover:border-[#F25A0C] group-hover:text-white",
+    }
+  : {
+      rotulo: "text-[#60A5FA]",
+      setaCheia: "bg-[#1D8BFF] hover:bg-[#2B7BFF]",
+      fundo: "bg-[radial-gradient(90%_70%_at_50%_15%,#60A5FA_0%,#2B7BFF_30%,#0B3A80_62%,#0A1220_100%)]",
+      brilhoDaFoto: "[filter:drop-shadow(0_-2px_14px_rgba(96,165,250,0.45))_drop-shadow(0_18px_24px_rgba(0,0,0,0.5))]",
+      linha: "border-[#1D8BFF]",
+      botao: "border-[#60A5FA] text-[#60A5FA] group-hover:bg-[#1D8BFF] group-hover:border-[#1D8BFF] group-hover:text-white",
+    };
+
+function CartaoDoProfessor({ professor }: { professor: Professor }) {
+  const foto = FOTO_TRATADA[professor.slug] ?? professor.fotoUrl;
   return (
-    <div aria-hidden="true" className="absolute inset-0 overflow-hidden bg-[radial-gradient(90%_70%_at_80%_10%,#1E5BD8_0%,#0B2A55_45%,#060F1E_100%)]">
-      <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,0.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.35)_1px,transparent_1px)] [background-size:44px_44px] [mask-image:radial-gradient(80%_70%_at_70%_20%,#000,transparent)]" />
-      {/* Altura fixa (88% do painel, que vai até 580 px) e a foto ajustada pela altura: a quadrada antiga (512 × 512)
-          fica no tamanho do arquivo, sem esticar, e a original 4:5 (aceita pela API desde o PR #139) cabe inteira. */}
-      {professor.fotoUrl && (
-        <div className="absolute inset-x-0 bottom-0 h-[88%]">
-          <Image src={professor.fotoUrl} alt="" fill unoptimized className="object-contain object-bottom" />
+    <Link
+      href={`/professores/${professor.slug}`}
+      aria-label={`${professor.nome}${professor.materia ? `, ${professor.materia}` : ""}: ver perfil`}
+      className="group relative h-[430px] w-[78vw] flex-none snap-start text-white hover:text-white sm:w-[300px]"
+    >
+      {/* Fundo com brilho e listras finas, mais baixo que o cartão: a cabeça passa por cima. */}
+      <div aria-hidden="true" className={`absolute inset-x-0 bottom-0 h-[350px] overflow-hidden rounded-[20px] ${CORES.fundo}`}>
+        <div className="absolute inset-0 [background:repeating-linear-gradient(90deg,rgba(255,255,255,0.05)_0_1px,transparent_1px_28px)]" />
+      </div>
+      {foto && (
+        <div className="absolute inset-x-0 bottom-[112px] top-0">
+          <Image
+            src={foto}
+            alt=""
+            fill
+            unoptimized={!FOTO_TRATADA[professor.slug]}
+            sizes="300px"
+            className={`object-contain object-bottom transition-transform duration-300 group-hover:scale-[1.03] ${CORES.brilhoDaFoto}`}
+          />
         </div>
       )}
-      <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(5,14,28,0.92)_6%,rgba(5,14,28,0.55)_26%,rgba(5,14,28,0)_50%)]" />
-    </div>
-  );
-}
-
-// O conteúdo do painel aberto: matéria no alto, nome em duas linhas e o convite.
-function Aberto({ professor }: { professor: Professor }) {
-  const { primeiro, sobrenome } = partesDoNome(professor.nome);
-  return (
-    <>
-      {professor.materia && (
-        // Na horizontal, no canto de cima (06/11/2026; antes vertical, à direita), com o traço antes.
-        <span className="absolute left-6 right-6 top-6 flex items-center gap-3 text-[12px] font-bold uppercase tracking-[0.24em] text-azul-ceu">
-          <span aria-hidden="true" className="block h-px w-10 flex-none bg-azul-ceu/60" />
-          <span className="truncate">{professor.materia}</span>
-        </span>
-      )}
-      <div className="absolute inset-x-6 bottom-6">
-        {primeiro && <span className="block font-display text-[clamp(18px,1.6vw,24px)] font-semibold tracking-[-0.01em] text-white/85">{primeiro}</span>}
-        <span className="mt-0.5 block font-display text-[clamp(30px,3.4vw,52px)] font-extrabold uppercase leading-[0.92] tracking-[-0.035em] text-white [overflow-wrap:anywhere]">{sobrenome}</span>
-        <span className="mt-5 inline-flex items-center gap-2 border-b border-white/30 pb-1 text-[14px] font-semibold text-white transition-colors group-hover:border-azul-ceu group-hover:text-azul-ceu">
-          Ver perfil <SetaDoLink />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-[112px] z-[1] h-[70px] bg-[linear-gradient(0deg,rgba(23,18,15,0.85),transparent)]" />
+      <div className={`absolute inset-x-0 bottom-0 z-[2] flex h-[112px] items-center justify-between gap-2.5 rounded-b-[20px] border-t-2 bg-[#17120F] px-[22px] py-[18px] ${CORES.linha}`}>
+        <div className="min-w-0">
+          {professor.materia && (
+            <small className={`block truncate text-[12px] font-extrabold uppercase tracking-[0.16em] ${CORES.rotulo}`}>{professor.materia}</small>
+          )}
+          <strong className="mt-1 block font-display text-[21px] font-extrabold leading-[1.15]">{professor.nome}</strong>
+        </div>
+        <span
+          aria-hidden="true"
+          className={`flex size-[42px] flex-none items-center justify-center rounded-full border transition-colors duration-200 ${CORES.botao}`}
+        >
+          →
         </span>
       </div>
-    </>
+    </Link>
   );
 }
 
-// Professores na Home: painéis grandes que se abrem como sanfona (computador) e cartões altos que se arrastam (celular).
-// Avança sozinho a cada 5 s no computador; para ao passar o mouse, ao focar e pelo botão (WCAG 2.2.2).
-// Sem minibio: ela fica na página do professor.
 export default function ProfessoresEmDestaque({ professores }: { professores: Professor[] }) {
-  const total = professores.length;
-  const visiveis = Math.min(NO_COMPUTADOR, total);
-  // inicio: o primeiro professor à vista; ativo: a posição do painel aberto (0 a visiveis - 1).
-  const [{ inicio, ativo }, setVista] = useState({ inicio: 0, ativo: 0 });
-  const [pausado, setPausado] = useState(false);
-  const [emFoco, setEmFoco] = useState(false);
-
-  const janela = Array.from({ length: visiveis }, (_, i) => (inicio + i) % total);
-
-  function andar(passo: 1 | -1) {
-    setVista((v) => ({ ...v, inicio: (v.inicio + passo + total) % total }));
-  }
-
-  function abrir(posicao: number) {
-    setVista((v) => ({ ...v, ativo: posicao }));
-  }
-
-  useEffect(() => {
-    if (pausado || emFoco || total < 2) return;
-    if (!window.matchMedia("(min-width: 1024px)").matches) return;
-    const id = window.setInterval(() => {
-      if (document.hidden) return;
-      // Abre o próximo painel; depois do último, passa para os próximos professores.
-      setVista((v) => (v.ativo < visiveis - 1 ? { ...v, ativo: v.ativo + 1 } : { inicio: (v.inicio + visiveis) % total, ativo: 0 }));
-    }, SEGUNDOS_POR_PROFESSOR * 1000);
-    return () => window.clearInterval(id);
-  }, [pausado, emFoco, total, visiveis]);
-
-  const setas = "grid size-11 place-items-center rounded-full border border-white/20 text-white transition-colors hover:border-azul-ceu hover:bg-azul/[0.12]";
+  const faixa = useRef<HTMLDivElement>(null);
+  const andar = (direcao: 1 | -1) => faixa.current?.scrollBy({ left: direcao * PASSO, behavior: "smooth" });
+  const seta = "grid size-12 place-items-center rounded-full text-lg text-white transition-colors";
 
   return (
     // Entre duas ondas (components/home/Onda.tsx): o fundo começa e termina na cor delas.
     <section id="professores" className="relative overflow-hidden bg-[image:linear-gradient(180deg,#151A24_0%,#0B1A36_18%,#081530_82%,#151A24_100%)] py-[clamp(40px,5vw,64px)] text-white">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_60%_at_60%_60%,rgba(37,99,235,0.3),transparent_70%)]" />
       <div className="conteiner relative">
-        <Reveal className="mb-[clamp(28px,3.4vw,44px)] flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
-          <h2 className="titulo-secao">Conheça nossos professores</h2>
-          <div className="flex items-center gap-3">
-            <Link href="/professores" className="mr-2 inline-flex min-h-[44px] items-center gap-2 font-display text-[15px] font-bold text-azul-ceu hover:text-white">
-              Ver todos os professores <SetaDoLink />
+        <Reveal className="flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <small className={`text-[13px] font-extrabold tracking-[0.2em] ${CORES.rotulo}`}>CORPO DOCENTE</small>
+            <h2 className="mt-2.5 font-display text-[clamp(2rem,3.6vw,3rem)] font-extrabold tracking-[-0.035em]">Conheça nossos professores</h2>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/professores" className={`inline-flex min-h-[44px] items-center font-display text-[15px] font-bold hover:text-white ${CORES.rotulo}`}>
+              Ver todos os professores →
             </Link>
-            <div className="hidden items-center gap-2.5 lg:flex">
-              <button type="button" onClick={() => setPausado((p) => !p)} aria-pressed={pausado} aria-label={pausado ? "Continuar a passagem" : "Pausar a passagem"} className={setas}>
-                <span aria-hidden="true" className="text-[12px]">{pausado ? "▶" : "❚❚"}</span>
+            <div className="hidden items-center gap-4 sm:flex">
+              <button type="button" onClick={() => andar(-1)} aria-label="Professores anteriores" className={`${seta} border border-white/25 hover:border-white/60`}>
+                <span aria-hidden="true">←</span>
               </button>
-              <button type="button" onClick={() => andar(-1)} aria-label="Professor anterior" className={setas}>
-                <span aria-hidden="true" className="rotate-180"><SetaDoLink /></span>
-              </button>
-              <button type="button" onClick={() => andar(1)} aria-label="Próximo professor" className={setas}>
-                <SetaDoLink />
+              <button type="button" onClick={() => andar(1)} aria-label="Próximos professores" className={`${seta} ${CORES.setaCheia}`}>
+                <span aria-hidden="true">→</span>
               </button>
             </div>
           </div>
         </Reveal>
 
-        {/* Computador: sanfona de painéis. */}
-        <div
-          className="hidden h-[clamp(460px,40vw,580px)] gap-3 lg:flex"
-          onMouseEnter={() => setEmFoco(true)}
-          onMouseLeave={() => setEmFoco(false)}
-          onFocus={() => setEmFoco(true)}
-          onBlur={() => setEmFoco(false)}
-        >
-          {janela.map((indice, posicao) => {
-            const p = professores[indice];
-            const aberto = posicao === ativo;
-            const { primeiro, sobrenome } = partesDoNome(p.nome);
-            return (
-              <Link
-                key={p.slug}
-                href={`/professores/${p.slug}`}
-                onMouseEnter={() => abrir(posicao)}
-                onFocus={() => abrir(posicao)}
-                aria-label={`${p.nome}${p.materia ? `, ${p.materia}` : ""}`}
-                className={`group relative min-w-0 overflow-hidden rounded-[22px] border text-white shadow-[0_30px_60px_-30px_rgba(0,0,0,0.9)] transition-[flex-grow,border-color] duration-[650ms] ease-[cubic-bezier(.2,.8,.2,1)] hover:text-white ${aberto ? "flex-[4.2] border-[rgba(111,174,255,0.45)]" : "flex-1 border-white/[0.08]"}`}
-              >
-                <Fundo professor={p} />
-                <div className={`absolute inset-0 transition-opacity duration-300 ${aberto ? "opacity-100 delay-300" : "pointer-events-none opacity-0"}`}>
-                  <Aberto professor={p} />
-                </div>
-                <div aria-hidden="true" className={`absolute inset-0 transition-opacity duration-300 ${aberto ? "opacity-0" : "opacity-100 delay-200"}`}>
-                  {/* Os dois nomes, sempre: o primeiro mais leve e o sobrenome forte, na vertical. */}
-                  <span className="absolute bottom-6 left-1/2 max-h-[calc(100%-48px)] -translate-x-1/2 rotate-180 overflow-hidden text-ellipsis whitespace-nowrap font-display text-[20px] uppercase tracking-[0.02em] text-white [writing-mode:vertical-rl]">
-                    {primeiro && <span className="font-semibold text-white/75">{primeiro} </span>}
-                    <span className="font-extrabold">{sobrenome}</span>
-                  </span>
-                </div>
-              </Link>
-            );
-          })}
+        <div ref={faixa} className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 pt-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {professores.map((p) => (
+            <CartaoDoProfessor key={p.slug} professor={p} />
+          ))}
         </div>
-
-        {/* Pontos de progresso: em que parte da lista a sanfona está. */}
-        <div aria-hidden="true" className="mt-5 hidden h-[3px] overflow-hidden rounded-full bg-white/10 lg:block">
-          <div className="h-full rounded-full bg-azul-ceu transition-[width] duration-500" style={{ width: `${(((inicio + ativo) % total) + 1) / total * 100}%` }} />
-        </div>
-      </div>
-
-      {/* Celular e tablet: cartões altos, já abertos, que se arrastam para o lado. */}
-      <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-[max(16px,calc((100vw-1200px)/2))] pb-2 [scrollbar-width:none] lg:hidden">
-        {professores.map((p) => (
-          <Link
-            key={p.slug}
-            href={`/professores/${p.slug}`}
-            aria-label={`${p.nome}${p.materia ? `, ${p.materia}` : ""}`}
-            className="group relative aspect-[3/4] w-[78%] max-w-[360px] flex-none snap-center overflow-hidden rounded-[22px] border border-white/[0.1] text-white hover:text-white sm:w-[46%]"
-          >
-            <Fundo professor={p} />
-            <Aberto professor={p} />
-          </Link>
-        ))}
       </div>
     </section>
   );
