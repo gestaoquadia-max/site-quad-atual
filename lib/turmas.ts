@@ -73,16 +73,22 @@ export function nomeLimpoDaTurma(nome: string) {
 // O nome da turma (decisão de 09/11/2026: o dia de início diz mais ao aluno que o número da turma):
 // - com modalidade: MODALIDADE + dia de início ("BOPE 09/11"); sem a data, MODALIDADE + EDIÇÃO ("RONDESP 2");
 // - sem modalidade: o nome cadastrado, limpo, + dia de início ("MISSÃO 1º PASSO 16/11").
+// Nomes cadastrados de forma diferente do nome oficial do curso (12/11/2026, pedido do usuário: a isolada se chama
+// "Dupla de Dois", e o cadastro diz "DUPLA DOIS"). O certo é corrigir também no cadastro.
+const NOME_CORRIGIDO: [RegExp, string][] = [[/\bDUPLA\s+DOIS\b/gi, "DUPLA DE DOIS"]];
+const corrigirNome = (nome: string) => NOME_CORRIGIDO.reduce((n, [de, para]) => n.replace(de, para), nome);
+
 export function nomeDaTurma(o: Pick<OfertaDaTurma, "modalidade" | "edicao" | "inicio" | "nomeOriginal">) {
   // "2026-11-09" → "09/11"
   const partes = o.inicio?.match(/^\d{4}-(\d{2})-(\d{2})/);
   const dia = partes ? `${partes[2]}/${partes[1]}` : null;
   if (!o.modalidade) {
-    const nome = nomeLimpoDaTurma(o.nomeOriginal);
+    const nome = corrigirNome(nomeLimpoDaTurma(o.nomeOriginal));
     return dia ? `${nome} ${dia}` : nome;
   }
-  if (dia) return `${o.modalidade} ${dia}`;
-  return o.edicao ? `${o.modalidade} ${o.edicao}` : o.modalidade;
+  const modalidade = corrigirNome(o.modalidade);
+  if (dia) return `${modalidade} ${dia}`;
+  return o.edicao ? `${modalidade} ${o.edicao}` : modalidade;
 }
 
 // Níveis de preparação da PMBA (Soldado e CFO). Fora da PMBA (PCBA, Bombeiros, outros estados) a MODALIDADE é um

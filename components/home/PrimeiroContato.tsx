@@ -29,7 +29,12 @@ const CORES = BLACK_FRIDAY.site
       textoDestaque: "text-[#F25A0C]",
       botao: "bg-[#F25A0C] hover:bg-[#FF7A2E] shadow-[0_18px_40px_-16px_rgba(242,90,12,0.9)]",
       faixa: "bg-[#1C1714] text-[#F3EEEA] border border-white/[0.06]",
-      cartao: "bg-[linear-gradient(160deg,#E5530A,#B8400A)] text-white border border-[#FF9A5C]/50 hover:border-[#FFD2B0]",
+      cartao:
+        "bg-[linear-gradient(180deg,#261C16_0%,#18120F_100%)] text-[#F3EEEA] border border-white/[0.08] hover:border-[#F25A0C] hover:bg-[linear-gradient(180deg,#3A2216_0%,#1E140F_100%)] hover:shadow-[0_18px_36px_-20px_rgba(242,90,12,0.8)]",
+      medalhao:
+        "bg-[radial-gradient(circle_at_50%_30%,#3A2418_0%,#140D09_100%)] ring-2 ring-[#F25A0C]/40 group-hover:ring-[#F25A0C] shadow-[0_0_26px_-8px_rgba(242,90,12,0.7)]",
+      icone: "text-[#FF7A2E]",
+      seta: "bg-[#F25A0C]/15 text-[#FF7A2E] group-hover:bg-[#F25A0C] group-hover:text-white",
       barra: "bg-[linear-gradient(90deg,#1C1714,#2A1A10)] text-white border border-white/[0.06]",
       rotuloDaBarra: "text-[#FF9A5C]",
       dia: "text-[#FF7A2E]",
@@ -42,7 +47,11 @@ const CORES = BLACK_FRIDAY.site
       textoDestaque: "text-[#0B63F6]",
       botao: "bg-[#0B63F6] hover:bg-[#2B7BFF] shadow-[0_18px_40px_-16px_rgba(11,99,246,0.9)]",
       faixa: "bg-[#F4F7FC] text-[#0F172A]",
-      cartao: "bg-[#FFFFFF] text-[#0F172A] border border-[#CBD5E1] hover:border-[#0B63F6]",
+      cartao: "bg-[#FFFFFF] text-[#0F172A] border border-[#CBD5E1] hover:border-[#0B63F6] hover:shadow-[0_18px_36px_-20px_rgba(11,99,246,0.6)]",
+      medalhao:
+        "bg-[radial-gradient(circle_at_50%_30%,#16325C_0%,#0B1A36_100%)] ring-2 ring-[#0B63F6]/30 group-hover:ring-[#0B63F6] shadow-[0_8px_20px_-10px_rgba(11,26,54,0.6)]",
+      icone: "text-[#7CC4FF]",
+      seta: "bg-[#0B63F6]/10 text-[#0B63F6] group-hover:bg-[#0B63F6] group-hover:text-white",
       barra: "bg-[linear-gradient(90deg,#0B1A36,#0E2A5C)] text-white",
       rotuloDaBarra: "text-[#7CC4FF]",
       dia: "text-[#5AA2FF]",
@@ -63,22 +72,43 @@ function proximaTurmaAberta(turmas: Turma[] | null): Turma | null {
   return abertas[0] ?? null;
 }
 
-// Cartão de um concurso na faixa: a insígnia, o nome e a seta.
+// Bússola do cartão "Ainda não decidi", no lugar da insígnia.
+function Bussola({ className = "" }: { className?: string }) {
+  return (
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
+      <circle cx="12" cy="12" r="9.5" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M15.6 8.4 13.4 13.4 8.4 15.6 10.6 10.6Z" fill="currentColor" />
+    </svg>
+  );
+}
+
+// Cartão de um concurso na faixa (reformulado em 12/11/2026): a insígnia num medalhão, o nome no centro e a seta numa
+// bolinha que acende ao passar o mouse.
 function CartaoDoConcurso({ href, titulo, brasao }: { href: string; titulo: string; brasao: string | null }) {
   return (
     <li>
       <Link
         href={href}
-        className={`group flex h-full min-h-[150px] flex-col justify-between gap-3 rounded-[12px] p-[14px] transition-[transform,border-color] duration-150 hover:-translate-y-0.5 ${CORES.cartao}`}
+        className={`group flex h-full min-h-[168px] flex-col items-center justify-between gap-3 rounded-[14px] px-3 pb-3.5 pt-4 text-center transition-[transform,border-color,box-shadow,background] duration-200 hover:-translate-y-1 ${CORES.cartao}`}
       >
-        {brasao ? (
-          <Image src={brasao} alt="" width={64} height={64} className="mx-auto h-14 w-14 object-contain [filter:drop-shadow(0_4px_8px_rgba(0,0,0,0.35))]" />
-        ) : (
-          <span className="h-14" />
-        )}
-        <span className="flex flex-col gap-1.5">
-          <span className="font-display text-[15.5px] font-bold leading-tight">{titulo}</span>
-          <Seta className="transition-transform group-hover:translate-x-0.5" />
+        <span
+          className={`flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full transition-[box-shadow] duration-200 ${CORES.medalhao}`}
+        >
+          {brasao ? (
+            <Image
+              src={brasao}
+              alt=""
+              width={64}
+              height={64}
+              className="h-[48px] w-[48px] object-contain transition-transform duration-200 group-hover:scale-110 [filter:drop-shadow(0_3px_6px_rgba(0,0,0,0.45))]"
+            />
+          ) : (
+            <Bussola className={`transition-transform duration-300 group-hover:rotate-45 ${CORES.icone}`} />
+          )}
+        </span>
+        <span className="font-display text-[15px] font-bold leading-tight [text-wrap:balance]">{titulo}</span>
+        <span className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors duration-200 ${CORES.seta}`}>
+          <Seta className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
         </span>
       </Link>
     </li>
