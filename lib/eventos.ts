@@ -3,6 +3,7 @@ import type { CartItem } from "./cart";
 import type { Evento } from "./data";
 import { parsePreco } from "./format";
 import { idDoItem } from "./itens";
+import { BLACK_FRIDAY } from "./black-friday";
 
 export type TomDoSelo = "aberta" | "breve" | "esgotado" | "encerrado";
 
@@ -30,7 +31,8 @@ export const CARTAO_DOS_SIMULADOS: DadosDoCartaoEvento = {
   href: "/simulados",
   descricao: "Escolha sua carreira e encontre simulados presenciais, digitais, impressos e combos para sua preparação.",
   selo: { texto: "Presenciais, individuais e combos", tom: "breve" },
-  imagem: "/images/capa-simulados/Simulados.png",
+  // Na Black Friday (lib/black-friday.ts), a capa laranja (12/11/2026).
+  imagem: BLACK_FRIDAY.site ? "/images/capa-simulados/simulados-black.png" : "/images/capa-simulados/Simulados.png",
 };
 
 export function seloDoEvento(e: Evento): DadosDoCartaoEvento["selo"] {

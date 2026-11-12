@@ -24,7 +24,7 @@ const CONCURSOS = [
 const CORES = BLACK_FRIDAY.site
   ? {
       imagem: "/images/home/hero-forcas-black.png",
-      fundo: "bg-[linear-gradient(180deg,#1A0F0A_0%,#120F0D_100%)]",
+      fundo: "bg-[linear-gradient(180deg,#1A0F0A_0%,#120F0D_80%,#0E0C0B_100%)]",
       brilho: "bg-[radial-gradient(45%_60%_at_80%_35%,rgba(242,90,12,0.30),transparent_70%)]",
       destaque: "bg-[linear-gradient(100deg,#FFB27A_0%,#F25A0C_100%)]",
       textoDestaque: "text-[#F25A0C]",
@@ -149,9 +149,9 @@ export default function PrimeiroContato({ turmas }: { turmas: Turma[] | null }) 
       <div className="conteiner relative pb-[clamp(40px,5vw,72px)] pt-[clamp(24px,4vw,72px)]">
         <div className="max-w-[600px] lg:min-h-[clamp(380px,32vw,470px)]">
           <h1 id="titulo-da-home" className="font-display font-extrabold tracking-[-0.045em]">
-            <span className="block text-[clamp(2.6rem,5vw,4.2rem)] leading-[1.02]">Conquiste a sua</span>
+            <span className="block text-[clamp(2.6rem,5vw,4.2rem)] leading-[0.95]">Conquiste a sua</span>
             <span
-              className={`block bg-clip-text pb-2 pr-3 text-[clamp(3.6rem,7vw,6.25rem)] italic leading-[1] text-transparent ${CORES.destaque}`}
+              className={`block bg-clip-text pb-2 pr-3 text-[clamp(3.6rem,7vw,6.25rem)] -mt-[0.06em] italic leading-[0.95] text-transparent ${CORES.destaque}`}
             >
               Aprovação
             </span>

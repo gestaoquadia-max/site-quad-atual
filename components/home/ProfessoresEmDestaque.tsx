@@ -52,12 +52,12 @@ function CartaoDoProfessor({ professor }: { professor: Professor }) {
       aria-label={`${professor.nome}${professor.materia ? `, ${professor.materia}` : ""}: ver perfil`}
       className="group relative h-[430px] w-[78vw] flex-none snap-start text-white hover:text-white sm:w-[300px]"
     >
-      {/* Fundo com brilho e listras finas, mais baixo que o cartão: a cabeça passa por cima. */}
-      <div aria-hidden="true" className={`absolute inset-x-0 bottom-0 h-[350px] overflow-hidden rounded-[20px] ${CORES.fundo}`}>
+      {/* Fundo com brilho e listras finas, na altura toda do cartão: a foto fica dentro dele (12/11/2026, pedido do usuário). */}
+      <div aria-hidden="true" className={`absolute inset-0 overflow-hidden rounded-[20px] ${CORES.fundo}`}>
         <div className="absolute inset-0 [background:repeating-linear-gradient(90deg,rgba(255,255,255,0.05)_0_1px,transparent_1px_28px)]" />
       </div>
       {foto && (
-        <div className="absolute inset-x-0 bottom-[112px] top-0">
+        <div className="absolute inset-x-0 bottom-[112px] top-5">
           <Image
             src={foto}
             alt=""

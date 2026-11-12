@@ -5,6 +5,7 @@ import { paraCartao } from "@/lib/eventos";
 import { MESES_CURTOS, ROTULO_DO_TIPO, ehAulao, type ItemDaAgenda } from "@/lib/agenda";
 import CartaoEvento from "../home/CartaoEvento";
 import Onda from "@/components/home/Onda";
+import { BLACK_FRIDAY } from "@/lib/black-friday";
 
 // Começo da Agenda Quad (/eventos), na entrega da designer de 11/11/2026: o topo escuro com o card "Próximos na
 // agenda", a onda, o destaque dos Simulados do Quad e os aulões (a seção só existe com aulões cadastrados). As
@@ -92,7 +93,7 @@ export default function AgendaDeEventos({ eventos, proximos }: { eventos: Evento
             </div>
             <div className="relative min-h-[280px] bg-marinho-900">
               <Image
-                src="/images/capa-simulados/banner-simulado.png"
+                src={BLACK_FRIDAY.site ? "/images/capa-simulados/banner-simulado-black.png" : "/images/capa-simulados/banner-simulado.png"}
                 alt="Painel de desempenho nos simulados do Quad, com cartão-resposta e gráfico de evolução"
                 fill
                 sizes="(min-width: 900px) 50vw, 100vw"
