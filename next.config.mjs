@@ -11,23 +11,28 @@ const origemDaApi = API_URL ? new URL(API_URL).origin : "";
 // Google Analytics (07/11/2026, lib/analytics.ts): o script vem de googletagmanager.com e os dados vão para
 // *.google-analytics.com, *.analytics.google.com e www.google.com/g/collect (conferido no navegador em 07/11/2026).
 // Google Ads (12/11/2026, na mesma tag): o script e os dados passam por googleadservices.com e *.doubleclick.net, e o
-// remarketing abre um quadro invisível em td.doubleclick.net. O Pixel da Meta, quando entrar, acrescenta os domínios dele.
+// remarketing abre um quadro invisível em td.doubleclick.net. *.doubleclick.net (e não só *.g.doubleclick.net) porque o
+// Ads também envia para ad.doubleclick.net (conferido no navegador em 12/11/2026).
+// Pixel da Meta (preparado em 12/11/2026; entra só com o consentimento de marketing): script em connect.facebook.net,
+// envios e quadro em www.facebook.com.
 const DOMINIOS_DO_ANALYTICS =
   "https://www.googletagmanager.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.google.com";
-const DOMINIOS_DO_GOOGLE_ADS = "https://www.googleadservices.com https://googleads.g.doubleclick.net https://*.doubleclick.net https://www.google.com.br";
+const DOMINIOS_DO_GOOGLE_ADS =
+  "https://www.googleadservices.com https://googleads.g.doubleclick.net https://*.doubleclick.net https://www.google.com.br https://pagead2.googlesyndication.com";
+const DOMINIOS_DA_META = "https://connect.facebook.net https://www.facebook.com";
 
 const politicaDeConteudo = [
   "default-src 'self'",
   // 'unsafe-eval' só em desenvolvimento: o React usa eval para mostrar os erros. Em produção não precisa.
   // accounts.google.com: o botão "Entrar com o Google" (script, estilo e o quadro do botão).
-  `script-src 'self' 'unsafe-inline' https://accounts.google.com https://www.googletagmanager.com ${DOMINIOS_DO_GOOGLE_ADS}${emDesenvolvimento ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://accounts.google.com https://www.googletagmanager.com ${DOMINIOS_DO_GOOGLE_ADS} https://connect.facebook.net${emDesenvolvimento ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline' https://accounts.google.com",
-  "frame-src https://accounts.google.com https://td.doubleclick.net https://www.googletagmanager.com",
+  "frame-src https://accounts.google.com https://td.doubleclick.net https://www.googletagmanager.com https://www.facebook.com",
   // Imagens da API (S3) e fotos de aprovados vêm de outros endereços https.
   "img-src 'self' data: blob: https:",
   "font-src 'self'",
   // A API, a busca de endereço pelo CEP e a tokenização do cartão no Pagar.me (lib/pagarme.ts).
-  ["connect-src 'self'", origemDaApi, "https://viacep.com.br", "https://api.pagar.me", "https://accounts.google.com", DOMINIOS_DO_ANALYTICS, DOMINIOS_DO_GOOGLE_ADS].filter(Boolean).join(" "),
+  ["connect-src 'self'", origemDaApi, "https://viacep.com.br", "https://api.pagar.me", "https://accounts.google.com", DOMINIOS_DO_ANALYTICS, DOMINIOS_DO_GOOGLE_ADS, DOMINIOS_DA_META].filter(Boolean).join(" "),
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
