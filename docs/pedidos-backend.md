@@ -1,6 +1,6 @@
 c# Pedidos para o backend — Site do Quad Concursos
 
-**De:** time do site (Next.js) · **Atualizado em:** 12/11/2026
+**De:** time do site (Next.js) · **Atualizado em:** 13/11/2026
 **Base:** testes na API local (`localhost:8080`), leituras públicas da API de produção (`https://api.quadconcursos.com.br`) e o **site de teste publicado** em `https://teste.quadconcursos.com.br` (Vercel, ligado à API de produção).
 
 Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: material digital em PDF à venda, acréscimo do parcelamento pago pelo aluno, atividades gratuitas na vitrine e matrícula gratuita em turma, limite de tentativas por rota, lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
@@ -38,7 +38,7 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 4.7 | Depois de confirmar o e-mail no clique (como hoje), redirecionar para a página do site com o resultado | Alta |
 | 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
 | 4.5 | Foto de perfil | Baixa |
-| 5.3 | Simulados: formatos de estudo (os combos já existem) | Média |
+| 5.3 | Simulados: a versão em PDF (já criada no console) aparecer na vitrine depois da aplicação, ligada ao presencial de origem | Alta |
 | 5.4 | Textos de venda da turma e programação do evento | Média |
 | 5.5 | Notícias de concursos na barra do topo, editáveis pelo console e atualizadas em tempo real | Média |
 | 6.3 | Armazenamento de arquivos no ambiente local (endereço do S3 configurável) | Média |
@@ -237,9 +237,26 @@ Location: <SITE_URL>/confirmar-email?resultado=CONFIRMADO
 
 > **04/11/2026: os combos estão atendidos** (PR #129 e #136); o site mostra os combos só de simulados na aba "Combos" da Central e todos em `/combos`.
 
-**O problema.** A Central de Simulados do site vende cada edição em formatos de estudo (presencial, PDF, plataforma, impresso). A API só tem o simulado presencial.
+> **13/11/2026: reescrito.** O console já cria a **versão em PDF** de um simulado (botão "Versão PDF"): um simulado à parte, na modalidade "Em PDF", com preço próprio, os PDFs anexados e o vínculo com o presencial de origem. Exemplo: **SIMULADO 78 SD PMBA**, presencial na Sala 1 em 25/10 e versão em PDF de 26/10 a R$ 5,00, com 2 PDFs. Falta só a vitrine pública.
 
-**O pedido.** Os formatos de estudo de cada edição, com preço e vagas. Se servir, o mesmo modelo do material (PR #137): ofertas no mesmo cadastro, com a plataforma escolhida na compra.
+**A regra do Quad.** Cada simulado nasce **presencial e impresso**. Logo depois da aplicação, ele desce para **"Edições anteriores"** na Central de Simulados e passa a ser vendido **em PDF**, para estudo. O site já tem essa seção pronta, com o selo "Já realizado" e o botão do PDF; hoje ela aparece vazia.
+
+**O problema (conferido em 13/11/2026).** `GET /api/loja/vitrine/atividades?tipo=SIMULADO` só devolve simulados com **data futura**. As versões em PDF também têm data (a do 78 é 26/10) e caem no mesmo filtro. Por isso nenhuma das duas versões do 78 aparece, nem pela lista nem pelo slug, e o mesmo vale para o 77, o 76 e o CFO 2. O console mostra "12 no site", mas a vitrine entrega só os 4 simulados de 15/11.
+
+**O pedido.**
+
+1. **Vitrine: a versão em PDF ativa aparece sempre**, sem o filtro de data, enquanto estiver ativa e com preço. O presencial continua saindo da vitrine depois da aplicação, como hoje.
+2. **Na resposta da versão em PDF:**
+   - `detalhe.modalidade` com um valor próprio (por exemplo, `PDF`), para o site separar do presencial e do online;
+   - `detalhe.origemId` preenchido com o id do presencial de origem. É assim que o site sabe o número da edição e a carreira, e põe a versão em PDF no lugar dela em "Edições anteriores";
+   - `detalhe.concurso`, o preço e o lote, como nos outros simulados;
+   - a **quantidade** de PDFs, e não os arquivos: o link de download só vai para quem comprou.
+3. **Entrega para quem comprou:** confirmar como o aluno baixa os PDFs depois de pagar. O site sugere o mesmo caminho dos materiais digitais (a área do aluno lista e baixa os arquivos da compra). Se a rota for outra, informar qual.
+4. **Impresso depois da aplicação:** confirmar se o impresso continua à venda depois que o simulado é aplicado, ou se fica só o PDF.
+
+**Do lado do site:** com a vitrine devolvendo a versão em PDF, o site passa a mostrá-la em "Edições anteriores" e na aba "Individuais", com o número e a carreira do presencial de origem, e vende pelo carrinho como os outros itens. É uma mudança pequena, feita no mesmo dia.
+
+**Como conferir:** `curl "https://api.quadconcursos.com.br/api/loja/vitrine/atividades?tipo=SIMULADO&tamanho=100"` deve trazer a versão em PDF do **SIMULADO 78 SD PMBA**, com o preço de R$ 5,00 e o `origemId` do 78 da Sala 1.
 
 ### 5.4 Textos de venda da turma e programação do evento
 
