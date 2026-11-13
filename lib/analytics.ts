@@ -1,4 +1,5 @@
-// Google Analytics 4 (Etapa 11, 07/11/2026) e Google Ads (12/11/2026, na mesma tag, ver aplicarConsentimento). Regras:
+// Google Analytics 4 (Etapa 11, 07/11/2026), Google Ads (12/11/2026, na mesma tag, ver aplicarConsentimento) e Pixel
+// da Meta (13/11/2026, só com o consentimento de marketing, ver aplicarConsentimentoDaMeta). Regras:
 // - Só carrega para quem aceitou "análise" no aviso de cookies (lib/consentimento.ts); ao recusar depois, para de
 //   enviar (ga-disable). Antes de carregar, os eventos são simplesmente descartados.
 // - Fora do domínio oficial (site de teste e localhost), tudo vai com debug_mode: aparece no DebugView do Analytics e
@@ -92,6 +93,94 @@ export function aplicarConsentimento({ analise, marketing }: Escolha) {
     // A compra conta como conversão pela importação do `purchase` do GA4 no Google Ads (vínculo feito em 12/11/2026).
     window.gtag!("config", ID_DO_GOOGLE_ADS);
   }
+  aplicarConsentimentoDaMeta(marketing);
+}
+
+// ---------- Pixel da Meta (13/11/2026) ----------
+// Pixel novo, "Quad Concursos — Site", no portfólio do Quad (o antigo, 1653731855832072, foi aposentado). Regras:
+// - Só carrega com o consentimento de marketing; se o visitante recusar depois, para de enviar (consent revoke).
+// - autoConfig desligado: a Meta não lê botões nem dados da página sozinha; só vão os eventos abaixo.
+// - Sem correspondência avançada (nenhum dado pessoal vai pelo navegador). O Purchase leva o id do fechamento como
+//   eventID, para a Meta juntar com o mesmo evento enviado pelo servidor (API de Conversões, pedido 6.6).
+// - Só no domínio oficial (e no localhost, para testar): o site de teste não suja os dados das campanhas.
+
+export const ID_DO_PIXEL_DA_META = "1182737094707896";
+
+type Fbq = ((...args: unknown[]) => void) & { callMethod?: (...a: unknown[]) => void; queue?: unknown[]; push?: unknown; loaded?: boolean; version?: string };
+declare global {
+  interface Window {
+    fbq?: Fbq;
+    _fbq?: Fbq;
+  }
+}
+
+let pixelCarregado = false;
+let pixelLiberado = false;
+
+function pixelPermitidoAqui() {
+  return ehDominioOficial() || window.location.hostname === "localhost";
+}
+
+function aplicarConsentimentoDaMeta(marketing: boolean) {
+  if (!pixelPermitidoAqui()) return;
+  if (pixelCarregado && marketing === pixelLiberado) return;
+  pixelLiberado = marketing;
+  if (!pixelCarregado) {
+    if (!marketing) return;
+    pixelCarregado = true;
+    // O código-base da Meta, sem o PageView: as visitas são contadas pelo componente Analytics a cada página.
+    const fbq = ((...args: unknown[]) => {
+      if (fbq.callMethod) fbq.callMethod(...args);
+      else fbq.queue!.push(args);
+    }) as Fbq;
+    fbq.push = fbq;
+    fbq.loaded = true;
+    fbq.version = "2.0";
+    fbq.queue = [];
+    window.fbq = fbq;
+    if (!window._fbq) window._fbq = fbq;
+    const script = document.createElement("script");
+    script.async = true;
+    script.src = "https://connect.facebook.net/en_US/fbevents.js";
+    document.head.appendChild(script);
+    fbq("set", "autoConfig", false, ID_DO_PIXEL_DA_META);
+    fbq("consent", "grant");
+    fbq("init", ID_DO_PIXEL_DA_META);
+    return;
+  }
+  window.fbq!("consent", marketing ? "grant" : "revoke");
+}
+
+function enviarParaAMeta(nome: string, parametros: Record<string, unknown> = {}, eventID?: string) {
+  if (typeof window === "undefined" || !pixelPermitidoAqui()) return;
+  const c = consentimentoAtual();
+  if (!c?.marketing) return;
+  if (!pixelCarregado) aplicarConsentimento(c);
+  if (!pixelLiberado || !window.fbq) return;
+  if (eventID) window.fbq("track", nome, parametros, { eventID });
+  else window.fbq("track", nome, parametros);
+}
+
+// Uma visita a uma página (chamado pelo componente Analytics a cada troca de endereço).
+export function visitaDePagina() {
+  enviarParaAMeta("PageView");
+}
+
+// Clique para entrar num grupo do WhatsApp (o Grupo VIP): é o cadastro de interessado das campanhas.
+export function lead(origem: string) {
+  enviarParaAMeta("Lead", { content_name: origem });
+}
+
+function paraAMeta(itens: ItemDoAnalytics[], valor?: number) {
+  return {
+    currency: MOEDA,
+    value: valor ?? valorDe(itens),
+    content_type: "product",
+    content_ids: itens.map((i) => i.item_id),
+    contents: itens.map((i) => ({ id: i.item_id, quantity: i.quantity ?? 1, ...(i.price != null ? { item_price: i.price } : {}) })),
+    num_items: itens.reduce((s, i) => s + (i.quantity ?? 1), 0),
+    ...(itens.length === 1 ? { content_name: itens[0].item_name } : {}),
+  };
 }
 
 function enviar(nome: string, parametros: Record<string, unknown>) {
@@ -110,18 +199,22 @@ function valorDe(itens: ItemDoAnalytics[]) {
 
 export function verItem(item: ItemDoAnalytics) {
   enviar("view_item", { currency: MOEDA, value: valorDe([item]), items: [item] });
+  enviarParaAMeta("ViewContent", paraAMeta([item]));
 }
 
 export function adicionarAoCarrinho(item: ItemDoAnalytics) {
   enviar("add_to_cart", { currency: MOEDA, value: valorDe([item]), items: [item] });
+  enviarParaAMeta("AddToCart", paraAMeta([item]));
 }
 
 export function iniciarPagamento(itens: ItemDoAnalytics[], valor?: number) {
   enviar("begin_checkout", { currency: MOEDA, value: valor ?? valorDe(itens), items: itens });
+  enviarParaAMeta("InitiateCheckout", paraAMeta(itens, valor));
 }
 
 export function cadastro() {
   enviar("sign_up", { method: "site" });
+  enviarParaAMeta("CompleteRegistration", { content_name: "Cadastro no site" });
 }
 
 export function login(metodo: "senha" | "google") {
@@ -186,11 +279,15 @@ export function compra(fechamento: FechamentoDoAnalytics, itensDaApi: ItemDoAnal
   if (!c || !(c.analise || c.marketing)) return;
   if (jaEnviada(fechamento.id)) return;
   const cortesia = fechamento.totalEmCentavos <= 0;
+  const itens = itensGuardados(fechamento.id) ?? comPrecoDoFechamento(itensDaApi, fechamento);
+  const valor = Math.max(0, fechamento.totalEmCentavos) / 100;
   enviar(cortesia ? "inscricao_cortesia" : "purchase", {
     transaction_id: fechamento.id,
     currency: MOEDA,
-    value: Math.max(0, fechamento.totalEmCentavos) / 100,
+    value: valor,
     coupon: fechamento.cupom ?? undefined,
-    items: itensGuardados(fechamento.id) ?? comPrecoDoFechamento(itensDaApi, fechamento),
+    items: itens,
   });
+  // Na Meta, a cortesia não vai como Purchase (não é venda nem conversão de anúncio).
+  if (!cortesia) enviarParaAMeta("Purchase", paraAMeta(itens, valor), fechamento.id);
 }

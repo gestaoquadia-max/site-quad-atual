@@ -410,11 +410,11 @@ Quem sabe com certeza que a compra foi paga é a API (pelo aviso do Pagar.me). P
 
 3. **Preço pago em cada compra do fechamento** (`GET /api/loja/fechamentos/{id}`): hoje `compras[]` traz só item, variação e quantidade. Acrescentar `totalEmCentavos` e `descontoEmCentavos` de cada compra. Sem isso, quando o aluno paga o PIX em outro aparelho ou outra sessão, o site não sabe o preço de cada item de um pedido com vários itens e o GA4 registra o item com preço 0 (aconteceu com a TURMA CFO – BOPE [M] e o SIMULADO 80 SD PMBA 15/11).
 
-4. **Configuração por variáveis de ambiente**, nunca no código: `META_PIXEL_ID` e `META_CAPI_TOKEN`. O token é gerado por quem administra a conta de anúncios do Quad no **Gerenciador de Eventos** da Meta (Pixel → Configurações → API de Conversões → Gerar token de acesso) e entregue à equipe do backend por um canal seguro. Sem as variáveis, a API simplesmente não envia.
+4. **Configuração por variáveis de ambiente**, nunca no código: `META_PIXEL_ID` (o Pixel do site, criado em 13/11/2026: **1182737094707896**, "Quad Concursos — Site") e `META_CAPI_TOKEN`. O token é gerado por quem administra a conta de anúncios do Quad no **Gerenciador de Eventos** da Meta (Pixel → Configurações → API de Conversões → Gerar token de acesso) e entregue à equipe do backend por um canal seguro. Sem as variáveis, a API simplesmente não envia.
 
 **LGPD.** O envio usa dados pessoais (e-mail e celular, em hash) para medir anúncios: por isso fica **preso ao consentimento de marketing**, o mesmo que liga o Pixel no navegador. A política de privacidade precisa citar a Meta como destinatária desses dados; a confirmação fica com quem fez a revisão jurídica.
 
-**Do lado do site:** o site liga o Pixel, manda o `Purchase` do navegador com `eventID` igual ao id do fechamento e passa a mandar o campo `marketing` nos fechamentos quando a API aceitar.
+**Do lado do site:** o site já liga o Pixel (desde 13/11/2026), manda o `Purchase` do navegador com `eventID` igual ao id do fechamento e passa a mandar o campo `marketing` nos fechamentos quando a API aceitar.
 
 **Como conferir:** no Gerenciador de Eventos, aba **Testar eventos**, copiar o código de teste (`TEST…`) e mandá-lo no campo `test_event_code` do envio (só no ambiente de teste). Fazer uma compra pelo site de teste com os cookies de marketing aceitos: o `Purchase` deve aparecer **duas vezes, uma do navegador e uma do servidor, marcado como "desduplicado"**, com o valor certo.
 
