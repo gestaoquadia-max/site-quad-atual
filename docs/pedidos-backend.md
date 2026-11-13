@@ -1,19 +1,18 @@
 # Pedidos para o backend — Site do Quad Concursos
 
 **De:** time do site (Next.js) · **Atualizado em:** 13/11/2026
-**Base:** testes na API local (`localhost:8080`), leituras públicas da API de produção (`https://api.quadconcursos.com.br`) e o **site de teste publicado** em `https://teste.quadconcursos.com.br` (Vercel, ligado à API de produção).
+**Base:** o **site oficial no ar** em `https://www.quadconcursos.com.br` (Vercel, ligado à API de produção `https://api.quadconcursos.com.br`, já com vendas), leituras públicas da API de produção e testes na API local (`localhost:8080`).
 
-Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: material digital em PDF à venda, acréscimo do parcelamento pago pelo aluno, atividades gratuitas na vitrine e matrícula gratuita em turma, limite de tentativas por rota, lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores e chaves de sandbox do Pagar.me).
+Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: material digital em PDF à venda, acréscimo do parcelamento pago pelo aluno, atividades gratuitas na vitrine e matrícula gratuita em turma, limite de tentativas por rota, lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores, chaves de sandbox do Pagar.me, combos, impresso e digital no mesmo material, verificação do celular e e-mails da compra).
 
-> **07/11/2026: atendido na API**, e por isso saiu da lista: **e-mails da compra (antigo 6.2)**. A API envia compra confirmada, PIX aguardando, PIX vencido e devolução (desde 28/10, e com o comprovante do Pagar.me desde 06/11), além da inscrição e da matrícula gratuitas, a partir dos modelos de [`docs/modelos-de-email.md`](modelos-de-email.md).
+> **13/11/2026: o site oficial está no ar e vendendo**, e por isso saíram da lista os pedidos do lançamento (conferidos hoje na API de produção):
+> - **1.2 CORS e cookies no domínio oficial:** a pré-verificação vinda de `https://www.quadconcursos.com.br` responde 200, com a origem liberada. `https://quadconcursos.com.br` (sem www) responde 403, mas o site redireciona esse endereço para o www, então não faz falta.
+> - **1.3 Domínio no Pagar.me** e **1.4 API e site publicados juntos:** as vendas do site estão acontecendo.
+> - **1.6 Endereço do site nos e-mails:** a `SITE_URL` aponta para `https://quadconcursos.com.br`.
+> - **4.7 Página do site depois de confirmar o e-mail:** `GET /auth/email/confirmacao` responde `303` para `https://quadconcursos.com.br/confirmar-email?resultado=…`, que abre a tela do site.
+> - **3.1 Foto do professor na medida original:** as fotos novas chegam em 1080 × 1350 (4:5), e 21 dos 25 professores da vitrine já têm foto. Os cadastros de teste ("Danilo Mourão ribeiro" e "Davi") não aparecem mais.
 >
-> **04/11/2026: atendidos e conferidos no site de teste**, e por isso saíram da lista:
-> - **CORS e cookies do teste:** a pré-verificação vinda de `https://teste.quadconcursos.com.br` responde 200, com a origem, `Allow-Credentials` e `idempotency-key` liberados; o login no teste funciona.
-> - **Entrada pelo Google no teste:** o client ID está na API (a rota responde `TOKEN_DE_PROVEDOR_INVALIDO` a um token falso, e não mais 503) e no site, que mostra o botão.
-> - **Verificação do celular (4.1) e `telefoneVerificadoEm` (4.2):** testada no site de teste com o Twilio de produção; o celular foi confirmado.
-> - **Combos (PR #129 e #136)** e **impresso e digital no mesmo material (PR #137, V144):** o site já usa (`/combos` e a escolha do formato dentro do material).
->
-> **Liberados agora que o teste está no ar:** os pedidos 1.3 (domínio do teste no Pagar.me) e 1.6 (endereço do site nos e-mails) só podiam ser feitos com um endereço público do site.
+> **O site de teste** (`teste.quadconcursos.com.br`) não é mais liberado no CORS da API de produção (responde 403). Os testes agora são feitos no site oficial ou no ambiente local.
 
 > **Banco compartilhado:** a API e o banco também atendem o **app Viver o Quad**. Toda mudança pedida aqui precisa considerar o impacto no app; os itens em que isso pesa estão marcados com ⚠️.
 
@@ -26,79 +25,29 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 
 | # | Pedido | Prioridade |
 |---|---|---|
-| 1.2 | Domínio oficial no CORS e nos cookies (o teste já funciona) | Alta (no lançamento) |
-| 1.3 | Autorizar no Pagar.me o domínio do teste agora, e o oficial no lançamento | Alta |
-| 1.4 | Publicar a API e o site juntos (preços em centavos) | Alta (no lançamento) |
-| 1.5 | Entrada pelo Google: origens do domínio oficial (o teste já funciona) | Média (no lançamento) |
-| 1.6 | Endereço do site nos e-mails (`SITE_URL` e `URL_DE_REDEFINICAO_DE_SENHA`) apontando para o teste | Alta |
-| 2.7 | Imagens: medida mínima, proporção e formato no envio pelo console (hoje corta em 560 × 560 e salva em JPG) | Alta (antes do lançamento) |
-| 3 | Professores: fotos e só os professores do site | Média |
-| 3.1 | Foto do professor: a API já aceita a original 4:5 (PR #139); falta o console enviar sem reduzir e reenviar as fotos de 512 × 512 | Alta |
+| 6.6 | Compra paga enviada à Meta pelo servidor (API de Conversões), sem contar em dobro com o Pixel do site | Alta |
+| 6.5 | Origem da venda: a campanha (primeira e última) gravada em cada compra e filtrável no painel administrativo | Alta |
+| 5.3 | Simulados depois da aplicação: acertos no cadastro do 78 IPC/PCBA e do 78 SD PMBA e na categoria dos impressos | Alta |
+| 2.7 | Imagens: medida mínima, proporção e formato no envio pelo console | Média |
+| 1.5 | Entrada pelo Google: conferir as origens do domínio oficial | Média |
+| 3 | Professores: foto dos 4 que faltam | Média |
 | 4.6 | Conferir o CPF na Receita no cadastro (cpfcnpj.com.br) | Média |
-| 4.7 | Depois de confirmar o e-mail no clique (como hoje), redirecionar para a página do site com o resultado | Alta |
-| 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
-| 4.5 | Foto de perfil | Baixa |
-| 5.3 | Simulados: depois da aplicação, a versão de estudo na vitrine em digital (PDF) e impresso, cada um com o seu preço, ligada ao presencial de origem | Alta |
 | 5.4 | Textos de venda da turma e programação do evento | Média |
 | 5.5 | Notícias de concursos na barra do topo, editáveis pelo console e atualizadas em tempo real | Média |
 | 6.3 | Armazenamento de arquivos no ambiente local (endereço do S3 configurável) | Média |
+| 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
+| 4.5 | Foto de perfil | Baixa |
 | 6.4 | Aprovados, depoimentos em vídeo e blog pela API | Baixa |
-| 6.5 | Origem da venda: a campanha (primeira e última) gravada em cada compra e filtrável no painel administrativo | Alta |
-| 6.6 | Compra paga enviada à Meta pelo servidor (API de Conversões), sem contar em dobro com o Pixel do site | Alta |
 
 ---
 
-## 1. Antes do lançamento
+## 1. Entrada pelo Google no domínio oficial
 
-### 1.2 Domínio oficial no CORS e nos cookies
+### 1.5 Origens autorizadas no Google Cloud
 
-> **04/11/2026: o site de teste já funciona.** A pré-verificação vinda de `https://teste.quadconcursos.com.br` responde 200 e o login no teste funciona. Falta **só o domínio oficial**, no lançamento: `https://quadconcursos.com.br` e `https://www.quadconcursos.com.br` ainda respondem **403** (conferido em 04/11/2026), o que é esperado enquanto o site oficial não está no ar.
+**Entregue em 24/10/2026** (`POST /auth/google`, só para contas que já existem). O client ID está em `GOOGLE_CLIENT_IDS` na API de produção e em `NEXT_PUBLIC_GOOGLE_CLIENT_ID` no site.
 
-**O problema.** O site só funciona com a API de produção com duas configurações:
-- **`CORS_ORIGENS`:** sem a origem do site, o navegador não deixa o site ler a vitrine nem fazer login.
-- **`COOKIES_DOMINIO`:** os cookies da sessão (`quad_acesso`, `quad_renovacao`, `quad_sessao`) precisam valer no domínio do site. Sem isso, o aluno entra e "cai" logo em seguida.
-
-**O pedido (no lançamento).** Acrescentar `https://quadconcursos.com.br` e `https://www.quadconcursos.com.br` em `CORS_ORIGENS`, sem tirar o teste e sem liberar qualquer origem, e conferir que `COOKIES_DOMINIO` cobre o domínio oficial.
-
-**Como conferir:**
-```
-curl -i -X OPTIONS https://api.quadconcursos.com.br/api/loja/carrinho/eu/fechamento   -H "Origin: https://quadconcursos.com.br" -H "Access-Control-Request-Method: POST"   -H "Access-Control-Request-Headers: content-type,idempotency-key,x-quad-cliente"
-```
-Deve responder 200, com essa origem em `Access-Control-Allow-Origin` e `idempotency-key` em `Access-Control-Allow-Headers`.
-
-### 1.3 Autorizar o domínio do site no Pagar.me
-
-**O problema.** O site gera o token do cartão direto do navegador (`https://api.pagar.me/core/v5/tokens?appId={chavePublica}`), para que o número do cartão nunca passe pelo nosso servidor. O Pagar.me só aceita esse pedido vindo de domínios autorizados na conta.
-
-**O pedido.**
-- **Agora:** autorizar `teste.quadconcursos.com.br` (e `localhost:3000`, para testes, se a conta permitir). Só dava para pedir com o site de teste publicado. Sem isso, o pagamento no cartão falha no teste ao gerar o token, antes de chegar à API.
-- **No lançamento:** autorizar `quadconcursos.com.br` e `www.quadconcursos.com.br`.
-
-Isso fica no painel da conta do Pagar.me, não no código. Confirmar também **qual conta** a API de produção usa: o teste está ligado à API de produção, então um pagamento no teste numa conta de produção é uma **cobrança real**.
-
-### 1.4 Publicar a API e o site juntos
-
-**O problema.** Desde 23/10/2026 os preços em reais vêm em **centavos** (vitrine e carrinho), e o site já foi adaptado. Se a API nova for ao ar antes do site novo, o site antigo leria `4500` como R$ 4.500 na Garrafa Quad de R$ 45. Se o site novo for antes da API nova, ele mostraria R$ 0,45.
-
-**O pedido.** Combinar a publicação: API e site no mesmo momento.
-
-### 1.5 Entrada pelo Google
-
-**Entregue em 24/10/2026** (`POST /auth/google`, só para contas que já existem). **04/11/2026: funciona no site de teste**: o client ID está em `GOOGLE_CLIENT_IDS` na API de produção e em `NEXT_PUBLIC_GOOGLE_CLIENT_ID` no site, e a origem `https://teste.quadconcursos.com.br` está autorizada.
-
-**Falta, no lançamento:** acrescentar no mesmo client ID, em "Origens JavaScript autorizadas" do Google Cloud, `https://quadconcursos.com.br` e `https://www.quadconcursos.com.br`. Sem isso, o botão no site oficial mostra o erro `origin_mismatch`.
-
-### 1.6 Endereço do site nos e-mails
-
-**O problema.** Os links dos e-mails da API levam às páginas do site: confirmar o e-mail (`/confirmar-email?token=…`) e redefinir a senha (`/redefinir-senha?token=…`). A API monta esses links com duas variáveis de produção (`application-prod.properties`): `SITE_URL` (`api.site.url`) e `URL_DE_REDEFINICAO_DE_SENHA` (`api.recuperacao.url-do-site`). Até o teste ser publicado, não havia um endereço público para pôr nelas.
-
-**O pedido.** Na API de produção:
-- `SITE_URL=https://teste.quadconcursos.com.br`
-- `URL_DE_REDEFINICAO_DE_SENHA=https://teste.quadconcursos.com.br/redefinir-senha`
-
-No lançamento, trocar as duas para `https://quadconcursos.com.br`.
-
-**Como conferir:** pedir "Esqueci a senha" no site de teste com uma conta de teste. O link do e-mail deve abrir `https://teste.quadconcursos.com.br/redefinir-senha?token=…`, e o do cadastro, `https://teste.quadconcursos.com.br/confirmar-email?token=…`. As duas páginas já estão no ar, com as telas de link inválido ou vencido.
+**Conferir:** no mesmo client ID, em "Origens JavaScript autorizadas" do Google Cloud, precisam estar `https://www.quadconcursos.com.br` e `https://quadconcursos.com.br`. Sem isso, o botão "Entrar com o Google" no site oficial mostra o erro `origin_mismatch`. O site não consegue conferir isso de fora: basta entrar com o Google em `https://www.quadconcursos.com.br/entrar` com uma conta que já existe.
 
 ---
 
@@ -147,16 +96,9 @@ Além disso, nada impede o envio de uma imagem pequena ou fora de proporção, q
 
 ## 3. Professores
 
-`GET /api/professores/vitrine`, `/{id}` e `/slug/{slug}` já são públicos (o slug desde 23/10/2026, e o endereço do site é `/professores/danilo-moura`), e o site usa (home, página do professor, sitemap e autor do blog). A **minibio** é a coluna `graduacao` (decisão de 23/10/2026): o texto cadastrado ali aparece abaixo do nome do professor e no cartão da home, então o campo deve ser preenchido como uma apresentação curta (2 ou 3 linhas, até os 200 caracteres que a coluna aceita), não só o nome do curso. Faltam:
+`GET /api/professores/vitrine`, `/{id}` e `/slug/{slug}` são públicos, e o site usa (home, página do professor, sitemap e autor do blog). A **minibio** é a coluna `graduacao` (decisão de 23/10/2026): deve ser preenchida como uma apresentação curta (2 ou 3 linhas, até 200 caracteres), não só o nome do curso.
 
-- **Fotos:** nenhum professor tem `fotoUrl` no banco local. O site usa a foto que já tinha do Danilo enquanto isso.
-- **Foto do professor chega pequena (3.1, 03/11/2026, alta):** o arquivo original tem 1080 × 1350, mas o que fica no S3 tem **512 × 512** (ex.: a do Airton Brito, `imagens/professores/6bc4f14d-….png`). A API não redimensiona; quem corta em quadrado e reduz é o console, antes de enviar. No site, a foto aparece grande (no carrossel da home, o painel aberto tem cerca de 600 px de largura) e fica borrada.
-  - **Atendido na API (PR #139, 04/11/2026):** a foto do professor é aceita em qualquer proporção (saiu a exigência de foto quadrada). O site já está pronto para a original 4:5: o carrossel da home a mostra inteira, e a página do professor mostra a parte de cima, com o rosto.
-  - **Falta:**
-    1. o console enviar a foto **original, sem cortar nem reduzir** (1080 × 1350); se o app precisar do círculo, ele recorta na hora de mostrar;
-    2. publicar a API com o PR #139 (em 04/11/2026, as fotos em produção ainda eram as de 512 × 512);
-    3. reenviar as fotos já cadastradas (Airton Brito e Roberto Fabian), que hoje estão em 512 × 512, e cadastrar as dos outros 24 professores, que estão sem foto em produção.
-- **Só os professores do site:** "Danilo Mourão ribeiro" e "Davi" aparecem na vitrine local e parecem cadastros de teste. Em produção, a vitrine deve listar só os professores ativos que devem aparecer no site.
+**Falta (conferido em 13/11/2026):** a foto de **Dan Reis, Omar Junior, Paulo Junior e Rodrigo Gomes**, os 4 professores da vitrine ainda sem `fotoUrl`. As outras 21 já chegam na medida original (1080 × 1350, 4:5), como pedido.
 
 ---
 
@@ -195,30 +137,6 @@ Além disso, nada impede o envio de uma imagem pequena ou fora de proporção, q
 
 **LGPD.** Mandar o CPF para o fornecedor é compartilhamento de dado pessoal: a política de privacidade do site passa a citar a conferência na Receita por um prestador, com a finalidade de evitar fraude (o site atualiza o texto quando a conferência entrar).
 
-### 4.7 Depois de confirmar o e-mail, mostrar a página do site (prioridade alta)
-
-**Como está hoje (conferido no código, 07/11/2026).** O link do e-mail de confirmação aponta para a **própria API** (`LinkDeConfirmacao` monta `<api>/auth/email/confirmacao?token=…` com a `UrlDaApi`). No clique, o `GET` dessa rota (`ConfirmacaoDoEmailController`) **confirma na hora** e responde uma **página HTML feita pela API**, sempre com 200: confirmado, já confirmado ou link inválido.
-
-**O que fica igual:** a confirmação automática no clique. O Quad quer manter assim: o aluno clica no link e o e-mail já está confirmado, sem passo a mais. O link do e-mail também continua o mesmo.
-
-**O que muda:** só a página que o aluno vê depois. Hoje ele fica numa página simples da API, fora do visual do Quad e sem caminho de volta para o site. O site já tem essa página no visual novo, com uma tela para cada resultado e o botão "Ir para o meu perfil".
-
-**O pedido.** No `GET /auth/email/confirmacao`, depois de confirmar (`ConfirmarEmail`, sem nenhuma mudança na regra), **redirecionar para a página do site** em vez de responder o HTML:
-
-```
-303 See Other
-Location: <SITE_URL>/confirmar-email?resultado=CONFIRMADO
-```
-
-- `resultado` é o valor que `ResultadoDaConfirmacao` já devolve: `CONFIRMADO`, `JA_CONFIRMADO` ou `INVALIDO` (link que não existe, já usado ou vencido depois das 24 horas).
-- O endereço vem da `UrlDoSite` (a mesma `SITE_URL` dos outros e-mails): no teste, `https://teste.quadconcursos.com.br`; no lançamento, `https://quadconcursos.com.br`.
-- O token **não** vai para o site: só o resultado. A página do site não chama a API nem confirma nada; ela só mostra a tela do resultado.
-- O HTML que a API monta hoje pode sair (ou ficar só como reserva, se a `SITE_URL` não estiver configurada).
-
-**Do lado do site: pronto (07/11/2026).** A página `/confirmar-email?resultado=…` mostra "E-mail confirmado", "Seu e-mail já estava confirmado" ou "Link inválido ou vencido" (também quando abre sem resultado), todas com o botão para o perfil.
-
-**Como conferir:** criar uma conta no site de teste (ou pedir "Reenviar e-mail de confirmação" no Perfil) e clicar no link do e-mail. O navegador passa pela API e para em `https://teste.quadconcursos.com.br/confirmar-email?resultado=CONFIRMADO`, com a tela "E-mail confirmado"; o aviso de e-mail não confirmado some do Perfil. Abrir o mesmo link de novo deve parar em `?resultado=JA_CONFIRMADO`.
-
 ### 4.4 `GET /api/usuarios/eu` para conta sem cadastro de aluno (prioridade baixa)
 
 **Por que o site precisa.** Com o login em cookie, o site não lê mais o token. Ele pega o id e os dados da conta em `GET /api/alunos/eu`, que responde **409** para professor e administrador. Nesse caso, o site mostra só "Minha conta", sem nome nem e-mail.
@@ -233,40 +151,19 @@ Location: <SITE_URL>/confirmar-email?resultado=CONFIRMADO
 
 ## 5. Produtos que a API ainda não cobre
 
-### 5.3 Simulados: formatos de estudo
+### 5.3 Simulados depois da aplicação: acertos no cadastro
 
-> **04/11/2026: os combos estão atendidos** (PR #129 e #136); o site mostra os combos só de simulados na aba "Combos" da Central e todos em `/combos`.
+**Atendido (13/11/2026).** O backend entregou a versão em PDF e a impressa, conforme o guia [simulados-no-site-guia-da-api.txt](simulados-no-site-guia-da-api.txt), e o site já usa tudo e está no ar:
+- "Edições anteriores" e "Individuais" na Central de Simulados, com o PDF e o impresso juntos na mesma edição;
+- a compra pelo carrinho (`atividade` SIMULADO na versão em PDF; `itemId` com `IMPRESSO` na impressa);
+- os PDFs na área do aluno (`/api/alunos/eu/simulados-em-pdf` e o download marcado) e a retirada do impresso em Compras (`entrega`).
 
-> **13/11/2026 (tarde): versão em PDF atendida; impressa a caminho.** O backend respondeu com o guia [simulados-no-site-guia-da-api.txt](simulados-no-site-guia-da-api.txt). O site já usa: a vitrine com `comPdf=true` (o 78 SD PMBA e o 78 IPC/PCBA a R$ 5,00 em "Edições anteriores" e em "Individuais"), a compra pelo carrinho (`atividade` SIMULADO com o id da versão em PDF), os PDFs na área do aluno (`/api/alunos/eu/simulados-em-pdf` e o download marcado) e, pronta para quando a API tiver, a versão impressa (`versaoImpressa=SO`, juntada pelo `origem.id`, comprada como `IMPRESSO`, com a retirada em Compras). Preços: sempre em centavos, em todas as versões (confirmado em 13/11/2026; o "em reais" das seções 2 e 3 do guia é só modo de dizer). Ficam dois pontos:
-> - a versão em PDF do **SIMULADO 78 IPC/PCBA** já abre em 02/11 (corrigido em 13/11/2026), mas continua sem `origemId`: ligar ao mesmo presencial de origem da impressa (`origem.id` = `237e995d-5ecc-44f8-8051-dc071648d8a1`);
-> - a versão em PDF do **SIMULADO 78 SD PMBA** saiu da vitrine na tarde de 13/11/2026: confirmar se foi de propósito;
-> - a versão impressa do 78 IPC/PCBA está na categoria **"Simulado Digital"**, sendo um produto impresso;
-> - o site mostra "Aplicado em" como a véspera da abertura (o guia diz que a versão abre no dia seguinte ao último dia do presencial). Se algum dia a abertura for outra, o site precisa da data do presencial na resposta.
+Preços sempre em centavos, em todas as versões (confirmado em 13/11/2026). O site mostra "Aplicado em" como a véspera da abertura da venda (regra do guia: a versão abre no dia seguinte ao último dia do presencial); se PDF e impresso abrirem em dias diferentes, vale a abertura mais antiga.
 
-> **13/11/2026: reescrito.** O console já cria a **versão em PDF** de um simulado (botão "Versão PDF"): um simulado à parte, na modalidade "Em PDF", com preço próprio, os PDFs anexados e o vínculo com o presencial de origem. Exemplo: **SIMULADO 78 SD PMBA**, presencial na Sala 1 em 25/10 e versão em PDF de 26/10 a R$ 5,00, com 2 PDFs. Falta só a vitrine pública.
-
-**A regra do Quad.** Cada simulado nasce **presencial e impresso**. Logo depois da aplicação, ele desce para **"Edições anteriores"** na Central de Simulados e passa a ser vendido **para estudo em dois formatos, à escolha do aluno: digital (PDF) e impresso, cada um com o seu preço** (o impresso tem um preço, o digital tem outro). O site já tem essa seção pronta, com o selo "Já realizado" e a escolha do formato; hoje ela aparece vazia.
-
-**O problema (conferido em 13/11/2026).** `GET /api/loja/vitrine/atividades?tipo=SIMULADO` só devolve simulados com **data futura**. As versões em PDF também têm data (a do 78 é 26/10) e caem no mesmo filtro. Por isso nenhuma das duas versões do 78 aparece, nem pela lista nem pelo slug, e o mesmo vale para o 77, o 76 e o CFO 2. O console mostra "12 no site", mas a vitrine entrega só os 4 simulados de 15/11.
-
-**O pedido.**
-
-1. **Vitrine: a versão em PDF ativa aparece sempre**, sem o filtro de data, enquanto estiver ativa e com preço. O presencial continua saindo da vitrine depois da aplicação, como hoje.
-2. **Na resposta da versão em PDF:**
-   - `detalhe.modalidade` com um valor próprio (por exemplo, `PDF`), para o site separar do presencial e do online;
-   - `detalhe.origemId` preenchido com o id do presencial de origem. É assim que o site sabe o número da edição e a carreira, e põe a versão em PDF no lugar dela em "Edições anteriores";
-   - `detalhe.concurso`, o preço e o lote, como nos outros simulados;
-   - a **quantidade** de PDFs, e não os arquivos: o link de download só vai para quem comprou.
-3. **Entrega para quem comprou:** confirmar como o aluno baixa os PDFs depois de pagar. O site sugere o mesmo caminho dos materiais digitais (a área do aluno lista e baixa os arquivos da compra). Se a rota for outra, informar qual.
-4. **Impresso depois da aplicação, com preço próprio.** Depois da aplicação, o simulado também é vendido **impresso**, e o **aluno escolhe** entre digital e impresso na compra. **Cada formato tem o seu preço**, definido no console: o do impresso é diferente do digital. Hoje o console só cria a versão em PDF; falta a oferta impressa da versão de estudo:
-   - com **preço próprio** e **estoque** (as cópias disponíveis), como o impresso dos materiais;
-   - na vitrine, junto da versão em PDF do mesmo simulado, ligada ao mesmo presencial de origem (`origemId`), para o site mostrar os dois formatos na mesma edição;
-   - se servir, o mesmo modelo do material (PR #137): **um cadastro com as duas ofertas** (digital e impresso), cada uma com preço, e o formato escolhido na compra. Assim a versão de estudo do 78 seria um só item, com "PDF — R$ X" e "Impresso — R$ Y".
-   - Confirmar como o aluno recebe o impresso comprado depois da aplicação (retirada no Quad, como os materiais impressos, ou outro jeito).
-
-**Do lado do site:** com a vitrine devolvendo a versão de estudo, o site passa a mostrá-la em "Edições anteriores" e na aba "Individuais", com o número e a carreira do presencial de origem, os dois formatos e o preço de cada um, e vende pelo carrinho como os outros itens. É uma mudança pequena, feita no mesmo dia.
-
-**Como conferir:** `curl "https://api.quadconcursos.com.br/api/loja/vitrine/atividades?tipo=SIMULADO&tamanho=100"` deve trazer a versão de estudo do **SIMULADO 78 SD PMBA**, com o `origemId` do 78 da Sala 1, o digital a R$ 5,00 e o impresso com o preço dele.
+**Falta (conferido em 13/11/2026):**
+1. **SIMULADO 78 IPC/PCBA, versão em PDF:** está sem `origemId`. O Quad pediu para recriá-la pelo botão "Versão PDF" do presencial, para nascer ligada a ele (o mesmo presencial da impressa: `237e995d-5ecc-44f8-8051-dc071648d8a1`, aplicado em 01/11, abrindo em 02/11). Antes de desativar a antiga, conferir se alguém já comprou: quem comprou baixa os PDFs pela versão que comprou.
+2. **SIMULADO 78 SD PMBA, versão em PDF:** saiu da vitrine na tarde de 13/11/2026. Confirmar se foi de propósito; se não, reativar.
+3. **Categoria das versões impressas:** as do 77 e do 78 IPC/PCBA estão na categoria **"Simulado Digital"**, sendo impressas.
 
 ### 5.4 Textos de venda da turma e programação do evento
 
@@ -318,7 +215,7 @@ As outras quatro viram pedidos:
 
 ### 6.5 Origem da venda: a campanha em cada compra (prioridade alta)
 
-**Por que o Quad precisa.** O Quad vai anunciar no Google Ads e na Meta e quer saber, por campanha, **quem** comprou **o quê** e **quando**: "na campanha de julho, 45 pessoas compraram a RONDESP; quem são elas". O Google Analytics (que o site vai ligar) mostra os **totais** por campanha, mas nunca o nome de quem comprou: as regras do Google proíbem enviar dado pessoal. O nome só existe no sistema do Quad, então a campanha precisa ficar **gravada dentro da compra**.
+**Por que o Quad precisa.** O Quad vai anunciar no Google Ads e na Meta e quer saber, por campanha, **quem** comprou **o quê** e **quando**: "na campanha de julho, 45 pessoas compraram a RONDESP; quem são elas". O Google Analytics (que o site já usa) mostra os **totais** por campanha, mas nunca o nome de quem comprou: as regras do Google proíbem enviar dado pessoal. O nome só existe no sistema do Quad, então a campanha precisa ficar **gravada dentro da compra**.
 
 **Como está hoje (conferido no código, 07/11/2026).** A compra não guarda nenhuma origem: não há campo de campanha nem de UTM em `compras`, e os fechamentos não aceitam esse dado.
 
@@ -347,11 +244,11 @@ As outras quatro viram pedidos:
 
 **Do lado do site:** quando a API aceitar o campo, o site passa a guardar a primeira e a última campanha e a mandá-las nos fechamentos. É uma mudança pequena. Enquanto isso, o Google Analytics já mostra os totais por campanha.
 
-**Como conferir:** abrir o site de teste com `?utm_source=teste&utm_medium=pago&utm_campaign=teste-origem`, comprar algo e ver a compra no painel administrativo com a campanha `teste-origem`.
+**Como conferir:** abrir o site com `?utm_source=teste&utm_medium=pago&utm_campaign=teste-origem`, comprar algo barato (ou usar um cupom de 100%) e ver a compra no painel administrativo com a campanha `teste-origem`.
 
 ### 6.6 Compra paga enviada à Meta pelo servidor (API de Conversões) (prioridade alta)
 
-**Por que o Quad precisa.** O Quad vai anunciar na Meta (Instagram e Facebook), e a Meta só entrega bem os anúncios quando fica sabendo de cada venda. O site vai ligar o **Pixel da Meta** no navegador (para quem aceitar os cookies de marketing), mas o navegador perde muitas compras:
+**Por que o Quad precisa.** O Quad vai anunciar na Meta (Instagram e Facebook), e a Meta só entrega bem os anúncios quando fica sabendo de cada venda. O site já liga o **Pixel da Meta** no navegador desde 13/11/2026 (para quem aceitar os cookies de marketing), mas o navegador perde muitas compras:
 - bloqueadores de anúncio e o iPhone barram o Pixel;
 - o **PIX é pago depois**: o aluno fecha a aba, paga no app do banco e nunca volta à página de confirmação, então o navegador não fica sabendo da compra.
 
@@ -421,14 +318,14 @@ Quem sabe com certeza que a compra foi paga é a API (pelo aviso do Pagar.me). P
 
 3. **Preço pago e id do item em cada compra do fechamento** (`GET /api/loja/fechamentos/{id}`): hoje `compras[]` traz só item (nome), variação e quantidade. Acrescentar `totalEmCentavos` e `descontoEmCentavos` de cada compra e o **`item.id`** (o id fixo do item, o mesmo do item 2), para o `Purchase` do navegador mandar os mesmos ids do servidor quando o aluno volta para a confirmação do PIX. Sem isso, quando o aluno paga o PIX em outro aparelho ou outra sessão, o site não sabe o preço de cada item de um pedido com vários itens e o GA4 registra o item com preço 0 (aconteceu com a TURMA CFO – BOPE [M] e o SIMULADO 80 SD PMBA 15/11).
 
-4. **Configuração por variáveis de ambiente**, nunca no código: `META_PIXEL_ID` (o Pixel do site, criado em 13/11/2026: **1182737094707896**, "Quad Concursos — Site") e `META_CAPI_TOKEN`. O token é gerado por quem administra a conta de anúncios do Quad no **Gerenciador de Eventos** da Meta (Pixel → Configurações → API de Conversões → Gerar token de acesso) e entregue à equipe do backend por um canal seguro; fica só no servidor (no cofre de segredos da API), nunca no navegador nem no git. Sem as variáveis, a API simplesmente não envia.
-   - **`META_TEST_EVENT_CODE`**, só no ambiente de teste: o código `TEST…` da aba **Testar eventos** do Gerenciador de Eventos, mandado no campo `test_event_code` de cada envio. Assim as compras do site de teste (pagas no sandbox do Pagar.me) aparecem só em "Testar eventos" e não contam nos anúncios. Em produção fica **vazio**, e aí o campo não vai.
+4. **Configuração por variáveis de ambiente**, nunca no código: `META_PIXEL_ID` (o Pixel do site, criado em 13/11/2026: **1182737094707896**, "Quad Concursos — Site") e `META_CAPI_TOKEN`. O token **já foi gerado** pelo Quad no **Gerenciador de Eventos** da Meta (13/11/2026, só para esse Pixel) e é entregue à equipe do backend à parte, por um canal seguro, nunca por este documento; fica só no servidor (no cofre de segredos da API), nunca no navegador nem no git. Sem as variáveis, a API simplesmente não envia.
+   - **`META_TEST_EVENT_CODE`**, só no ambiente de teste: o código `TEST…` da aba **Testar eventos** do Gerenciador de Eventos, mandado no campo `test_event_code` de cada envio. Assim as compras de teste aparecem só em "Testar eventos" e não contam nos anúncios. O código atual é **`TEST50400`**. Em produção fica **vazio**, e aí o campo não vai; se o teste for feito em produção, ligar o código só durante o teste e esvaziar depois.
 
 **LGPD.** O envio usa dados pessoais (e-mail e celular, em hash) para medir anúncios: por isso fica **preso ao consentimento de marketing**, o mesmo que liga o Pixel no navegador. A política de privacidade precisa citar a Meta como destinatária desses dados; a confirmação fica com quem fez a revisão jurídica.
 
 **Do lado do site:** o site já liga o Pixel (desde 13/11/2026), manda o `Purchase` do navegador com `eventID` igual ao id do fechamento e passa a mandar o campo `marketing` nos fechamentos quando a API aceitar. O site também passa a usar o **id do item na API** em todos os eventos (hoje usa o slug na página do produto e o id da compra na confirmação do PIX) e manda `content_category` quando a vitrine trouxer o concurso de cada item. O `fbclid` do link do anúncio não precisa vir à parte: o Pixel o transforma no cookie `_fbc`, que já vai em `marketing.fbc`. A origem da venda (UTMs, primeira e última) segue no pedido 6.5.
 
-**Como conferir:** no Gerenciador de Eventos, aba **Testar eventos**, copiar o código de teste (`TEST…`) e mandá-lo no campo `test_event_code` do envio (só no ambiente de teste). Fazer uma compra pelo site de teste com os cookies de marketing aceitos: o `Purchase` deve aparecer **duas vezes, uma do navegador e uma do servidor, marcado como "desduplicado"**, com o valor certo.
+**Como conferir:** no Gerenciador de Eventos, aba **Testar eventos**, copiar o código de teste (`TEST…`) e mandá-lo no campo `test_event_code` do envio (só no ambiente de teste). Fazer uma compra no site com os cookies de marketing aceitos: o `Purchase` deve aparecer **duas vezes, uma do navegador e uma do servidor, marcado como "desduplicado"**, com o valor certo.
 
 ---
 
