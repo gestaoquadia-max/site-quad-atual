@@ -598,7 +598,13 @@ export async function listarCarreiras(): Promise<Carreira[] | null> {
     // A edição de estudo pelo número, na carreira: a versão em PDF sem o presencial de origem cadastrado.
     const estudoDaCarreira = (c: Carreira, numero: number, abreEm: string, origem: string | null) => {
       const existente = (origem && porOrigem.get(origem)) || c.edicoes.find((e) => e.numero === numero);
-      if (existente) return existente;
+      if (existente) {
+        // PDF e impresso da mesma edição com aberturas diferentes: vale a mais antiga (13/11/2026: o PDF do 78
+        // IPC/PCBA, criado à mão, abre em 13/11; o impresso, em 02/11, um dia depois da aplicação em 01/11).
+        const aplicadoEm = vesperaDe(abreEm);
+        if (!existente.presencial && existente.data && aplicadoEm < existente.data) existente.data = aplicadoEm;
+        return existente;
+      }
       const nova = edicaoDeEstudo(numero, abreEm);
       c.edicoes.push(nova);
       return nova;
