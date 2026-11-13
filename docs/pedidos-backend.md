@@ -1,4 +1,4 @@
-c# Pedidos para o backend — Site do Quad Concursos
+# Pedidos para o backend — Site do Quad Concursos
 
 **De:** time do site (Next.js) · **Atualizado em:** 13/11/2026
 **Base:** testes na API local (`localhost:8080`), leituras públicas da API de produção (`https://api.quadconcursos.com.br`) e o **site de teste publicado** em `https://teste.quadconcursos.com.br` (Vercel, ligado à API de produção).
@@ -394,7 +394,10 @@ Quem sabe com certeza que a compra foi paga é a API (pelo aviso do Pagar.me). P
          "value": 277.00,
          "order_id": "<id do fechamento>",
          "content_type": "product",
-         "contents": [{ "id": "<slug ou id do item>", "quantity": 1, "item_price": 277.00 }]
+         "content_ids": ["<id do item na API>"],
+         "content_name": "TURMA CFO – BOPE [M]",
+         "content_category": "PMBA",
+         "contents": [{ "id": "<id do item na API>", "quantity": 1, "item_price": 277.00 }]
        }
      }]
    }
@@ -404,17 +407,20 @@ Quem sabe com certeza que a compra foi paga é a API (pelo aviso do Pagar.me). P
    - **E-mail, celular e id vão só em SHA-256**, nunca em texto, e normalizados antes: e-mail em minúsculas e sem espaços; celular só com dígitos e com o 55 (ex.: `5571999999999`). IP e User-Agent vão sem hash (regra da Meta); guardar os do momento do fechamento.
    - `value` é o **total do fechamento** em reais (o `totalEmCentavos` dividido por 100), o mesmo valor que o site manda ao Google Analytics.
    - **Total zero não é venda e não vai como `Purchase`:** inscrição e matrícula gratuitas e compras com **cupom de 100%** (cortesia, bolsa, parceria; ex.: `QUAD30`, `SIMULADOSIQ`). O zero está certo e **nunca** deve ser trocado pela soma dos itens. Se quiserem medir as cortesias, mandar como evento personalizado `inscricao_cortesia` (mesmo `event_id`, `value: 0`, `contents` e o cupom em `custom_data.coupon`), o mesmo nome que o site usa no GA4 desde 12/11/2026. No GA4, 13 das 51 "compras" do último mês eram cortesias.
+   - **O id de cada item é o id do item na API** (o mesmo de `compras[].item.id`, ver o item 3), fixo, e não o slug nem o id da compra: o slug muda quando o nome muda, e o id da compra muda a cada pedido. É o mesmo id que o Pixel do site manda no `ViewContent`, no `AddToCart` e no `Purchase`, para a Meta ligar quem viu o produto a quem comprou (públicos e catálogo). Vale em `content_ids` e em `contents[].id`.
+   - **`content_name` e `content_category`:** com um item, o nome dele; com vários, os nomes separados por " + ". `content_category` é o concurso do item (ex.: `PMBA`, `PMPE`, `CFO PMBA`), o mesmo que a vitrine mostra; com itens de concursos diferentes, os concursos separados por " + "; sem concurso (ex.: produto da loja), omitir.
    - **`item_price` com o desconto:** o valor pago por unidade de cada item (o total da linha, já com o cupom, dividido pela quantidade), para a soma dos itens bater com `value`.
    - **Nunca atrasar nem quebrar a compra:** o envio é em segundo plano, com algumas novas tentativas se a Meta falhar, e a falha só vai para o log.
    - **Devolução:** não precisa avisar a Meta.
 
-3. **Preço pago em cada compra do fechamento** (`GET /api/loja/fechamentos/{id}`): hoje `compras[]` traz só item, variação e quantidade. Acrescentar `totalEmCentavos` e `descontoEmCentavos` de cada compra. Sem isso, quando o aluno paga o PIX em outro aparelho ou outra sessão, o site não sabe o preço de cada item de um pedido com vários itens e o GA4 registra o item com preço 0 (aconteceu com a TURMA CFO – BOPE [M] e o SIMULADO 80 SD PMBA 15/11).
+3. **Preço pago e id do item em cada compra do fechamento** (`GET /api/loja/fechamentos/{id}`): hoje `compras[]` traz só item (nome), variação e quantidade. Acrescentar `totalEmCentavos` e `descontoEmCentavos` de cada compra e o **`item.id`** (o id fixo do item, o mesmo do item 2), para o `Purchase` do navegador mandar os mesmos ids do servidor quando o aluno volta para a confirmação do PIX. Sem isso, quando o aluno paga o PIX em outro aparelho ou outra sessão, o site não sabe o preço de cada item de um pedido com vários itens e o GA4 registra o item com preço 0 (aconteceu com a TURMA CFO – BOPE [M] e o SIMULADO 80 SD PMBA 15/11).
 
-4. **Configuração por variáveis de ambiente**, nunca no código: `META_PIXEL_ID` (o Pixel do site, criado em 13/11/2026: **1182737094707896**, "Quad Concursos — Site") e `META_CAPI_TOKEN`. O token é gerado por quem administra a conta de anúncios do Quad no **Gerenciador de Eventos** da Meta (Pixel → Configurações → API de Conversões → Gerar token de acesso) e entregue à equipe do backend por um canal seguro. Sem as variáveis, a API simplesmente não envia.
+4. **Configuração por variáveis de ambiente**, nunca no código: `META_PIXEL_ID` (o Pixel do site, criado em 13/11/2026: **1182737094707896**, "Quad Concursos — Site") e `META_CAPI_TOKEN`. O token é gerado por quem administra a conta de anúncios do Quad no **Gerenciador de Eventos** da Meta (Pixel → Configurações → API de Conversões → Gerar token de acesso) e entregue à equipe do backend por um canal seguro; fica só no servidor (no cofre de segredos da API), nunca no navegador nem no git. Sem as variáveis, a API simplesmente não envia.
+   - **`META_TEST_EVENT_CODE`**, só no ambiente de teste: o código `TEST…` da aba **Testar eventos** do Gerenciador de Eventos, mandado no campo `test_event_code` de cada envio. Assim as compras do site de teste (pagas no sandbox do Pagar.me) aparecem só em "Testar eventos" e não contam nos anúncios. Em produção fica **vazio**, e aí o campo não vai.
 
 **LGPD.** O envio usa dados pessoais (e-mail e celular, em hash) para medir anúncios: por isso fica **preso ao consentimento de marketing**, o mesmo que liga o Pixel no navegador. A política de privacidade precisa citar a Meta como destinatária desses dados; a confirmação fica com quem fez a revisão jurídica.
 
-**Do lado do site:** o site já liga o Pixel (desde 13/11/2026), manda o `Purchase` do navegador com `eventID` igual ao id do fechamento e passa a mandar o campo `marketing` nos fechamentos quando a API aceitar.
+**Do lado do site:** o site já liga o Pixel (desde 13/11/2026), manda o `Purchase` do navegador com `eventID` igual ao id do fechamento e passa a mandar o campo `marketing` nos fechamentos quando a API aceitar. O site também passa a usar o **id do item na API** em todos os eventos (hoje usa o slug na página do produto e o id da compra na confirmação do PIX) e manda `content_category` quando a vitrine trouxer o concurso de cada item. O `fbclid` do link do anúncio não precisa vir à parte: o Pixel o transforma no cookie `_fbc`, que já vai em `marketing.fbc`. A origem da venda (UTMs, primeira e última) segue no pedido 6.5.
 
 **Como conferir:** no Gerenciador de Eventos, aba **Testar eventos**, copiar o código de teste (`TEST…`) e mandá-lo no campo `test_event_code` do envio (só no ambiente de teste). Fazer uma compra pelo site de teste com os cookies de marketing aceitos: o `Purchase` deve aparecer **duas vezes, uma do navegador e uma do servidor, marcado como "desduplicado"**, com o valor certo.
 
