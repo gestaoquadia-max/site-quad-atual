@@ -22,6 +22,7 @@ const INSTITUCIONAL = [
   ["Contato", "/contato"],
   ["Termos de uso", "/termos"],
   ["Privacidade", "/privacidade"],
+  ["Exclusão de conta", "/excluir-conta"],
   ["Acessibilidade", "/acessibilidade"],
 ];
 
