@@ -38,7 +38,7 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 4.7 | Depois de confirmar o e-mail no clique (como hoje), redirecionar para a página do site com o resultado | Alta |
 | 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
 | 4.5 | Foto de perfil | Baixa |
-| 5.3 | Simulados: a versão em PDF (já criada no console) aparecer na vitrine depois da aplicação, ligada ao presencial de origem | Alta |
+| 5.3 | Simulados: depois da aplicação, a versão de estudo na vitrine em digital (PDF) e impresso, cada um com o seu preço, ligada ao presencial de origem | Alta |
 | 5.4 | Textos de venda da turma e programação do evento | Média |
 | 5.5 | Notícias de concursos na barra do topo, editáveis pelo console e atualizadas em tempo real | Média |
 | 6.3 | Armazenamento de arquivos no ambiente local (endereço do S3 configurável) | Média |
@@ -239,7 +239,7 @@ Location: <SITE_URL>/confirmar-email?resultado=CONFIRMADO
 
 > **13/11/2026: reescrito.** O console já cria a **versão em PDF** de um simulado (botão "Versão PDF"): um simulado à parte, na modalidade "Em PDF", com preço próprio, os PDFs anexados e o vínculo com o presencial de origem. Exemplo: **SIMULADO 78 SD PMBA**, presencial na Sala 1 em 25/10 e versão em PDF de 26/10 a R$ 5,00, com 2 PDFs. Falta só a vitrine pública.
 
-**A regra do Quad.** Cada simulado nasce **presencial e impresso**. Logo depois da aplicação, ele desce para **"Edições anteriores"** na Central de Simulados e passa a ser vendido **em PDF**, para estudo. O site já tem essa seção pronta, com o selo "Já realizado" e o botão do PDF; hoje ela aparece vazia.
+**A regra do Quad.** Cada simulado nasce **presencial e impresso**. Logo depois da aplicação, ele desce para **"Edições anteriores"** na Central de Simulados e passa a ser vendido **para estudo em dois formatos, à escolha do aluno: digital (PDF) e impresso, cada um com o seu preço** (o impresso tem um preço, o digital tem outro). O site já tem essa seção pronta, com o selo "Já realizado" e a escolha do formato; hoje ela aparece vazia.
 
 **O problema (conferido em 13/11/2026).** `GET /api/loja/vitrine/atividades?tipo=SIMULADO` só devolve simulados com **data futura**. As versões em PDF também têm data (a do 78 é 26/10) e caem no mesmo filtro. Por isso nenhuma das duas versões do 78 aparece, nem pela lista nem pelo slug, e o mesmo vale para o 77, o 76 e o CFO 2. O console mostra "12 no site", mas a vitrine entrega só os 4 simulados de 15/11.
 
@@ -252,11 +252,15 @@ Location: <SITE_URL>/confirmar-email?resultado=CONFIRMADO
    - `detalhe.concurso`, o preço e o lote, como nos outros simulados;
    - a **quantidade** de PDFs, e não os arquivos: o link de download só vai para quem comprou.
 3. **Entrega para quem comprou:** confirmar como o aluno baixa os PDFs depois de pagar. O site sugere o mesmo caminho dos materiais digitais (a área do aluno lista e baixa os arquivos da compra). Se a rota for outra, informar qual.
-4. **Impresso depois da aplicação:** confirmar se o impresso continua à venda depois que o simulado é aplicado, ou se fica só o PDF.
+4. **Impresso depois da aplicação, com preço próprio.** Depois da aplicação, o simulado também é vendido **impresso**, e o **aluno escolhe** entre digital e impresso na compra. **Cada formato tem o seu preço**, definido no console: o do impresso é diferente do digital. Hoje o console só cria a versão em PDF; falta a oferta impressa da versão de estudo:
+   - com **preço próprio** e **estoque** (as cópias disponíveis), como o impresso dos materiais;
+   - na vitrine, junto da versão em PDF do mesmo simulado, ligada ao mesmo presencial de origem (`origemId`), para o site mostrar os dois formatos na mesma edição;
+   - se servir, o mesmo modelo do material (PR #137): **um cadastro com as duas ofertas** (digital e impresso), cada uma com preço, e o formato escolhido na compra. Assim a versão de estudo do 78 seria um só item, com "PDF — R$ X" e "Impresso — R$ Y".
+   - Confirmar como o aluno recebe o impresso comprado depois da aplicação (retirada no Quad, como os materiais impressos, ou outro jeito).
 
-**Do lado do site:** com a vitrine devolvendo a versão em PDF, o site passa a mostrá-la em "Edições anteriores" e na aba "Individuais", com o número e a carreira do presencial de origem, e vende pelo carrinho como os outros itens. É uma mudança pequena, feita no mesmo dia.
+**Do lado do site:** com a vitrine devolvendo a versão de estudo, o site passa a mostrá-la em "Edições anteriores" e na aba "Individuais", com o número e a carreira do presencial de origem, os dois formatos e o preço de cada um, e vende pelo carrinho como os outros itens. É uma mudança pequena, feita no mesmo dia.
 
-**Como conferir:** `curl "https://api.quadconcursos.com.br/api/loja/vitrine/atividades?tipo=SIMULADO&tamanho=100"` deve trazer a versão em PDF do **SIMULADO 78 SD PMBA**, com o preço de R$ 5,00 e o `origemId` do 78 da Sala 1.
+**Como conferir:** `curl "https://api.quadconcursos.com.br/api/loja/vitrine/atividades?tipo=SIMULADO&tamanho=100"` deve trazer a versão de estudo do **SIMULADO 78 SD PMBA**, com o `origemId` do 78 da Sala 1, o digital a R$ 5,00 e o impresso com o preço dele.
 
 ### 5.4 Textos de venda da turma e programação do evento
 
