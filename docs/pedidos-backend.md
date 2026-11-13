@@ -237,6 +237,11 @@ Location: <SITE_URL>/confirmar-email?resultado=CONFIRMADO
 
 > **04/11/2026: os combos estão atendidos** (PR #129 e #136); o site mostra os combos só de simulados na aba "Combos" da Central e todos em `/combos`.
 
+> **13/11/2026 (tarde): versão em PDF atendida; impressa a caminho.** O backend respondeu com o guia [simulados-no-site-guia-da-api.txt](simulados-no-site-guia-da-api.txt). O site já usa: a vitrine com `comPdf=true` (o 78 SD PMBA e o 78 IPC/PCBA a R$ 5,00 em "Edições anteriores" e em "Individuais"), a compra pelo carrinho (`atividade` SIMULADO com o id da versão em PDF), os PDFs na área do aluno (`/api/alunos/eu/simulados-em-pdf` e o download marcado) e, pronta para quando a API tiver, a versão impressa (`versaoImpressa=SO`, juntada pelo `origem.id`, comprada como `IMPRESSO`, com a retirada em Compras). Ficam três pontos:
+> - a versão em PDF do **SIMULADO 78 IPC/PCBA** está sem `origemId`; cadastrar o presencial de origem;
+> - o guia diz que `preco`, `lote` e `lotes` vêm "em reais" nas seções 2 e 3, mas a API manda em **centavos** (500 = R$ 5,00), como diz o topo do guia. O site usa centavos; confirmar que a versão impressa também virá em centavos;
+> - o site mostra "Aplicado em" como a véspera da abertura (o guia diz que a versão abre no dia seguinte ao último dia do presencial). Se algum dia a abertura for outra, o site precisa da data do presencial na resposta.
+
 > **13/11/2026: reescrito.** O console já cria a **versão em PDF** de um simulado (botão "Versão PDF"): um simulado à parte, na modalidade "Em PDF", com preço próprio, os PDFs anexados e o vínculo com o presencial de origem. Exemplo: **SIMULADO 78 SD PMBA**, presencial na Sala 1 em 25/10 e versão em PDF de 26/10 a R$ 5,00, com 2 PDFs. Falta só a vitrine pública.
 
 **A regra do Quad.** Cada simulado nasce **presencial e impresso**. Logo depois da aplicação, ele desce para **"Edições anteriores"** na Central de Simulados e passa a ser vendido **para estudo em dois formatos, à escolha do aluno: digital (PDF) e impresso, cada um com o seu preço** (o impresso tem um preço, o digital tem outro). O site já tem essa seção pronta, com o selo "Já realizado" e a escolha do formato; hoje ela aparece vazia.

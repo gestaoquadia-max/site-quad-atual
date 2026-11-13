@@ -31,7 +31,8 @@ export const MESES_CURTOS = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "A
 function doSimulado(carreiras: Carreira[]): ItemDaAgenda[] {
   return carreiras.flatMap((c) =>
     c.edicoes
-      .filter((e) => e.publicado && !e.exemplo && e.data)
+      // Só o presencial: a edição só para estudo (PDF ou impresso, depois da aplicação) não é um dia na agenda.
+      .filter((e) => e.publicado && !e.exemplo && e.data && e.presencial)
       .map((e) => {
         const s = situacaoDa(e);
         const onde = [e.horario, e.local].filter(Boolean).join(" · ");

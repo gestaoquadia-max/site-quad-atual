@@ -80,6 +80,10 @@ type AtividadeDaVitrine = {
     // SIMULADO: os dias em que acontece (de 1 a 10) e o número de questões (0 = não informado).
     janelas?: { data: string; inicio: string; fim: string }[] | null;
     quantidadeDeQuestoes?: number | null;
+    // Versão em PDF do simulado (modalidade "PDF", só com ?comPdf=true; guia da API de 13/11/2026): o id do
+    // presencial de onde ela veio e o título de cada PDF (o arquivo só vai para quem comprou).
+    origemId?: string | null;
+    pdfs?: { titulo: string }[] | null;
   } | null;
 };
 
@@ -141,8 +145,10 @@ async function lerDaVitrine<T>(caminho: string): Promise<T | typeof NAO_ENCONTRA
   return res.json();
 }
 
-async function listar(tipo: TipoDeAtividade): Promise<AtividadeDaVitrine[]> {
-  const pagina = await lerDaVitrine<Pagina<AtividadeDaVitrine>>(`/api/loja/vitrine/atividades?tipo=${tipo}&tamanho=100`);
+// comPdf: junto, as versões em PDF dos simulados já aplicados (só a Central de Simulados pede; sem ele, a API não as
+// manda, e é isso que protege o aplicativo).
+async function listar(tipo: TipoDeAtividade, comPdf = false): Promise<AtividadeDaVitrine[]> {
+  const pagina = await lerDaVitrine<Pagina<AtividadeDaVitrine>>(`/api/loja/vitrine/atividades?tipo=${tipo}&tamanho=100${comPdf ? "&comPdf=true" : ""}`);
   return pagina === NAO_ENCONTRADA ? [] : pagina.conteudo;
 }
 
@@ -548,15 +554,81 @@ function edicaoDoSimulado(a: AtividadeDaVitrine, ordem: number): { carreira: str
   };
 }
 
+// O número da edição no nome ("SIMULADO 78 SD PMBA (PDF)" → 78).
+function numeroNoNome(nome: string) {
+  const n = nome.match(/simulado\s*(?:n[ºo°]?\s*)?(\d+)/i)?.[1];
+  return n ? Number(n) : null;
+}
+
+// A versão em PDF e a impressa abrem "no dia seguinte ao último dia do presencial" (guia da API de 13/11/2026), e o
+// presencial já saiu da vitrine: o último dia de aplicação é a véspera da abertura. "2026-10-26" → "2026-10-25".
+function vesperaDe(dia: string) {
+  const [a, m, d] = dia.split("-").map(Number);
+  return new Date(Date.UTC(a, m - 1, d - 1)).toISOString().slice(0, 10);
+}
+
+// Edição já aplicada, só para estudo (sem o presencial): nasce da versão em PDF ou da impressa.
+function edicaoDeEstudo(numero: number, abreEm: string): Edicao {
+  return { numero, data: vesperaDe(abreEm), horario: null, local: null, inscricao: "encerradas", publicado: true };
+}
+
+// As versões impressas dos simulados já aplicados (itens da loja). Enquanto a API não tiver a versão impressa, ela
+// ignora o parâmetro e devolve os itens de sempre: só conta o item com `origem` e o impresso entre as plataformas.
+async function listarVersoesImpressas(): Promise<ItemDaVitrine[]> {
+  const pagina = await lerDaVitrine<Pagina<ItemDaVitrine>>("/api/loja/vitrine?versaoImpressa=SO&tamanho=100");
+  if (pagina === NAO_ENCONTRADA) return [];
+  return pagina.conteudo.filter((i) => i.origem?.id && i.preco != null && i.preco > 0 && (i.material?.plataformas ?? ["IMPRESSO"]).includes("IMPRESSO"));
+}
+
 export async function listarCarreiras(): Promise<Carreira[] | null> {
   try {
+    const [atividades, impressas] = await Promise.all([
+      listar("SIMULADO", true),
+      // Sem as impressas (API fora do ar só nessa rota), a Central abre com o presencial e o PDF.
+      listarVersoesImpressas().catch(() => [] as ItemDaVitrine[]),
+    ]);
     const porCarreira = new Map<string, Carreira>();
-    (await listar("SIMULADO")).forEach((a, i) => {
+    const carreiraDe = (nome: string) => {
+      const id = slugDoNome(nome);
+      if (!porCarreira.has(id)) porCarreira.set(id, { id, nome: `Simulado Presencial — ${nome}`, curto: nome, edicoes: [] });
+      return porCarreira.get(id)!;
+    };
+    // A edição de estudo de cada presencial de origem, para juntar o PDF e o impresso do mesmo simulado.
+    const porOrigem = new Map<string, Edicao>();
+    // A edição de estudo pelo número, na carreira: a versão em PDF sem o presencial de origem cadastrado.
+    const estudoDaCarreira = (c: Carreira, numero: number, abreEm: string, origem: string | null) => {
+      const existente = (origem && porOrigem.get(origem)) || c.edicoes.find((e) => e.numero === numero);
+      if (existente) return existente;
+      const nova = edicaoDeEstudo(numero, abreEm);
+      c.edicoes.push(nova);
+      return nova;
+    };
+
+    const presenciais = atividades.filter((a) => a.detalhe?.modalidade !== "PDF");
+    const emPdf = atividades.filter((a) => a.detalhe?.modalidade === "PDF");
+    presenciais.forEach((a, i) => {
       const { carreira, edicao } = edicaoDoSimulado(a, i);
-      const id = slugDoNome(carreira);
-      if (!porCarreira.has(id)) porCarreira.set(id, { id, nome: `Simulado Presencial — ${carreira}`, curto: carreira, edicoes: [] });
-      porCarreira.get(id)!.edicoes.push(edicao);
+      carreiraDe(carreira).edicoes.push(edicao);
     });
+    for (const a of emPdf) {
+      const d = a.detalhe ?? {};
+      const numero = numeroNoNome(a.nome) ?? d.edicao;
+      const abreEm = d.data ?? d.janelas?.[0]?.data;
+      if (numero == null || !abreEm || a.preco === null) continue;
+      const c = carreiraDe(d.concurso?.nome || "Outros simulados");
+      const e = estudoDaCarreira(c, numero, abreEm, d.origemId ?? null);
+      if (d.origemId) porOrigem.set(d.origemId, e);
+      e.pdf = { preco: a.gratuita ? 0 : emReais(a.preco), sku: a.id, disponivel: true };
+    }
+    for (const i of impressas) {
+      const numero = numeroNoNome(i.origem!.nome) ?? numeroNoNome(i.nome) ?? i.origem!.edicao;
+      if (numero == null) continue;
+      const c = carreiraDe(i.material?.concurso?.nome || "Outros simulados");
+      const e = estudoDaCarreira(c, numero, i.origem!.abreEm, i.origem!.id);
+      porOrigem.set(i.origem!.id, e);
+      const esgotado = i.restantes !== null && i.restantes <= 0;
+      e.impresso = { preco: emReais(i.preco!), sku: i.id, disponivel: !esgotado, estoque: i.restantes };
+    }
     return [...porCarreira.values()];
   } catch {
     return null;
@@ -594,6 +666,9 @@ type ItemDaVitrine = {
   restantes: number | null;
   lote?: LoteDaVitrine | null;
   variacoes: { id: string; nome: string; ofertadas: number | null; vendidas: number | null; restantes: number | null }[];
+  // Só na versão impressa de um simulado já aplicado (só com ?versaoImpressa=JUNTO ou SO; guia da API de 13/11/2026):
+  // o presencial de onde ela veio (origem.id) e o dia em que abre a venda.
+  origem?: { id: string; nome: string; edicao: number | null; ano: number | null; abreEm: string } | null;
 };
 
 // Pelo endereço da página: o slug da API ou, nos endereços antigos (nome + id), o id.

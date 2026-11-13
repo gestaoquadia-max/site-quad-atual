@@ -1,0 +1,139 @@
+SIMULADOS NO SITE: COMO USAR A API
+
+Um mesmo simulado pode aparecer no site de três formas:
+- o presencial, à venda até o dia da aplicação;
+- a versão em PDF, à venda a partir do dia seguinte ao último dia do presencial;
+- a versão impressa, à venda também a partir desse dia, para retirar na recepção.
+
+PDF e impresso são dois produtos diferentes, cada um com o seu preço. Quem compra um não leva o
+outro. Todos os preços vêm em CENTAVOS.
+
+
+O QUE JÁ ESTÁ EM PRODUÇÃO E O QUE AINDA VAI ENTRAR
+
+- Já em produção: a versão em PDF na vitrine, no carrinho e na área do aluno.
+- Na próxima versão da API: a versão impressa (o parâmetro versaoImpressa e o campo origem).
+  Junto, as versões em PDF novas passam a nascer com " (PDF)" no fim do nome.
+- Vocês já podem mandar o versaoImpressa: a API de hoje ignora o parâmetro, e as impressas
+  começam a aparecer quando o Financeiro cadastrar a primeira.
+
+
+1. O SIMULADO PRESENCIAL (ANTES DA APLICAÇÃO)
+
+    GET /api/loja/vitrine/atividades?tipo=SIMULADO
+    GET /api/loja/vitrine/atividades/SIMULADO/{id}
+    GET /api/loja/vitrine/atividades/SIMULADO/slug/{slug}
+
+O "detalhe" traz:
+- modalidade (PRESENCIAL ou ONLINE);
+- janelas, data, sala e descricao;
+- concurso (id, codigo, nome, rotulo);
+- edicao e ano.
+
+
+2. A VERSÃO EM PDF (EDIÇÕES ANTERIORES)
+
+São as mesmas rotas da seção 1, sempre com comPdf=true:
+
+    GET /api/loja/vitrine/atividades?tipo=SIMULADO&comPdf=true
+    GET /api/loja/vitrine/atividades/SIMULADO/{id}?comPdf=true
+    GET /api/loja/vitrine/atividades/SIMULADO/slug/{slug}?comPdf=true
+
+Regras:
+- Sem comPdf=true, a versão em PDF não vem: nem na lista, nem por id ou slug (404). É isso que
+  protege o aplicativo publicado.
+- Ela só aparece a partir do dia em que abre.
+
+Campos:
+- detalhe.modalidade vem como "PDF".
+- detalhe.origemId é o id do presencial de onde ela veio. É a chave para juntar com a versão
+  impressa.
+- detalhe.data é o dia em que a versão abre.
+- detalhe.pdfs traz só o titulo de cada PDF.
+- detalhe.concurso, detalhe.edicao e detalhe.ano vêm como no presencial.
+- preco, lote e lotes são o preço em reais.
+
+
+3. A VERSÃO IMPRESSA (EDIÇÕES ANTERIORES)
+
+    GET /api/loja/vitrine?versaoImpressa=SO
+        só as versões impressas
+    GET /api/loja/vitrine?versaoImpressa=JUNTO
+        a vitrine de itens de sempre, mais as versões impressas
+    GET /api/loja/vitrine/{itemId}?versaoImpressa=JUNTO
+    GET /api/loja/vitrine/slug/{slug}?versaoImpressa=JUNTO
+        a página do produto
+
+Regras:
+- Sem o parâmetro (que equivale a FORA), a versão impressa não vem: nem na lista, nem por id ou
+  slug (404). Também protege o aplicativo.
+- Ela só aparece a partir do dia em que abre.
+- Os filtros de sempre (tipo, concursoId, categoriaId, ordenarPor, pagina, tamanho) continuam
+  valendo.
+- Um valor fora de FORA, JUNTO e SO responde 400.
+
+Campos novos:
+- origem: { "id", "nome", "edicao", "ano", "abreEm" }. O origem.id é o id do presencial.
+
+Campos de sempre:
+- preco, lote e lotes, em reais;
+- ofertadas, vendidas e restantes, que aqui são as cópias impressas;
+- material.plataformas = ["IMPRESSO"] e material.concurso.
+
+
+4. JUNTANDO PDF E IMPRESSO NA MESMA PÁGINA
+
+- A chave é o id do presencial: o detalhe.origemId da versão em PDF é igual ao origem.id da
+  versão impressa.
+- Edição, ano e concurso podem vir de qualquer uma das duas.
+- Um presencial pode ter só uma das duas versões.
+
+
+5. COMPRA: SÓ PELO CARRINHO
+
+Reservar no carrinho (o lugar fica reservado por 30 minutos):
+
+    PUT /api/loja/carrinho/eu/linhas
+
+    Versão em PDF:
+        {"atividade": {"tipo": "SIMULADO", "id": "<id da versão em PDF>"}}
+
+    Versão impressa:
+        {"itemId": "<id do item>", "plataforma": "IMPRESSO", "quantidade": 1}
+
+Fechar:
+
+    POST /api/loja/carrinho/eu/fechamento
+    Cabeçalho: Idempotency-Key
+    Corpo: {"formaDePagamento": "PIX"}
+    Também aceita CARTAO (com "pagamento") ou CUPOM; "cupom" é opcional.
+
+Recusas que o site precisa tratar:
+- 409 ITEM_AINDA_NAO_A_VENDA: a versão impressa ainda não abriu; o corpo traz abreEm.
+- 409 ITEM_ESGOTADO: as cópias acabaram.
+- 409 ITEM_FORA_DE_CIRCULACAO: o item saiu da venda.
+- 409 CARRINHO_COM_LINHA_VENCIDA: no fechamento, quando alguma linha está INDISPONIVEL em
+  GET /api/loja/carrinho/eu. Isso acontece, por exemplo, quando o presencial é remarcado para
+  frente e a data de abertura anda junto. O site remove a linha ou reserva de novo.
+- 409 VERSAO_IMPRESSA_SO_NO_SITE: alguém compra a versão impressa por POST /api/loja/compras,
+  que é a rota do aplicativo.
+
+A versão impressa não entra em combo.
+
+
+6. ÁREA DO ALUNO
+
+Versão em PDF:
+
+    GET /api/alunos/eu/simulados-em-pdf
+        [{ simuladoId, nome, imagemUrl, abreEm, liberado,
+           pdfs: [{ id, titulo, tamanhoEmBytes }] }]
+
+    GET /api/simulados/{simuladoId}/prova/eu/pdfs/{pdfId}/arquivo
+        o download; o PDF sai marcado com a identificação do aluno
+
+Versão impressa:
+- Aparece em GET /api/loja/compras, que para o aluno só traz as compras dele.
+- O campo "entrega" vale PENDENTE (aguardando separação), PRONTA (pronto para retirada) ou
+  CONCLUIDA (retirado).
+- A retirada é na recepção.

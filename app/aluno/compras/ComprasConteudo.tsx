@@ -23,6 +23,13 @@ const situacao: Record<Compra["situacao"], { label: string; tom: "verde" | "amar
   ESTORNADA: { label: "Estornado", tom: "cinza" },
 };
 
+// A retirada do impresso na recepção (versão impressa do simulado; guia da API de 13/11/2026).
+const ENTREGA: Record<NonNullable<Compra["entrega"]>, string> = {
+  PENDENTE: "Impresso: aguardando separação",
+  PRONTA: "Impresso: pronto para retirada na recepção",
+  CONCLUIDA: "Impresso: retirado",
+};
+
 function descreverPagamento(c: Compra) {
   const cartao = c.pagamento?.cartao;
   if (c.formaDePagamento === "CARTAO") {
@@ -290,6 +297,9 @@ export default function ComprasConteudo() {
                   <div className="mt-0.5 text-[13px] text-ardosia">
                     {formatarData(c.pagaEm ?? c.criadaEm)} · {descreverPagamento(c)}
                   </div>
+                  {c.situacao === "PAGA" && c.entrega && c.item.plataforma !== "DIGITAL" && (
+                    <div className="mt-0.5 text-[13px] font-semibold text-azul-forte">{ENTREGA[c.entrega]}</div>
+                  )}
                 </div>
                 <div className="flex items-center gap-4">
                   {valor != null && (

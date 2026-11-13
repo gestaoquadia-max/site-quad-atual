@@ -1,6 +1,7 @@
 // Central de Simulados do Quad (redesenho, out/2026): carreiras → edições → formatos → compra.
 // As carreiras e edições vêm da vitrine da API (listarCarreiras em lib/vitrine.ts); aqui ficam os tipos e as regras de venda.
-// A API ainda não tem PDF, plataforma, impresso nem combos por edição (docs/pedidos-backend.md, item 5.3): esses campos ficam vazios.
+// Depois da aplicação, a edição é vendida para estudo: a versão em PDF (desde 13/11/2026) e a impressa (quando a API
+// tiver), cada uma com o seu preço (docs/simulados-no-site-guia-da-api.txt). "Plataforma" ainda não existe na API.
 import { precoSemCentavosZerados } from "./format";
 
 export type Inscricao = "a-confirmar" | "abertas" | "encerradas" | "esgotado";

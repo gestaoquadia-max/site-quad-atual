@@ -7,11 +7,14 @@ import { CLASSE_DO_BOTAO_PEQUENO, CLASSE_DO_CARTAO, CLASSE_DO_SELO } from "@/com
 import {
   baixarArquivoDoMaterial,
   baixarMaterialComprado,
+  baixarPdfDoSimulado,
   listarMeusMateriais,
+  listarMeusSimuladosEmPdf,
   listarMinhasComprasEmReais,
   marcarMaterialComoVisto,
   type Compra,
   type MaterialDaTurma,
+  type SimuladoEmPdf,
 } from "@/lib/api";
 import { salvarArquivo } from "@/lib/download";
 import { ErroDaApi } from "@/lib/http";
@@ -31,14 +34,24 @@ export const ROTULO_DO_TIPO: Record<MaterialDaTurma["tipo"], string> = {
 // Duas fontes (06/11/2026): o material de aula das turmas (/api/materiais/eu, por matrícula) e os PDFs comprados na
 // loja (as compras pagas do material DIGITAL, que se baixam pela própria compra). Se as compras não carregarem, os
 // materiais das turmas aparecem mesmo assim.
-async function carregarMateriais(): Promise<{ daTurma: MaterialDaTurma[]; comprados: Compra[]; erroDosComprados: string }> {
-  const [daTurma, compras] = await Promise.all([
+// Terceira fonte (13/11/2026): as versões em PDF dos simulados, que têm rota própria (cada uma com os seus PDFs).
+async function carregarMateriais(): Promise<{
+  daTurma: MaterialDaTurma[];
+  comprados: Compra[];
+  erroDosComprados: string;
+  simuladosEmPdf: SimuladoEmPdf[];
+  erroDosSimulados: string;
+}> {
+  const motivo = (e: unknown) => (e instanceof Error ? e.message : "erro desconhecido");
+  const [daTurma, compras, simuladosEmPdf] = await Promise.all([
     listarMeusMateriais(),
-    listarMinhasComprasEmReais().catch((e: unknown) => (e instanceof Error ? e.message : "erro desconhecido")),
+    listarMinhasComprasEmReais().catch(motivo),
+    listarMeusSimuladosEmPdf().catch(motivo),
   ]);
-  // A falha das compras não some calada: a tela avisa que os PDFs comprados não carregaram.
-  if (typeof compras === "string") return { daTurma, comprados: [], erroDosComprados: compras };
-  return { daTurma, comprados: compras.filter((c) => c.situacao === "PAGA" && c.item.plataforma === "DIGITAL"), erroDosComprados: "" };
+  // A falha das compras ou dos simulados não some calada: a tela avisa que os PDFs comprados não carregaram.
+  const simulados = typeof simuladosEmPdf === "string" ? { simuladosEmPdf: [], erroDosSimulados: simuladosEmPdf } : { simuladosEmPdf, erroDosSimulados: "" };
+  if (typeof compras === "string") return { daTurma, comprados: [], erroDosComprados: compras, ...simulados };
+  return { daTurma, comprados: compras.filter((c) => c.situacao === "PAGA" && c.item.plataforma === "DIGITAL"), erroDosComprados: "", ...simulados };
 }
 
 // Três abas (11/11/2026): os materiais diários das turmas e os PDFs comprados, separados em módulos e apostilas e em
@@ -67,10 +80,13 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
   const comprados = dados?.comprados ?? [];
   const modulos = comprados.filter((c) => !ehSimulado(c));
   const simulados = comprados.filter(ehSimulado);
+  const simuladosEmPdf = dados?.simuladosEmPdf ?? [];
+  const totalDeSimulados = simulados.length + simuladosEmPdf.length;
+  const erroDosSimulados = [dados?.erroDosComprados, dados?.erroDosSimulados].filter(Boolean).join("; ");
   // Abre nos diários; sem nenhum, na primeira aba que tiver alguma coisa.
   const [abaEscolhida, setAba] = useState<Aba | null>(null);
   const aba: Aba =
-    abaEscolhida ?? (materiais.length > 0 ? "diarios" : modulos.length > 0 ? "modulos" : simulados.length > 0 ? "simulados" : "diarios");
+    abaEscolhida ?? (materiais.length > 0 ? "diarios" : modulos.length > 0 ? "modulos" : totalDeSimulados > 0 ? "simulados" : "diarios");
   const turmas = [...new Map(materiais.map((m) => [m.turmaId, m.turmaNome])).entries()];
   const daTurma = materiais.filter((m) => !turma || m.turmaId === turma);
   const materias = [...new Map(daTurma.map((m) => [m.materiaId, m.materiaNome])).entries()];
@@ -112,6 +128,19 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
     }
   }
 
+  async function baixarDoSimulado(s: SimuladoEmPdf, pdf: SimuladoEmPdf["pdfs"][number]) {
+    const id = `simulado-${s.simuladoId}-${pdf.id}`;
+    setErroDoItem(null);
+    setBaixando(id);
+    try {
+      salvarArquivo(await baixarPdfDoSimulado(s.simuladoId, pdf.id), `${pdf.titulo}.pdf`);
+    } catch (e) {
+      setErroDoItem({ id, mensagem: e instanceof ErroDaApi ? e.message : "Não foi possível baixar. Verifique sua internet e tente novamente." });
+    } finally {
+      setBaixando(null);
+    }
+  }
+
   return (
     <EstadoLista
       carregando={carregandoUsuario || carregando}
@@ -127,7 +156,7 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
             [
               ["diarios", "Materiais diários", materiais.length],
               ["modulos", "Módulos e apostilas", modulos.length],
-              ["simulados", "Simulados", simulados.length],
+              ["simulados", "Simulados", totalDeSimulados],
             ] as [Aba, string, number][]
           ).map(([id, rotulo, quantidade]) => {
             const ligada = aba === id;
@@ -194,14 +223,49 @@ export default function MeusMateriaisConteudo({ turmaInicial }: { turmaInicial: 
         {aba === "simulados" && (
           <section role="tabpanel" id="painel-simulados" aria-labelledby="aba-simulados" className="flex flex-col gap-3">
             <p className="text-[14px] text-ardosia">Os simulados em PDF que você comprou no site. Cada conta baixa os seus, com o seu nome no arquivo.</p>
-            {dados?.erroDosComprados && (
+            {erroDosSimulados && (
               <p role="alert" className="rounded-xl border border-[#F1C4C4] bg-[#FFF5F5] px-4 py-3 text-[13.5px] text-[#9B1C1C]">
-                Não foi possível carregar os PDFs que você comprou ({dados.erroDosComprados}). Eles continuam em Compras.
+                Não foi possível carregar os PDFs que você comprou ({erroDosSimulados}). Eles continuam em Compras.
               </p>
             )}
-            {simulados.length === 0 && !dados?.erroDosComprados && (
+            {totalDeSimulados === 0 && !erroDosSimulados && (
               <Vazio texto="Você ainda não tem simulados em PDF. Os que você comprar aparecem aqui." acao={{ href: "/simulados", rotulo: "Ver simulados" }} />
             )}
+            {/* As versões em PDF dos simulados já aplicados: cada uma com os seus PDFs (prova, gabarito...). */}
+            {simuladosEmPdf.map((s) => (
+              <div key={s.simuladoId} className={`${CLASSE_DO_CARTAO} overflow-hidden`}>
+                <div className="px-[22px] pb-1 pt-4">
+                  <div className="text-[15px] font-bold leading-snug">{s.nome}</div>
+                  {!s.liberado && (
+                    <div className="mt-0.5 text-[13px] text-ardosia">
+                      {s.abreEm ? `Os PDFs ficam disponíveis a partir de ${formatarData(s.abreEm)}.` : "Os PDFs ainda não foram liberados."}
+                    </div>
+                  )}
+                </div>
+                {s.pdfs.map((pdf) => {
+                  const id = `simulado-${s.simuladoId}-${pdf.id}`;
+                  return (
+                    <div key={pdf.id} className="border-t border-linha px-[22px] py-3.5">
+                      <div className="flex items-center gap-3.5">
+                        <span className={CLASSE_DO_SELO}>PDF</span>
+                        <div className="min-w-0 flex-1">
+                          <div className="line-clamp-2 text-[15px] font-semibold leading-snug">{pdf.titulo}</div>
+                          {pdf.tamanhoEmBytes ? <div className="mt-0.5 text-[13px] text-ardosia">{formatarTamanho(pdf.tamanhoEmBytes)}</div> : null}
+                        </div>
+                        <button type="button" onClick={() => baixarDoSimulado(s, pdf)} disabled={!s.liberado || baixando === id} className={CLASSE_DO_BOTAO_PEQUENO}>
+                          {baixando === id ? "Baixando..." : "Baixar PDF"}
+                        </button>
+                      </div>
+                      {erroDoItem?.id === id && (
+                        <p role="alert" className="mt-2 text-[13px] text-[#9B1C1C]">
+                          {erroDoItem.mensagem}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
             {simulados.length > 0 && (
             <div className={`${CLASSE_DO_CARTAO} overflow-hidden`}>
               {simulados.map((c, i) => {

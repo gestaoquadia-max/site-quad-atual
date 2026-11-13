@@ -376,6 +376,31 @@ export async function baixarMaterialComprado(compraId: string): Promise<Blob> {
   return res.blob();
 }
 
+// As versões em PDF de simulados que o aluno comprou (guia da API de 13/11/2026). `liberado` falso: comprado, mas
+// ainda antes de `abreEm`.
+export type SimuladoEmPdf = {
+  simuladoId: string;
+  nome: string;
+  imagemUrl: string | null;
+  abreEm: string | null;
+  liberado: boolean;
+  pdfs: { id: string; titulo: string; tamanhoEmBytes: number | null }[];
+};
+
+export async function listarMeusSimuladosEmPdf(): Promise<SimuladoEmPdf[]> {
+  return lerJson<SimuladoEmPdf[]>("/api/alunos/eu/simulados-em-pdf", "Não foi possível carregar seus simulados em PDF.");
+}
+
+// O arquivo sai marcado com a identificação do aluno. 503 = armazenamento fora do ar.
+export async function baixarPdfDoSimulado(simuladoId: string, pdfId: string): Promise<Blob> {
+  const res = await fetchAutenticado(`/api/simulados/${simuladoId}/prova/eu/pdfs/${pdfId}/arquivo`);
+  if (res.status === 503) {
+    throw new ErroDaApi(503, "O arquivo está indisponível no momento. Tente novamente em alguns minutos.");
+  }
+  if (!res.ok) throw await lerErro(res, "Não foi possível baixar o arquivo.");
+  return res.blob();
+}
+
 export async function marcarMaterialComoVisto(id: string): Promise<void> {
   await fetchAutenticado(`/api/materiais/${id}/visto`, { method: "POST" });
 }
@@ -419,6 +444,8 @@ export type Compra = {
   } | null;
   // O que ESTA compra pagou em reais (com o desconto do cupom ou do combo); num fechamento de várias, a parte dela.
   aPagarEmCentavos?: number | null;
+  // A retirada do impresso na recepção (versão impressa do simulado): aguardando separação, pronto, retirado.
+  entrega?: "PENDENTE" | "PRONTA" | "CONCLUIDA" | null;
   // Até quando o aluno pode desistir, calculado pela API (vem em todas as rotas de compra). Regras: turma, 7 dias
   // corridos do pagamento (o 7º é o último); evento e simulado, até a véspera; item da loja, até retirar na recepção.
   // `ate` é um dia ("2026-11-12"), nulo só em ATE_A_RETIRADA.

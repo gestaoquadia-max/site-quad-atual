@@ -21,9 +21,15 @@ export function alvoDoItem(item: CartItem): Alvo | null {
       return id ? { atividade: { tipo: "TURMA", id } } : null;
     case "evento":
       return id ? { atividade: { tipo: "EVENTO", id } } : null;
-    case "simulado":
-      // Só a edição presencial existe na API (o sku é o id da atividade).
-      return item.simulado?.modalidade === "presencial" && item.simulado.edicao !== null ? { atividade: { tipo: "SIMULADO", id: item.simulado.sku } } : null;
+    case "simulado": {
+      // O sku é o id na API: do simulado presencial e da versão em PDF (uma atividade SIMULADO cada), e da versão
+      // impressa (um item da loja, comprado como IMPRESSO). Guia da API de 13/11/2026.
+      const s = item.simulado;
+      if (!s || s.edicao === null) return null;
+      if (s.modalidade === "presencial" || s.modalidade === "pdf") return { atividade: { tipo: "SIMULADO", id: s.sku } };
+      if (s.modalidade === "impresso") return { itemId: s.sku, plataforma: "IMPRESSO" };
+      return null;
+    }
     case "excursao":
       // A excursão é um item da loja na API (tipo EXCURSOES): quem põe no carrinho manda o id em item.alvo.
       return null;
