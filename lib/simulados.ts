@@ -45,6 +45,32 @@ export function hojeEmBrasilia() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
 }
 
+// Fim das vendas do presencial (provisório, 14/11/2026, até o backend fechar as inscrições sozinho): às 11:50 da véspera
+// da aplicação, no horário da Bahia, as inscrições da edição passam a "encerradas": a Central mostra o selo
+// "Inscrições encerradas" sem o botão, e o carrinho e o checkout recusam (validarCompra). Quem já comprou não perde
+// nada: a inscrição fica na API e na área do aluno.
+export const HORA_DO_FIM_DAS_VENDAS = "11:50";
+
+export function vendasDoPresencialEncerradas(data: string | null, agora = new Date()) {
+  if (!data) return false;
+  const [a, m, d] = data.split("-").map(Number);
+  const vespera = new Date(Date.UTC(a, m - 1, d - 1)).toISOString().slice(0, 10);
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Bahia",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    })
+      .formatToParts(agora)
+      .map((x) => [x.type, x.value]),
+  );
+  return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}` >= `${vespera} ${HORA_DO_FIM_DAS_VENDAS}`;
+}
+
 export type Situacao = {
   // Situação temporal, derivada da data.
   temporal: "futuro" | "em-realizacao" | "realizado";
@@ -59,11 +85,17 @@ export type Situacao = {
 export function situacaoDa(e: Edicao, hoje = hojeEmBrasilia()): Situacao {
   const temporal = !e.data ? "futuro" : e.data < hoje ? "realizado" : e.data === hoje ? "em-realizacao" : "futuro";
   const semVaga = e.presencial?.vagasRestantes != null && e.presencial.vagasRestantes <= 0;
-  const inscricao: Inscricao = temporal === "realizado" ? "encerradas" : semVaga ? "esgotado" : e.inscricao;
+  const inscricao: Inscricao =
+    temporal === "realizado" || vendasDoPresencialEncerradas(e.data) ? "encerradas" : semVaga ? "esgotado" : e.inscricao;
   const confirmada = !!(e.data && e.horario && e.local);
   // Regra de produção da designer: só vende com preço cadastrado (o protótipo abria exceção para os exemplos).
   const vendePresencial =
-    temporal === "futuro" && confirmada && inscricao === "abertas" && !!e.presencial && e.presencial.preco != null && !semVaga;
+    temporal === "futuro" &&
+    confirmada &&
+    inscricao === "abertas" &&
+    !!e.presencial &&
+    e.presencial.preco != null &&
+    !semVaga;
   const vendeEstudo = formatosAVenda(e).length > 0;
   return { temporal, inscricao, confirmada, vendePresencial, vendeEstudo };
 }

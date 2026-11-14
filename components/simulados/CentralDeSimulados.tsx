@@ -123,11 +123,15 @@ function LinhaDaEdicao({ e, concurso, selecionada, onSelecionar, tipo, acao }: {
               {tituloDoSimulado(e.numero, concurso)}
               {tipo === "anterior" ? " — Já realizado" : ""}
             </span>
-            {tipo === "aberta" && <Selo tom={e.st.inscricao === "esgotado" ? "esgotado" : "abertas"}>{e.st.inscricao === "esgotado" ? "Esgotado" : "Inscrições abertas"}</Selo>}
+            {tipo === "aberta" && (
+              <Selo tom={e.st.inscricao === "abertas" ? "abertas" : "esgotado"}>
+                {e.st.inscricao === "esgotado" ? "Esgotado" : e.st.inscricao === "encerradas" ? "Inscrições encerradas" : "Inscrições abertas"}
+              </Selo>
+            )}
             {tipo === "breve" && <Selo tom="breve">A confirmar</Selo>}
           </span>
           <span className={`text-sm ${selecionada ? "text-prata-clara" : "text-ardosia"}`}>{linha}</span>
-          {tipo === "aberta" && pres?.vagas != null && (
+          {tipo === "aberta" && e.st.inscricao !== "encerradas" && pres?.vagas != null && (
             <span className={`text-[13px] font-semibold ${selecionada ? "text-azul-ceu" : "text-azul-forte"}`}>
               {pres.vagasRestantes ?? pres.vagas} de {pres.vagas} vagas disponíveis
             </span>
@@ -203,7 +207,8 @@ export default function CentralDeSimulados({
     .filter((e) => e.publicado)
     .map((e) => ({ ...e, st: situacaoDa(e, hoje) }))
     .sort((a, b) => a.numero - b.numero);
-  const abertas = edicoes.filter((e) => e.st.temporal !== "realizado" && e.st.confirmada && (e.st.inscricao === "abertas" || e.st.inscricao === "esgotado"));
+  // As encerradas às 11:50 da véspera (lib/simulados.ts) ficam aqui, com o selo e sem o botão, até a aplicação.
+  const abertas = edicoes.filter((e) => e.st.temporal !== "realizado" && e.st.confirmada && e.st.inscricao !== "a-confirmar");
   const emBreve = edicoes.filter((e) => e.st.temporal !== "realizado" && !abertas.includes(e));
   const anteriores = edicoes.filter((e) => e.st.temporal === "realizado").sort((a, b) => b.numero - a.numero);
   const paraEstudo = edicoes.filter((e) => formatosDa(e).some((f) => f.oferta.disponivel)).sort((a, b) => b.numero - a.numero);
@@ -441,6 +446,7 @@ export default function CentralDeSimulados({
                           selecionada={atual?.numero === e.numero}
                           onSelecionar={() => selecionar(e.numero)}
                           acao={
+                            e.st.inscricao === "encerradas" ? undefined : (
                             <span className="flex items-center gap-3">
                               <span className={`font-display text-[15px] font-bold ${atual?.numero === e.numero ? "text-white" : ""}`}>{precoOuACadastrar(e.presencial?.preco ?? null)}</span>
                               <button
@@ -452,6 +458,7 @@ export default function CentralDeSimulados({
                                 Inscrever-se
                               </button>
                             </span>
+                            )
                           }
                         />
                       ))}
@@ -612,6 +619,8 @@ function PainelDaEdicao({ carreira, e, formato, onFormato, onInscrever, onCompra
             <Selo tom="abertas">Inscrições abertas</Selo>
           ) : e.st.inscricao === "esgotado" ? (
             <Selo tom="esgotado">Esgotado</Selo>
+          ) : e.st.confirmada && e.st.inscricao === "encerradas" ? (
+            <Selo tom="esgotado">Inscrições encerradas</Selo>
           ) : (
             <Selo tom="breve">A confirmar</Selo>
           )}
@@ -630,21 +639,27 @@ function PainelDaEdicao({ carreira, e, formato, onFormato, onInscrever, onCompra
               <strong className="font-semibold text-white">A prova começa às 08:00.</strong>
             </li>
           </ul>
-          <div className="mt-5 flex items-center justify-between gap-4 border-t border-white/[0.08] pt-5">
-            <span className="text-sm text-prata">Inscrição presencial</span>
-            <span className="text-right font-display text-[22px] font-extrabold leading-tight">{precoOuACadastrar(e.presencial?.preco ?? null)}</span>
-          </div>
-          <button
-            type="button"
-            disabled={!e.st.vendePresencial}
-            onClick={onInscrever}
-            className="btn-q btn-q-azul mt-4 h-[52px] w-full text-base disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-prata disabled:shadow-none"
-          >
-            {e.st.vendePresencial ? "Inscrever-se" : e.st.inscricao === "esgotado" ? "Vagas esgotadas" : "Inscrições ainda não disponíveis"}
-          </button>
-          <p className="mt-3 text-[12.5px] text-prata-escura">
-            {e.st.confirmada ? "Inscrição válida apenas para a aplicação presencial desta edição." : "As inscrições desta edição ainda não foram liberadas pela equipe."}
-          </p>
+          {e.st.inscricao === "encerradas" ? (
+            <p className="mt-5 border-t border-white/[0.08] pt-5 text-sm text-prata">As inscrições desta edição foram encerradas.</p>
+          ) : (
+            <>
+              <div className="mt-5 flex items-center justify-between gap-4 border-t border-white/[0.08] pt-5">
+                <span className="text-sm text-prata">Inscrição presencial</span>
+                <span className="text-right font-display text-[22px] font-extrabold leading-tight">{precoOuACadastrar(e.presencial?.preco ?? null)}</span>
+              </div>
+              <button
+                type="button"
+                disabled={!e.st.vendePresencial}
+                onClick={onInscrever}
+                className="btn-q btn-q-azul mt-4 h-[52px] w-full text-base disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-prata disabled:shadow-none"
+              >
+                {e.st.vendePresencial ? "Inscrever-se" : e.st.inscricao === "esgotado" ? "Vagas esgotadas" : "Inscrições ainda não disponíveis"}
+              </button>
+              <p className="mt-3 text-[12.5px] text-prata-escura">
+                {e.st.confirmada ? "Inscrição válida apenas para a aplicação presencial desta edição." : "As inscrições desta edição ainda não foram liberadas pela equipe."}
+              </p>
+            </>
+          )}
         </>
       ) : (
         <>
