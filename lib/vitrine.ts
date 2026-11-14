@@ -519,6 +519,13 @@ function nomeEOpcaoDoEvento(nome: string): { titulo: string; opcao: string | nul
 
 const valorDoPreco = (e: Evento) => parsePreco(e.preco) ?? Infinity;
 
+// Rótulos das opções definidos pelo Quad (14/11/2026), pelo slug, para os cadastros com o mesmo nome. Valem acima da
+// opção do nome e do preço. Se o console passar a ter a opção no nome, estas linhas podem sair.
+const ROTULO_DA_OPCAO: Record<string, string> = {
+  "treinao-do-quad": "Individual",
+  "treinao-do-quad-2": "Leve o seu Canga",
+};
+
 // Junta as opções do mesmo evento (mesmo nome sem a opção, mesma data e hora), como as da excursão. Cada opção sabe
 // das outras (`opcoes`), na ordem do preço. O rótulo é a opção do nome; sem ela (os dois cadastros com o mesmo nome),
 // o preço da opção.
@@ -533,7 +540,7 @@ function agruparOpcoes(eventos: Evento[]): Evento[] {
     const ordenado = [...grupo].sort((a, b) => valorDoPreco(a) - valorDoPreco(b));
     const comRotulo = ordenado.map((e) => {
       const { titulo, opcao } = nomeEOpcaoDoEvento(e.nome);
-      return { e, titulo, rotulo: opcao ?? e.preco };
+      return { e, titulo, rotulo: ROTULO_DA_OPCAO[e.slug] ?? opcao ?? e.preco };
     });
     const opcoes = comRotulo.map(({ e, rotulo }) => ({ slug: e.slug, rotulo, preco: e.preco, esgotado: e.status === "encerrada" }));
     return comRotulo.map(({ e, titulo, rotulo }) => ({ ...e, titulo, opcao: rotulo, opcoes }));
