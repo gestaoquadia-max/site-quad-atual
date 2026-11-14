@@ -621,6 +621,15 @@ function PainelDaEdicao({ carreira, e, formato, onFormato, onInscrever, onCompra
             <Campo rotulo="Local" valor={e.local ?? "A definir"} />
             <Campo rotulo="Vagas" valor={e.presencial?.vagas != null ? `${e.presencial.vagasRestantes ?? e.presencial.vagas} de ${e.presencial.vagas}` : "A definir"} />
           </div>
+          {/* Avisos fixos da aplicação presencial (14/11/2026). */}
+          <ul className="mt-4 space-y-1.5 rounded-xl border border-amber-300/30 bg-amber-300/[0.08] p-3.5 text-sm leading-[1.45] text-[#F5E6C4]">
+            <li>
+              <strong className="font-semibold text-white">O portão fecha às 07:50.</strong>
+            </li>
+            <li>
+              <strong className="font-semibold text-white">A prova começa às 08:00.</strong>
+            </li>
+          </ul>
           <div className="mt-5 flex items-center justify-between gap-4 border-t border-white/[0.08] pt-5">
             <span className="text-sm text-prata">Inscrição presencial</span>
             <span className="text-right font-display text-[22px] font-extrabold leading-tight">{precoOuACadastrar(e.presencial?.preco ?? null)}</span>
