@@ -1,5 +1,5 @@
 import Carrinho from "@/components/compra/Carrinho";
-import { listarCarreiras, listarEventos, listarExcursoes, listarMateriais, listarProdutosDaLoja } from "@/lib/vitrine";
+import { listarCarreiras, listarEventosComOpcoes, listarExcursoes, listarMateriais, listarProdutosDaLoja } from "@/lib/vitrine";
 import { idDoItem } from "@/lib/itens";
 import { CARTAO_DOS_SIMULADOS } from "@/lib/eventos";
 
@@ -11,7 +11,7 @@ export const revalidate = 60;
 export default async function CarrinhoPage() {
   const [carreiras, eventos, viagens, materiais, loja] = await Promise.all([
     listarCarreiras(),
-    listarEventos(),
+    listarEventosComOpcoes(),
     listarExcursoes(),
     listarMateriais(),
     listarProdutosDaLoja(),

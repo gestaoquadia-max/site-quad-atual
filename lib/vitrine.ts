@@ -5,7 +5,7 @@
 import type { Evento, Produto, Professor, Turma } from "./data";
 import type { ProdutoDaLoja } from "./conteudo";
 import type { Carreira, Edicao } from "./simulados";
-import { formatarHora, precoSemCentavosZerados } from "./format";
+import { formatarHora, parsePreco, precoSemCentavosZerados } from "./format";
 import { API_URL, lerErro } from "./http";
 import { agruparViagens, jaPassou, lerNomeDaExcursao, linhasDaDescricao, type Excursao, type ViagemDeExcursao } from "./excursoes";
 import {
@@ -509,12 +509,67 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
   };
 }
 
+// "TREINÃO DO QUAD — DUPLA" → { titulo: "TREINÃO DO QUAD", opcao: "Dupla" }; sem o " — OPÇÃO" do fim, a opção é nula.
+function nomeEOpcaoDoEvento(nome: string): { titulo: string; opcao: string | null } {
+  const m = nome.match(/^(.+?)\s+[—–-]\s+([^—–-]+?)\s*$/);
+  if (!m) return { titulo: nome.trim(), opcao: null };
+  const opcao = m[2].toLowerCase();
+  return { titulo: m[1].trim(), opcao: opcao.charAt(0).toUpperCase() + opcao.slice(1) };
+}
+
+const valorDoPreco = (e: Evento) => parsePreco(e.preco) ?? Infinity;
+
+// Junta as opções do mesmo evento (mesmo nome sem a opção, mesma data e hora), como as da excursão. Cada opção sabe
+// das outras (`opcoes`), na ordem do preço. O rótulo é a opção do nome; sem ela (os dois cadastros com o mesmo nome),
+// o preço da opção.
+function agruparOpcoes(eventos: Evento[]): Evento[] {
+  const grupos = new Map<string, Evento[]>();
+  for (const e of eventos) {
+    const chave = `${slugDoNome(nomeEOpcaoDoEvento(e.nome).titulo)}|${e.detalhe?.inicio ?? e.slug}`;
+    grupos.set(chave, [...(grupos.get(chave) ?? []), e]);
+  }
+  return [...grupos.values()].flatMap((grupo) => {
+    if (grupo.length === 1) return grupo;
+    const ordenado = [...grupo].sort((a, b) => valorDoPreco(a) - valorDoPreco(b));
+    const comRotulo = ordenado.map((e) => {
+      const { titulo, opcao } = nomeEOpcaoDoEvento(e.nome);
+      return { e, titulo, rotulo: opcao ?? e.preco };
+    });
+    const opcoes = comRotulo.map(({ e, rotulo }) => ({ slug: e.slug, rotulo, preco: e.preco, esgotado: e.status === "encerrada" }));
+    return comRotulo.map(({ e, titulo, rotulo }) => ({ ...e, titulo, opcao: rotulo, opcoes }));
+  });
+}
+
+// Todos os cadastros de evento, com as opções de cada um ligadas (o carrinho e a página de cada opção usam).
+async function listarTodosOsEventos(): Promise<Evento[]> {
+  return agruparOpcoes((await listar("EVENTO")).map(paraEvento)).sort((a, b) =>
+    (a.detalhe?.inicio ?? "9999").localeCompare(b.detalhe?.inicio ?? "9999"),
+  );
+}
+
 // Agenda: só os eventos, do mais próximo ao mais distante. Os simulados ficam na Central de Simulados (listarCarreiras).
+// O evento com opções aparece uma vez só, pela opção mais barata que ainda tem vaga (a página mostra as outras).
 export async function listarEventos(): Promise<Evento[] | null> {
   try {
-    return (await listar("EVENTO"))
-      .map(paraEvento)
-      .sort((a, b) => (a.detalhe?.inicio ?? "9999").localeCompare(b.detalhe?.inicio ?? "9999"));
+    const vistos = new Set<string>();
+    return (await listarTodosOsEventos()).filter((e) => {
+      if (!e.opcoes) return true;
+      const chave = e.opcoes.map((o) => o.slug).join("|");
+      if (vistos.has(chave)) return false;
+      const principal = e.opcoes.find((o) => !o.esgotado) ?? e.opcoes[0];
+      if (principal.slug !== e.slug) return false;
+      vistos.add(chave);
+      return true;
+    });
+  } catch {
+    return null;
+  }
+}
+
+// Os slugs de todas as opções de todos os eventos (o carrinho guarda a arte de cada uma).
+export async function listarEventosComOpcoes(): Promise<Evento[] | null> {
+  try {
+    return await listarTodosOsEventos();
   } catch {
     return null;
   }
@@ -522,7 +577,11 @@ export async function listarEventos(): Promise<Evento[] | null> {
 
 export async function buscarEvento(slug: string): Promise<Evento | null> {
   const atividade = await buscar("EVENTO", slug);
-  return atividade ? paraEvento(atividade) : null;
+  if (!atividade) return null;
+  const evento = paraEvento(atividade);
+  // As outras opções do mesmo evento; sem a lista (API fora do ar só nela), a página abre só com esta.
+  const comOpcoes = (await listarTodosOsEventos().catch(() => [] as Evento[])).find((e) => e.slug === evento.slug);
+  return comOpcoes?.opcoes ? { ...evento, titulo: comOpcoes.titulo, opcao: comOpcoes.opcao, opcoes: comOpcoes.opcoes } : evento;
 }
 
 // ---------- Simulados ----------

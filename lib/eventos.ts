@@ -43,12 +43,15 @@ export function seloDoEvento(e: Evento): DadosDoCartaoEvento["selo"] {
 
 export function paraCartao(e: Evento): DadosDoCartaoEvento {
   const inicio = e.detalhe?.inicio;
-  const vendavel = e.status === "aberta" && parsePreco(e.preco) !== null;
+  // Evento com opções (individual e dupla): o cartão leva à página, onde se escolhe a opção, e mostra o preço da mais
+  // barata, como o cartão da excursão.
+  const comOpcoes = (e.opcoes?.length ?? 0) > 1;
+  const vendavel = !comOpcoes && e.status === "aberta" && parsePreco(e.preco) !== null;
   return {
     id: e.slug,
-    titulo: e.nome,
+    titulo: comOpcoes ? (e.titulo ?? e.nome) : e.nome,
     href: `/eventos/${e.slug}`,
-    descricao: e.desc,
+    descricao: comOpcoes ? `${e.desc} · ${e.opcoes!.length} opções, a partir de ${e.opcoes![0].preco}` : e.desc,
     imagem: e.imagem,
     selo: seloDoEvento(e),
     data: inicio

@@ -79,6 +79,12 @@ export type Evento = {
   preco: string;
   status: "aberta" | "breve" | "encerrada";
   statusLabel: string;
+  // Opções do mesmo evento (14/11/2026, como as da excursão): cadastros com o mesmo nome (sem o " — OPÇÃO" do fim), a
+  // mesma data e a mesma hora, como o ingresso individual e o de dupla do Treinão. Cada opção tem a sua página e o seu
+  // preço; o seletor liga uma à outra. Só existe com mais de uma opção. `opcao` é o rótulo desta.
+  titulo?: string;
+  opcao?: string;
+  opcoes?: { slug: string; rotulo: string; preco: string; esgotado: boolean }[];
   detalhe?: {
     lead: string;
     sobre: string[];

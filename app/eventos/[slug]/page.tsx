@@ -42,7 +42,8 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
   // Evento renomeado: o id continua o mesmo, então leva ao endereço com o nome atual.
   if (evento.slug !== slug) redirect(`/eventos/${evento.slug}`);
   const d = evento.detalhe;
-  const outros = ((await listarEventos()) ?? []).filter((e) => e.slug !== evento.slug).slice(0, 4);
+  // Sem as outras opções do mesmo evento, que já estão no seletor.
+  const outros = ((await listarEventos()) ?? []).filter((e) => e.slug !== evento.slug && !evento.opcoes?.some((o) => o.slug === e.slug)).slice(0, 4);
 
   const emBreve = evento.status === "breve";
   const esgotado = evento.status === "encerrada";
@@ -56,8 +57,14 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
       ? "Todas as vagas deste evento foram preenchidas"
       : gratuito
         ? "Inscrição gratuita · Vagas limitadas à capacidade do local · Confirmação por e-mail"
-        : "Inscrição individual · Confirmação imediata por e-mail · Vagas limitadas";
+        : evento.opcoes && evento.opcoes.length > 1
+          ? "Confirmação imediata por e-mail · Vagas limitadas"
+          : "Inscrição individual · Confirmação imediata por e-mail · Vagas limitadas";
   const temLateral = (d.professores?.length ?? 0) > 0 || outros.length > 0;
+  // Com opções, o título é o nome do evento sem a opção, e o carrinho leva o nome com a opção escolhida.
+  const comOpcoes = (evento.opcoes?.length ?? 0) > 1;
+  const titulo = comOpcoes ? (evento.titulo ?? evento.nome) : evento.nome;
+  const nomeNoCarrinho = comOpcoes && evento.opcao && evento.opcao !== evento.preco ? `${titulo} · ${evento.opcao}` : evento.nome;
 
   return (
     <>
@@ -92,7 +99,36 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
                 </span>
                 <span className="text-xs font-semibold uppercase tracking-[0.14em] text-prata-clara">{evento.tag}</span>
               </div>
-              <h1 className="mb-4 mt-4 font-display text-[clamp(2.2rem,4.6vw,3.8rem)] font-extrabold leading-[1.02] tracking-[-0.035em]">{evento.nome}</h1>
+              <h1 className="mb-4 mt-4 font-display text-[clamp(2.2rem,4.6vw,3.8rem)] font-extrabold leading-[1.02] tracking-[-0.035em]">{titulo}</h1>
+
+              {/* Opções do mesmo evento (individual e dupla do Treinão), como as da excursão: cada uma é uma página. */}
+              {evento.opcoes && evento.opcoes.length > 1 && (
+                <nav aria-label="Opções do evento" className="mb-5">
+                  <p className="mb-2 text-[13px] text-prata">
+                    Opção · <strong className="font-semibold text-white">{evento.opcao}</strong>
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {evento.opcoes.map((o) =>
+                      o.slug === evento.slug ? (
+                        <span key={o.slug} aria-current="page" className="inline-flex h-11 items-center rounded-[10px] bg-white px-4 font-display text-[15px] font-bold text-marinho-950">
+                          {o.rotulo}
+                        </span>
+                      ) : (
+                        <Link
+                          key={o.slug}
+                          href={`/eventos/${o.slug}`}
+                          className="inline-flex h-11 flex-col items-center justify-center rounded-[10px] border border-white/15 px-4 font-display text-[15px] font-bold text-white hover:border-white/40 hover:text-white"
+                        >
+                          {o.rotulo}
+                          {o.rotulo !== o.preco && <span className="text-[11px] font-semibold text-prata">{o.esgotado ? "Esgotado" : o.preco}</span>}
+                          {o.rotulo === o.preco && o.esgotado && <span className="text-[11px] font-semibold text-prata">Esgotado</span>}
+                        </Link>
+                      ),
+                    )}
+                  </div>
+                </nav>
+              )}
+
               <p className="max-w-[620px] text-lg leading-[1.6] text-[#C9D5E5]">{d.lead}</p>
 
               <dl className="mt-6 grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10">
@@ -113,7 +149,7 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
                 item={{
                   id: idDoItem("evento", evento.slug),
                   tipo: "evento",
-                  nome: evento.nome,
+                  nome: nomeNoCarrinho,
                   tag: evento.tag,
                   preco: evento.preco,
                   alvo: evento.idNaApi ? { atividade: { tipo: "EVENTO", id: evento.idNaApi } } : undefined,
