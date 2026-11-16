@@ -6,8 +6,9 @@ import { aplicarConsentimento, lead, visitaDePagina } from "@/lib/analytics";
 import { assinarConsentimento, consentimentoAtual } from "@/lib/consentimento";
 import { registrarCampanha } from "@/lib/medicao";
 
-// Liga as tags só depois do "sim" no aviso de cookies (GA4 com "análise"; Google Ads e Pixel da Meta com
-// "marketing"), e as desliga se a escolha mudar ("Preferências de cookies" no rodapé, inclusive em outra aba).
+// Liga o gtag (GA4 e Google Ads) ao abrir o site, em modo de consentimento avançado (começa negado), e repassa a
+// escolha do aviso de cookies: "análise" libera os cookies do GA4 e "marketing" os do Google Ads e o Pixel da Meta. Se
+// a escolha mudar ("Preferências de cookies" no rodapé, inclusive em outra aba), o consentimento é atualizado.
 // O snapshot é um texto (e não um objeto) para o useSyncExternalStore comparar sem renderizar à toa.
 export default function Analytics() {
   const escolha = useSyncExternalStore(

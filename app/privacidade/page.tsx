@@ -94,7 +94,8 @@ export default function PrivacidadePage() {
         </ul>
         <p>
           As bases legais usadas são, conforme o caso: execução do contrato com você, cumprimento de obrigação legal,
-          legítimo interesse (por exemplo, segurança) e o seu consentimento.
+          legítimo interesse (por exemplo, segurança e a medição agregada sem cookies descrita no item 5) e o seu
+          consentimento.
         </p>
       </Secao>
 
@@ -126,8 +127,16 @@ export default function PrivacidadePage() {
             automaticamente.
           </li>
           <li>
-            Ferramentas de análise de audiência e de anúncios (como Google e Meta), <strong>somente se você aceitar</strong>{" "}
-            esses cookies (item 6). Com esse consentimento, quando você conclui uma compra no site, o nosso servidor envia à
+            <strong>Google Analytics e Google Ads</strong>, para medir as visitas ao site e o resultado dos nossos anúncios.
+            Mesmo antes de você responder ao aviso de cookies, o site envia ao Google sinais <strong>sem cookies e sem
+            identificar você</strong> (como a página visitada, a data e a hora, o tipo de navegador e se a visita veio de um
+            anúncio), usados só em contagens e estimativas agregadas. Os cookies do Google{" "}
+            <strong>só são gravados no seu navegador se você aceitar</strong> (item 6): os de análise com &quot;Análise de
+            audiência&quot; e os de anúncios com &quot;Marketing&quot;.
+          </li>
+          <li>
+            <strong>Meta</strong> (Facebook e Instagram), <strong>somente se você aceitar</strong> os cookies de marketing
+            (item 6). Com esse consentimento, quando você conclui uma compra no site, o nosso servidor envia à
             Meta os dados da compra (itens e valor), o seu e-mail, o seu celular e um identificador da sua conta em forma
             codificada (hash), além do endereço IP, do navegador e dos cookies da Meta, para medir o resultado dos anúncios.
             Compras feitas no aplicativo não são enviadas, e o aplicativo não usa ferramentas de anúncios nem de
@@ -164,6 +173,10 @@ export default function PrivacidadePage() {
           No primeiro acesso, você escolhe o que aceita. Você pode recusar os cookies opcionais sem perder nenhuma
           funcionalidade do site, e pode mudar a sua escolha a qualquer momento:{" "}
           <BotaoPreferenciasDeCookies className="font-semibold text-azul-forte underline underline-offset-2" />.
+        </p>
+        <p>
+          Sem o seu consentimento, nenhum cookie de análise ou de marketing é gravado. O Google continua recebendo apenas os
+          sinais sem cookies e sem identificação descritos no item 5, usados só para medição agregada.
         </p>
         <p>
           No aplicativo não há cookies: a sua sessão fica guardada de forma protegida no próprio aparelho e é apagada quando

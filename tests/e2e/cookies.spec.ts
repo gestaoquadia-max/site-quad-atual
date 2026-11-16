@@ -31,6 +31,64 @@ test("as preferências de cookies podem ser mudadas pelo rodapé", async ({ page
   expect(escolha).toMatchObject({ analise: true, marketing: false });
 });
 
+// Modo de consentimento avançado do Google (16/11/2026): o gtag carrega sem escolha nenhuma, começando negado, e não
+// grava cookies do Google até o "sim". O Pixel da Meta continua só com o marketing.
+const COOKIES_DO_GOOGLE = /^(_ga|_gid|_gcl|_gac|__gads|__gpi|IDE|test_cookie)/;
+
+type Comando = unknown[];
+const comandosDoGtag = (page: import("@playwright/test").Page) =>
+  page.evaluate(() => (window.dataLayer ?? []).map((a) => Array.from(a as ArrayLike<unknown>)) as unknown[][]);
+
+test("sem escolha, o gtag carrega negado e não grava cookies do Google; o aceite libera", async ({ page, context }) => {
+  await page.goto("/");
+  await expect(page.locator('script[src="https://www.googletagmanager.com/gtag/js?id=G-DHYL9131J8"]')).toHaveCount(1);
+  // O script do Google carregou e já leu a fila.
+  await page.waitForFunction(() => "google_tag_manager" in window);
+
+  const antes = (await comandosDoGtag(page)) as Comando[];
+  const posDefault = antes.findIndex((c) => c[0] === "consent" && c[1] === "default");
+  const posConfig = antes.findIndex((c) => c[0] === "config");
+  expect(posDefault).toBeGreaterThanOrEqual(0);
+  expect(posDefault).toBeLessThan(posConfig);
+  expect(antes[posDefault][2]).toEqual({
+    analytics_storage: "denied",
+    ad_storage: "denied",
+    ad_user_data: "denied",
+    ad_personalization: "denied",
+    wait_for_update: 500,
+  });
+  expect(antes.some((c) => c[0] === "consent" && c[1] === "update")).toBe(false);
+  expect(antes.filter((c) => c[0] === "config").map((c) => c[1])).toEqual(["G-DHYL9131J8", "AW-18571482116"]);
+  await page.waitForTimeout(1500);
+  expect((await context.cookies()).map((c) => c.name).filter((n) => COOKIES_DO_GOOGLE.test(n))).toEqual([]);
+  expect(await page.evaluate(() => "fbq" in window)).toBe(false);
+
+  await page.getByRole("region", { name: "Aviso de cookies" }).getByRole("button", { name: "Aceitar todos" }).click();
+  const depois = (await comandosDoGtag(page)) as Comando[];
+  expect(depois.filter((c) => c[0] === "consent" && c[1] === "update").at(-1)?.[2]).toEqual({
+    analytics_storage: "granted",
+    ad_storage: "granted",
+    ad_user_data: "granted",
+    ad_personalization: "granted",
+  });
+  // O site insere um gtag.js só, mesmo depois do aceite (o próprio Google carrega à parte o do Google Ads).
+  await expect(page.locator('script[src="https://www.googletagmanager.com/gtag/js?id=G-DHYL9131J8"]')).toHaveCount(1);
+  await expect.poll(async () => (await context.cookies()).some((c) => c.name.startsWith("_ga"))).toBe(true);
+  expect(await page.evaluate(() => "fbq" in window)).toBe(true);
+});
+
+test("só os essenciais: o gtag segue carregado, negado e sem cookies do Google", async ({ page, context }) => {
+  await page.goto("/");
+  await page.getByRole("region", { name: "Aviso de cookies" }).getByRole("button", { name: "Só os essenciais" }).click();
+  await page.goto("/turmas");
+  await page.waitForFunction(() => "google_tag_manager" in window);
+  const comandos = (await comandosDoGtag(page)) as Comando[];
+  expect(comandos.some((c) => c[0] === "consent" && c[1] === "update")).toBe(false);
+  await page.waitForTimeout(1500);
+  expect((await context.cookies()).map((c) => c.name).filter((n) => COOKIES_DO_GOOGLE.test(n))).toEqual([]);
+  expect(await page.evaluate(() => "fbq" in window)).toBe(false);
+});
+
 test("o aviso e o painel de cookies não têm problemas de acessibilidade WCAG A/AA", async ({ page }) => {
   const { default: AxeBuilder } = await import("@axe-core/playwright");
   const analisar = async () =>
