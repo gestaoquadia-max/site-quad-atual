@@ -708,15 +708,14 @@ function PainelDaEdicao({ carreira, e, formato, onFormato, onInscrever, onCompra
           >
             {podeComprar ? "Adicionar ao carrinho" : "Ainda não disponível para compra"}
           </button>
-          <p className="mt-3 text-[12.5px] text-prata-escura">
-            {escolhido === "pdf"
-              ? "PDF: liberado para download após a confirmação da compra."
-              : escolhido === "plataforma"
-                ? "Plataforma: acesso liberado após a confirmação da compra."
-                : escolhido === "impresso"
-                  ? "Impresso: retirada gratuita no Quad. Envio para casa não está disponível para simulados."
-                  : ""}
-          </p>
+          {/* O impresso não tem nota aqui (16/11/2026): a retirada já está no seletor do formato. */}
+          {(escolhido === "pdf" || escolhido === "plataforma") && (
+            <p className="mt-3 text-[12.5px] text-prata-escura">
+              {escolhido === "pdf"
+                ? "PDF: liberado para download após a confirmação da compra."
+                : "Plataforma: acesso liberado após a confirmação da compra."}
+            </p>
+          )}
         </>
       )}
     </div>
