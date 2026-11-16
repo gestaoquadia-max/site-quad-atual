@@ -1,5 +1,6 @@
 import { fetchAutenticado } from "./auth";
-import { lerErro } from "./http";
+import { ErroDaApi, lerErro } from "./http";
+import { dadosDeMedicao } from "./medicao";
 
 // Compra em reais pelo carrinho do servidor:
 // o site reserva cada item (30 min), simula o total com o cupom e fecha tudo numa cobrança só.
@@ -127,13 +128,29 @@ export type DadosDoFechamento = {
   cupom?: string;
 };
 
+// Fecha com a medição de vendas (lib/medicao.ts: `origem` e, com o consentimento, `marketing`). Se a API recusar o
+// corpo (400: uma API sem esses campos recusa campo desconhecido), tenta UMA vez sem eles, com outra chave: o 400 é
+// dado antes de qualquer cobrança, e a medição nunca pode impedir uma venda.
+async function fecharComMedicao(caminho: string, dados: object, chaveDeIdempotencia: string) {
+  const medicao = dadosDeMedicao();
+  const fechar = (corpo: object, chave: string) =>
+    chamar<Fechamento>(caminho, "Não foi possível concluir o pagamento.", {
+      method: "POST",
+      headers: { "Idempotency-Key": chave },
+      body: JSON.stringify(corpo),
+    });
+  if (!medicao.marketing && !medicao.origem) return fechar(dados, chaveDeIdempotencia);
+  try {
+    return await fechar({ ...dados, ...medicao }, chaveDeIdempotencia);
+  } catch (erro) {
+    if (erro instanceof ErroDaApi && erro.status === 400) return fechar(dados, `${chaveDeIdempotencia}-sem-medicao`);
+    throw erro;
+  }
+}
+
 // A chave de idempotência evita cobrar duas vezes se o pedido for reenviado (clique duplo, rede instável).
 export function fecharCarrinho(dados: DadosDoFechamento, chaveDeIdempotencia: string) {
-  return chamar<Fechamento>("/api/loja/carrinho/eu/fechamento", "Não foi possível concluir o pagamento.", {
-    method: "POST",
-    headers: { "Idempotency-Key": chaveDeIdempotencia },
-    body: JSON.stringify(dados),
-  });
+  return fecharComMedicao("/api/loja/carrinho/eu/fechamento", dados, chaveDeIdempotencia);
 }
 
 // Compra de um combo (lib/combos.ts): fechamento próprio, sem carrinho e sem cupom (o combo já é o desconto; o campo
@@ -146,11 +163,7 @@ export type DadosDaCompraDoCombo = {
 };
 
 export function fecharCombo(comboId: string, dados: DadosDaCompraDoCombo, chaveDeIdempotencia: string) {
-  return chamar<Fechamento>(`/api/loja/fechamentos/combos/${comboId}`, "Não foi possível concluir o pagamento.", {
-    method: "POST",
-    headers: { "Idempotency-Key": chaveDeIdempotencia },
-    body: JSON.stringify(dados),
-  });
+  return fecharComMedicao(`/api/loja/fechamentos/combos/${comboId}`, dados, chaveDeIdempotencia);
 }
 
 export function buscarFechamento(id: string) {

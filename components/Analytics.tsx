@@ -4,6 +4,7 @@ import { useEffect, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { aplicarConsentimento, lead, visitaDePagina } from "@/lib/analytics";
 import { assinarConsentimento, consentimentoAtual } from "@/lib/consentimento";
+import { registrarCampanha } from "@/lib/medicao";
 
 // Liga as tags só depois do "sim" no aviso de cookies (GA4 com "análise"; Google Ads e Pixel da Meta com
 // "marketing"), e as desliga se a escolha mudar ("Preferências de cookies" no rodapé, inclusive em outra aba).
@@ -26,6 +27,11 @@ export default function Analytics() {
     const c = consentimentoAtual();
     aplicarConsentimento({ analise: c?.analise === true, marketing: c?.marketing === true });
   }, [escolha]);
+
+  // A campanha do endereço (UTMs e gclid) fica guardada para o fechamento (lib/medicao.ts), com ou sem consentimento.
+  useEffect(() => {
+    registrarCampanha();
+  }, [pagina]);
 
   // O PageView da Meta a cada página (o site troca de página sem recarregar). O GA mede isso sozinho.
   useEffect(() => {
