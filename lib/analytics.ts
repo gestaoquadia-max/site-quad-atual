@@ -85,6 +85,9 @@ export function aplicarConsentimento({ analise, marketing }: Escolha) {
       window.gtag("consent", "update", estado);
       consentimentoEnviado = chave;
     }
+    // Sem o consentimento de anúncios (sem cookie), o Google leva o gclid e as campanhas de página em página pelo
+    // endereço, para o Google Ads ainda atribuir a conversão ao clique (16/11/2026).
+    window.gtag("set", "url_passthrough", true);
     window.gtag("js", new Date());
     window.gtag("config", ID_DO_ANALYTICS, {
       // As mudanças de página do site (navegação sem recarregar) o próprio GA mede pelo histórico do navegador

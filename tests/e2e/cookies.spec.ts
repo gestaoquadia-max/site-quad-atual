@@ -58,6 +58,10 @@ test("sem escolha, o gtag carrega negado e não grava cookies do Google; o aceit
     wait_for_update: 500,
   });
   expect(antes.some((c) => c[0] === "consent" && c[1] === "update")).toBe(false);
+  // Sem cookie, o gclid segue pelo endereço (url_passthrough), antes do config.
+  const posPassthrough = antes.findIndex((c) => c[0] === "set" && c[1] === "url_passthrough" && c[2] === true);
+  expect(posPassthrough).toBeGreaterThan(posDefault);
+  expect(posPassthrough).toBeLessThan(posConfig);
   expect(antes.filter((c) => c[0] === "config").map((c) => c[1])).toEqual(["G-DHYL9131J8", "AW-18571482116"]);
   await page.waitForTimeout(1500);
   expect((await context.cookies()).map((c) => c.name).filter((n) => COOKIES_DO_GOOGLE.test(n))).toEqual([]);
