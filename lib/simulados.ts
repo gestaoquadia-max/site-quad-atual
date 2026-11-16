@@ -37,7 +37,7 @@ export type Carreira = {
 export const ROTULO_DO_FORMATO: Record<FormatoDeEstudo, { nome: string; curto: string; dica: string }> = {
   pdf: { nome: "PDF digital", curto: "PDF", dica: "Arquivo para baixar e estudar" },
   plataforma: { nome: "Realizar na plataforma", curto: "Plataforma", dica: "Responda às questões na plataforma do Quad" },
-  impresso: { nome: "Versão impressa", curto: "Impresso", dica: "Impressão cobrada; retirada gratuita no Quad" },
+  impresso: { nome: "Versão impressa", curto: "Impresso", dica: "Retirada gratuita no Quad" },
 };
 
 // "Hoje" no horário de Brasília, para comparar com as datas das edições.
