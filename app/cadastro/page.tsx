@@ -7,7 +7,7 @@ import { conferirDisponibilidade, criarAluno } from "@/lib/api";
 import { cadastro as eventoDeCadastro } from "@/lib/analytics";
 import { login } from "@/lib/auth";
 import { ErroDaApi } from "@/lib/http";
-import { formatarCpf, formatarTelefone } from "@/lib/format";
+import { formatarCpf, formatarNome, formatarTelefone } from "@/lib/format";
 import { buscarEnderecoPorCep, formatarCep, UFS } from "@/lib/endereco";
 import { destinoAposLogin, lerDestinoAposLogin, rotaComDestino } from "@/lib/redirecionamento";
 import { VERSAO_DOS_TERMOS } from "@/lib/termos";
@@ -184,7 +184,7 @@ export default function CadastroPage() {
     setCarregando(true);
     try {
       await criarAluno({
-        nome: `${nome} ${sobrenome}`.trim(),
+        nome: formatarNome(`${nome} ${sobrenome}`).replace(/\s+/g, " ").trim(),
         email: email.trim(),
         senha,
         cpf,
@@ -283,8 +283,8 @@ export default function CadastroPage() {
             className="flex flex-col gap-4"
           >
             <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,190px),1fr))] gap-3.5">
-              <Campo obrigatorio rotulo="Nome" placeholder="Seu nome" autoComplete="given-name" valor={nome} aoMudar={setNome} />
-              <Campo obrigatorio rotulo="Sobrenome" placeholder="Seu sobrenome" autoComplete="family-name" valor={sobrenome} aoMudar={setSobrenome} />
+              <Campo obrigatorio rotulo="Nome" placeholder="Seu nome" autoComplete="given-name" valor={nome} aoMudar={setNome} mascara={formatarNome} inputMode="text" autoCapitalize="words" />
+              <Campo obrigatorio rotulo="Sobrenome" placeholder="Seu sobrenome" autoComplete="family-name" valor={sobrenome} aoMudar={setSobrenome} mascara={(v) => formatarNome(v, true)} inputMode="text" autoCapitalize="words" />
               <Campo obrigatorio rotulo="CPF" placeholder="000.000.000-00" autoComplete="off" valor={cpf} aoMudar={setCpf} mascara={formatarCpf} maxLength={14} />
               <Campo obrigatorio rotulo="Telefone" tipo="tel" placeholder="(75) 99999-0000" autoComplete="tel" valor={telefone} aoMudar={setTelefone} mascara={formatarTelefone} maxLength={15} />
               <Campo obrigatorio rotulo="E-mail" tipo="email" placeholder="seu@email.com" autoComplete="email" valor={email} aoMudar={setEmail} className="col-span-full" />

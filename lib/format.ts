@@ -36,6 +36,23 @@ export function formatarCpf(valor: string) {
   return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
 }
 
+// Máscara do nome (16/11/2026): cada palavra com a primeira letra maiúscula e o resto minúsculo, venha o nome todo em
+// minúsculas ou todo em maiúsculas ("JOÃO DA SILVA" e "joão da silva" viram "João da Silva"). As ligações (da, de, do,
+// das, dos, e) ficam minúsculas, menos no começo; depois do hífen e do apóstrofo também vai maiúscula ("Ana-Clara",
+// "D'Ávila"). Os espaços ficam como digitados, para não atrapalhar quem está escrevendo; o corte das pontas é no envio.
+const LIGACOES_DO_NOME = new Set(["da", "de", "do", "das", "dos", "e"]);
+
+// `continuacao`: o campo do sobrenome, que vem depois do nome; ali a ligação do começo também fica minúscula ("da Silva").
+export function formatarNome(valor: string, continuacao = false) {
+  let palavra = 0;
+  return valor.replace(/\S+/g, (p) => {
+    const minuscula = p.toLocaleLowerCase("pt-BR");
+    const primeira = palavra++ === 0 && !continuacao;
+    if (!primeira && LIGACOES_DO_NOME.has(minuscula)) return minuscula;
+    return minuscula.replace(/(^|[-'’])(\p{L})/gu, (_, antes: string, letra: string) => antes + letra.toLocaleUpperCase("pt-BR"));
+  });
+}
+
 export function formatarTelefone(valor: string) {
   const d = valor.replace(/\D/g, "").slice(0, 11);
   if (d.length <= 2) return d.length ? `(${d}` : d;

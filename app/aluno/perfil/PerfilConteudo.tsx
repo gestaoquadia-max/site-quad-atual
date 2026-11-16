@@ -21,7 +21,7 @@ import {
 } from "@/lib/api";
 import { institucional, linkDoWhatsApp } from "@/lib/institucional";
 import { buscarEnderecoPorCep, formatarCep, UFS } from "@/lib/endereco";
-import { formatarCpf, formatarTelefone } from "@/lib/format";
+import { formatarCpf, formatarNome, formatarTelefone } from "@/lib/format";
 import { ErroDaApi } from "@/lib/http";
 import {
   useCarregandoUsuario,
@@ -138,10 +138,12 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
     if (nome.trim().length < 2) return setErro("Informe seu nome completo.");
     setErro("");
     setSalvando(true);
+    // A máscara do nome (lib/format.ts) também no envio, com um espaço só entre as palavras.
+    const nomeLimpo = formatarNome(nome).replace(/\s+/g, " ").trim();
     try {
       // Só o nome: trocar o telefone exige verificação por código.
-      if (usuario.aluno) await atualizarMeuNome(nome.trim());
-      else await atualizarCadastro(usuario.id, { nome: nome.trim(), telefone: usuario.telefone ?? "" });
+      if (usuario.aluno) await atualizarMeuNome(nomeLimpo);
+      else await atualizarCadastro(usuario.id, { nome: nomeLimpo, telefone: usuario.telefone ?? "" });
       setSalvo(true);
       onSalvo();
     } catch (e) {
@@ -167,7 +169,8 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
       <input
         id="perfil-nome"
         value={nome}
-        onChange={(e) => setNome(e.target.value)}
+        onChange={(e) => setNome(formatarNome(e.target.value))}
+        autoCapitalize="words"
         disabled={bloqueado || salvando}
         className={classeInput}
       />
