@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { metadadosDaPagina } from "@/lib/seo";
-import { listarCarreiras } from "@/lib/vitrine";
+import { comAsCarreirasDosExtras, listarCarreiras, listarSimuladosExtras } from "@/lib/vitrine";
 import { listarCombosDaArea } from "@/lib/combos";
 import ComParametrosDoEndereco from "@/components/simulados/ComParametrosDoEndereco";
 
@@ -27,11 +27,13 @@ function Carregando() {
 }
 
 export default async function SimuladosPage() {
-  const [carreiras, combos] = await Promise.all([listarCarreiras(), listarCombosDaArea("simulados")]);
+  const [carreiras, combos, extras] = await Promise.all([listarCarreiras(), listarCombosDaArea("simulados"), listarSimuladosExtras()]);
+  // Aba "Individuais": os simulados extras (lib/vitrine.ts); a carreira de um extra aparece mesmo sem edição presencial.
+  const comExtras = carreiras && comAsCarreirasDosExtras(carreiras, extras ?? []);
   return (
     <Suspense fallback={<Carregando />}>
       {/* Aba "Combos": os combos da API só de simulados. */}
-      <ComParametrosDoEndereco carreiras={carreiras} combos={combos} />
+      <ComParametrosDoEndereco carreiras={comExtras} combos={combos} extras={extras ?? []} />
     </Suspense>
   );
 }

@@ -11,6 +11,10 @@ import { inscreverSeDeGraca } from "@/lib/loja";
 import { rotaComDestino } from "@/lib/redirecionamento";
 import { useSessaoAtiva } from "@/lib/usuario";
 import type { Combo as ComboDaLoja } from "@/lib/combos";
+import type { Produto } from "@/lib/data";
+import { idDoItem } from "@/lib/itens";
+import { FORMATOS_DO_MATERIAL, aVenda, alvoDaOferta, formatoInicial, ofertaDo, rotuloDeIndisponivel, type FormatoDoMaterial } from "@/lib/materiais";
+import type { SimuladoExtra } from "@/lib/vitrine";
 import CartaoCombo from "../combos/CartaoCombo";
 import Onda from "@/components/home/Onda";
 import {
@@ -31,7 +35,7 @@ export type Modo = "presenciais" | "individuais" | "combos";
 
 const ABAS: { modo: Modo; numero: string; titulo: string; legenda: string }[] = [
   { modo: "presenciais", numero: "01", titulo: "Presenciais", legenda: "Inscrição na aplicação" },
-  { modo: "individuais", numero: "02", titulo: "Individuais", legenda: "PDF, plataforma ou impresso" },
+  { modo: "individuais", numero: "02", titulo: "Individuais", legenda: "Simulados extras, PDF ou impresso" },
   { modo: "combos", numero: "03", titulo: "Combos", legenda: "Pacotes de edições" },
 ];
 
@@ -146,6 +150,40 @@ function LinhaDaEdicao({ e, concurso, selecionada, onSelecionar, tipo, acao }: {
   );
 }
 
+// O PDF e o impresso do simulado extra, com os nomes dos formatos da Central (ROTULO_DO_FORMATO).
+const FORMATO_DO_EXTRA: Record<FormatoDoMaterial, FormatoDeEstudo> = { digital: "pdf", impresso: "impresso" };
+
+// Um simulado extra na aba Individuais: o nome do cadastro e os formatos à venda, com o preço de cada um.
+function LinhaDoExtra({ p, selecionada, onSelecionar }: { p: Produto; selecionada: boolean; onSelecionar: () => void }) {
+  const formatos = FORMATOS_DO_MATERIAL.flatMap((f) => {
+    const o = ofertaDo(p, f);
+    return o ? [`${ROTULO_DO_FORMATO[FORMATO_DO_EXTRA[f]].curto} ${o.preco}`] : [];
+  });
+  return (
+    <div
+      className={`flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl border px-3 py-3 transition-colors sm:pr-4 ${
+        selecionada ? "border-marinho-900 bg-marinho-900 text-white" : "border-linha bg-superficie hover:border-azul/50"
+      }`}
+    >
+      <button type="button" onClick={onSelecionar} aria-pressed={selecionada} className="flex min-w-0 flex-[1_1_320px] items-center gap-4 text-left">
+        <span className={`grid h-[60px] w-[60px] flex-none place-items-center rounded-xl ${selecionada ? "bg-white/10 text-white" : "bg-azul-gelo text-azul-forte"}`} aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z" />
+            <path d="M14 3v5h5M9 13l2 2 4-4" />
+          </svg>
+        </span>
+        <span className="flex min-w-0 flex-col gap-1">
+          <span className="font-display text-lg font-extrabold tracking-[-0.01em]">{p.nome}</span>
+          <span className={`text-sm ${selecionada ? "text-prata-clara" : "text-ardosia"}`}>{formatos.join(" · ")}</span>
+        </span>
+      </button>
+      <div className="ml-auto flex flex-wrap items-center gap-3">
+        {p.esgotado ? <Selo tom="esgotado">Indisponível</Selo> : <Selo tom="estudo">Simulado extra</Selo>}
+      </div>
+    </div>
+  );
+}
+
 function Vazio({ children }: { children: React.ReactNode }) {
   return <p className="rounded-2xl border-[1.5px] border-dashed border-[#C9D3E0] px-5 py-8 text-center text-[15px] text-ardosia">{children}</p>;
 }
@@ -165,12 +203,16 @@ function TituloComDica({ id, titulo, dica, aberta, onAlternar }: { id: string; t
 export default function CentralDeSimulados({
   carreiras: recebidas,
   combos,
+  extras,
   modoInicial,
   carreiraInicial,
 }: {
   carreiras: Carreira[] | null;
   // Combos da API só de simulados (lib/combos.ts).
   combos: ComboDaLoja[];
+  // Aba Individuais (16/11/2026): só os simulados extras, os que não foram aplicados no presencial (lib/vitrine.ts).
+  // As edições já aplicadas, em PDF e impressas, ficam em Presenciais, em "Edições anteriores".
+  extras: SimuladoExtra[];
   modoInicial: Modo;
   carreiraInicial: string | null;
 }) {
@@ -183,6 +225,7 @@ export default function CentralDeSimulados({
   const [idDaCarreira, setIdDaCarreira] = useState(carreiraInicial ?? carreiras[0]?.id ?? "");
   const [selecionada, setSelecionada] = useState<number | null>(null);
   const [formato, setFormato] = useState<FormatoDeEstudo | null>(null);
+  const [extraSelecionado, setExtraSelecionado] = useState<string | null>(null);
   const [dica, setDica] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const painel = useRef<HTMLDivElement>(null);
@@ -211,10 +254,11 @@ export default function CentralDeSimulados({
   const abertas = edicoes.filter((e) => e.st.temporal !== "realizado" && e.st.confirmada && e.st.inscricao !== "a-confirmar");
   const emBreve = edicoes.filter((e) => e.st.temporal !== "realizado" && !abertas.includes(e));
   const anteriores = edicoes.filter((e) => e.st.temporal === "realizado").sort((a, b) => b.numero - a.numero);
-  const paraEstudo = edicoes.filter((e) => formatosDa(e).some((f) => f.oferta.disponivel)).sort((a, b) => b.numero - a.numero);
+  const extrasDaCarreira = extras.filter((x) => x.carreira.id === carreira.id).map((x) => x.produto);
 
-  const lista = modo === "presenciais" ? [...abertas, ...emBreve, ...anteriores] : modo === "individuais" ? paraEstudo : [];
+  const lista = modo === "presenciais" ? [...abertas, ...emBreve, ...anteriores] : [];
   const atual = lista.find((e) => e.numero === selecionada) ?? lista[0] ?? null;
+  const extraAtual = modo === "individuais" ? (extrasDaCarreira.find((p) => p.slug === extraSelecionado) ?? extrasDaCarreira[0] ?? null) : null;
 
   function atualizarEndereco(m: Modo, c: string) {
     const url = new URL(window.location.href);
@@ -227,6 +271,7 @@ export default function CentralDeSimulados({
   function trocarModo(m: Modo) {
     setModo(m);
     setSelecionada(null);
+    setExtraSelecionado(null);
     setFormato(null);
     setDica(null);
     atualizarEndereco(m, idDaCarreira);
@@ -235,15 +280,41 @@ export default function CentralDeSimulados({
   function trocarCarreira(c: Carreira) {
     setIdDaCarreira(c.id);
     setSelecionada(null);
+    setExtraSelecionado(null);
     setFormato(null);
     atualizarEndereco(modo, c.id);
+  }
+
+  // No celular o painel fica abaixo da lista: leva a pessoa até ele.
+  function irAoPainel() {
+    if (window.matchMedia("(max-width: 1023px)").matches) requestAnimationFrame(() => painel.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }
 
   function selecionar(n: number) {
     setSelecionada(n);
     setFormato(null);
-    // No celular o painel fica abaixo da lista: leva a pessoa até ele.
-    if (window.matchMedia("(max-width: 1023px)").matches) requestAnimationFrame(() => painel.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    irAoPainel();
+  }
+
+  function selecionarExtra(slug: string) {
+    setExtraSelecionado(slug);
+    irAoPainel();
+  }
+
+  // O simulado extra vai ao carrinho como material (o mesmo de CompraDoMaterial), pelo item do formato na API.
+  function comprarExtra(p: Produto, f: FormatoDoMaterial) {
+    const oferta = ofertaDo(p, f);
+    if (!oferta || !aVenda(oferta)) return;
+    setAviso(null);
+    addItem({
+      id: `${idDoItem("produto", oferta.slug)}${f === "impresso" ? ":impresso" : ""}`,
+      tipo: "produto",
+      nome: p.nome,
+      tag: f === "impresso" ? "Impresso · Retirar no Quad" : "PDF · Download na área do aluno",
+      preco: oferta.preco,
+      formato: f,
+      alvo: oferta.idNaApi ? alvoDaOferta(oferta, f) : undefined,
+    });
   }
 
   function comprar(item: Parameters<typeof addItem>[0], validacao: ReturnType<typeof validarCompra>) {
@@ -375,7 +446,11 @@ export default function CentralDeSimulados({
               const marcada = c.id === carreira.id;
               const n = contagem(c);
               const legenda =
-                c.edicoes.length === 0 ? "Sem simulados disponíveis" : n === 0 ? "Nenhuma inscrição aberta" : n === 1 ? "1 edição com inscrições abertas" : `${n} edições com inscrições abertas`;
+                c.edicoes.length === 0
+                  ? extras.some((x) => x.carreira.id === c.id)
+                    ? "Simulados extras disponíveis"
+                    : "Sem simulados disponíveis"
+                  : n === 0 ? "Nenhuma inscrição aberta" : n === 1 ? "1 edição com inscrições abertas" : `${n} edições com inscrições abertas`;
               return (
                 <button
                   key={c.id}
@@ -423,8 +498,8 @@ export default function CentralDeSimulados({
 
           <div className="mt-[clamp(32px,4vw,48px)] grid items-start gap-[clamp(24px,3vw,44px)] lg:grid-cols-[minmax(0,1fr)_360px]">
             <div className="flex min-w-0 flex-col gap-10">
-              {carreira.edicoes.length === 0 ? (
-                <Vazio>Ainda não temos simulados disponíveis para esta carreira.</Vazio>
+              {modo === "presenciais" && carreira.edicoes.length === 0 ? (
+                <Vazio>Ainda não temos simulados presenciais disponíveis para esta carreira.</Vazio>
               ) : modo === "presenciais" ? (
                 <>
                   <div>
@@ -513,14 +588,16 @@ export default function CentralDeSimulados({
                   <TituloComDica
                     id="dica-individuais"
                     titulo="Simulados individuais"
-                    dica="Compre uma edição no formato que preferir. Cada formato tem preço próprio e só aparecem os formatos cadastrados."
+                    dica="Simulados extras, que não foram aplicados presencialmente. Compre no formato que preferir: cada formato tem preço próprio. As edições já aplicadas estão em Presenciais, em Edições anteriores."
                     aberta={dica === "individuais"}
                     onAlternar={() => setDica(dica === "individuais" ? null : "individuais")}
                   />
                   <div className="flex flex-col gap-2.5">
-                    {paraEstudo.length === 0 && <Vazio>Nenhuma edição disponível para compra individual.</Vazio>}
-                    {paraEstudo.map((e) => (
-                      <LinhaDaEdicao key={e.numero} e={e} concurso={carreira.curto} tipo="anterior" selecionada={atual?.numero === e.numero} onSelecionar={() => selecionar(e.numero)} />
+                    {extrasDaCarreira.length === 0 && (
+                      <Vazio>Nenhum simulado extra disponível para esta carreira no momento. As edições já aplicadas estão em Presenciais, em Edições anteriores.</Vazio>
+                    )}
+                    {extrasDaCarreira.map((p) => (
+                      <LinhaDoExtra key={p.slug} p={p} selecionada={extraAtual?.slug === p.slug} onSelecionar={() => selecionarExtra(p.slug)} />
                     ))}
                   </div>
                 </div>
@@ -547,8 +624,16 @@ export default function CentralDeSimulados({
               )}
             </div>
 
+            {/* Painel do simulado extra selecionado */}
+            {extraAtual && (
+              <div ref={painel} className="scroll-mt-[120px] lg:sticky lg:top-[124px]">
+                {/* key: trocar de extra volta ao formato inicial do novo. */}
+                <PainelDoExtra key={extraAtual.slug} carreira={carreira} p={extraAtual} onComprar={(f) => comprarExtra(extraAtual, f)} />
+              </div>
+            )}
+
             {/* Painel da edição selecionada */}
-            {modo !== "combos" && atual && (
+            {modo === "presenciais" && atual && (
               <div ref={painel} className="scroll-mt-[120px] lg:sticky lg:top-[124px]">
                 <PainelDaEdicao
                   carreira={carreira}
@@ -718,6 +803,62 @@ function PainelDaEdicao({ carreira, e, formato, onFormato, onInscrever, onCompra
           )}
         </>
       )}
+    </div>
+  );
+}
+
+// O simulado extra selecionado: o formato (PDF ou impresso, cada um com o seu preço) e "Adicionar ao carrinho".
+function PainelDoExtra({ carreira, p, onComprar }: { carreira: Carreira; p: Produto; onComprar: (f: FormatoDoMaterial) => void }) {
+  const [formato, setFormato] = useState<FormatoDoMaterial>(formatoInicial(p));
+  const oferta = ofertaDo(p, formato);
+  const formatos = FORMATOS_DO_MATERIAL.filter((f) => ofertaDo(p, f));
+
+  return (
+    <div className="rounded-[20px] bg-marinho-950 p-[clamp(22px,2.4vw,28px)] text-white shadow-[0_30px_60px_-30px_rgba(7,20,38,0.8)]">
+      <div className="text-[13px] text-prata">{carreira.curto}</div>
+      <h3 className="mb-2.5 mt-1 font-display text-[28px] font-extrabold tracking-[-0.03em]">{p.nome}</h3>
+      <Selo tom="estudo">Simulado extra</Selo>
+      {p.desc && <p className="mt-4 rounded-xl border border-white/[0.08] bg-white/[0.04] p-3.5 text-sm leading-[1.5] text-[#DCE4EF]">{p.desc}</p>}
+      <div role="radiogroup" aria-label="Formato" className="mt-4 flex flex-col gap-2">
+        {formatos.map((f) => {
+          const o = ofertaDo(p, f)!;
+          const marcado = formato === f;
+          const rotulo = ROTULO_DO_FORMATO[FORMATO_DO_EXTRA[f]];
+          return (
+            <button
+              key={f}
+              type="button"
+              role="radio"
+              aria-checked={marcado}
+              aria-disabled={!aVenda(o) || undefined}
+              onClick={() => aVenda(o) && setFormato(f)}
+              className={`flex items-center gap-3 rounded-xl px-3.5 py-3 text-left transition-colors ${
+                marcado ? "border-[1.5px] border-azul-vivo bg-azul/[0.14]" : "border border-white/10"
+              } ${aVenda(o) ? "" : "cursor-not-allowed opacity-45"}`}
+            >
+              <span className={`h-[18px] w-[18px] flex-none rounded-full ${marcado ? "border-[5px] border-azul-vivo bg-white" : "border-[1.5px] border-[#6B7C94]"}`} />
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="font-display text-[15px] font-bold">{rotulo.nome}</span>
+                <span className="text-xs text-prata">{aVenda(o) ? rotulo.dica : rotuloDeIndisponivel(o)}</span>
+              </span>
+              <span className="whitespace-nowrap font-display text-[13px] font-bold">{o.preco}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-5 flex items-center justify-between gap-4 border-t border-white/[0.08] pt-5">
+        <span className="text-sm text-prata">Total</span>
+        <span className="text-right font-display text-[22px] font-extrabold leading-tight">{oferta?.preco ?? "—"}</span>
+      </div>
+      <button
+        type="button"
+        disabled={!aVenda(oferta)}
+        onClick={() => onComprar(formato)}
+        className="btn-q btn-q-azul mt-4 h-[52px] w-full text-base disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-prata disabled:shadow-none"
+      >
+        {aVenda(oferta) ? "Adicionar ao carrinho" : oferta ? rotuloDeIndisponivel(oferta) : "Ainda não disponível para compra"}
+      </button>
+      {formato === "digital" && <p className="mt-3 text-[12.5px] text-prata-escura">PDF: liberado para download após a confirmação da compra.</p>}
     </div>
   );
 }

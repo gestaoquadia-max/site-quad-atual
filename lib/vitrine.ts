@@ -884,19 +884,52 @@ function paraProdutoDaLoja(i: ItemDaVitrine): ProdutoDaLoja {
   };
 }
 
+// Simulados extras (16/11/2026): simulados que não foram aplicados no presencial, cadastrados no Painel como material
+// nas categorias "Simulado Extra Digital" e "Simulado Extra Impresso", um produto por formato. Os dois formatos do mesmo
+// simulado (mesmo nome sem o formato e mesmo concurso) viram um só, como as apostilas (agruparMateriais). Eles aparecem
+// só na Central de Simulados, aba Individuais, na carreira do concurso do cadastro, e ficam fora da página de Materiais.
+const ehSimuladoExtra = (i: ItemDaVitrine) => slugDoNome(i.material?.categoria?.nome ?? "").startsWith("simulado-extra");
+
+export type SimuladoExtra = { carreira: { id: string; nome: string }; produto: Produto };
+
+export async function listarSimuladosExtras(): Promise<SimuladoExtra[] | null> {
+  try {
+    const porConcurso = new Map<string, ItemDaVitrine[]>();
+    for (const i of await listarItens()) {
+      if (!ehMaterial(i) || !ehSimuladoExtra(i)) continue;
+      // Sem concurso no cadastro, como os simulados sem concurso (listarCarreiras).
+      const nome = i.material?.concurso?.nome || "Outros simulados";
+      porConcurso.set(nome, [...(porConcurso.get(nome) ?? []), i]);
+    }
+    return [...porConcurso].flatMap(([nome, itens]) => agruparMateriais(itens).map((produto) => ({ carreira: { id: slugDoNome(nome), nome }, produto })));
+  } catch {
+    return null;
+  }
+}
+
+// A carreira de cada simulado extra, para ela aparecer na Central mesmo sem nenhuma edição presencial.
+export function comAsCarreirasDosExtras(carreiras: Carreira[], extras: SimuladoExtra[]): Carreira[] {
+  const todas = [...carreiras];
+  for (const { carreira } of extras) {
+    if (!todas.some((c) => c.id === carreira.id)) todas.push({ id: carreira.id, nome: `Simulados — ${carreira.nome}`, curto: carreira.nome, edicoes: [] });
+  }
+  return todas;
+}
+
 export async function listarMateriais(): Promise<Produto[] | null> {
   try {
-    return agruparMateriais(await listarItens());
+    return agruparMateriais((await listarItens()).filter((i) => !ehSimuladoExtra(i)));
   } catch {
     return null;
   }
 }
 
 // Pelo endereço de qualquer formato (ou o id, nos endereços antigos): o material com todos os formatos.
+// O simulado extra não tem página de material: ele se compra na Central de Simulados.
 export async function buscarMaterial(slug: string): Promise<Produto | null> {
   const item = await buscarItem(slug);
-  if (!item || !ehMaterial(item)) return null;
-  const materiais = agruparMateriais(await listarItens());
+  if (!item || !ehMaterial(item) || ehSimuladoExtra(item)) return null;
+  const materiais = agruparMateriais((await listarItens()).filter((i) => !ehSimuladoExtra(i)));
   return materiais.find((p) => Object.values(p.ofertas ?? {}).some((o) => o.idNaApi === item.id)) ?? paraMaterial([item]);
 }
 
