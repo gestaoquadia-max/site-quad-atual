@@ -14,7 +14,7 @@ export const metadata = metadadosDaPagina({
 // aplicativo. O texto segue o que o site e a API fazem hoje (área do aluno → Perfil → "Excluir minha conta",
 // app/aluno/perfil/PerfilConteudo.tsx, e lib/api.ts): pedido com a senha, 30 dias de espera com a conta funcionando,
 // cancelamento até lá, e-mail com a data e, no fim, a conta anonimizada. Os prazos de guarda são os da Política de
-// privacidade (seção 6). Mudou o fluxo? Mudar aqui também.
+// privacidade (seção 7). Mudou o fluxo? Mudar aqui também.
 export default function ExcluirContaPage() {
   const email = institucional.emailPrivacidade;
   const linkDoEmail = `mailto:${email}?subject=${encodeURIComponent("Exclusão da minha conta")}`;
@@ -23,7 +23,7 @@ export default function ExcluirContaPage() {
       eyebrow="LGPD"
       titulo="Exclusão de conta"
       descricao="Como pedir a exclusão da sua conta, o que é apagado e o que precisamos guardar."
-      versao="13/11/2026"
+      versao="16/11/2026"
     >
       <Secao titulo="1. A que conta esta página se aplica">
         <p>
@@ -49,6 +49,16 @@ export default function ExcluirContaPage() {
           <li>Você recebe por e-mail a data em que a conta será excluída.</li>
         </ul>
         <p>
+          <strong>Pelo aplicativo Viver o Quad:</strong>
+        </p>
+        <ol>
+          <li>Toque no seu personagem, no topo da tela, para abrir o Perfil.</li>
+          <li>
+            Abra <strong>Meus dados</strong> e toque em <strong>Excluir minha conta</strong>.
+          </li>
+          <li>Confira o que você vai perder e confirme digitando a sua senha.</li>
+        </ol>
+        <p>
           <strong>Por e-mail:</strong> se não conseguir entrar na conta ou confirmar com a senha, escreva para{" "}
           <a href={linkDoEmail}>{email}</a> <strong>a partir do e-mail cadastrado na conta</strong>, com o assunto
           &quot;Exclusão da minha conta&quot;. Podemos pedir uma confirmação de que a conta é sua antes de excluí-la.
@@ -59,7 +69,8 @@ export default function ExcluirContaPage() {
         <p>
           A exclusão acontece <strong>30 dias depois do pedido</strong>. Até lá, a conta continua funcionando normalmente,
           e você pode desistir a qualquer momento: no mesmo lugar do Perfil, clique em{" "}
-          <strong>Cancelar a exclusão</strong>. Depois da data, a conta não pode ser recuperada.
+          <strong>Cancelar a exclusão</strong> (no aplicativo, toque em <strong>Cancelar exclusão</strong> na faixa que
+          aparece no topo). Depois da data, a conta não pode ser recuperada.
         </p>
       </Secao>
 
