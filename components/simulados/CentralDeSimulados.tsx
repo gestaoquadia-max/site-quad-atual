@@ -208,8 +208,8 @@ export default function CentralDeSimulados({
   carreiraInicial,
 }: {
   carreiras: Carreira[] | null;
-  // Combos da API só de simulados (lib/combos.ts).
-  combos: ComboDaLoja[];
+  // Combos da API só de simulados (lib/combos.ts), com as carreiras dos simulados de cada um (app/simulados/page.tsx).
+  combos: (ComboDaLoja & { carreiras: string[] })[];
   // Aba Individuais (16/11/2026): só os simulados extras, os que não foram aplicados no presencial (lib/vitrine.ts).
   // As edições já aplicadas, em PDF e impressas, ficam em Presenciais, em "Edições anteriores".
   extras: SimuladoExtra[];
@@ -255,6 +255,8 @@ export default function CentralDeSimulados({
   const emBreve = edicoes.filter((e) => e.st.temporal !== "realizado" && !abertas.includes(e));
   const anteriores = edicoes.filter((e) => e.st.temporal === "realizado").sort((a, b) => b.numero - a.numero);
   const extrasDaCarreira = extras.filter((x) => x.carreira.id === carreira.id).map((x) => x.produto);
+  // O combo aparece na carreira dos simulados dele; sem carreira conhecida, em todas (17/11/2026).
+  const combosDaCarreira = combos.filter((c) => c.carreiras.length === 0 || c.carreiras.includes(carreira.id));
 
   const lista = modo === "presenciais" ? [...abertas, ...emBreve, ...anteriores] : [];
   const atual = lista.find((e) => e.numero === selecionada) ?? lista[0] ?? null;
@@ -611,11 +613,11 @@ export default function CentralDeSimulados({
                     onAlternar={() => setDica(dica === "combos" ? null : "combos")}
                   />
                   {/* Combos da API só de simulados (lib/combos.ts, 31/10/2026); o combo tem página e pagamento próprios. */}
-                  {combos.length === 0 ? (
-                    <Vazio>Ainda não temos combos de simulados. Os pacotes aparecem aqui assim que forem cadastrados.</Vazio>
+                  {combosDaCarreira.length === 0 ? (
+                    <Vazio>Ainda não temos combos de simulados para esta carreira. Os pacotes aparecem aqui assim que forem cadastrados.</Vazio>
                   ) : (
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,300px),1fr))] gap-4">
-                      {combos.map((c) => (
+                      {combosDaCarreira.map((c) => (
                         <CartaoCombo key={c.id} combo={c} />
                       ))}
                     </div>

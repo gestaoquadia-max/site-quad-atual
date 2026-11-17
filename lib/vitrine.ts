@@ -646,13 +646,37 @@ async function listarVersoesImpressas(): Promise<ItemDaVitrine[]> {
   return pagina.conteudo.filter((i) => i.origem?.id && i.preco != null && i.preco > 0 && (i.material?.plataformas ?? ["IMPRESSO"]).includes("IMPRESSO"));
 }
 
+// Os simulados que fazem parte de algum combo (17/11/2026: o "Combo Reta Final IPC/PCBA" tem 3 simulados em PDF feitos
+// só para ele). Lido aqui direto, e não por lib/combos.ts, que importa deste arquivo.
+async function idsDosSimuladosEmCombos(): Promise<Set<string>> {
+  const pagina = await lerDaVitrine<Pagina<{ componentes: { tipo: string; id: string }[] }>>("/api/loja/vitrine/combos?tamanho=100");
+  if (pagina === NAO_ENCONTRADA) return new Set();
+  return new Set(pagina.conteudo.flatMap((c) => c.componentes.filter((p) => p.tipo === "SIMULADO").map((p) => p.id)));
+}
+
+// A carreira de cada simulado da vitrine (id da atividade → id da carreira, pelo concurso do cadastro), para a aba
+// Combos da Central mostrar cada combo só na carreira dos simulados dele (17/11/2026).
+export async function carreiraDeCadaSimulado(): Promise<Record<string, string>> {
+  try {
+    const atividades = await listar("SIMULADO", true);
+    return Object.fromEntries(atividades.flatMap((a) => (a.detalhe?.concurso?.nome ? [[a.id, slugDoNome(a.detalhe.concurso.nome)]] : [])));
+  } catch {
+    return {};
+  }
+}
+
 export async function listarCarreiras(): Promise<Carreira[] | null> {
   try {
-    const [atividades, impressas] = await Promise.all([
+    const [todas, impressas, emCombos] = await Promise.all([
       listar("SIMULADO", true),
       // Sem as impressas (API fora do ar só nessa rota), a Central abre com o presencial e o PDF.
       listarVersoesImpressas().catch(() => [] as ItemDaVitrine[]),
+      idsDosSimuladosEmCombos().catch(() => new Set<string>()),
     ]);
+    // O simulado em PDF sem o presencial de origem que faz parte de um combo nunca foi aplicado: ele se vende só pelo
+    // combo e não entra na Central como edição já aplicada (decisão de 17/11/2026). O PDF de uma edição aplicada
+    // (com origemId) continua na Central mesmo que também esteja num combo.
+    const atividades = todas.filter((a) => !(a.detalhe?.modalidade === "PDF" && !a.detalhe?.origemId && emCombos.has(a.id)));
     const porCarreira = new Map<string, Carreira>();
     const carreiraDe = (nome: string) => {
       const id = slugDoNome(nome);

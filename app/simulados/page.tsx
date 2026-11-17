@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { metadadosDaPagina } from "@/lib/seo";
-import { comAsCarreirasDosExtras, listarCarreiras, listarSimuladosExtras } from "@/lib/vitrine";
+import { carreiraDeCadaSimulado, comAsCarreirasDosExtras, listarCarreiras, listarSimuladosExtras } from "@/lib/vitrine";
 import { listarCombosDaArea } from "@/lib/combos";
 import ComParametrosDoEndereco from "@/components/simulados/ComParametrosDoEndereco";
 
@@ -27,7 +27,18 @@ function Carregando() {
 }
 
 export default async function SimuladosPage() {
-  const [carreiras, combos, extras] = await Promise.all([listarCarreiras(), listarCombosDaArea("simulados"), listarSimuladosExtras()]);
+  const [carreiras, todosOsCombos, extras, carreiraDoSimulado] = await Promise.all([
+    listarCarreiras(),
+    listarCombosDaArea("simulados"),
+    listarSimuladosExtras(),
+    carreiraDeCadaSimulado(),
+  ]);
+  // Aba "Combos": cada combo vai com as carreiras dos simulados dele (o "Combo Reta Final IPC/PCBA" só no IPC-PCBA).
+  // Sem nenhuma carreira conhecida (simulado fora da vitrine), a lista fica vazia e o combo aparece em todas.
+  const combos = todosOsCombos.map((c) => ({
+    ...c,
+    carreiras: [...new Set(c.componentes.flatMap((p) => (p.tipo === "SIMULADO" && carreiraDoSimulado[p.id] ? [carreiraDoSimulado[p.id]] : [])))],
+  }));
   // Aba "Individuais": os simulados extras (lib/vitrine.ts); a carreira de um extra aparece mesmo sem edição presencial.
   const comExtras = carreiras && comAsCarreirasDosExtras(carreiras, extras ?? []);
   return (
