@@ -47,7 +47,8 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
 
   const emBreve = evento.status === "breve";
   const esgotado = evento.status === "encerrada";
-  const gratuito = evento.preco.trim().toLowerCase() === "gratuito";
+  // Com variações (com e sem camisa), o preço é o da escolhida e a inscrição passa pelo checkout.
+  const gratuito = !evento.variacoes && evento.preco.trim().toLowerCase() === "gratuito";
   const selo = seloDoEvento(evento);
 
   const cta = emBreve ? "Inscrições em breve" : esgotado ? "Inscrições esgotadas" : gratuito ? "Fazer inscrição gratuita" : "Garantir minha inscrição";
@@ -154,6 +155,7 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
                   preco: evento.preco,
                   alvo: evento.idNaApi ? { atividade: { tipo: "EVENTO", id: evento.idNaApi } } : undefined,
                 }}
+                variacoes={evento.variacoes}
               />
             </div>
           </div>

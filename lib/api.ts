@@ -270,6 +270,41 @@ export async function enviarCodigoPara(telefone: string, telefoneDaConta: string
   return enviarCodigoDoCelular();
 }
 
+// ── Troca do e-mail da conta (recado da API de 17/11/2026) ────────────────────
+// Em dois passos: o e-mail novo e a senha atual → um código de 6 números vai para o e-mail novo (vale 15 minutos;
+// reenvio depois de 60 segundos) → o código confirma a troca, e o e-mail novo já fica verificado. Até lá, a conta
+// segue com o antigo para tudo (inclusive o login). A sessão continua valendo depois da troca.
+export type EnvioDaTroca = { validadeEmMinutos: number; reenvioEmSegundos: number };
+
+async function postarNaTroca<T>(caminho: string, corpo: object | null, mensagemPadrao: string): Promise<T> {
+  const res = await fetchAutenticado(caminho, {
+    method: "POST",
+    ...(corpo && { headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo) }),
+  });
+  if (res.status === 404 || res.status === 405) {
+    throw new ErroDaApi(res.status, "A troca de e-mail ainda não está disponível. Tente novamente mais tarde.", "INDISPONIVEL");
+  }
+  if (!res.ok) throw await lerErro(res, mensagemPadrao);
+  return res.json();
+}
+
+// Recusas: 422 SENHA_ATUAL_INCORRETA, 429 TROCA_DE_SENHA_BLOQUEADA, 422 MESMO_EMAIL_DA_CONTA, 409 EMAIL_JA_CADASTRADO,
+// 429 ENVIO_DA_TROCA_BLOQUEADO (código há menos de 60 s ou 5 na última hora), 400 (formato, mais de 120 caracteres).
+export function pedirTrocaDeEmail(email: string, senhaAtual: string) {
+  return postarNaTroca<EnvioDaTroca>("/auth/email/troca", { email, senhaAtual }, "Não foi possível enviar o código.");
+}
+
+// Recusas: 422 CODIGO_DA_TROCA_INVALIDO (dá para tentar de novo), 429 TENTATIVAS_DA_TROCA_ESGOTADAS e
+// 422 TROCA_DE_EMAIL_VENCIDA (voltar ao primeiro passo), 409 EMAIL_JA_CADASTRADO.
+export function confirmarTrocaDeEmail(codigo: string) {
+  return postarNaTroca<{ email: string; emailVerificadoEm: string }>("/auth/email/troca/confirmacao", { codigo }, "Não foi possível confirmar o código.");
+}
+
+// Outro código para o mesmo e-mail; o anterior deixa de valer. Recusas: 422 TROCA_DE_EMAIL_VENCIDA, 429 ENVIO_DA_TROCA_BLOQUEADO.
+export function reenviarCodigoDaTrocaDeEmail() {
+  return postarNaTroca<EnvioDaTroca>("/auth/email/troca/reenvio", null, "Não foi possível reenviar o código.");
+}
+
 // Reenvia o e-mail com o link de confirmação. Formato proposto ao backend (item 2.6). Responde 404 enquanto não existir.
 export async function reenviarConfirmacaoDeEmail(): Promise<void> {
   const res = await fetchAutenticado("/api/usuarios/eu/email/verificacao", { method: "POST" });
@@ -426,7 +461,8 @@ export async function conferirDisponibilidade(dados: { email: string; telefone: 
 // ── Compras ─────────────────────────────────────────────────────────────────
 
 // As formas da API desde a V150 (06/11/2026, fim do boleto). CUPOM: a compra que o cupom zerou.
-export type FormaDePagamento = "QUAD_COINS" | "CARTAO" | "PIX" | "CUPOM";
+// Lançadas pela recepção (recado da API de 17/11/2026): RECEPCAO, paga no balcão, e CORTESIA. O site nunca as manda.
+export type FormaDePagamento = "QUAD_COINS" | "CARTAO" | "PIX" | "CUPOM" | "RECEPCAO" | "CORTESIA";
 
 export type Compra = {
   id: string;
@@ -434,6 +470,8 @@ export type Compra = {
   item: { id: string; nome: string; tipo: string; plataforma?: "IMPRESSO" | "DIGITAL" | null };
   quantidade: number;
   formaDePagamento: FormaDePagamento;
+  // Quem da recepção lançou e como foi pago no balcão (meio nulo na cortesia). Nulo na compra feita pelo aluno.
+  lancamento?: { lancadaPor: { id: string; nome: string } | null; meio: "DINHEIRO" | "PIX" | "CARTAO" | null; observacao: string | null } | null;
   situacao: "CRIADA" | "AGUARDANDO_PAGAMENTO" | "PAGA" | "RECUSADA" | "EXPIRADA" | "CANCELADA" | "ESTORNADA";
   criadaEm: string;
   pagaEm: string | null;
@@ -476,8 +514,9 @@ export async function desistirDaCompra(compraId: string): Promise<Compra> {
 }
 
 // As compras feitas pelo site: cartão, PIX e a zerada por cupom (sem ela, quem usou um cupom de 100% não via a compra
-// nem baixava o PDF). Quad Coins é a moeda do app Viver o Quad, que compartilha a API.
-export const FORMAS_EM_REAIS: FormaDePagamento[] = ["CARTAO", "PIX", "CUPOM"];
+// nem baixava o PDF), e as lançadas pela recepção (paga no balcão ou cortesia), que também são do aluno.
+// Quad Coins é a moeda do app Viver o Quad, que compartilha a API.
+export const FORMAS_EM_REAIS: FormaDePagamento[] = ["CARTAO", "PIX", "CUPOM", "RECEPCAO", "CORTESIA"];
 
 // Para aluno, a API já devolve só as compras dele (comprovado em 05/10/2026). O site mostra só as feitas em reais.
 export async function listarMinhasComprasEmReais(): Promise<Compra[]> {

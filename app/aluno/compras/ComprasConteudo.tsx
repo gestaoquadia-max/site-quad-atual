@@ -30,6 +30,8 @@ const ENTREGA: Record<NonNullable<Compra["entrega"]>, string> = {
   CONCLUIDA: "Impresso: retirado",
 };
 
+const MEIO_NA_RECEPCAO = { DINHEIRO: "Dinheiro", PIX: "PIX", CARTAO: "Cartão" } as const;
+
 function descreverPagamento(c: Compra) {
   const cartao = c.pagamento?.cartao;
   if (c.formaDePagamento === "CARTAO") {
@@ -38,6 +40,11 @@ function descreverPagamento(c: Compra) {
     return `Cartão${final}${parcelas}`;
   }
   if (c.formaDePagamento === "CUPOM") return "Cupom";
+  if (c.formaDePagamento === "CORTESIA") return "Cortesia";
+  if (c.formaDePagamento === "RECEPCAO") {
+    const meio = c.lancamento?.meio ? MEIO_NA_RECEPCAO[c.lancamento.meio] : "";
+    return `Pago na recepção${meio ? ` · ${meio}` : ""}`;
+  }
   return "PIX";
 }
 
@@ -183,7 +190,9 @@ function Desistencia({ compra, aoDesistir }: { compra: Compra; aoDesistir: (c: C
     const digital = compra.item.plataforma === "DIGITAL" && d.impedimento === "ITEM_JA_RETIRADO";
     const motivo = digital
       ? "Não dá para desistir de um material digital: o PDF já foi liberado para você."
-      : d.impedimento
+      : compra.lancamento || compra.formaDePagamento === "RECEPCAO" || compra.formaDePagamento === "CORTESIA"
+        ? "Esta compra foi lançada pela recepção, e a desistência não é feita pelo site."
+        : d.impedimento
         ? MOTIVO_DO_IMPEDIMENTO[d.impedimento]
         : undefined;
     if (!motivo) return null;

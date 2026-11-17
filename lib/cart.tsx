@@ -114,7 +114,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => {
       const existente = prev.find((i) => i.id === item.id);
       if (existente) {
-        if (!temQuantidade(item)) return prev;
+        // Sem quantidade (turma, evento, simulado): fica a escolha mais recente, como a outra variação do evento.
+        if (!temQuantidade(item)) return prev.map((i) => (i.id === item.id ? { ...item, quantidade: 1 } : i));
         return prev.map((i) => (i.id === item.id ? { ...i, quantidade: i.quantidade + quantidade } : i));
       }
       return [...prev, { ...item, quantidade: temQuantidade(item) ? quantidade : 1 }];

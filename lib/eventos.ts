@@ -46,7 +46,8 @@ export function paraCartao(e: Evento): DadosDoCartaoEvento {
   // Evento com opções (individual e dupla): o cartão leva à página, onde se escolhe a opção, e mostra o preço da mais
   // barata, como o cartão da excursão.
   const comOpcoes = (e.opcoes?.length ?? 0) > 1;
-  const vendavel = !comOpcoes && e.status === "aberta" && parsePreco(e.preco) !== null;
+  // Com variações (com e sem camisa), a escolha é na página: sem o variacaoId, a API recusa a compra.
+  const vendavel = !comOpcoes && !e.variacoes && e.status === "aberta" && parsePreco(e.preco) !== null;
   return {
     id: e.slug,
     titulo: comOpcoes ? (e.titulo ?? e.nome) : e.nome,

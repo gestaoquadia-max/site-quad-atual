@@ -85,6 +85,22 @@ type AtividadeDaVitrine = {
     origemId?: string | null;
     pdfs?: { titulo: string }[] | null;
   } | null;
+  // EVENTO (recado da API de 17/11/2026): as variações ativas, na ordem do cadastro ("Sem camisa", "Com camisa G").
+  // Com alguma, o aluno escolhe uma e o carrinho manda o variacaoId. ofertadas/restantes nulos: sem teto próprio
+  // (valem os restantes do evento). `preco` e `lote` da atividade são os do evento sem o acréscimo; o da variação está
+  // nela. Turma e simulado: sempre [].
+  variacoes?: VariacaoDaAtividade[] | null;
+};
+
+type VariacaoDaAtividade = {
+  id: string;
+  nome: string;
+  ofertadas: number | null;
+  vendidas: number | null;
+  restantes: number | null;
+  acrescimoEmCentavos: number;
+  preco: number | null;
+  precoCheio: number | null;
 };
 
 type ConcursoDaVitrine = { id: string; codigo: string; nome: string; rotulo: string };
@@ -471,8 +487,22 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
   // AULAO ou EVENTO (corujão, gincana, palestra); sem a espécie (API antiga), "Evento".
   const especie = simulado ? "Simulado" : d.especie === "AULAO" ? "Aulão" : "Evento";
   const desc = [especie, data && diaBarraMes(data), horario, formato].filter(Boolean).join(" · ");
+  // Variação esgotada: acabou o teto dela, ou, sem teto próprio, as vagas do evento.
+  const restantesDoEvento = vagas.vagasTotal !== undefined ? vagas.vagasTotal - vagas.vagasOcupadas : null;
+  const variacoes = (a.variacoes ?? []).map((v) => {
+    const restantes = v.restantes ?? restantesDoEvento;
+    return {
+      id: v.id,
+      nome: v.nome,
+      preco: v.preco === null ? "Consulte" : v.preco === 0 ? "Gratuito" : precoEmTexto(emReais(v.preco)),
+      precoCheio: v.precoCheio !== null && v.preco !== null && v.precoCheio > v.preco ? precoEmTexto(emReais(v.precoCheio)) : undefined,
+      restantes: v.restantes,
+      esgotada: restantes !== null && restantes <= 0,
+    };
+  });
 
   return {
+    ...(variacoes.length > 0 && { variacoes }),
     slug: slugDa(a),
     idNaApi: a.id,
     imagem: a.imagemUrl ?? undefined,

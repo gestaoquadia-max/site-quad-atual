@@ -13,7 +13,10 @@ import {
   buscarExclusaoDaConta,
   cancelarExclusaoDaConta,
   confirmarCodigoDoCelular,
+  confirmarTrocaDeEmail,
   enviarCodigoPara,
+  pedirTrocaDeEmail,
+  reenviarCodigoDaTrocaDeEmail,
   pedirExclusaoDaConta,
   reenviarConfirmacaoDeEmail,
   type Endereco,
@@ -131,6 +134,7 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
   const [erro, setErro] = useState("");
   const [salvo, setSalvo] = useState(false);
   const [mostrarTrocaTelefone, setMostrarTrocaTelefone] = useState(false);
+  const [mostrarTrocaEmail, setMostrarTrocaEmail] = useState(false);
   const bloqueado = !usuario.podeEditarCadastro;
 
   async function salvar() {
@@ -179,12 +183,13 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
         E-mail
         {usuario.emailVerificado && <SeloConfirmado />}
       </label>
-      <input
-        id="perfil-email"
-        value={usuario.email ?? "—"}
-        disabled
-        className={classeInput}
-      />
+      <div className="mb-4 flex gap-2">
+        <input id="perfil-email" value={usuario.email ?? "—"} disabled className={`${classeInput} mb-0`} />
+        <button type="button" onClick={() => setMostrarTrocaEmail((v) => !v)} disabled={!usuario.dadosDaContaDisponiveis} className={classeBotaoContorno}>
+          Alterar
+        </button>
+      </div>
+      {mostrarTrocaEmail && <TrocaDeEmail emailAtual={usuario.email} onTrocado={onSalvo} />}
 
       <label className={classeLabel} htmlFor="perfil-cpf">
         CPF
@@ -221,7 +226,7 @@ function DadosPessoais({ usuario, onSalvo }: { usuario: UsuarioAtual; onSalvo: (
       <button type="button" onClick={salvar} disabled={bloqueado || salvando} className={classeBotao}>
         {salvando ? "Salvando..." : "Salvar alterações"}
       </button>
-      <p className="mt-3 text-center text-[13px] text-ardosia">CPF e e-mail não podem ser alterados por aqui.</p>
+      <p className="mt-3 text-center text-[13px] text-ardosia">O CPF não pode ser alterado por aqui.</p>
     </Cartao>
   );
 }
@@ -440,6 +445,194 @@ function TrocaDeTelefoneNaoVerificado({ telefoneAtual, onTrocado }: { telefoneAt
             {carregando ? "Enviando..." : "Enviar código para o novo número"}
           </button>
           {indisponivel && <p className="mt-2 text-center text-[13px] text-ardosia">O envio do código ainda não está disponível.</p>}
+        </>
+      )}
+    </div>
+  );
+}
+
+// Troca do e-mail (recado da API de 17/11/2026): o e-mail novo e a senha atual → código de 6 números no e-mail novo
+// → a troca. Até o código ser confirmado, a conta segue com o e-mail antigo para tudo, inclusive o login.
+const VOLTA_AO_INICIO = new Set(["TENTATIVAS_DA_TROCA_ESGOTADAS", "TROCA_DE_EMAIL_VENCIDA"]);
+const MENSAGEM_DA_TROCA: Record<string, string> = {
+  SENHA_ATUAL_INCORRETA: "A senha atual está incorreta.",
+  TROCA_DE_SENHA_BLOQUEADA: "Muitas tentativas com a senha errada. Tente novamente mais tarde.",
+  MESMO_EMAIL_DA_CONTA: "Esse já é o e-mail da sua conta.",
+  EMAIL_JA_CADASTRADO: "Esse e-mail já é de outra conta.",
+  ENVIO_DA_TROCA_BLOQUEADO: "Aguarde um pouco antes de pedir outro código.",
+  CODIGO_DA_TROCA_INVALIDO: "Código incorreto. Confira e digite de novo.",
+  TENTATIVAS_DA_TROCA_ESGOTADAS: "Muitas tentativas com o código errado. Peça a troca de novo.",
+  TROCA_DE_EMAIL_VENCIDA: "O código venceu. Peça a troca de novo.",
+};
+const EMAIL_VALIDO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function TrocaDeEmail({ emailAtual, onTrocado }: { emailAtual: string | null; onTrocado: () => void }) {
+  const [novoEmail, setNovoEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [codigoEnviadoPara, setCodigoEnviadoPara] = useState<string | null>(null);
+  const [validade, setValidade] = useState(15);
+  const [codigo, setCodigo] = useState("");
+  const [reenviarEm, setReenviarEm] = useState(0);
+  const [agora, setAgora] = useState(() => Date.now());
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState("");
+  const [aviso, setAviso] = useState("");
+  const [trocadoPara, setTrocadoPara] = useState<string | null>(null);
+  const email = novoEmail.trim();
+
+  useEffect(() => {
+    if (!reenviarEm) return;
+    const id = setInterval(() => setAgora(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [reenviarEm]);
+  const segundosParaReenviar = Math.max(0, Math.ceil((reenviarEm - agora) / 1000));
+
+  function tratarErro(e: unknown) {
+    if (e instanceof ErroDaApi && e.codigo && VOLTA_AO_INICIO.has(e.codigo)) {
+      setCodigoEnviadoPara(null);
+      setCodigo("");
+      setSenha("");
+    }
+    setErro(e instanceof ErroDaApi && e.codigo && MENSAGEM_DA_TROCA[e.codigo] ? MENSAGEM_DA_TROCA[e.codigo] : mensagemDoErro(e));
+  }
+
+  function codigoEnviado(envio: { validadeEmMinutos: number; reenvioEmSegundos: number }) {
+    setValidade(envio.validadeEmMinutos > 0 ? envio.validadeEmMinutos : 15);
+    setReenviarEm(Date.now() + (envio.reenvioEmSegundos > 0 ? envio.reenvioEmSegundos : 60) * 1000);
+    setAgora(Date.now());
+    setCodigo("");
+  }
+
+  async function pedir() {
+    if (!EMAIL_VALIDO.test(email) || email.length > 120) return setErro("Informe um e-mail válido.");
+    if (emailAtual && email.toLowerCase() === emailAtual.toLowerCase()) return setErro(MENSAGEM_DA_TROCA.MESMO_EMAIL_DA_CONTA);
+    if (!senha) return setErro("Informe a sua senha atual.");
+    setErro("");
+    setAviso("");
+    setCarregando(true);
+    try {
+      codigoEnviado(await pedirTrocaDeEmail(email, senha));
+      setCodigoEnviadoPara(email);
+      setSenha("");
+    } catch (e) {
+      tratarErro(e);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  async function reenviar() {
+    setErro("");
+    setAviso("");
+    setCarregando(true);
+    try {
+      codigoEnviado(await reenviarCodigoDaTrocaDeEmail());
+      setAviso("Enviamos um novo código. O anterior deixou de valer.");
+    } catch (e) {
+      tratarErro(e);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  async function confirmar() {
+    if (codigo.length !== 6) return setErro("Digite os 6 números do código.");
+    setErro("");
+    setAviso("");
+    setCarregando(true);
+    try {
+      const r = await confirmarTrocaDeEmail(codigo);
+      setTrocadoPara(r.email);
+      onTrocado();
+    } catch (e) {
+      tratarErro(e);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  if (trocadoPara) {
+    return (
+      <Aviso tipo="sucesso">
+        E-mail trocado e confirmado. O seu e-mail agora é <strong>{trocadoPara}</strong>, e é com ele que você entra da próxima vez.
+      </Aviso>
+    );
+  }
+
+  const linkPequeno = "text-[13px] font-semibold text-azul-forte underline-offset-4 hover:underline disabled:cursor-not-allowed disabled:text-ardosia disabled:no-underline";
+
+  return (
+    <div className="mb-4 rounded-xl border border-linha bg-nevoa p-4">
+      {codigoEnviadoPara ? (
+        <>
+          <p className="mb-3 text-[13.5px] leading-relaxed text-ardosia-escura">
+            Enviamos um código de 6 números para <strong className="text-tinta">{codigoEnviadoPara}</strong>. Ele vale {validade} minutos.
+            Confira também o spam. Até você confirmar, a sua conta continua com o e-mail atual.
+          </p>
+          <CampoDoCodigo id="perfil-codigo-email" valor={codigo} aoMudar={setCodigo} disabled={carregando} />
+          {erro && <div className="mt-3"><Aviso tipo="erro">{erro}</Aviso></div>}
+          {aviso && <div className="mt-3"><Aviso tipo="info">{aviso}</Aviso></div>}
+          <button type="button" onClick={confirmar} disabled={carregando} className={classeBotao}>
+            {carregando ? "Confirmando..." : "Confirmar código"}
+          </button>
+          <div className="mt-3 flex justify-between gap-3">
+            <button type="button" onClick={reenviar} disabled={carregando || segundosParaReenviar > 0} className={linkPequeno}>
+              {segundosParaReenviar > 0 ? `Reenviar código em ${segundosParaReenviar}s` : "Reenviar código"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setCodigoEnviadoPara(null);
+                setErro("");
+                setAviso("");
+              }}
+              disabled={carregando}
+              className={linkPequeno}
+            >
+              Corrigir e-mail
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <label className={classeLabel} htmlFor="perfil-email-novo">
+            Novo e-mail
+          </label>
+          <input
+            id="perfil-email-novo"
+            type="email"
+            autoComplete="email"
+            value={novoEmail}
+            onChange={(e) => setNovoEmail(e.target.value)}
+            maxLength={120}
+            disabled={carregando}
+            className={`${classeInput} bg-superficie`}
+          />
+          <label className={classeLabel} htmlFor="perfil-email-senha">
+            Senha atual
+          </label>
+          <input
+            id="perfil-email-senha"
+            type="password"
+            autoComplete="current-password"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && pedir()}
+            disabled={carregando}
+            className={`${classeInput} mb-2 bg-superficie`}
+          />
+          <p className="mb-3 text-[13px] leading-relaxed text-ardosia-escura">
+            O novo e-mail recebe um código de 6 números, e a troca só vale depois que você digitar o código. Se você entra só pelo Google
+            e não tem senha, crie uma em{" "}
+            <Link href="/esqueci-senha" className="font-semibold text-azul-forte underline underline-offset-4">
+              Esqueci a senha
+            </Link>{" "}
+            antes de trocar.
+          </p>
+          {erro && <Aviso tipo="erro">{erro}</Aviso>}
+          <button type="button" onClick={pedir} disabled={carregando} className={`${classeBotaoContorno} w-full`}>
+            {carregando ? "Enviando..." : "Enviar código para o novo e-mail"}
+          </button>
         </>
       )}
     </div>

@@ -85,6 +85,9 @@ export type Evento = {
   titulo?: string;
   opcao?: string;
   opcoes?: { slug: string; rotulo: string; preco: string; esgotado: boolean }[];
+  // Variações do mesmo cadastro (API, 17/11/2026: "Sem camisa", "Com camisa G"), cada uma com o seu preço e, se tiver,
+  // o seu teto de vagas (restantes nulo = vale o do evento). Só existe com alguma; aí o aluno precisa escolher uma.
+  variacoes?: { id: string; nome: string; preco: string; precoCheio?: string; restantes: number | null; esgotada: boolean }[];
   detalhe?: {
     lead: string;
     sobre: string[];
