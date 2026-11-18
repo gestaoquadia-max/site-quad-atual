@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { Evento, Produto, Turma } from "@/lib/data";
 import { ehKit } from "@/lib/materiais";
 import { EM_ESPERA } from "@/lib/em-espera";
@@ -13,6 +13,7 @@ import { LINK_DAS_MENTORIAS } from "@/lib/conteudo";
 import { useCart } from "@/lib/cart";
 import { useUsuarioAtual } from "@/lib/usuario";
 import NewsTicker, { type TomDoTopo } from "./NewsTicker";
+import BuscaDoSite from "./BuscaDoSite";
 import NavMegaMenu, { ITENS_NO_MENU, type MegaMenuFeatured, type MegaMenuItem } from "./NavMegaMenu";
 
 // Cores do topo: azul em todo o site e, nas páginas das Mentorias, a cor delas (TOM_DAS_MENTORIAS): barra de avisos,
@@ -280,6 +281,17 @@ export default function Navbar({ turmas, eventos, materiais, temExcursoes = fals
   const [suspenso, setSuspenso] = useState<string | null>(null);
   const [menuCelular, setMenuCelular] = useState(false);
   const [sanfona, setSanfona] = useState<string | null>(null);
+  // A busca (components/BuscaDoSite.tsx): uma lupa no computador e outra no celular; abre a da tela atual.
+  const [busca, setBusca] = useState<"computador" | "celular" | null>(null);
+  const abrirBuscaDoComputador = useCallback(() => {
+    setSuspenso(null);
+    setBusca("computador");
+  }, []);
+  const abrirBuscaDoCelular = useCallback(() => {
+    setMenuCelular(false);
+    setBusca("celular");
+  }, []);
+  const fecharBusca = useCallback(() => setBusca(null), []);
   // Depois do Esc o foco volta ao link do menu; esse foco não deve reabrir o submenu.
   const ignorarProximoFoco = useRef(false);
 
@@ -289,6 +301,7 @@ export default function Navbar({ turmas, eventos, materiais, temExcursoes = fals
     setSuspenso(null);
     setMenuCelular(false);
     setSanfona(null);
+    setBusca(null);
   }
 
   const acesso = usuario ? { href: "/aluno", label: "Área do Aluno" } : { href: "/entrar", label: "Entrar" };
@@ -320,7 +333,10 @@ export default function Navbar({ turmas, eventos, materiais, temExcursoes = fals
               return (
                 <li
                   key={l.href}
-                  onMouseEnter={() => setSuspenso(l.menu ? l.href : null)}
+                  onMouseEnter={() => {
+                    // Com a busca aberta, passar o mouse pelos links não abre submenu por cima dela.
+                    if (!busca) setSuspenso(l.menu ? l.href : null);
+                  }}
                   // Teclado: abre ao receber o foco, fecha quando o foco sai do item ou com Esc.
                   onFocus={() => {
                     if (ignorarProximoFoco.current) ignorarProximoFoco.current = false;
@@ -364,6 +380,7 @@ export default function Navbar({ turmas, eventos, materiais, temExcursoes = fals
 
           {/* Computador: carrinho e Área do Aluno no canto direito (a logo fica no esquerdo e os links no centro). */}
           <div className="hidden items-center gap-1.5 justify-self-end min-[1220px]:flex">
+            <BuscaDoSite tomDoTopo={tomDoTopo} aberta={busca === "computador"} onAbrir={abrirBuscaDoComputador} onFechar={fecharBusca} />
             <Link
               href="/carrinho"
               aria-label={rotuloDoCarrinho}
@@ -377,6 +394,7 @@ export default function Navbar({ turmas, eventos, materiais, temExcursoes = fals
           </div>
 
           <div className="flex items-center gap-1 min-[1220px]:hidden">
+            <BuscaDoSite tomDoTopo={tomDoTopo} aberta={busca === "celular"} onAbrir={abrirBuscaDoCelular} onFechar={fecharBusca} />
             <Link href="/carrinho" aria-label={rotuloDoCarrinho} className="relative grid h-11 w-11 place-items-center text-prata">
               <IconeCarrinho quantidade={totalCount} selo={tema.selo} />
             </Link>
@@ -387,7 +405,10 @@ export default function Navbar({ turmas, eventos, materiais, temExcursoes = fals
               type="button"
               aria-label={menuCelular ? "Fechar menu" : "Abrir menu"}
               aria-expanded={menuCelular}
-              onClick={() => setMenuCelular((v) => !v)}
+              onClick={() => {
+                setBusca(null);
+                setMenuCelular((v) => !v);
+              }}
               className="flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-full"
             >
               <span className={`block h-0.5 w-5 rounded bg-[#DCE4EF] transition-transform duration-200 ${menuCelular ? "translate-y-[7px] rotate-45" : ""}`} />

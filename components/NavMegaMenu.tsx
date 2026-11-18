@@ -65,7 +65,7 @@ const COR_DO_DESTAQUE = {
 };
 
 // O painel do submenu, na cor do topo.
-const PAINEL_DO_TOPO: Record<TomDoTopo, string> = {
+export const PAINEL_DO_TOPO: Record<TomDoTopo, string> = {
   azul: "border-[rgba(111,174,255,0.16)] bg-marinho-900",
   vinho: "border-[rgba(243,163,177,0.16)] bg-[#24080F]",
   black: "border-[rgba(255,122,46,0.18)] bg-breu-800",
