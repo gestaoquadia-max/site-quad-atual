@@ -116,7 +116,9 @@ jobs:
           cp -r .next/static .next/standalone/.next/static
           cp -r public .next/standalone/public
           tar -czf site.tar.gz -C .next/standalone .
-          tar -tzf site.tar.gz | grep -qx './server.js'
+          # O tar procura só o server.js e falha se ele não estiver lá. Não "tar -t | grep -q": o grep sai no primeiro
+          # achado, o tar ainda tem nomes a escrever e morre com "write error" - e o pipefail derruba o passo.
+          tar -tzf site.tar.gz ./server.js >/dev/null
           ls -lh site.tar.gz
 
       - name: Autenticar na AWS via OIDC
