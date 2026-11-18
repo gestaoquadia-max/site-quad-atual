@@ -172,7 +172,9 @@ export default function BuscaDoSite({ tomDoTopo, aberta, onAbrir, onFechar }: { 
                 enterKeyHint="search"
                 maxLength={80}
                 // Sem o contorno de foco do site (app/globals.css): a caixa aberta, com o cursor piscando, já mostra onde se digita.
-                className="h-[58px] min-w-0 flex-1 bg-transparent text-[16px] text-white outline-none placeholder:text-[#8FA0B8] focus-visible:outline-none [&::-webkit-search-cancel-button]:hidden"
+                // "outline: none" de verdade: o outline-none do Tailwind só deixa o contorno transparente, e o tema da
+                // Black Friday (app/tema-black.css) troca a cor dele por laranja.
+                className="h-[58px] min-w-0 flex-1 bg-transparent text-[16px] text-white placeholder:text-[#8FA0B8] [outline:none] focus-visible:[outline:none] [&::-webkit-search-cancel-button]:hidden"
               />
               <button type="button" onClick={fechar} className="flex-none rounded-md border border-white/15 px-2 py-0.5 text-[11px] font-semibold text-prata hover:text-white">
                 Esc
