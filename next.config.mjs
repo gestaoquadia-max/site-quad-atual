@@ -55,10 +55,20 @@ const cabecalhosDeSeguranca = [
   { key: "Strict-Transport-Security", value: "max-age=63072000" },
 ];
 
+// A pasta deste projeto. Há outro package-lock.json numa pasta acima, e sem a raiz fixa o Next adotaria a de cima.
+const RAIZ_DO_PROJETO = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Há outro package-lock.json numa pasta acima; fixa a raiz neste projeto.
-  turbopack: { root: path.dirname(fileURLToPath(import.meta.url)) },
+  // O pacote que a máquina da AWS roda (projeto terraform-site-quad): .next/standalone/server.js com o node_modules
+  // mínimo, sem npm install na máquina. O job publicar do verificacao.yml junta .next/static e public e envia ao S3.
+  output: "standalone",
+  // A mesma raiz no build e no rastreio dos arquivos do standalone: com a de cima, o server.js sairia numa subpasta
+  // do .next/standalone e a máquina recusaria o pacote.
+  turbopack: { root: RAIZ_DO_PROJETO },
+  outputFileTracingRoot: RAIZ_DO_PROJETO,
+  // Na AWS quem comprime é o Caddy, na frente do Next (zstd e gzip); o Node não gasta CPU com isso.
+  compress: false,
   // Ícones: carrega só os usados, não o pacote inteiro.
   experimental: { optimizePackageImports: ["@phosphor-icons/react"] },
   // Não anuncia que o site é feito em Next.js.

@@ -1,4 +1,5 @@
-# Confere o projeto a cada envio ao GitHub: tipos, padrões de código e build de produção.
+# Confere o projeto a cada envio ao GitHub: tipos, padrões de código e build de produção. Na main, depois da
+# conferência, publica o site na AWS (job publicar; a infraestrutura é o projeto terraform-site-quad).
 # Os testes de ponta a ponta (npm run test:e2e) não rodam aqui porque precisam da API e do banco de teste;
 # rode-os na máquina, com a API local ligada.
 name: Verificação
@@ -14,9 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # O mesmo Node da máquina da AWS (node_versao no Terraform) e do job publicar.
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Instalar dependências
@@ -35,3 +37,153 @@ jobs:
 
       - name: Vulnerabilidades graves nas dependências do site
         run: npm audit --omit=dev --audit-level=high
+
+  # Publica na AWS (EC2 em São Paulo, atrás do Caddy). Tudo vem das Variables do repositório (não Secrets - nada aqui
+  # é segredo): AWS_DEPLOY_ROLE_ARN, SITE_AWS_REGION, SITE_BUCKET, SITE_PACOTE_KEY, SITE_ASG e NEXT_PUBLIC_SITE_URL
+  # saem do output github_variables do Terraform; NEXT_PUBLIC_API_URL e NEXT_PUBLIC_GOOGLE_CLIENT_ID são as de sempre.
+  # A role da AWS só aceita esta branch, deste repositório - o ARN dela não é segredo.
+  publicar:
+    # Só publica o que passou nos tipos, no lint, no build e no npm audit.
+    needs: verificar
+    # Só o que entrou na main. Em pull_request o job nem roda - e a role da AWS também não confiaria nele.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Um deploy de cada vez, na ordem dos pushes: dois ao mesmo tempo poderiam deixar no ar o mais velho.
+    concurrency:
+      group: publicar-site
+      cancel-in-progress: false
+    # SEM "environment:" neste job: ele troca o sub do token OIDC para repo:dono/repo:environment:<nome>, e a role
+    # (que espera repo:dono/repo:ref:refs/heads/main) recusa.
+
+    permissions:
+      contents: read
+      # É isto que permite ao workflow pedir o token OIDC para entrar na AWS.
+      id-token: write
+
+    env:
+      SITE_BUCKET: ${{ vars.SITE_BUCKET }}
+      SITE_PACOTE_KEY: ${{ vars.SITE_PACOTE_KEY }}
+      SITE_ASG: ${{ vars.SITE_ASG }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # O mesmo Node da máquina: compilar num major e rodar noutro quebra o sharp do next/image, que é nativo.
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # Sem NEXT_PUBLIC_API_URL o build quebra no meio; sem NEXT_PUBLIC_SITE_URL ele PASSA e o site sai com o endereço
+      # errado nos links, no sitemap e no canonical. Melhor falhar aqui, dizendo qual falta.
+      - name: Conferir as variáveis do site
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+        run: |
+          faltam=""
+          [ -n "$NEXT_PUBLIC_API_URL" ] || faltam="$faltam NEXT_PUBLIC_API_URL"
+          [ -n "$NEXT_PUBLIC_SITE_URL" ] || faltam="$faltam NEXT_PUBLIC_SITE_URL"
+          if [ -n "$faltam" ]; then
+            echo "::error::Faltam as Variables do repositório:$faltam"
+            exit 1
+          fi
+          if [ -z "$NEXT_PUBLIC_GOOGLE_CLIENT_ID" ]; then
+            echo "::warning::Sem NEXT_PUBLIC_GOOGLE_CLIENT_ID o botão \"Continuar com o Google\" não aparece."
+          fi
+
+      # As NEXT_PUBLIC_ são embutidas no JavaScript AQUI, no build; a máquina nunca as vê. O build também pré-monta as
+      # páginas com a vitrine da API de produção (generateStaticParams): com a API fora, ele falha.
+      - name: Compilar
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: npm run build
+
+      # O standalone traz o server.js e o node_modules mínimo, mas não os arquivos estáticos: .next/static e public
+      # (fotos, vídeos da home) entram à mão, onde o server.js os procura. O server.js tem de ficar na RAIZ do tar - a
+      # máquina recusa o pacote sem ele.
+      - name: Montar o pacote
+        run: |
+          set -euo pipefail
+          test -f .next/standalone/server.js
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public
+          tar -czf site.tar.gz -C .next/standalone .
+          tar -tzf site.tar.gz | grep -qx './server.js'
+          ls -lh site.tar.gz
+
+      - name: Autenticar na AWS via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.SITE_AWS_REGION }}
+
+      # O nome no bucket é fixo: é o que a máquina baixa a cada start. O versionamento do bucket guarda as versões
+      # anteriores por 30 dias (README do terraform-site-quad, "Voltar uma versão").
+      - name: Publicar o pacote no S3
+        run: aws s3 cp site.tar.gz "s3://$SITE_BUCKET/$SITE_PACOTE_KEY"
+
+      # O site fica no ar 24 horas: sem máquina, algo está errado e o job fica vermelho (o pacote já está no S3 e entra
+      # no boot da próxima). Durante uma troca de máquina são duas, e as duas recebem a versão.
+      #
+      # Em cada máquina: baixa ANTES do restart (um pacote recusado não derruba nada - o set -e não deixa o restart
+      # acontecer) e, depois do restart, confere que o site responde. O site fica fora do ar só o tempo de o Node subir
+      # (~1-2 s). A porta 3000 é o app_port do Terraform.
+      - name: Trocar a versão nas máquinas no ar
+        run: |
+          set -euo pipefail
+
+          INSTANCIAS=$(aws ec2 describe-instances \
+            --filters "Name=tag:aws:autoscaling:groupName,Values=$SITE_ASG" \
+                      "Name=instance-state-name,Values=running" \
+            --query 'Reservations[].Instances[].InstanceId' --output text)
+
+          if [ -z "$INSTANCIAS" ]; then
+            echo "::error::Nenhuma máquina do site no ar (ASG $SITE_ASG). O pacote novo está no S3 e sobe no boot da próxima máquina."
+            exit 1
+          fi
+
+          cat > /tmp/comando.json <<'JSON'
+          {"commands": [
+            "set -e",
+            "/usr/local/bin/site-baixar-versao",
+            "systemctl restart site",
+            "for i in $(seq 1 30); do curl -fsS -o /dev/null http://127.0.0.1:3000/ && exit 0; sleep 2; done",
+            "echo 'o site nao respondeu em 60 s depois do restart: journalctl -u site' >&2",
+            "exit 1"
+          ]}
+          JSON
+
+          echo "Trocando a versão em: $INSTANCIAS"
+          # $INSTANCIAS sem aspas de propósito: um id por argumento.
+          COMANDO=$(aws ssm send-command \
+            --instance-ids $INSTANCIAS \
+            --document-name AWS-RunShellScript \
+            --comment "deploy ${GITHUB_SHA::7}" \
+            --parameters file:///tmp/comando.json \
+            --query Command.CommandId --output text)
+
+          FALHOU=0
+          for INSTANCIA in $INSTANCIAS; do
+            # O wait falha por timeout se o comando demorar; o get abaixo é quem dá o veredito.
+            aws ssm wait command-executed --command-id "$COMANDO" --instance-id "$INSTANCIA" || true
+
+            aws ssm get-command-invocation \
+              --command-id "$COMANDO" --instance-id "$INSTANCIA" \
+              --query '[StandardOutputContent,StandardErrorContent]' --output text || true
+
+            STATUS=$(aws ssm get-command-invocation \
+              --command-id "$COMANDO" --instance-id "$INSTANCIA" \
+              --query Status --output text)
+            echo "$INSTANCIA: $STATUS"
+            [ "$STATUS" = "Success" ] || FALHOU=1
+          done
+
+          exit $FALHOU

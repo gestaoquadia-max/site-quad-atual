@@ -24,7 +24,7 @@ Para entrar na área do aluno, crie uma conta em `/cadastro` (a API precisa esta
 | `npx tsc --noEmit` | Checagem de tipos |
 | `npm run test:e2e` | Testes de ponta a ponta com o Playwright (abre o site no Chrome e faz o que o aluno faria). Precisa da **API local ligada** com os dados de teste de `tests/e2e/contas.ts`; sobe o site sozinho se ele não estiver rodando. Relatório em `playwright-report/` |
 
-A cada envio ao GitHub, `.github/workflows/verificacao.yml` confere tipos, padrões de código, build de produção e vulnerabilidades graves das dependências do site.
+A cada envio ao GitHub, `.github/workflows/verificacao.yml` confere tipos, padrões de código, build de produção e vulnerabilidades graves das dependências do site. Na `main`, se tudo passar, o job `publicar` monta o site (`output: "standalone"`), envia o pacote ao S3 e troca a versão na máquina da AWS, em São Paulo; a infraestrutura e o passo a passo estão no projeto `terraform-site-quad`. O Node é o do `.nvmrc`, o mesmo da máquina.
 
 ## Estrutura
 
