@@ -1,5 +1,7 @@
 export type Turma = {
   slug: string;
+  // Até quando se vende (ISO-8601 UTC, da API; recado de 19/11/2026). Sem ele, sem prazo marcado.
+  vendaAte?: string;
   tag: string;
   nome: string;
   desc: string;
@@ -46,6 +48,8 @@ export type OfertaDoMaterial = { slug: string; idNaApi: string; preco: string; e
 
 export type Produto = {
   slug: string;
+  // Até quando se vende (ISO-8601 UTC, da API; recado de 19/11/2026). Sem ele, sem prazo marcado.
+  vendaAte?: string;
   // O id do item na API: é o que o carrinho do servidor reserva (o endereço é o slug).
   idNaApi?: string;
   tag: string;
@@ -69,6 +73,8 @@ export type Produto = {
 
 export type Evento = {
   slug: string;
+  // Até quando se vende (ISO-8601 UTC, da API; recado de 19/11/2026). Sem ele, sem prazo marcado.
+  vendaAte?: string;
   // A arte cadastrada no evento (imagemUrl da API); sem ela, o fundo com a marca do Quad.
   imagem?: string;
   // O id da atividade na API: é o que o carrinho do servidor reserva (o endereço é o slug).

@@ -5,6 +5,8 @@ import type { ProdutoDaLoja } from "@/lib/conteudo";
 import { useCart } from "@/lib/cart";
 import BotoesDeCompra from "../BotoesDeCompra";
 import { precoSemCentavosZerados } from "@/lib/format";
+import { chamadaDa } from "@/lib/seo";
+import PrazoDeVenda from "../PrazoDeVenda";
 
 const MAXIMO = 20;
 
@@ -49,7 +51,9 @@ export default function CompraDoProdutoDaLoja({ produto }: { produto: ProdutoDaL
         <span className="font-display text-[34px] font-extrabold tracking-[-0.03em]">{preco ?? "A confirmar"}</span>
         <span className={`inline-flex h-[26px] items-center whitespace-nowrap rounded-full px-2.5 text-[12.5px] font-semibold ${estoque.classe}`}>{estoque.texto}</span>
       </div>
-      {produto.descricao && <p className="text-base leading-[1.6] text-[#3E4A5E]">{produto.descricao}</p>}
+      {/* No painel de compra, só a chamada: o texto inteiro fica embaixo, na página (app/loja/[id]/page.tsx). */}
+      {produto.descricao && <p className="text-base leading-[1.6] text-[#3E4A5E] [overflow-wrap:anywhere]">{chamadaDa(produto.descricao)}</p>}
+      {!esgotado && <PrazoDeVenda vendaAte={produto.vendaAte} rotulo="Vendas" className="text-[15px] text-[#3E4A5E]" />}
 
       {variacoes.map((v) => (
         <div key={v.nome} role="radiogroup" aria-label={v.nome} className="flex flex-col gap-2.5">

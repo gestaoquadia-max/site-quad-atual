@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import LimparCarrinho from "./LimparCarrinho";
+import AvisoForaDaCobranca from "@/components/compra/AvisoForaDaCobranca";
 import Etapas from "@/components/compra/Etapas";
+import NumeroDoPedido from "@/components/compra/NumeroDoPedido";
 import { NOME_DO_SITE, resumir } from "@/lib/seo";
 
 type Status = "aprovado" | "pendente" | "recusado" | "inscricao" | "matricula";
@@ -54,7 +56,14 @@ function lerStatus(valor: string | string[] | undefined): Status {
   return typeof valor === "string" && valor in telas ? (valor as Status) : "aprovado";
 }
 
-type Props = { searchParams: Promise<{ status?: string | string[]; metodo?: string | string[] }> };
+type Props = {
+  searchParams: Promise<{ status?: string | string[]; metodo?: string | string[]; pedido?: string | string[]; fechamento?: string | string[]; combo?: string | string[] }>;
+};
+
+// O número do pedido vem do checkout na URL (seis dígitos; recado da API de 19/11/2026). Fora desse formato, não aparece.
+function lerNumeroDoPedido(valor: string | string[] | undefined) {
+  return typeof valor === "string" && /^\d{4,12}$/.test(valor) ? valor : null;
+}
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const { status, metodo } = await searchParams;
@@ -67,18 +76,23 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function ConfirmacaoPage({ searchParams }: Props) {
-  const { status, metodo } = await searchParams;
+  const { status, metodo, pedido, fechamento, combo } = await searchParams;
   const tela = telas[lerStatus(status)];
+  const numeroDoPedido = lerNumeroDoPedido(pedido);
+  const idDoFechamento = typeof fechamento === "string" && fechamento ? fechamento : undefined;
 
   return (
     <div className="bg-nevoa">
-      {tela.limpar && <LimparCarrinho />}
+      {/* O combo é pago à parte do carrinho (checkout próprio): o que está no carrinho continua lá. */}
+      {tela.limpar && combo !== "1" && <LimparCarrinho fechamento={idDoFechamento} />}
       <div className="mx-auto max-w-[760px] px-[clamp(20px,4vw,32px)] pb-[clamp(64px,9vw,120px)] pt-[clamp(36px,5vw,64px)]">
         <Etapas atual="Confirmação" />
         <div className="rounded-[20px] border border-linha bg-superficie p-[clamp(28px,5vw,48px)] shadow-[0_20px_40px_-30px_rgba(7,20,38,0.3)]">
           <IconeDoResultado tom={tela.tom} />
           <h1 className="mb-3 mt-5 font-display text-[clamp(1.8rem,3.6vw,2.4rem)] font-extrabold leading-[1.1] tracking-[-0.03em]">{tela.titulo}</h1>
           <p className="text-[15.5px] leading-[1.6] text-ardosia">{tela.texto(typeof metodo === "string" ? metodo : undefined)}</p>
+          {numeroDoPedido && <NumeroDoPedido numero={numeroDoPedido} />}
+          {idDoFechamento && <AvisoForaDaCobranca fechamento={idDoFechamento} />}
           <div className="mt-7 flex flex-wrap gap-2.5">
             <Link href={tela.cta.href} className="btn-q btn-q-azul h-12 px-[22px] text-[15px]">
               {tela.cta.label}

@@ -12,6 +12,7 @@ import {
   type TurmaDoAluno,
 } from "@/lib/api";
 import { formatarData, formatarHora } from "@/lib/format";
+import { resumir } from "@/lib/seo";
 import { useCarregar } from "@/lib/useCarregar";
 import { useCarregandoUsuario, useUsuarioAtual } from "@/lib/usuario";
 
@@ -103,7 +104,7 @@ export default function MinhasTurmasConteudo() {
                 <h2 className="mb-1.5 font-display text-[22px] font-extrabold leading-tight tracking-[-0.02em]">{turma.nome}</h2>
                 <p className="mb-5 text-[14.5px] text-ardosia">
                   {formatarData(turma.inicio)} a {formatarData(turma.termino)}
-                  {turma.descricao ? ` · ${turma.descricao}` : ""}
+                  {turma.descricao ? ` · ${resumir(turma.descricao, 120)}` : ""}
                 </p>
 
                 {aulas && aulas.total > 0 && (

@@ -107,7 +107,11 @@ export default function CheckoutDoCombo({ combo }: { combo: Combo }) {
       const itemPago = { ...itemDoAnalytics, price: fechamento.totalEmCentavos / 100, discount: fechamento.descontoEmCentavos > 0 ? fechamento.descontoEmCentavos / 100 : undefined };
       guardarItensDoFechamento(fechamento.id, [itemPago]);
       if (fechamento.situacao === "PAGA") compra(fechamento, [itemPago]);
-      if (fechamento.situacao === "PAGA") router.push("/checkout/confirmacao?status=aprovado");
+      if (fechamento.situacao === "PAGA") {
+        const pedidoNaUrl = fechamento.numeroDoPedido ? `&pedido=${encodeURIComponent(fechamento.numeroDoPedido)}` : "";
+        // combo=1: o combo é pago à parte do carrinho, e a confirmação não esvazia o carrinho do aluno.
+        router.push(`/checkout/confirmacao?status=aprovado${pedidoNaUrl}&combo=1`);
+      }
       else if (fechamento.situacao === "AGUARDANDO_PAGAMENTO" || fechamento.situacao === "CRIADA") router.push(`/checkout/pagamento/${fechamento.id}`);
       else {
         chaveDoPagamento.current = null;

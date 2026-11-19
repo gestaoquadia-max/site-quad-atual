@@ -319,11 +319,11 @@ export default function Navbar({ turmas, eventos, materiais, temExcursoes = fals
         className="pointer-events-none absolute inset-x-0 top-full px-[clamp(10px,2.5vw,40px)] pt-2"
       >
         <div
-          className={`pointer-events-auto mx-auto flex h-14 max-w-[1440px] items-center justify-between gap-6 rounded-full border border-white/[0.1] pl-4 pr-1.5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.75),0_0_0_1px_rgba(0,0,0,0.2)] backdrop-blur-[12px] min-[1220px]:grid min-[1220px]:h-[60px] min-[1220px]:grid-cols-[1fr_auto_1fr] min-[1220px]:px-2 ${tema.capsula}`}
+          className={`pointer-events-auto mx-auto flex h-14 max-w-[1440px] items-center justify-between gap-2 min-[420px]:gap-6 rounded-full border border-white/[0.1] pl-4 pr-1.5 shadow-[0_16px_40px_-16px_rgba(0,0,0,0.75),0_0_0_1px_rgba(0,0,0,0.2)] backdrop-blur-[12px] min-[1220px]:grid min-[1220px]:h-[60px] min-[1220px]:grid-cols-[1fr_auto_1fr] min-[1220px]:px-2 ${tema.capsula}`}
         >
           {/* No computador, três colunas: as das pontas têm a mesma largura (1fr), então os links ficam no centro exato. */}
           <Link href="/" aria-label="Quad Concursos — início" className="flex flex-none items-center justify-self-start rounded-lg min-[1220px]:ml-4 transition-opacity hover:opacity-85">
-            <Image src="/images/quad-logo-branco.png" alt="Quad Concursos" width={118} height={44} priority className="h-9 w-auto min-[1220px]:h-10" />
+            <Image src="/images/quad-logo-branco.png" alt="Quad Concursos" width={118} height={44} priority className="h-8 w-auto min-[420px]:h-9 min-[1220px]:h-10" />
           </Link>
 
           <ul className="hidden items-center gap-0.5 min-[1220px]:flex">
@@ -393,13 +393,23 @@ export default function Navbar({ turmas, eventos, materiais, temExcursoes = fals
             </Link>
           </div>
 
-          <div className="flex items-center gap-1 min-[1220px]:hidden">
+          {/* Celular: em telas estreitas (abaixo de 420 px) os botões ficam mais juntos e a logo um pouco menor, para a
+              cápsula caber sem rolagem lateral, também com "Área do Aluno" (19/11/2026). */}
+          <div className="flex items-center min-[420px]:gap-1 min-[1220px]:hidden">
             <BuscaDoSite tomDoTopo={tomDoTopo} aberta={busca === "celular"} onAbrir={abrirBuscaDoCelular} onFechar={fecharBusca} />
-            <Link href="/carrinho" aria-label={rotuloDoCarrinho} className="relative grid h-11 w-11 place-items-center text-prata">
+            <Link href="/carrinho" aria-label={rotuloDoCarrinho} className="relative grid h-11 w-10 place-items-center text-prata min-[420px]:w-11">
               <IconeCarrinho quantidade={totalCount} selo={tema.selo} />
             </Link>
-            <Link href={acesso.href} className={`btn-q h-10 rounded-full px-4 text-sm ${tema.botao}`}>
-              {acesso.label}
+            <Link href={acesso.href} aria-label={acesso.label} className={`btn-q h-10 whitespace-nowrap rounded-full px-3 text-sm min-[420px]:px-4 ${tema.botao}`}>
+              {/* Abaixo de 360 px, "Área do Aluno" não cabe ao lado da lupa, do carrinho e do menu: fica "Aluno". */}
+              {usuario ? (
+                <>
+                  <span className="max-[359px]:hidden">{acesso.label}</span>
+                  <span className="min-[360px]:hidden">Aluno</span>
+                </>
+              ) : (
+                acesso.label
+              )}
             </Link>
             <button
               type="button"
@@ -409,7 +419,7 @@ export default function Navbar({ turmas, eventos, materiais, temExcursoes = fals
                 setBusca(null);
                 setMenuCelular((v) => !v);
               }}
-              className="flex h-11 w-11 flex-col items-center justify-center gap-[5px] rounded-full"
+              className="flex h-11 w-10 flex-col items-center justify-center gap-[5px] rounded-full min-[420px]:w-11"
             >
               <span className={`block h-0.5 w-5 rounded bg-[#DCE4EF] transition-transform duration-200 ${menuCelular ? "translate-y-[7px] rotate-45" : ""}`} />
               <span className={`block h-0.5 w-5 rounded bg-[#DCE4EF] transition-opacity duration-200 ${menuCelular ? "opacity-0" : ""}`} />

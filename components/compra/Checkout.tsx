@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Cards, CreditCard, PixLogo } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { compra, guardarItensDoFechamento, iniciarPagamento } from "@/lib/analytics";
+import { guardarForaDaCobranca, itensForaDaCobranca } from "@/lib/fora-da-cobranca";
 import { paraOAnalytics, useCart } from "@/lib/cart";
 import { ErroDaApi } from "@/lib/http";
 import {
@@ -119,7 +120,7 @@ function PedirLogin() {
 
 export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }) {
   const router = useRouter();
-  const { items, carregado, clear } = useCart();
+  const { items, carregado, tirarComprados } = useCart();
   const sessaoAtiva = useSessaoAtiva();
   const logado = !!sessaoAtiva;
   const { estado, cupom, aplicarCupom, refazer } = usePedido(items, carregado && logado && items.length > 0);
@@ -282,10 +283,18 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
     chaveDoPagamento.current ??= crypto.randomUUID();
     try {
       const fechamento = await fecharCarrinho(dados, chaveDoPagamento.current);
+      // A linha cujo produto saiu de venda entre a reserva e o pagamento não é cobrada nem dá erro (lib/fora-da-cobranca.ts):
+      // ela continua no carrinho, com o aviso na tela seguinte, e fica fora do analytics.
+      const fora = pedido ? itensForaDaCobranca(pedido.linhas, fechamento.compras) : [];
+      const comprados = items.filter((i) => !fora.includes(i.id));
+      guardarForaDaCobranca(
+        fechamento.id,
+        items.filter((i) => fora.includes(i.id)).map((i) => i.nome),
+      );
       // Os itens do carrinho (com o preço de cada um) ficam guardados até a compra ser paga: no PIX, em outra tela.
       // O preço de cada item é o da conta do servidor, já com o desconto do cupom (a receita por produto no GA4 bate com
       // o que o aluno pagou); sem a linha do servidor, fica o preço do carrinho.
-      const itensDoAnalytics = items.map((item) => {
+      const itensDoAnalytics = comprados.map((item) => {
         const base = paraOAnalytics(item);
         const linha = pedido?.linhas.get(item.id);
         const simulada = simulacao?.linhas.find((l) => l.linhaId === linha?.id);
@@ -300,10 +309,11 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
       guardarItensDoFechamento(fechamento.id, itensDoAnalytics);
       if (fechamento.situacao === "PAGA") {
         compra(fechamento, itensDoAnalytics);
-        clear();
-        router.push(`/checkout/confirmacao?status=${gratuito ? "inscricao" : "aprovado"}`);
+        tirarComprados(comprados.map((i) => i.id));
+        const pedidoNaUrl = fechamento.numeroDoPedido ? `&pedido=${encodeURIComponent(fechamento.numeroDoPedido)}` : "";
+        router.push(`/checkout/confirmacao?status=${gratuito ? "inscricao" : "aprovado"}${pedidoNaUrl}&fechamento=${encodeURIComponent(fechamento.id)}`);
       } else if (fechamento.situacao === "AGUARDANDO_PAGAMENTO" || fechamento.situacao === "CRIADA") {
-        clear();
+        tirarComprados(comprados.map((i) => i.id));
         router.push(`/checkout/pagamento/${fechamento.id}`);
       } else {
         // Recusado: outra tentativa é outro pagamento, com outra chave; as reservas são refeitas.

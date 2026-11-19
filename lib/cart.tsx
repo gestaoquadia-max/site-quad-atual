@@ -63,6 +63,8 @@ type CartContextValue = {
   removeItem: (id: string) => void;
   updateQuantidade: (id: string, quantidade: number) => void;
   clear: () => void;
+  // Tira do carrinho os itens já comprados (no checkout, que cuida das reservas do servidor); os outros ficam.
+  tirarComprados: (ids: string[]) => void;
   totalCount: number;
   totalValor: number;
   temItemSobConsulta: boolean;
@@ -134,6 +136,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }
 
   const clear = useCallback(() => setItems([]), []);
+  const tirarComprados = useCallback((ids: string[]) => setItems((prev) => prev.filter((i) => !ids.includes(i.id))), []);
   const fecharAviso = useCallback(() => setAviso(null), []);
 
   const totalCount = items.reduce((soma, i) => soma + i.quantidade, 0);
@@ -145,7 +148,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantidade, clear, totalCount, totalValor, temItemSobConsulta, carregado, aviso, fecharAviso }}
+      value={{ items, addItem, removeItem, updateQuantidade, clear, tirarComprados, totalCount, totalValor, temItemSobConsulta, carregado, aviso, fecharAviso }}
     >
       {children}
     </CartContext.Provider>

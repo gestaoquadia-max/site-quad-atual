@@ -47,12 +47,28 @@ export type SituacaoDoPagamento = "CRIADA" | "AGUARDANDO_PAGAMENTO" | "PAGA" | "
 
 export type Fechamento = {
   id: string;
+  // O número que o aluno diz na recepção (seis dígitos, "482913"; recado da API de 19/11/2026): o mesmo em todas as
+  // compras do fechamento e nos e-mails ("Pedido 482913"). O `id` continua sendo a chave de tudo.
+  numeroDoPedido?: string | null;
   situacao: SituacaoDoPagamento;
   totalEmCentavos: number;
   subtotalEmCentavos: number;
   descontoEmCentavos: number;
   cupom: string | null;
-  compras: { id: string; item: { nome: string; variacao: { nome: string } | null }; quantidade: number }[];
+  // Só o que foi cobrado: a linha cujo produto saiu de venda entre a reserva e o pagamento fica fora, SEM erro
+  // (recado da API de 19/11/2026; lib/fora-da-cobranca.ts). item.id é o id do alvo (o item do catálogo, ou a turma,
+  // o evento ou o simulado; item.tipo diz qual).
+  compras: {
+    id: string;
+    item: {
+      id?: string;
+      nome: string;
+      tipo?: string;
+      variacao: { id?: string; nome: string } | null;
+      plataforma?: "IMPRESSO" | "DIGITAL" | null;
+    };
+    quantidade: number;
+  }[];
   pagamento: {
     forma: "CARTAO" | "PIX" | "CUPOM" | "QUAD_COINS";
     // O cobrado, já com o acréscimo do parcelamento, que vem também à parte (zero no PIX e à vista).

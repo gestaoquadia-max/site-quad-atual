@@ -47,6 +47,12 @@ type AtividadeDaVitrine = {
   gratuita?: boolean;
   // A sequência inteira dos lotes em reais, em ordem (desde 24/10/2026); [] sem lotes.
   lotes?: LoteDaSequencia[] | null;
+  // Até quando se vende ao aluno (ISO-8601 UTC, exclusivo; recado da API de 19/11/2026); null = sem fim marcado. No
+  // instante dele a atividade sai da vitrine. No simulado presencial sem fim informado: 11h50 do sábado da prova.
+  vendaAte?: string | null;
+  // Vagas ilimitadas (evento online, simulado online ou em PDF): vagas, vendidas e restantes nulos, lote nulo e
+  // lotes []. O site já trata vagas nulas como "sem número": sem contador e sem "Esgotado".
+  ilimitada?: boolean;
   detalhe: {
     // TURMA: TURMA ou ISOLADA (calendário de turma com nome próprio).
     tipo?: string | null;
@@ -84,6 +90,8 @@ type AtividadeDaVitrine = {
     // presencial de onde ela veio e o título de cada PDF (o arquivo só vai para quem comprou).
     origemId?: string | null;
     pdfs?: { titulo: string }[] | null;
+    // SIMULADO presencial: o mesmo instante do vendaAte (o site lê o vendaAte).
+    inscricoesAte?: string | null;
   } | null;
   // EVENTO (recado da API de 17/11/2026): as variações ativas, na ordem do cadastro ("Sem camisa", "Com camisa G").
   // Com alguma, o aluno escolhe uma e o carrinho manda o variacaoId. ofertadas/restantes nulos: sem teto próprio
@@ -353,6 +361,7 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
 
   return {
     slug: slugDa(a),
+    ...(a.vendaAte && { vendaAte: a.vendaAte }),
     // Nível (RONDESP, PATAMO, BOPE) só na PMBA; fora dela a turma não tem nível.
     modalidade: nivel,
     // A imagem cadastrada na turma é a insígnia dela (sem imagem: a marca do Quad).
@@ -378,7 +387,8 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     precoCheio: precoCheioDa(a) === null ? undefined : precoEmTexto(emReais(precoCheioDa(a)!)),
     ...situacao(a, "Matrículas abertas"),
     detalhe: {
-      lead: d.descricao?.trim() || "Preparação presencial do Quad com rotina estruturada e professores especialistas na banca.",
+      // O texto como foi digitado (quebras, recuo e emoji; recado da API de 19/11/2026): o trim só testa o vazio.
+      lead: d.descricao?.trim() ? d.descricao : "Preparação presencial do Quad com rotina estruturada e professores especialistas na banca.",
       specs,
       ...vagas,
       incluso: [],
@@ -425,7 +435,7 @@ function paraOferta(a: AtividadeDaVitrine): OfertaDaTurma {
     precoEmCentavos: a.gratuita ? 0 : a.preco,
     gratuita: !!a.gratuita,
     vagas: a.vagas && a.vagas > 0 ? { total: a.vagas, ocupadas: ocupadasDa(a, a.vagas) } : null,
-    descricao: d.descricao?.trim() || null,
+    descricao: d.descricao?.trim() ? d.descricao : null,
     imagemUrl: a.imagemUrl,
     lote: rotuloDoLote(a.lote),
     precoCheioEmCentavos: precoCheioDa(a),
@@ -503,6 +513,7 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
 
   return {
     ...(variacoes.length > 0 && { variacoes }),
+    ...(a.vendaAte && { vendaAte: a.vendaAte }),
     slug: slugDa(a),
     idNaApi: a.id,
     imagem: a.imagemUrl ?? undefined,
@@ -514,7 +525,8 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
     detalhe: {
       inicio: comHora(data, horaInicio),
       fim: comHora(dataFim, horaFim),
-      lead: d.resumo?.trim() || d.descricao?.trim() || desc,
+      // O texto como foi digitado (recado da API de 19/11/2026): o trim só testa o vazio.
+      lead: d.resumo?.trim() ? d.resumo : d.descricao?.trim() ? d.descricao : desc,
       sobre: [],
       specs,
       programacao: [],
@@ -645,7 +657,13 @@ function edicaoDoSimulado(a: AtividadeDaVitrine, ordem: number): { carreira: str
       // Estar na vitrine = à venda (com preço e vagas). "Esgotado" sai das vagas restantes.
       inscricao: "abertas",
       publicado: true,
-      presencial: { preco: a.gratuita ? 0 : a.preco === null ? null : emReais(a.preco), vagas: a.vagas, vagasRestantes: a.restantes, sku: a.id },
+      presencial: {
+        preco: a.gratuita ? 0 : a.preco === null ? null : emReais(a.preco),
+        vagas: a.vagas,
+        vagasRestantes: a.restantes,
+        sku: a.id,
+        vendaAte: a.vendaAte ?? null,
+      },
     },
   };
 }
@@ -792,6 +810,11 @@ type ItemDaVitrine = {
   restantes: number | null;
   lote?: LoteDaVitrine | null;
   variacoes: { id: string; nome: string; ofertadas: number | null; vendidas: number | null; restantes: number | null }[];
+  // Até quando se vende (ISO-8601 UTC, exclusivo; recado da API de 19/11/2026); null = sem fim marcado. Antes de abrir e
+  // depois de fechar, o item não aparece na vitrine (o detalhe responde 404).
+  vendaAte?: string | null;
+  // Vagas ilimitadas (por enquanto só em item de Quad Coins ou gratuito, que o site não lista).
+  ilimitada?: boolean;
   // Só na versão impressa de um simulado já aplicado (só com ?versaoImpressa=JUNTO ou SO; guia da API de 13/11/2026):
   // o presencial de onde ela veio (origem.id) e o dia em que abre a venda.
   origem?: { id: string; nome: string; edicao: number | null; ano: number | null; abreEm: string } | null;
@@ -863,8 +886,11 @@ function paraMaterial(itens: ItemDaVitrine[]): Produto {
   const concurso = principal.material?.concurso?.rotulo;
   const descricao = itens.map((i) => i.descricao).find(Boolean) ?? "";
   const rotuloDosFormatos = formatos.length > 1 ? "PDF ou impresso" : formatos[0] === "digital" ? "PDF" : "Impresso";
+  // O prazo do material: o do primeiro formato à venda (cada formato é do mesmo cadastro, desde a V144).
+  const vendaAte = principal.vendaAte ?? undefined;
   return {
     slug: slugDa(principal),
+    ...(vendaAte && { vendaAte }),
     idNaApi: principal.id,
     tag: `${kit ? "Kit" : principal.material?.categoria?.nome ?? "Apostila"} · ${rotuloDosFormatos}`,
     nome: nomeSemFormato(principal.nome),
@@ -923,6 +949,7 @@ function paraProdutoDaLoja(i: ItemDaVitrine): ProdutoDaLoja {
     preco: i.preco === null ? null : emReais(i.preco),
     estoque: i.restantes,
     imagemUrl: i.imagemUrl,
+    vendaAte: i.vendaAte ?? null,
     variacoes:
       i.variacoes.length > 0
         ? [

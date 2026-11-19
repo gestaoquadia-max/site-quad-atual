@@ -19,7 +19,8 @@ export type Edicao = {
   inscricao: Inscricao;
   publicado: boolean;
   exemplo?: boolean;
-  presencial?: Oferta & { vagas: number | null; vagasRestantes: number | null };
+  // vendaAte: até quando a inscrição presencial se vende (ISO-8601 UTC, exclusivo; null = sem fim marcado), da API.
+  presencial?: Oferta & { vagas: number | null; vagasRestantes: number | null; vendaAte?: string | null };
   pdf?: Oferta & { disponivel: boolean };
   plataforma?: Oferta & { disponivel: boolean };
   impresso?: Oferta & { disponivel: boolean; estoque: number | null };
@@ -45,30 +46,15 @@ export function hojeEmBrasilia() {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
 }
 
-// Fim das vendas do presencial (provisório, 14/11/2026, até o backend fechar as inscrições sozinho): às 11:50 da véspera
-// da aplicação, no horário da Bahia, as inscrições da edição passam a "encerradas": a Central mostra o selo
-// "Inscrições encerradas" sem o botão, e o carrinho e o checkout recusam (validarCompra). Quem já comprou não perde
-// nada: a inscrição fica na API e na área do aluno.
-export const HORA_DO_FIM_DAS_VENDAS = "11:50";
-
-export function vendasDoPresencialEncerradas(data: string | null, agora = new Date()) {
-  if (!data) return false;
-  const [a, m, d] = data.split("-").map(Number);
-  const vespera = new Date(Date.UTC(a, m - 1, d - 1)).toISOString().slice(0, 10);
-  const p = Object.fromEntries(
-    new Intl.DateTimeFormat("en-CA", {
-      timeZone: "America/Bahia",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-    })
-      .formatToParts(agora)
-      .map((x) => [x.type, x.value]),
-  );
-  return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}` >= `${vespera} ${HORA_DO_FIM_DAS_VENDAS}`;
+// Fim das vendas do presencial (recado da API de 19/11/2026): é o `vendaAte` da vitrine (exclusivo), e quem decide é a
+// API, não o relógio do site (a regra provisória de 14/11, "véspera às 11:50", saiu). Sem fim informado no console, a
+// API fecha às 11h50 do sábado do fim de semana da prova; no instante do vendaAte a edição sai da vitrine (e da
+// Central). O selo "Inscrições encerradas" fica para os até 60 s de cache e para o caso de a API voltar a mandar a
+// edição encerrada. Quem já comprou não perde nada: a inscrição fica na API e na área do aluno.
+export function vendaEncerrada(vendaAte: string | null | undefined, agora = Date.now()) {
+  if (!vendaAte) return false;
+  const fim = Date.parse(vendaAte);
+  return !Number.isNaN(fim) && agora >= fim;
 }
 
 export type Situacao = {
@@ -82,11 +68,11 @@ export type Situacao = {
   vendeEstudo: boolean;
 };
 
-export function situacaoDa(e: Edicao, hoje = hojeEmBrasilia()): Situacao {
+export function situacaoDa(e: Edicao, hoje = hojeEmBrasilia(), agora = Date.now()): Situacao {
   const temporal = !e.data ? "futuro" : e.data < hoje ? "realizado" : e.data === hoje ? "em-realizacao" : "futuro";
   const semVaga = e.presencial?.vagasRestantes != null && e.presencial.vagasRestantes <= 0;
   const inscricao: Inscricao =
-    temporal === "realizado" || vendasDoPresencialEncerradas(e.data) ? "encerradas" : semVaga ? "esgotado" : e.inscricao;
+    temporal === "realizado" || vendaEncerrada(e.presencial?.vendaAte, agora) ? "encerradas" : semVaga ? "esgotado" : e.inscricao;
   const confirmada = !!(e.data && e.horario && e.local);
   // Regra de produção da designer: só vende com preço cadastrado (o protótipo abria exceção para os exemplos).
   const vendePresencial =

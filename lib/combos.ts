@@ -38,6 +38,9 @@ export type Combo = {
   economiaEmCentavos: number | null;
   // Toda parte à venda agora (o combo não tem estoque próprio).
   disponivel: boolean;
+  // Até quando se vende (ISO-8601 UTC; recado da API de 19/11/2026); null = sem prazo marcado. Antes de abrir e depois
+  // de fechar, o combo não aparece na vitrine.
+  vendaAte?: string | null;
   componentes: ParteDoCombo[];
 };
 

@@ -67,6 +67,28 @@ export function formatarData(iso: string) {
   return `${dia}/${mes}/${ano}`;
 }
 
+// O prazo de venda da API (ISO-8601 UTC) no horário de Brasília: "2026-11-21T14:50:00Z" -> "sáb., 21/11, às 11h50";
+// "2026-11-20T00:00:00Z" -> "qui., 19/11, às 21h". null se a data não for válida.
+export function prazoEmTexto(iso: string) {
+  const instante = new Date(iso);
+  if (Number.isNaN(instante.getTime())) return null;
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      weekday: "short",
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    })
+      .formatToParts(instante)
+      .map((x) => [x.type, x.value]),
+  );
+  const semana = p.weekday.replace(/\.$/, "");
+  return `${semana}., ${p.day}/${p.month}, às ${formatarHora(`${p.hour}:${p.minute}`)}`;
+}
+
 // "14:00:00" -> "14h", "15:30:00" -> "15h30"
 export function formatarHora(hora: string | null) {
   if (!hora) return "";

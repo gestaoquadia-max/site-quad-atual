@@ -91,7 +91,7 @@ export default function CartaoMaterial({ produto, indice }: { produto: Produto; 
       <Capa titulo={produto.nome} cor={CORES_DA_CAPA[indice % CORES_DA_CAPA.length]} />
       <div className="relative flex flex-1 flex-col p-5">
         <h3 className="mb-1.5 font-display text-[19px] font-extrabold leading-[1.2] tracking-[-0.02em]">{produto.nome}</h3>
-        <p className="text-sm leading-[1.5] text-prata">{produto.desc}</p>
+        <p className="line-clamp-3 text-sm leading-[1.5] text-prata">{produto.desc}</p>
 
         {/* Os dois formatos sempre à vista; o que não está cadastrado fica desativado. */}
         <div role="radiogroup" aria-label={`Formato de ${produto.nome}`} className="mt-4 grid grid-cols-2 rounded-[10px] border border-white/[0.08] bg-black/25 p-[3px]">

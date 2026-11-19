@@ -1,12 +1,12 @@
 # Pedidos para o backend — Site do Quad Concursos
 
-**De:** time do site (Next.js) · **Atualizado em:** 13/11/2026
-**Base:** o **site oficial no ar** em `https://www.quadconcursos.com.br` (Vercel, ligado à API de produção `https://api.quadconcursos.com.br`, já com vendas), leituras públicas da API de produção e testes na API local (`localhost:8080`).
+**De:** time do site (Next.js) · **Atualizado em:** 19/11/2026
+**Base:** o **site oficial no ar** em `https://quadconcursos.com.br` (na AWS desde 18/11/2026; o endereço com www redireciona para ele), ligado à API de produção `https://api.quadconcursos.com.br`, já com vendas; leituras públicas da API de produção e testes na API local (`localhost:8080`).
 
-Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: material digital em PDF à venda, acréscimo do parcelamento pago pelo aluno, atividades gratuitas na vitrine e matrícula gratuita em turma, limite de tentativas por rota, lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores, chaves de sandbox do Pagar.me, combos, impresso e digital no mesmo material, verificação do celular e e-mails da compra).
+Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram daqui e ficam no histórico do git (por exemplo: material digital em PDF à venda, acréscimo do parcelamento pago pelo aluno, atividades gratuitas na vitrine e matrícula gratuita em turma, limite de tentativas por rota, lista de lotes e preço cheio na vitrine, CORS do `Idempotency-Key`, falhas de segurança, cadastro e perfil do aluno, esqueci a senha, aceite dos termos, login em cookie, carrinho no servidor, cupons, slug e nível da turma na vitrine, preços em centavos e lotes, vitrine de professores, chaves de sandbox do Pagar.me, combos, impresso e digital no mesmo material, verificação do celular e e-mails da compra; e, no recado da API de 19/11/2026, a origem da venda em cada compra (6.5), a compra paga enviada à Meta pelo servidor (6.6), o fim das inscrições do presencial pela API, o número do pedido, o prazo de venda, o combo e a variação na compra, a descrição como foi digitada e as vagas ilimitadas).
 
 > **13/11/2026: o site oficial está no ar e vendendo**, e por isso saíram da lista os pedidos do lançamento (conferidos hoje na API de produção):
-> - **1.2 CORS e cookies no domínio oficial:** a pré-verificação vinda de `https://www.quadconcursos.com.br` responde 200, com a origem liberada. `https://quadconcursos.com.br` (sem www) responde 403, mas o site redireciona esse endereço para o www, então não faz falta.
+> - **1.2 CORS e cookies no domínio oficial:** a pré-verificação vinda de `https://www.quadconcursos.com.br` responde 200, com a origem liberada. Desde 19/11/2026 o site atende em `https://quadconcursos.com.br` (sem www), e a API também libera essa origem (conferido pelo backend na pré-verificação do carrinho e da troca do e-mail).
 > - **1.3 Domínio no Pagar.me** e **1.4 API e site publicados juntos:** as vendas do site estão acontecendo.
 > - **1.6 Endereço do site nos e-mails:** a `SITE_URL` aponta para `https://quadconcursos.com.br`.
 > - **4.7 Página do site depois de confirmar o e-mail:** `GET /auth/email/confirmacao` responde `303` para `https://quadconcursos.com.br/confirmar-email?resultado=…`, que abre a tela do site.
@@ -25,11 +25,8 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 
 | # | Pedido | Prioridade |
 |---|---|---|
-| 6.6 | Compra paga enviada à Meta pelo servidor (API de Conversões), sem contar em dobro com o Pixel do site | Alta |
-| 6.5 | Origem da venda: a campanha (primeira e última) gravada em cada compra e filtrável no painel administrativo | Alta |
-| 5.3 | Simulados depois da aplicação: acertos no cadastro do 78 IPC/PCBA e do 78 SD PMBA e na categoria dos impressos | Alta |
+| 1.5 | Entrada pelo Google: conferir a origem do domínio sem www | Alta |
 | 2.7 | Imagens: medida mínima, proporção e formato no envio pelo console | Média |
-| 1.5 | Entrada pelo Google: conferir as origens do domínio oficial | Média |
 | 3 | Professores: foto dos 4 que faltam | Média |
 | 4.6 | Conferir o CPF na Receita no cadastro (cpfcnpj.com.br) | Média |
 | 5.4 | Textos de venda da turma e programação do evento | Média |
@@ -37,6 +34,7 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 | 6.3 | Armazenamento de arquivos no ambiente local (endereço do S3 configurável) | Média |
 | 4.4 | `GET /api/usuarios/eu` para conta sem cadastro de aluno | Baixa |
 | 4.5 | Foto de perfil | Baixa |
+| 5.3 | Simulados depois da aplicação: a categoria de duas versões impressas | Baixa |
 | 6.4 | Aprovados, depoimentos em vídeo e blog pela API | Baixa |
 
 ---
@@ -47,7 +45,7 @@ Este documento lista **só o que ainda falta**. Os pedidos já atendidos saíram
 
 **Entregue em 24/10/2026** (`POST /auth/google`, só para contas que já existem). O client ID está em `GOOGLE_CLIENT_IDS` na API de produção e em `NEXT_PUBLIC_GOOGLE_CLIENT_ID` no site.
 
-**Conferir:** no mesmo client ID, em "Origens JavaScript autorizadas" do Google Cloud, precisam estar `https://www.quadconcursos.com.br` e `https://quadconcursos.com.br`. Sem isso, o botão "Entrar com o Google" no site oficial mostra o erro `origin_mismatch`. O site não consegue conferir isso de fora: basta entrar com o Google em `https://www.quadconcursos.com.br/entrar` com uma conta que já existe.
+**Conferir:** no mesmo client ID, em "Origens JavaScript autorizadas" do Google Cloud, precisa estar **`https://quadconcursos.com.br` (sem www)**, que é o endereço do site desde 19/11/2026 (o com www redireciona para ele); manter também `https://www.quadconcursos.com.br`. Sem isso, o botão "Entrar com o Google" mostra o erro `origin_mismatch`. O site não consegue conferir isso de fora: basta entrar com o Google em `https://quadconcursos.com.br/entrar` com uma conta que já existe.
 
 ---
 
@@ -98,7 +96,7 @@ Além disso, nada impede o envio de uma imagem pequena ou fora de proporção, q
 
 `GET /api/professores/vitrine`, `/{id}` e `/slug/{slug}` são públicos, e o site usa (home, página do professor, sitemap e autor do blog). A **minibio** é a coluna `graduacao` (decisão de 23/10/2026): deve ser preenchida como uma apresentação curta (2 ou 3 linhas, até 200 caracteres), não só o nome do curso.
 
-**Falta (conferido em 13/11/2026):** a foto de **Dan Reis, Omar Junior, Paulo Junior e Rodrigo Gomes**, os 4 professores da vitrine ainda sem `fotoUrl`. As outras 21 já chegam na medida original (1080 × 1350, 4:5), como pedido.
+**Falta (conferido em 19/11/2026):** a foto de **Danilo Reis, Omar Junior, Paulo Junior e Rodrigo Gomes**, os 4 professores da vitrine ainda sem `fotoUrl`. As outras 21 já chegam na medida original (1080 × 1350, 4:5), como pedido.
 
 ---
 
@@ -160,10 +158,9 @@ Além disso, nada impede o envio de uma imagem pequena ou fora de proporção, q
 
 Preços sempre em centavos, em todas as versões (confirmado em 13/11/2026). O site mostra "Aplicado em" como a véspera da abertura da venda (regra do guia: a versão abre no dia seguinte ao último dia do presencial); se PDF e impresso abrirem em dias diferentes, vale a abertura mais antiga.
 
-**Falta (conferido em 13/11/2026):**
-1. **SIMULADO 78 IPC/PCBA, versão em PDF:** está sem `origemId`. O Quad pediu para recriá-la pelo botão "Versão PDF" do presencial, para nascer ligada a ele (o mesmo presencial da impressa: `237e995d-5ecc-44f8-8051-dc071648d8a1`, aplicado em 01/11, abrindo em 02/11). Antes de desativar a antiga, conferir se alguém já comprou: quem comprou baixa os PDFs pela versão que comprou.
-2. **SIMULADO 78 SD PMBA, versão em PDF:** saiu da vitrine na tarde de 13/11/2026. Confirmar se foi de propósito; se não, reativar.
-3. **Categoria das versões impressas:** as do 77 e do 78 IPC/PCBA estão na categoria **"Simulado Digital"**, sendo impressas.
+**Resolvido (19/11/2026):** o PDF do 78 IPC/PCBA veio com `origemId`, e o PDF do 78 SD PMBA voltou à vitrine.
+
+**Falta (conferido em 19/11/2026):** a **categoria** de "SIMULADO 77 IPC/PCBA (impresso)" e "SIMULADO 80 IPCBA (impresso)", que continuam em **"Simulado Digital"**, sendo impressas. Para o site é só cosmético.
 
 ### 5.4 Textos de venda da turma e programação do evento
 
@@ -198,7 +195,7 @@ As sete perguntas foram respondidas. Três não pedem nada ao backend:
 - **Variações:** podem existir em qualquer item, não só na camisa. O site já aceita variação em qualquer produto da loja (chama de "Tamanho" na roupa e "Opção" nos demais).
 - **Situações do pagamento:** paga, aguardando, recusada, expirada, cancelada e estornada, que são as da API (`SituacaoDaCompra`). O site trata todas.
 
-As outras quatro viram pedidos:
+As outras quatro viraram pedidos. A 6.5 (origem da venda) e a 6.6 (compra paga enviada à Meta pelo servidor) foram atendidas, e o site manda os dois campos desde 16/11/2026; continuam as duas abaixo:
 
 ### 6.3 Armazenamento de arquivos no ambiente local
 
@@ -212,120 +209,6 @@ As outras quatro viram pedidos:
 - **Aprovados:** nome, foto, concurso, colocação, turma e ano, e um depoimento curto, numa rota pública.
 - **Depoimentos em vídeo:** título e link do vídeo (YouTube ou arquivo).
 - **Blog:** título, slug, resumo, texto, autor (professor), categoria, imagem de capa e data de publicação. O blog está fora do ar no site desde 23/10/2026 e volta quando a API tiver os artigos.
-
-### 6.5 Origem da venda: a campanha em cada compra (prioridade alta)
-
-**Por que o Quad precisa.** O Quad vai anunciar no Google Ads e na Meta e quer saber, por campanha, **quem** comprou **o quê** e **quando**: "na campanha de julho, 45 pessoas compraram a RONDESP; quem são elas". O Google Analytics (que o site já usa) mostra os **totais** por campanha, mas nunca o nome de quem comprou: as regras do Google proíbem enviar dado pessoal. O nome só existe no sistema do Quad, então a campanha precisa ficar **gravada dentro da compra**.
-
-**Como está hoje (conferido no código, 07/11/2026).** A compra não guarda nenhuma origem: não há campo de campanha nem de UTM em `compras`, e os fechamentos não aceitam esse dado.
-
-**Como o site sabe a campanha.** Todo anúncio leva a campanha no link (as UTMs: `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`; no Google Ads, também o `gclid`). O site guarda no navegador a **primeira** e a **última** campanha pelas quais o aluno chegou, por **90 dias**, e manda as duas no momento da compra.
-
-**O pedido.**
-
-1. **Aceitar a origem nos fechamentos**, num campo opcional `origem`, em `POST /api/loja/carrinho/eu/fechamento`, no fechamento do combo e na inscrição e matrícula gratuitas:
-
-   ```json
-   "origem": {
-     "primeira": { "fonte": "meta", "midia": "pago", "campanha": "2026-07-rondesp", "conteudo": "video-depoimento", "termo": null, "gclid": null, "em": "2026-07-03T14:20:00Z" },
-     "ultima":   { "fonte": "google", "midia": "cpc", "campanha": "2026-09-rondesp", "conteudo": null, "termo": "curso pmba", "gclid": "EAIaIQ…", "em": "2026-09-10T18:05:00Z" }
-   }
-   ```
-
-   - Tudo opcional: quem chegou direto (sem campanha) manda `origem` sem `primeira`/`ultima`, ou não manda nada. A ausência **nunca** recusa a compra.
-   - É informação de marketing, e não de pagamento: a API só guarda, sem validar contra uma lista de campanhas. Limitar o tamanho (por exemplo, 150 caracteres por campo) e aceitar só texto simples.
-   - `em` é quando o aluno chegou por aquela campanha.
-
-2. **Gravar a origem em cada compra** do fechamento (todas as compras de um carrinho recebem a mesma origem). Ela é congelada como o resto da compra: não muda depois.
-
-3. **Mostrar e filtrar no painel administrativo:** a coluna "Campanha" (a última; a primeira ao abrir a compra) na lista de compras, com filtro por campanha, fonte e período, e a exportação em planilha com nome do aluno, item, valor, data da compra e as duas campanhas. Isso também pode ir na rota de leitura das compras usada pelo painel.
-
-**LGPD.** A origem é dado de marketing ligado a uma pessoa. A proposta é tratá-la como **interesse legítimo** (é só a origem da venda feita no próprio site, sem seguir o aluno por outros sites) e citar isso na política de privacidade; a confirmação fica com quem fez a revisão jurídica. O site só manda a origem no fechamento, e o aluno pode pedir a exclusão como qualquer outro dado (o canal já existe).
-
-**Do lado do site:** quando a API aceitar o campo, o site passa a guardar a primeira e a última campanha e a mandá-las nos fechamentos. É uma mudança pequena. Enquanto isso, o Google Analytics já mostra os totais por campanha.
-
-**Como conferir:** abrir o site com `?utm_source=teste&utm_medium=pago&utm_campaign=teste-origem`, comprar algo barato (ou usar um cupom de 100%) e ver a compra no painel administrativo com a campanha `teste-origem`.
-
-### 6.6 Compra paga enviada à Meta pelo servidor (API de Conversões) (prioridade alta)
-
-**Por que o Quad precisa.** O Quad vai anunciar na Meta (Instagram e Facebook), e a Meta só entrega bem os anúncios quando fica sabendo de cada venda. O site já liga o **Pixel da Meta** no navegador desde 13/11/2026 (para quem aceitar os cookies de marketing), mas o navegador perde muitas compras:
-- bloqueadores de anúncio e o iPhone barram o Pixel;
-- o **PIX é pago depois**: o aluno fecha a aba, paga no app do banco e nunca volta à página de confirmação, então o navegador não fica sabendo da compra.
-
-Quem sabe com certeza que a compra foi paga é a API (pelo aviso do Pagar.me). Por isso a Meta recomenda mandar a compra também **pelo servidor**, na **API de Conversões** (Conversions API).
-
-**O pedido.**
-
-1. **Receber do site, no fechamento, os dados de marketing**, num campo opcional `marketing`, nas mesmas rotas do pedido 6.5 (`POST /api/loja/carrinho/eu/fechamento`, o fechamento do combo e a inscrição e matrícula gratuitas):
-
-   ```json
-   "marketing": {
-     "consentimento": true,
-     "fbp": "fb.1.1731400000000.1234567890",
-     "fbc": "fb.1.1731400000000.IwAR…",
-     "url": "https://www.quadconcursos.com.br/checkout"
-   }
-   ```
-
-   - O site só manda `marketing` quando o aluno **aceitou os cookies de marketing** no aviso de cookies. Sem o campo (ou com `consentimento: false`), a API **não envia nada à Meta** para essa compra.
-   - `fbp` e `fbc` são os cookies `_fbp` e `_fbc` que o Pixel cria no navegador; podem vir vazios. `url` é a página onde a compra foi fechada.
-   - Tudo opcional e só guardado: a ausência **nunca** recusa a compra. Limitar o tamanho (por exemplo, 500 caracteres por campo).
-
-2. **Quando a compra ficar paga** (o mesmo momento em que a API manda o e-mail de compra confirmada), enviar **um** evento `Purchase` por fechamento:
-
-   `POST https://graph.facebook.com/{versão atual}/{ID_DO_PIXEL}/events?access_token={TOKEN}`
-
-   ```json
-   {
-     "data": [{
-       "event_name": "Purchase",
-       "event_time": 1731400000,
-       "event_id": "<id do fechamento>",
-       "action_source": "website",
-       "event_source_url": "<marketing.url>",
-       "user_data": {
-         "em": ["<sha256 do e-mail>"],
-         "ph": ["<sha256 do celular>"],
-         "external_id": ["<sha256 do id do aluno>"],
-         "client_ip_address": "<IP do aluno no fechamento>",
-         "client_user_agent": "<User-Agent do aluno no fechamento>",
-         "fbp": "<marketing.fbp>",
-         "fbc": "<marketing.fbc>"
-       },
-       "custom_data": {
-         "currency": "BRL",
-         "value": 277.00,
-         "order_id": "<id do fechamento>",
-         "content_type": "product",
-         "content_ids": ["<id do item na API>"],
-         "content_name": "TURMA CFO – BOPE [M]",
-         "content_category": "PMBA",
-         "contents": [{ "id": "<id do item na API>", "quantity": 1, "item_price": 277.00 }]
-       }
-     }]
-   }
-   ```
-
-   - **`event_id` = id do fechamento.** O Pixel do site manda a mesma compra com esse mesmo id; com isso a Meta conta a venda **uma vez só**, mesmo chegando pelos dois caminhos. É o ponto mais importante do pedido.
-   - **E-mail, celular e id vão só em SHA-256**, nunca em texto, e normalizados antes: e-mail em minúsculas e sem espaços; celular só com dígitos e com o 55 (ex.: `5571999999999`). IP e User-Agent vão sem hash (regra da Meta); guardar os do momento do fechamento.
-   - `value` é o **total do fechamento** em reais (o `totalEmCentavos` dividido por 100), o mesmo valor que o site manda ao Google Analytics.
-   - **Total zero não é venda e não vai como `Purchase`:** inscrição e matrícula gratuitas e compras com **cupom de 100%** (cortesia, bolsa, parceria; ex.: `QUAD30`, `SIMULADOSIQ`). O zero está certo e **nunca** deve ser trocado pela soma dos itens. Se quiserem medir as cortesias, mandar como evento personalizado `inscricao_cortesia` (mesmo `event_id`, `value: 0`, `contents` e o cupom em `custom_data.coupon`), o mesmo nome que o site usa no GA4 desde 12/11/2026. No GA4, 13 das 51 "compras" do último mês eram cortesias.
-   - **O id de cada item é o id do item na API** (o mesmo de `compras[].item.id`, ver o item 3), fixo, e não o slug nem o id da compra: o slug muda quando o nome muda, e o id da compra muda a cada pedido. É o mesmo id que o Pixel do site manda no `ViewContent`, no `AddToCart` e no `Purchase`, para a Meta ligar quem viu o produto a quem comprou (públicos e catálogo). Vale em `content_ids` e em `contents[].id`.
-   - **`content_name` e `content_category`:** com um item, o nome dele; com vários, os nomes separados por " + ". `content_category` é o concurso do item (ex.: `PMBA`, `PMPE`, `CFO PMBA`), o mesmo que a vitrine mostra; com itens de concursos diferentes, os concursos separados por " + "; sem concurso (ex.: produto da loja), omitir.
-   - **`item_price` com o desconto:** o valor pago por unidade de cada item (o total da linha, já com o cupom, dividido pela quantidade), para a soma dos itens bater com `value`.
-   - **Nunca atrasar nem quebrar a compra:** o envio é em segundo plano, com algumas novas tentativas se a Meta falhar, e a falha só vai para o log.
-   - **Devolução:** não precisa avisar a Meta.
-
-3. **Preço pago e id do item em cada compra do fechamento** (`GET /api/loja/fechamentos/{id}`): hoje `compras[]` traz só item (nome), variação e quantidade. Acrescentar `totalEmCentavos` e `descontoEmCentavos` de cada compra e o **`item.id`** (o id fixo do item, o mesmo do item 2), para o `Purchase` do navegador mandar os mesmos ids do servidor quando o aluno volta para a confirmação do PIX. Sem isso, quando o aluno paga o PIX em outro aparelho ou outra sessão, o site não sabe o preço de cada item de um pedido com vários itens e o GA4 registra o item com preço 0 (aconteceu com a TURMA CFO – BOPE [M] e o SIMULADO 80 SD PMBA 15/11).
-
-4. **Configuração por variáveis de ambiente**, nunca no código: `META_PIXEL_ID` (o Pixel do site, criado em 13/11/2026: **1182737094707896**, "Quad Concursos — Site") e `META_CAPI_TOKEN`. O token **já foi gerado** pelo Quad no **Gerenciador de Eventos** da Meta (13/11/2026, só para esse Pixel) e é entregue à equipe do backend à parte, por um canal seguro, nunca por este documento; fica só no servidor (no cofre de segredos da API), nunca no navegador nem no git. Sem as variáveis, a API simplesmente não envia.
-   - **`META_TEST_EVENT_CODE`**, só no ambiente de teste: o código `TEST…` da aba **Testar eventos** do Gerenciador de Eventos, mandado no campo `test_event_code` de cada envio. Assim as compras de teste aparecem só em "Testar eventos" e não contam nos anúncios. O código atual é **`TEST50400`**. Em produção fica **vazio**, e aí o campo não vai; se o teste for feito em produção, ligar o código só durante o teste e esvaziar depois.
-
-**LGPD.** O envio usa dados pessoais (e-mail e celular, em hash) para medir anúncios: por isso fica **preso ao consentimento de marketing**, o mesmo que liga o Pixel no navegador. A política de privacidade precisa citar a Meta como destinatária desses dados; a confirmação fica com quem fez a revisão jurídica.
-
-**Do lado do site:** o site já liga o Pixel (desde 13/11/2026), manda o `Purchase` do navegador com `eventID` igual ao id do fechamento e passa a mandar o campo `marketing` nos fechamentos quando a API aceitar. O site também passa a usar o **id do item na API** em todos os eventos (hoje usa o slug na página do produto e o id da compra na confirmação do PIX) e manda `content_category` quando a vitrine trouxer o concurso de cada item. O `fbclid` do link do anúncio não precisa vir à parte: o Pixel o transforma no cookie `_fbc`, que já vai em `marketing.fbc`. A origem da venda (UTMs, primeira e última) segue no pedido 6.5.
-
-**Como conferir:** no Gerenciador de Eventos, aba **Testar eventos**, copiar o código de teste (`TEST…`) e mandá-lo no campo `test_event_code` do envio (só no ambiente de teste). Fazer uma compra no site com os cookies de marketing aceitos: o `Purchase` deve aparecer **duas vezes, uma do navegador e uma do servidor, marcado como "desduplicado"**, com o valor certo.
 
 ---
 

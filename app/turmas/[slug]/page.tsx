@@ -14,6 +14,8 @@ import DadosEstruturados from "@/components/DadosEstruturados";
 import CheckList from "@/components/CheckList";
 import EscolhaDoTurno from "@/components/turmas/EscolhaDoTurno";
 import Onda from "@/components/home/Onda";
+import PrazoDeVenda from "@/components/PrazoDeVenda";
+import TextoDoProduto from "@/components/TextoDoProduto";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts). Turma que entrar na vitrine depois do build é gerada na primeira visita.
 export const revalidate = 60;
@@ -107,6 +109,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
               <span className="inline-flex items-center rounded-full bg-[#E6ECFF] px-[11px] py-[5px] text-[12.5px] font-semibold text-[#1238C4]">
                 {seloDoCargoEConcurso(grupo.cargo, grupo.concurso)}
               </span>
+              {turma.status === "aberta" && <PrazoDeVenda vendaAte={turma.vendaAte} rotulo="Matrículas" className="mt-4 text-[15px] text-[#C9D5E5]" />}
               <EscolhaDoTurno turma={grupo} turnos={turnos} />
             </div>
           </div>
@@ -120,7 +123,7 @@ export default async function TurmaDetalhe({ params }: { params: Promise<{ slug:
             <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-azul-forte">Sobre a turma</span>
             <h2 className="mb-4 mt-2 font-display text-2xl font-extrabold tracking-[-0.02em]">Como funciona</h2>
             <div className="grid max-w-[760px] gap-3 text-[15.5px] leading-[1.65] text-ardosia-escura">
-              <p>{d.lead}</p>
+              <TextoDoProduto texto={d.lead} />
               <p>
                 A {grupo.nome} é a preparação presencial do Quad com rotina estruturada, simulados periódicos nos moldes da banca e
                 acompanhamento individual de desempenho. Cada aluno recebe o material didático completo do Quad e acesso à área do aluno

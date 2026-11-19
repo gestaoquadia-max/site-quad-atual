@@ -13,6 +13,18 @@ Hoje todo o conteúdo das páginas públicas vem de dados de exemplo em `lib/dat
 
 ---
 
+## Campos novos lidos pelo site (recado da API de 19/11/2026)
+
+| Campo | Onde vem | O que o site faz |
+|---|---|---|
+| `vendaAte` (ISO-8601 UTC, exclusivo; `null` = sem fim) | Atividades (`/api/loja/vitrine/atividades`, lista e detalhe), itens (`/api/loja/vitrine`) e combos (`/api/loja/vitrine/combos`). No simulado presencial, o mesmo instante vem em `detalhe.inscricoesAte` | Fecha a inscrição presencial do simulado (`situacaoDa` em `lib/simulados.ts`; saiu a regra provisória "véspera às 11:50") e mostra o prazo no horário de Brasília ("Inscrições até sáb., 21/11, às 11h50") na Central, no evento, na turma, no material, no item da loja e no combo. No instante do `vendaAte` o produto sai da vitrine, e o detalhe responde 404 (a página mostra "não está mais à venda") |
+| `ilimitada` (booleano) | Atividades e itens | Vagas, vendidas e restantes vêm `null`, lote `null` e lotes `[]`: o site já mostra sem contador e sem "Esgotado" |
+| `numeroDoPedido` (seis dígitos) | Compras (`/api/loja/compras`, `/{id}`) e fechamentos (carrinho, combo e `GET /api/loja/fechamentos/{id}`) | "Pedido nº …" em Minhas compras, no PIX aguardando, no "Pagamento confirmado" e na confirmação (`?pedido=`); na compra com impresso a retirar, o aviso para dizer o número na recepção |
+| `combo` (`{ id, nome }` ou `null`), `fechamentoId` | Compras | Minhas compras junta as partes do mesmo combo (mesmo `combo.id` e `fechamentoId`) sob o nome do combo |
+| `item.variacao` (`{ id, nome }` ou `null`) | Compras e `compras[]` do fechamento | O nome com a variação ("Camiseta Quad (G)"); no fechamento, junto com `item.id`, `item.tipo` e `item.plataforma`, casa cada compra com a linha reservada |
+| `compras[]` do fechamento só com o que foi cobrado | `POST /api/loja/carrinho/eu/fechamento` | A linha que saiu de venda entre a reserva e o pagamento fica fora da cobrança, sem erro: o site a mantém no carrinho, avisa na tela seguinte e a tira do analytics (`lib/fora-da-cobranca.ts`) |
+| `descricao` / `resumo` com quebras, recuo e emoji (até 3000 caracteres) | Turma, simulado, evento, item e combo | O texto é mostrado como foi digitado (`components/TextoDoProduto.tsx`); no topo e no painel de compra vai só a chamada (`chamadaDa` em `lib/seo.ts`), e o texto inteiro num bloco "Sobre o …" no corpo |
+
 ## Resumo
 
 | Conteúdo do site | Situação | Rota pública que já serve |

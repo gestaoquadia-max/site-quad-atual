@@ -7,6 +7,8 @@ import { brasaoDoConcurso } from "@/lib/brasoes";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { ErroDaApi } from "@/lib/http";
+import { prazoEmTexto } from "@/lib/format";
+import { chamadaDa } from "@/lib/seo";
 import { inscreverSeDeGraca } from "@/lib/loja";
 import { rotaComDestino } from "@/lib/redirecionamento";
 import { useSessaoAtiva } from "@/lib/usuario";
@@ -107,6 +109,7 @@ function LinhaDaEdicao({ e, concurso, selecionada, onSelecionar, tipo, acao }: {
 }) {
   const formatos = formatosDa(e).filter((f) => f.oferta.disponivel).map((f) => ROTULO_DO_FORMATO[f.formato].curto);
   const pres = e.presencial;
+  const prazo = pres?.vendaAte ? prazoEmTexto(pres.vendaAte) : null;
   const linha =
     tipo === "anterior"
       ? [e.data && `Aplicado em ${dataCurta(e.data)}`, ...formatos].filter(Boolean).join(" · ")
@@ -139,6 +142,9 @@ function LinhaDaEdicao({ e, concurso, selecionada, onSelecionar, tipo, acao }: {
             <span className={`text-[13px] font-semibold ${selecionada ? "text-azul-ceu" : "text-azul-forte"}`}>
               {pres.vagasRestantes ?? pres.vagas} de {pres.vagas} vagas disponíveis
             </span>
+          )}
+          {tipo === "aberta" && e.st.inscricao === "abertas" && prazo && (
+            <span className={`text-[13px] ${selecionada ? "text-prata-clara" : "text-ardosia"}`}>Inscrições até {prazo}</span>
           )}
         </span>
       </button>
@@ -250,7 +256,8 @@ export default function CentralDeSimulados({
     .filter((e) => e.publicado)
     .map((e) => ({ ...e, st: situacaoDa(e, hoje) }))
     .sort((a, b) => a.numero - b.numero);
-  // As encerradas às 11:50 da véspera (lib/simulados.ts) ficam aqui, com o selo e sem o botão, até a aplicação.
+  // As encerradas pelo vendaAte (lib/simulados.ts) ficam aqui, com o selo e sem o botão, enquanto a vitrine ainda as
+  // mandar: no instante do vendaAte a API tira a edição da vitrine, e ela sai da Central quando o cache (60 s) virar.
   const abertas = edicoes.filter((e) => e.st.temporal !== "realizado" && e.st.confirmada && e.st.inscricao !== "a-confirmar");
   const emBreve = edicoes.filter((e) => e.st.temporal !== "realizado" && !abertas.includes(e));
   const anteriores = edicoes.filter((e) => e.st.temporal === "realizado").sort((a, b) => b.numero - a.numero);
@@ -742,6 +749,9 @@ function PainelDaEdicao({ carreira, e, formato, onFormato, onInscrever, onCompra
               >
                 {e.st.vendePresencial ? "Inscrever-se" : e.st.inscricao === "esgotado" ? "Vagas esgotadas" : "Inscrições ainda não disponíveis"}
               </button>
+              {e.st.vendePresencial && e.presencial?.vendaAte && prazoEmTexto(e.presencial.vendaAte) && (
+                <p className="mt-3 text-sm font-semibold text-white">Inscrições até {prazoEmTexto(e.presencial.vendaAte)}</p>
+              )}
               <p className="mt-3 text-[12.5px] text-prata-escura">
                 {e.st.confirmada ? "Inscrição válida apenas para a aplicação presencial desta edição." : "As inscrições desta edição ainda não foram liberadas pela equipe."}
               </p>
@@ -820,7 +830,7 @@ function PainelDoExtra({ carreira, p, onComprar }: { carreira: Carreira; p: Prod
       <div className="text-[13px] text-prata">{carreira.curto}</div>
       <h3 className="mb-2.5 mt-1 font-display text-[28px] font-extrabold tracking-[-0.03em]">{p.nome}</h3>
       <Selo tom="estudo">Simulado extra</Selo>
-      {p.desc && <p className="mt-4 rounded-xl border border-white/[0.08] bg-white/[0.04] p-3.5 text-sm leading-[1.5] text-[#DCE4EF]">{p.desc}</p>}
+      {p.desc && <p className="mt-4 rounded-xl border border-white/[0.08] bg-white/[0.04] p-3.5 text-sm leading-[1.5] text-[#DCE4EF] [overflow-wrap:anywhere]">{chamadaDa(p.desc)}</p>}
       <div role="radiogroup" aria-label="Formato" className="mt-4 flex flex-col gap-2">
         {formatos.map((f) => {
           const o = ofertaDo(p, f)!;

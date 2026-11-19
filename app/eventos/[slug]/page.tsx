@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import VerItem from "@/components/VerItem";
 import { idDoItem } from "@/lib/itens";
-import { metadadosDaPagina } from "@/lib/seo";
+import { cabeNaChamada, chamadaDa, metadadosDaPagina } from "@/lib/seo";
 import { getIniciais, parsePreco } from "@/lib/format";
 import { seloDoEvento } from "@/lib/eventos";
 import { dadosDoEvento } from "@/lib/dados-estruturados";
@@ -13,6 +13,8 @@ import DadosEstruturados from "@/components/DadosEstruturados";
 import { ArteDoEvento } from "@/components/eventos/ArteDoEvento";
 import CaixaDeInscricao from "@/components/eventos/CaixaDeInscricao";
 import Onda from "@/components/home/Onda";
+import PrazoDeVenda from "@/components/PrazoDeVenda";
+import { SobreOProduto } from "@/components/TextoDoProduto";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts). Evento que entrar na vitrine depois do build é gerado na primeira visita.
 export const revalidate = 60;
@@ -130,7 +132,8 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
                 </nav>
               )}
 
-              <p className="max-w-[620px] text-lg leading-[1.6] text-[#C9D5E5]">{d.lead}</p>
+              {/* No topo, só a chamada: o texto inteiro (até 3000 caracteres) vai para "Sobre o evento", no corpo. */}
+              <p className="max-w-[620px] text-lg leading-[1.6] text-[#C9D5E5] [overflow-wrap:anywhere]">{chamadaDa(d.lead)}</p>
 
               <dl className="mt-6 grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10">
                 {d.specs.map((s) => (
@@ -140,6 +143,8 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
                   </div>
                 ))}
               </dl>
+
+              {!emBreve && !esgotado && <PrazoDeVenda vendaAte={evento.vendaAte} rotulo="Inscrições" className="mt-4 text-[15px] text-[#C9D5E5]" />}
 
               <CaixaDeInscricao
                 preco={evento.preco}
@@ -166,6 +171,8 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
       <section className="py-[clamp(56px,7vw,88px)]">
         <div className={`conteiner grid items-start gap-[clamp(32px,4vw,64px)] ${temLateral ? "lg:grid-cols-[minmax(0,1fr)_380px]" : ""}`}>
           <div className="flex min-w-0 flex-col gap-[clamp(40px,5vw,56px)]">
+            {!cabeNaChamada(d.lead) && <SobreOProduto rotulo="Sobre o evento" titulo="O que você precisa saber" texto={d.lead} />}
+
             {d.sobre.length > 0 && (
               <div>
                 <h2 className="mb-4 font-display text-[clamp(1.8rem,3vw,2.4rem)] font-extrabold tracking-[-0.03em]">O que vai acontecer</h2>

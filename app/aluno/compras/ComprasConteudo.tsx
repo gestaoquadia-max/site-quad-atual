@@ -230,7 +230,7 @@ function Desistencia({ compra, aoDesistir }: { compra: Compra; aoDesistir: (c: C
 
   return (
     <div role="group" aria-label="Confirmar desistência" className="mt-3 rounded-[12px] border border-[#F3C9C9] bg-[#FFF6F6] p-4 text-[13.5px] text-tinta">
-      <p className="font-semibold">Desistir de “{compra.item.nome}”?</p>
+      <p className="font-semibold">Desistir de “{nomeDaCompra(compra)}”?</p>
       <p className="mt-1 text-ardosia">
         {valor != null ? `Você recebe ${formatarValor(valor / 100)} de volta. ` : ""}
         {devolucao} A vaga e o acesso desta compra são cancelados, e isso não pode ser desfeito.
@@ -271,6 +271,79 @@ function Devolucao({ compra }: { compra: Compra }) {
   );
 }
 
+// O nome com a variação escolhida (recado da API de 19/11/2026): "Camiseta Quad (G)", "Aulão X (Com camisa G)".
+function nomeDaCompra(c: Compra) {
+  return c.item.variacao?.nome ? `${c.item.nome} (${c.item.variacao.nome})` : c.item.nome;
+}
+
+// A compra avulsa, ou as partes de um combo do mesmo pedido (mesmo combo.id e mesmo fechamentoId), juntas sob o nome do
+// combo. A ordem é a da lista (da mais nova à mais antiga), pela primeira compra de cada bloco.
+type Bloco = { tipo: "avulsa"; compra: Compra } | { tipo: "combo"; chave: string; nome: string; partes: Compra[] };
+
+function emBlocos(compras: Compra[]): Bloco[] {
+  const blocos: Bloco[] = [];
+  const combos = new Map<string, Extract<Bloco, { tipo: "combo" }>>();
+  for (const c of compras) {
+    if (!c.combo) {
+      blocos.push({ tipo: "avulsa", compra: c });
+      continue;
+    }
+    const chave = `${c.combo.id}|${c.fechamentoId ?? c.numeroDoPedido ?? c.id}`;
+    const existente = combos.get(chave);
+    if (existente) existente.partes.push(c);
+    else {
+      const bloco = { tipo: "combo" as const, chave, nome: c.combo.nome, partes: [c] };
+      combos.set(chave, bloco);
+      blocos.push(bloco);
+    }
+  }
+  return blocos;
+}
+
+function Pedido({ numero }: { numero?: string | null }) {
+  return numero ? <span className="font-semibold text-tinta">Pedido nº {numero}</span> : null;
+}
+
+// Uma compra: a avulsa, ou uma parte do combo (sem o número do pedido, que fica no cabeçalho do combo).
+function LinhaDaCompra({ c, parte, comPix, aoAtualizar }: { c: Compra; parte: boolean; comPix: boolean; aoAtualizar: (c: Compra) => void }) {
+  // O que ESTA compra pagou; o valor do pagamento é o do carrinho inteiro, quando ele tinha várias compras.
+  const valor = c.aPagarEmCentavos ?? c.pagamento?.valorEmCentavos;
+  const aRetirar = c.situacao === "PAGA" && c.item.plataforma !== "DIGITAL" && (c.entrega === "PENDENTE" || c.entrega === "PRONTA");
+  return (
+    <>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div className={parte ? "text-[14.5px] font-semibold" : "text-[15px] font-semibold"}>
+            {nomeDaCompra(c)}
+            {c.quantidade > 1 && ` × ${c.quantidade}`}
+          </div>
+          {!parte && (
+            <div className="mt-0.5 text-[13px] text-ardosia">
+              <Pedido numero={c.numeroDoPedido} />
+              {c.numeroDoPedido && " · "}
+              {formatarData(c.pagaEm ?? c.criadaEm)} · {descreverPagamento(c)}
+            </div>
+          )}
+          {c.situacao === "PAGA" && c.entrega && c.item.plataforma !== "DIGITAL" && (
+            <div className="mt-0.5 text-[13px] font-semibold text-azul-forte">{ENTREGA[c.entrega]}</div>
+          )}
+          {aRetirar && c.numeroDoPedido && (
+            <div className="mt-0.5 text-[13px] text-ardosia">Para retirar, diga o número do pedido ({c.numeroDoPedido}) na recepção.</div>
+          )}
+        </div>
+        <div className="flex items-center gap-4">
+          {valor != null && <span className={`font-display font-extrabold text-tinta ${parte ? "text-[15px]" : "text-[17px]"}`}>{formatarValor(valor / 100)}</span>}
+          <Etiqueta tom={situacao[c.situacao].tom}>{situacao[c.situacao].label}</Etiqueta>
+        </div>
+      </div>
+      {comPix && c.situacao === "AGUARDANDO_PAGAMENTO" && <PagamentoPendente compra={c} />}
+      {c.situacao === "PAGA" && c.item.plataforma === "DIGITAL" && <BaixarPdf compra={c} />}
+      {c.situacao === "PAGA" && <Desistencia compra={c} aoDesistir={aoAtualizar} />}
+      {c.situacao === "ESTORNADA" && <Devolucao compra={c} />}
+    </>
+  );
+}
+
 export default function ComprasConteudo() {
   const usuario = useUsuarioAtual();
   const carregandoUsuario = useCarregandoUsuario();
@@ -280,6 +353,7 @@ export default function ComprasConteudo() {
   // As compras que mudaram nesta visita (a desistência responde a compra já estornada).
   const [atualizadas, setAtualizadas] = useState<Record<string, Compra>>({});
   const compras = (dados ?? []).map((c) => atualizadas[c.id] ?? c);
+  const aoAtualizar = (nova: Compra) => setAtualizadas((a) => ({ ...a, [nova.id]: nova }));
 
   return (
     <EstadoLista
@@ -292,35 +366,39 @@ export default function ComprasConteudo() {
       vazioAcao={{ href: "/turmas", label: "Ver turmas" }}
     >
       <div className={`${CLASSE_DO_CARTAO} overflow-hidden`}>
-        {compras.map((c, i) => {
-          // O que ESTA compra pagou; o valor do pagamento é o do carrinho inteiro, quando ele tinha várias compras.
-          const valor = c.aPagarEmCentavos ?? c.pagamento?.valorEmCentavos;
+        {emBlocos(compras).map((b, i) => {
+          const borda = i > 0 ? "border-t border-linha" : "";
+          if (b.tipo === "avulsa") {
+            return (
+              <div key={b.compra.id} className={`px-[22px] py-4 ${borda}`}>
+                <LinhaDaCompra c={b.compra} parte={false} comPix aoAtualizar={aoAtualizar} />
+              </div>
+            );
+          }
+          const primeira = b.partes[0];
+          const valores = b.partes.map((c) => c.aPagarEmCentavos);
+          const total = valores.every((v) => v != null) ? valores.reduce((s, v) => s! + v!, 0)! : null;
           return (
-            <div key={c.id} className={`px-[22px] py-4 ${i > 0 ? "border-t border-linha" : ""}`}>
+            <div key={b.chave} className={`px-[22px] py-4 ${borda}`}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <div className="text-[15px] font-semibold">
-                    {c.item.nome}
-                    {c.quantidade > 1 && ` × ${c.quantidade}`}
-                  </div>
+                  <div className="text-[15px] font-semibold">{b.nome}</div>
                   <div className="mt-0.5 text-[13px] text-ardosia">
-                    {formatarData(c.pagaEm ?? c.criadaEm)} · {descreverPagamento(c)}
+                    <Pedido numero={primeira.numeroDoPedido} />
+                    {primeira.numeroDoPedido && " · "}
+                    Combo · {formatarData(primeira.pagaEm ?? primeira.criadaEm)} · {descreverPagamento(primeira)}
                   </div>
-                  {c.situacao === "PAGA" && c.entrega && c.item.plataforma !== "DIGITAL" && (
-                    <div className="mt-0.5 text-[13px] font-semibold text-azul-forte">{ENTREGA[c.entrega]}</div>
-                  )}
                 </div>
-                <div className="flex items-center gap-4">
-                  {valor != null && (
-                    <span className="font-display text-[17px] font-extrabold text-tinta">{formatarValor(valor / 100)}</span>
-                  )}
-                  <Etiqueta tom={situacao[c.situacao].tom}>{situacao[c.situacao].label}</Etiqueta>
-                </div>
+                {total != null && <span className="font-display text-[17px] font-extrabold text-tinta">{formatarValor(total / 100)}</span>}
               </div>
-              {c.situacao === "AGUARDANDO_PAGAMENTO" && <PagamentoPendente compra={c} />}
-              {c.situacao === "PAGA" && c.item.plataforma === "DIGITAL" && <BaixarPdf compra={c} />}
-              {c.situacao === "PAGA" && <Desistencia compra={c} aoDesistir={(nova) => setAtualizadas((a) => ({ ...a, [nova.id]: nova }))} />}
-              {c.situacao === "ESTORNADA" && <Devolucao compra={c} />}
+              <ul className="mt-3 space-y-3 border-l-2 border-linha pl-4">
+                {b.partes.map((c, j) => (
+                  <li key={c.id}>
+                    {/* O PIX do combo é um só: o código aparece uma vez, na primeira parte. */}
+                    <LinhaDaCompra c={c} parte comPix={j === 0} aoAtualizar={aoAtualizar} />
+                  </li>
+                ))}
+              </ul>
             </div>
           );
         })}

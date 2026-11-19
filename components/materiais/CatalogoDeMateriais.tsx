@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { Produto } from "@/lib/data";
 import { ehKit } from "@/lib/materiais";
+import { chamadaDa } from "@/lib/seo";
 import CartaoMaterial from "../home/CartaoMaterial";
 import CapaDoLivro, { CORES_DA_CAPA } from "../CapaDoLivro";
 import Onda from "@/components/home/Onda";
@@ -120,7 +121,7 @@ export default function CatalogoDeMateriais({ produtos: lista }: { produtos: Pro
               <div>
                 <span className="inline-flex h-7 items-center rounded-full bg-azul px-3 text-xs font-bold">{kit.tag.replace("PDFs", "materiais")}</span>
                 <h2 className="mb-3 mt-4 font-display text-[clamp(2rem,4vw,3.2rem)] font-extrabold leading-[1.02] tracking-[-0.035em]">{kit.nome}</h2>
-                <p className="max-w-[520px] text-[16.5px] leading-[1.6] text-[#C9D5E5]">{kit.detalhe?.lead.split(" — ")[0] ?? kit.desc}</p>
+                <p className="max-w-[520px] text-[16.5px] leading-[1.6] text-[#C9D5E5]">{chamadaDa(kit.detalhe?.lead.split(" — ")[0] ?? kit.desc)}</p>
                 <div className="mt-6 flex flex-wrap items-center gap-5">
                   <span className="font-display text-[clamp(28px,3vw,36px)] font-extrabold tracking-[-0.03em]">{kit.preco}</span>
                   <span className="btn-q h-12 bg-azul-palido px-5 text-[15px] text-marinho-950 group-hover:bg-[#D6E6FF]">Ver o kit</span>

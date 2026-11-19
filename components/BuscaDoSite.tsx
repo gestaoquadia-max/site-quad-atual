@@ -140,7 +140,7 @@ export default function BuscaDoSite({ tomDoTopo, aberta, onAbrir, onFechar }: { 
         aria-expanded={aberta}
         aria-keyshortcuts="/"
         onClick={() => (aberta ? fechar() : onAbrir())}
-        className={`grid h-11 w-11 place-items-center rounded-full transition-colors hover:bg-white/[0.06] hover:text-white ${aberta ? "bg-white/[0.08] text-white" : "text-prata"}`}
+        className={`grid h-11 w-10 place-items-center rounded-full min-[420px]:w-11 transition-colors hover:bg-white/[0.06] hover:text-white ${aberta ? "bg-white/[0.08] text-white" : "text-prata"}`}
       >
         <Lupa />
       </button>

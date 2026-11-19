@@ -7,7 +7,9 @@ import { ErroDaApi } from "@/lib/http";
 import { buscarFechamento, conferirPagamento, emReais, type Fechamento, type SituacaoDoPagamento } from "@/lib/loja";
 import { rotaComDestino } from "@/lib/redirecionamento";
 import { useSessaoAtiva } from "@/lib/usuario";
+import AvisoForaDaCobranca from "./AvisoForaDaCobranca";
 import Etapas from "./Etapas";
+import NumeroDoPedido from "./NumeroDoPedido";
 
 const INTERVALO_DA_CONSULTA_MS = 5000;
 
@@ -149,6 +151,8 @@ export default function AguardandoPagamento({ id }: { id: string }) {
           Pagamento confirmado
         </h1>
         <p className="text-[15.5px] leading-[1.6] text-ardosia">Sua compra está confirmada e o acesso já está liberado na sua área do aluno.</p>
+        {fechamento.numeroDoPedido && <NumeroDoPedido numero={fechamento.numeroDoPedido} />}
+        <AvisoForaDaCobranca fechamento={fechamento.id} />
         <Link href="/aluno" className="btn-q btn-q-azul mt-7 h-12 px-[22px] text-[15px]">
           Ir para a área do aluno
         </Link>
@@ -173,6 +177,8 @@ export default function AguardandoPagamento({ id }: { id: string }) {
         <p className="text-[15.5px] leading-[1.6] text-ardosia">
           Total de <strong className="text-tinta">{emReais(fechamento.totalEmCentavos)}</strong>. Esta página atualiza sozinha quando o pagamento for confirmado.
         </p>
+        {fechamento.numeroDoPedido && <NumeroDoPedido numero={fechamento.numeroDoPedido} />}
+        <AvisoForaDaCobranca fechamento={fechamento.id} />
 
         {pix && vencido && (
           <p className={`mt-6 ${AVISO_DO_PIX_VENCIDO}`}>

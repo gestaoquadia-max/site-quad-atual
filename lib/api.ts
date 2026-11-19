@@ -466,8 +466,15 @@ export type FormaDePagamento = "QUAD_COINS" | "CARTAO" | "PIX" | "CUPOM" | "RECE
 
 export type Compra = {
   id: string;
+  // O número do pedido (seis dígitos, "482913"; recado da API de 19/11/2026): o mesmo em todas as compras do mesmo
+  // fechamento, o dos e-mails e o que a recepção pede para achar o aluno. Todas as compras antigas também têm.
+  numeroDoPedido?: string | null;
+  fechamentoId?: string | null;
+  // A compra que é parte de um combo (em todas as partes, mesmo sem desconto); null na avulsa.
+  combo?: { id: string; nome: string } | null;
   // plataforma: IMPRESSO ou DIGITAL no material, congelada na compra; nula fora do material.
-  item: { id: string; nome: string; tipo: string; plataforma?: "IMPRESSO" | "DIGITAL" | null };
+  // variacao: a escolhida (o tamanho da camisa, ou "Com camisa G" no evento); null sem variação.
+  item: { id: string; nome: string; tipo: string; plataforma?: "IMPRESSO" | "DIGITAL" | null; variacao?: { id: string; nome: string } | null };
   quantidade: number;
   formaDePagamento: FormaDePagamento;
   // Quem da recepção lançou e como foi pago no balcão (meio nulo na cortesia). Nulo na compra feita pelo aluno.

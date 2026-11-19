@@ -246,6 +246,8 @@ export type ProdutoDaLoja = {
   preco: number | null;
   estoque: number | null;
   imagemUrl: string | null;
+  // Até quando se vende (ISO-8601 UTC, da API; recado de 19/11/2026); null = sem prazo marcado.
+  vendaAte?: string | null;
   // esgotadas: opções sem estoque (aparecem, mas não podem ser escolhidas).
   variacoes: { nome: string; opcoes: string[]; esgotadas: string[]; ids: Record<string, string> }[];
   exemplo?: boolean;

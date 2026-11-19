@@ -4,9 +4,10 @@ import { notFound, redirect } from "next/navigation";
 import Trilha from "@/components/Trilha";
 import CompraDoProdutoDaLoja from "@/components/loja/CompraDoProdutoDaLoja";
 import { categoriasDaLoja } from "@/lib/conteudo";
-import { metadadosDaPagina } from "@/lib/seo";
+import { cabeNaChamada, metadadosDaPagina } from "@/lib/seo";
 import { buscarProdutoDaLoja, listarProdutosDaLoja } from "@/lib/vitrine";
 import PaginaEmEspera from "@/components/PaginaEmEspera";
+import { SobreOProduto } from "@/components/TextoDoProduto";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts).
 export const revalidate = 60;
@@ -62,6 +63,11 @@ export default async function ProdutoDaLojaPage({ params }: { params: Promise<{ 
             <CompraDoProdutoDaLoja produto={produto} />
           </div>
         </div>
+        {produto.descricao && !cabeNaChamada(produto.descricao) && (
+          <div className="mt-[clamp(40px,5vw,64px)]">
+            <SobreOProduto rotulo="Sobre o produto" titulo="Detalhes" texto={produto.descricao} />
+          </div>
+        )}
       </div>
     </div>
     </PaginaEmEspera>

@@ -577,14 +577,15 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 1 — MEDIÇÃO
 
-**Status:** PENDENTE
+**Status:** EM ANDAMENTO
 
 | Tarefa | Status |
 |---|---|
 | Google Analytics | FEITO |
-| Pixel da Meta com eventos de cadastro, checkout e compra | PENDENTE |
-| Origem da visita (UTMs) mantida até a compra | PENDENTE |
+| Pixel da Meta com eventos de cadastro, checkout e compra | FEITO |
+| Origem da visita (UTMs) mantida até a compra | FEITO |
 | Captura de leads (melhoria futura) | PENDENTE |
+| Clique no Grupo VIP medido pelo próprio site (entrar_grupo_vip) | EM ANDAMENTO |
 
 **Campos adicionais**
 - **Descrição:** Saber de onde vêm as vendas
@@ -597,12 +598,12 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 1 — PUBLICAÇÃO
 
-**Status:** EM ANDAMENTO
+**Status:** CONCLUÍDA
 
 | Tarefa | Status |
 |---|---|
 | Escolher a hospedagem (provável Vercel) | FEITO |
-| Apontar o domínio para o site | PENDENTE |
+| Apontar o domínio para o site | FEITO |
 | Configurar as variáveis de produção (API e Pagar.me) | FEITO |
 
 **Campos adicionais**
@@ -626,12 +627,14 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 
 ### Bloco 3 — OPERAÇÃO
 
-**Status:** PENDENTE
+**Status:** EM ANDAMENTO
 
 | Tarefa | Status |
 |---|---|
 | Alerta de erros e de site fora do ar | PENDENTE |
 | Backup e plano para desfazer uma publicação com problema | PENDENTE |
+| Site em outra conta da Vercel, publicado pela CLI, após o limite gratuito | FEITO |
+| Projeto da Vercel pausado após o site ir para a AWS | FEITO |
 
 **Campos adicionais**
 - **Descrição:** Manter o site estável depois do lançamento
@@ -792,6 +795,23 @@ Organizado no formato do **Painel Interno Quad**: tarefa → POP → **etapas** 
 - **Descrição:** Ajustes de 03 a 06/11/2026, registrados num bloco novo porque o Painel não deixa concluir tarefa nova num bloco já concluído
 - **Prioridade:** Alta
 - **Depende de:** Etapa 13, Bloco 1
+
+> No Painel ficou também, neste bloco, a tarefa "Variações do evento (com e sem camisa) no evento, carrinho e checkout" como "aguardando" (criada em 17/11, antes de saber que o bloco concluído não deixa iniciá-la; o Painel não permite excluir). Ela foi registrada como feita no Bloco 11.
+
+### Bloco 11 — AJUSTES DA API DE 17/11
+
+**Status:** CONCLUÍDA · **Início:** 18/11/2026 · **Término:** 18/11/2026
+
+| Tarefa | Status |
+|---|---|
+| Variações do evento (com e sem camisa) no evento, carrinho e checkout | FEITO |
+| Troca do e-mail da conta com código no Perfil | FEITO |
+| Compras lançadas pela recepção em Minhas compras | FEITO |
+
+**Campos adicionais**
+- **Descrição:** O que o recado da API de 17/11/2026 pediu ao site (publicado em 17/11, commit eeaaddc)
+- **Prioridade:** Alta
+- **Depende de:** Backend
 
 ---
 
