@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { assinarConsentimento, consentimentoAtual, EVENTO_ABRIR_PREFERENCIAS, gravarConsentimento, type Consentimento } from "@/lib/consentimento";
 
@@ -32,6 +33,7 @@ const BOTAO = "btn-q h-11 px-5 text-sm";
 // Aviso no primeiro acesso e painel de preferências (aberto também por "Preferências de cookies", no rodapé).
 export default function AvisoDeCookies() {
   const escolha = useEscolha();
+  const pathname = usePathname();
   const [preferencias, setPreferencias] = useState(false);
   const [analise, setAnalise] = useState(false);
   const [marketing, setMarketing] = useState(false);
@@ -124,15 +126,26 @@ export default function AvisoDeCookies() {
   // Já escolheu: nada na tela (as preferências seguem no rodapé).
   if (escolha) return null;
 
+  // Onde o aviso aparece (decisão de 19/11/2026): no celular, no alto da tela, logo abaixo do menu do topo (que termina
+  // a 98 px), onde quem chega do Instagram o vê antes de rolar; no computador, no rodapé, menos nas páginas de combo, que
+  // recebem os anúncios, onde também fica no alto (o menu termina a 102 px). Se a faixa do topo sair, ajustar estes
+  // valores. Os três botões continuam iguais: recusar é tão fácil quanto aceitar.
+  // Camada 55, logo abaixo do menu do topo (60): o menu do celular e a busca, quando abertos, ficam por cima do aviso.
+  const noTopo = pathname?.startsWith("/combos") ?? false;
+
   return (
     <section
       aria-label="Aviso de cookies"
-      className="fixed inset-x-3 bottom-3 z-[80] mx-auto max-w-[920px] rounded-[18px] border border-white/10 bg-marinho-900 p-[clamp(16px,2.4vw,22px)] text-white shadow-[0_24px_60px_-20px_rgba(0,0,0,0.7)] sm:inset-x-6 sm:bottom-6"
+      className={`fixed inset-x-3 top-[106px] z-[55] mx-auto max-w-[920px] rounded-[18px] border border-white/10 bg-marinho-900 p-[clamp(16px,2.4vw,22px)] text-white shadow-[0_24px_60px_-20px_rgba(0,0,0,0.7)] sm:inset-x-6 ${
+        noTopo ? "sm:top-[110px]" : "sm:bottom-6 sm:top-auto"
+      }`}
     >
       <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
         <p className="min-w-[260px] flex-[1_1_420px] text-[14.5px] leading-[1.6] text-[#DCE4EF]">
-          Usamos cookies essenciais para o site funcionar. Com a sua permissão, usamos também cookies de análise e de
-          marketing para melhorar o site e os nossos anúncios.{" "}
+          {/* O benefício, fiel ao que os cookies fazem (CATEGORIAS): os de análise e de marketing medem as visitas e os
+              anúncios e mostram anúncios do Quad em outras plataformas (decisão de 19/11/2026). */}
+          Aceite os cookies para vermos quais anúncios trazem alunos e mostrarmos a você, no Instagram e no Google, ofertas
+          e simulados da sua carreira. Os essenciais ficam sempre ativos.{" "}
           <Link href="/privacidade#cookies" className="font-semibold text-azul-ceu underline underline-offset-2 hover:text-white">
             Saiba mais
           </Link>

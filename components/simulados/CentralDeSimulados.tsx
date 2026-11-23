@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { ErroDaApi } from "@/lib/http";
 import { prazoEmTexto } from "@/lib/format";
-import { chamadaDa } from "@/lib/seo";
+import TextoDoProduto from "@/components/TextoDoProduto";
 import { inscreverSeDeGraca } from "@/lib/loja";
 import { rotaComDestino } from "@/lib/redirecionamento";
 import { useSessaoAtiva } from "@/lib/usuario";
@@ -830,7 +830,8 @@ function PainelDoExtra({ carreira, p, onComprar }: { carreira: Carreira; p: Prod
       <div className="text-[13px] text-prata">{carreira.curto}</div>
       <h3 className="mb-2.5 mt-1 font-display text-[28px] font-extrabold tracking-[-0.03em]">{p.nome}</h3>
       <Selo tom="estudo">Simulado extra</Selo>
-      {p.desc && <p className="mt-4 rounded-xl border border-white/[0.08] bg-white/[0.04] p-3.5 text-sm leading-[1.5] text-[#DCE4EF] [overflow-wrap:anywhere]">{chamadaDa(p.desc)}</p>}
+      {/* O simulado extra não tem página própria: o texto inteiro, como foi digitado, fica aqui. */}
+      {p.desc && <TextoDoProduto texto={p.desc} className="mt-4 rounded-xl border border-white/[0.08] bg-white/[0.04] p-3.5 text-sm leading-[1.5] text-[#DCE4EF]" />}
       <div role="radiogroup" aria-label="Formato" className="mt-4 flex flex-col gap-2">
         {formatos.map((f) => {
           const o = ofertaDo(p, f)!;

@@ -24,16 +24,17 @@ export function resumir(texto: string, limite = 155) {
 }
 
 // A chamada curta de uma descrição digitada com quebras de linha, recuo e emoji (recado da API de 19/11/2026: até 3000
-// caracteres): o primeiro parágrafo (até a primeira linha em branco), numa linha só, com no máximo `limite` caracteres.
-// "   🎯 Turma Bope\n\n✅ O que inclui:" → "🎯 Turma Bope".
-export function chamadaDa(texto: string, limite = 220) {
+// caracteres): o primeiro parágrafo (até a primeira linha em branco), numa linha só e INTEIRO, sem corte com
+// reticências (decisão de 23/11/2026: o corte em 220 caracteres deixava descrições pela metade, como a do combo Reta
+// Final IPC/PCBA). "   🎯 Turma Bope\n\n✅ O que inclui:" → "🎯 Turma Bope".
+export function chamadaDa(texto: string) {
   const primeiro = texto.trim().split(/\n[ \t]*\n/)[0] ?? "";
-  return resumir(primeiro, limite);
+  return primeiro.replace(/\s+/g, " ").trim();
 }
 
-// O texto inteiro já cabe na chamada (numa linha só, é igual a ela): não precisa do bloco com o texto completo.
-export function cabeNaChamada(texto: string, limite = 220) {
-  return resumir(texto, Number.MAX_SAFE_INTEGER) === chamadaDa(texto, limite);
+// O texto inteiro já está na chamada (só um parágrafo): não precisa do bloco "Sobre o…" com o texto completo.
+export function cabeNaChamada(texto: string) {
+  return texto.replace(/\s+/g, " ").trim() === chamadaDa(texto);
 }
 
 // Gerada por app/opengraph-image.tsx.
