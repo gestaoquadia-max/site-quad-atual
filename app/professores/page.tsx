@@ -14,7 +14,7 @@ export const metadata = metadadosDaPagina({
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts): professor cadastrado entra sem publicar o site de novo.
 export const revalidate = 60;
 
-// Todos os professores da vitrine da API, com os mesmos cartões da home; cada um leva à página dele.
+// Todos os professores da vitrine da API, com os mesmos cartões da home (sem link: as páginas individuais saíram em 23/11/2026).
 // No celular, duas colunas de cartões compactos; do tablet em diante, quantas couberem.
 export default async function ProfessoresPage() {
   const professores = await listarProfessores();

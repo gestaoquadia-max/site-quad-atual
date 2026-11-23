@@ -9,7 +9,7 @@ import { BLACK_FRIDAY } from "@/lib/black-friday";
 
 // Professores na Home, na entrega "concursos-professores" da designer (12/11/2026): faixa horizontal com rolagem (setas
 // no computador, arrastar no celular). Cada cartão: fundo com brilho, a foto recortada (sem fundo) por cima e a faixa
-// escura com matéria, nome e o botão de perfil. Nome, matéria e página vêm da API; sem minibio (fica na página dele).
+// escura com matéria e nome, que vêm da API (sem link nem minibio: as páginas dos professores saíram em 23/11/2026).
 
 // Fotos já tratadas pela designer (fundo removido, 750 × 1000, encostadas na base), pelo slug da API. Quem não está aqui
 // usa a foto do cadastro.
@@ -33,7 +33,6 @@ const CORES = BLACK_FRIDAY.site
       fundo: "bg-[radial-gradient(90%_70%_at_50%_15%,#FF8A3D_0%,#E5530A_30%,#7A2A06_62%,#1A110C_100%)]",
       brilhoDaFoto: "[filter:drop-shadow(0_-2px_14px_rgba(255,122,46,0.45))_drop-shadow(0_18px_24px_rgba(0,0,0,0.5))]",
       linha: "border-[#F25A0C]",
-      botao: "border-[#FF7A2E] text-[#FF9A5C] group-hover:bg-[#F25A0C] group-hover:border-[#F25A0C] group-hover:text-white",
     }
   : {
       rotulo: "text-[#60A5FA]",
@@ -41,18 +40,14 @@ const CORES = BLACK_FRIDAY.site
       fundo: "bg-[radial-gradient(90%_70%_at_50%_15%,#60A5FA_0%,#2B7BFF_30%,#0B3A80_62%,#0A1220_100%)]",
       brilhoDaFoto: "[filter:drop-shadow(0_-2px_14px_rgba(96,165,250,0.45))_drop-shadow(0_18px_24px_rgba(0,0,0,0.5))]",
       linha: "border-[#1D8BFF]",
-      botao: "border-[#60A5FA] text-[#60A5FA] group-hover:bg-[#1D8BFF] group-hover:border-[#1D8BFF] group-hover:text-white",
     };
 
 function CartaoDoProfessor({ professor }: { professor: Professor }) {
   const tratada = FOTO_TRATADA[professor.slug];
   const foto = tratada ?? professor.fotoUrl;
   return (
-    <Link
-      href={`/professores/${professor.slug}`}
-      aria-label={`${professor.nome}${professor.materia ? `, ${professor.materia}` : ""}: ver perfil`}
-      className="group relative h-[430px] w-[min(78vw,300px)] flex-none snap-start text-white hover:text-white"
-    >
+    // Sem página própria desde 23/11/2026: o cartão não é link e sai o botão de perfil.
+    <article className="relative h-[430px] w-[min(78vw,300px)] flex-none snap-start text-white">
       {/* Fundo com brilho e listras finas, mais baixo que o cartão: a cabeça passa por cima (como na entrega). */}
       <div aria-hidden="true" className={`absolute inset-x-0 bottom-0 h-[330px] overflow-hidden rounded-[20px] ${CORES.fundo}`}>
         <div className="absolute inset-0 [background:repeating-linear-gradient(90deg,rgba(255,255,255,0.05)_0_1px,transparent_1px_28px)]" />
@@ -70,7 +65,7 @@ function CartaoDoProfessor({ professor }: { professor: Professor }) {
             alt=""
             fill
             sizes="300px"
-            className={`origin-bottom object-contain object-top transition-transform duration-300 group-hover:scale-[1.03] ${CORES.brilhoDaFoto}`}
+            className={`origin-bottom object-contain object-top ${CORES.brilhoDaFoto}`}
           />
         </div>
       )}
@@ -82,14 +77,8 @@ function CartaoDoProfessor({ professor }: { professor: Professor }) {
           )}
           <strong className="mt-1 block font-display text-[21px] font-extrabold leading-[1.15]">{professor.nome}</strong>
         </div>
-        <span
-          aria-hidden="true"
-          className={`flex size-[42px] flex-none items-center justify-center rounded-full border transition-colors duration-200 ${CORES.botao}`}
-        >
-          →
-        </span>
       </div>
-    </Link>
+    </article>
   );
 }
 

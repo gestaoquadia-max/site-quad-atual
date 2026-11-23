@@ -113,7 +113,7 @@ type VariacaoDaAtividade = {
 
 type ConcursoDaVitrine = { id: string; codigo: string; nome: string; rotulo: string };
 
-// Um professor no cartão de uma atividade: a página dele é /professores/{slug}.
+// Um professor no cartão de uma atividade. Sem página própria desde 23/11/2026 (o nome aparece sem link).
 type ProfessorDaAtividade = { id: string; nome: string; slug: string | null; fotoUrl: string | null };
 
 // O lote em reais que vale agora: o preço de agora e quanto resta a esse preço. Nulo sem lotes.
@@ -544,7 +544,6 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
         iniciais: "",
         nome: p.nome,
         papel: "Professor do Quad",
-        href: p.slug ? `/professores/${p.slug}` : undefined,
         fotoUrl: p.fotoUrl ?? undefined,
       })),
     },
@@ -1113,11 +1112,4 @@ export async function listarProfessores(): Promise<Professor[] | null> {
   } catch {
     return null;
   }
-}
-
-// Pelo endereço da página: o slug da API ou, nos endereços antigos (nome + id), o id. A página redireciona.
-export async function buscarProfessor(slug: string): Promise<Professor | null> {
-  const id = idDoSlug(slug);
-  const professor = await lerDaVitrine<ProfessorDaVitrine>(`/api/professores/vitrine/${id ?? `slug/${encodeURIComponent(slug)}`}`);
-  return professor === NAO_ENCONTRADA ? null : paraProfessor(professor);
 }

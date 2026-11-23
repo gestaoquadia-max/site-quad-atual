@@ -90,6 +90,8 @@ const nextConfig = {
       { source: "/aprovados", destination: "/#aprovados", permanent: false },
       { source: "/blog", destination: "/", permanent: false },
       { source: "/blog/:slug*", destination: "/", permanent: false },
+      // As páginas individuais dos professores saíram em 23/11/2026: os endereços antigos levam à lista.
+      { source: "/professores/:slug", destination: "/professores", permanent: true },
     ];
   },
 };

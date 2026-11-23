@@ -133,10 +133,8 @@ export function CartaoProdutoDaLoja({ produto, fundo = "nevoa" }: { produto: Pro
 export function CartaoProfessor({ professor, compacto = false }: { professor: Professor; compacto?: boolean }) {
   const c = (celular: string, normal: string) => (compacto ? `${celular} sm:${normal.split(" ").join(" sm:")}` : normal);
   return (
-    <Link
-      href={`/professores/${professor.slug}`}
-      className="flex h-full flex-col overflow-hidden rounded-[18px] border border-white/[0.08] bg-marinho-900 p-1.5 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-[3px] hover:border-[rgba(111,174,255,0.5)] hover:text-white hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_28px_50px_-26px_rgba(0,0,0,0.85)]"
-    >
+    // Sem página própria desde 23/11/2026: o cartão não é link.
+    <article className="flex h-full flex-col overflow-hidden rounded-[18px] border border-white/[0.08] bg-marinho-900 p-1.5 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
       <div className="relative aspect-[4/5] overflow-hidden rounded-[13px] bg-[linear-gradient(160deg,#1B3A63_0%,#0B1C33_70%)]">
         <div aria-hidden="true" className={`absolute inset-0 grid place-items-center font-display ${c("text-[44px]", "text-[64px]")} font-extrabold tracking-[-0.04em] text-white/10`}>
           {getIniciais(professor.nome)}
@@ -148,7 +146,7 @@ export function CartaoProfessor({ professor, compacto = false }: { professor: Pr
           <div className={`font-display ${c("text-[15px] leading-tight", "text-[19px] leading-normal")} font-extrabold tracking-[-0.015em]`}>{professor.nome}</div>
         </div>
       </div>
-      {/* A minibio fica só na página do professor (pedido de 03/11/2026). */}
+      {/* Sem minibio no cartão (pedido de 03/11/2026). */}
       <div className={`flex flex-1 flex-col justify-end ${c("px-2 py-2.5", "px-3 py-3.5")}`}>
         {professor.materia && (
           <span className={`self-start rounded-md border border-[rgba(111,174,255,0.22)] bg-azul/[0.14] ${c("px-2 text-[10px]", "px-2.5 text-[11.5px]")} py-[5px] font-semibold uppercase tracking-[0.06em] text-azul-ceu`}>
@@ -156,7 +154,7 @@ export function CartaoProfessor({ professor, compacto = false }: { professor: Pr
           </span>
         )}
       </div>
-    </Link>
+    </article>
   );
 }
 
