@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import VerItem from "@/components/VerItem";
 import { parsePreco } from "@/lib/format";
-import { cabeNaChamada, chamadaDa, metadadosDaPagina } from "@/lib/seo";
+import { metadadosDaPagina } from "@/lib/seo";
 import { buscarMaterial, listarMateriais } from "@/lib/vitrine";
 import CapaDoLivro, { CORES_DA_CAPA } from "@/components/CapaDoLivro";
 import CompraDoMaterial from "@/components/materiais/CompraDoMaterial";
@@ -11,7 +11,7 @@ import { ehKit } from "@/lib/materiais";
 import PaginaEmEspera from "@/components/PaginaEmEspera";
 import Onda from "@/components/home/Onda";
 import PrazoDeVenda from "@/components/PrazoDeVenda";
-import { SobreOProduto } from "@/components/TextoDoProduto";
+import { LinkParaADescricao, SobreOProduto } from "@/components/TextoDoProduto";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts). Material que entrar na vitrine depois do build é gerado na primeira visita.
 export const revalidate = 60;
@@ -70,8 +70,8 @@ export default async function ProdutoDetalhe({ params }: { params: Promise<{ slu
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-azul-ceu">{kit ? "Kit de materiais" : "Material de estudo"}</div>
               <h1 className="mb-4 mt-3 font-display text-[clamp(2.2rem,4.6vw,3.6rem)] font-extrabold leading-[1.02] tracking-[-0.035em]">{produto.nome}</h1>
-              {/* No topo, só a chamada: o texto inteiro vai para "Sobre o material", no corpo. */}
-              {produto.desc && <p className="text-lg leading-[1.55] text-[#DCE4EF] [overflow-wrap:anywhere]">{chamadaDa(produto.desc)}</p>}
+              {/* Abaixo do título, só o link: o texto inteiro fica em "Sobre o material", no corpo. */}
+              {produto.desc && <div><LinkParaADescricao className="text-[16px] text-azul-ceu hover:text-white" /></div>}
               {resumo && <p className="mt-2 text-sm text-prata">{resumo}</p>}
               {!produto.esgotado && <PrazoDeVenda vendaAte={produto.vendaAte} rotulo="Vendas" className="mt-3 text-[15px] text-[#DCE4EF]" />}
               <CompraDoMaterial produto={produto} />
@@ -81,7 +81,7 @@ export default async function ProdutoDetalhe({ params }: { params: Promise<{ slu
       </section>
       <Onda para="claro" />
 
-      {produto.desc && !cabeNaChamada(produto.desc) && (
+      {produto.desc && (
         <section className="py-[clamp(56px,7vw,88px)]">
           <div className="mx-auto max-w-[1200px] px-[clamp(20px,4vw,32px)]">
             <SobreOProduto rotulo="Sobre o material" titulo="O que você vai receber" texto={produto.desc} />

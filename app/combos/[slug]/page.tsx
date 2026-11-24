@@ -4,10 +4,10 @@ import VerItem from "@/components/VerItem";
 import Trilha from "@/components/Trilha";
 import { buscarCombo, economiaEmTexto, linkDaParte, precoDoCombo, rotuloDaParte } from "@/lib/combos";
 import { emReais } from "@/lib/loja";
-import { cabeNaChamada, chamadaDa, metadadosDaPagina, resumir } from "@/lib/seo";
+import { metadadosDaPagina, resumir } from "@/lib/seo";
 import Onda from "@/components/home/Onda";
 import PrazoDeVenda from "@/components/PrazoDeVenda";
-import { SobreOProduto } from "@/components/TextoDoProduto";
+import { LinkParaADescricao, SobreOProduto } from "@/components/TextoDoProduto";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts); o Next exige um número escrito aqui.
 export const revalidate = 60;
@@ -41,8 +41,8 @@ export default async function ComboPage({ params }: { params: Promise<{ slug: st
             <div>
               <span className="text-xs font-bold uppercase tracking-[0.16em] text-azul-ceu">Combo · {combo.componentes.length} itens</span>
               <h1 className="mt-3 font-display text-[clamp(2.2rem,4.4vw,3.8rem)] font-extrabold leading-[1.04] tracking-[-0.04em] [text-wrap:balance]">{combo.nome}</h1>
-              {/* No topo, só a chamada: o texto inteiro vai para "Sobre o combo", no corpo. */}
-              {descricao && <p className="mt-4 max-w-[600px] text-[17px] leading-[1.6] text-[#B4C1D3] [overflow-wrap:anywhere] [text-wrap:pretty]">{chamadaDa(descricao)}</p>}
+              {/* Abaixo do título, só o link: o texto inteiro fica em "Sobre o combo", no corpo. */}
+              {descricao && <div><LinkParaADescricao className="mt-4 text-[16px] text-azul-ceu hover:text-white" /></div>}
             </div>
 
             {/* Preço e compra. */}
@@ -79,7 +79,7 @@ export default async function ComboPage({ params }: { params: Promise<{ slug: st
 
       <section className="bg-nevoa py-[clamp(48px,6vw,88px)]">
         <div className="conteiner">
-          {descricao && !cabeNaChamada(descricao) && (
+          {descricao && (
             <div className="mb-[clamp(40px,5vw,56px)]">
               <SobreOProduto rotulo="Sobre o combo" titulo="O que você precisa saber" texto={descricao} />
             </div>

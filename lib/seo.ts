@@ -32,11 +32,6 @@ export function chamadaDa(texto: string) {
   return primeiro.replace(/\s+/g, " ").trim();
 }
 
-// O texto inteiro já está na chamada (só um parágrafo): não precisa do bloco "Sobre o…" com o texto completo.
-export function cabeNaChamada(texto: string) {
-  return texto.replace(/\s+/g, " ").trim() === chamadaDa(texto);
-}
-
 // Gerada por app/opengraph-image.tsx.
 const IMAGEM_DE_COMPARTILHAMENTO = {
   url: "/opengraph-image",
