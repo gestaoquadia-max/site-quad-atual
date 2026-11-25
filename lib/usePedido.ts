@@ -19,7 +19,8 @@ export type Pedido = {
 type Estado =
   | { fase: "preparando" }
   | { fase: "pronto"; pedido: Pedido }
-  | { fase: "erro"; mensagem: string };
+  // semSessao: a API recusou a sessão (401) mesmo depois de tentar renovar; o checkout mostra o "Entre para finalizar".
+  | { fase: "erro"; mensagem: string; semSessao?: boolean };
 
 function mesmaLinha(alvo: Alvo, l: LinhaDoCarrinho) {
   // Evento com variação: a linha traz alvo.variacao, que precisa ser a escolhida.
@@ -83,7 +84,12 @@ export function usePedido(itens: CartItem[], ativo: boolean) {
           atualizarVagas().catch(() => {});
         }
       } catch (e) {
-        if (!cancelado) setEstado({ fase: "erro", mensagem: mensagem(e, "Não foi possível preparar o seu pedido. Verifique sua internet e tente novamente.") });
+        if (!cancelado)
+          setEstado({
+            fase: "erro",
+            mensagem: mensagem(e, "Não foi possível preparar o seu pedido. Verifique sua internet e tente novamente."),
+            semSessao: e instanceof ErroDaApi && e.status === 401,
+          });
       }
     })();
     return () => {

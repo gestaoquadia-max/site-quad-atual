@@ -387,7 +387,8 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
           <div role="status" aria-label="Carregando" className="min-h-[50vh]" />
         ) : items.length === 0 ? (
           <Vazio />
-        ) : !logado ? (
+        ) : !logado || (estado.fase === "erro" && estado.semSessao) ? (
+          // Sem sessão, ou com a sessão recusada pela API (vencida): a tela de entrar, e não o erro.
           <PedirLogin />
         ) : estado.fase === "erro" ? (
           <div className="grid justify-items-start gap-4 rounded-[18px] border border-linha bg-superficie shadow-cartao p-6">
