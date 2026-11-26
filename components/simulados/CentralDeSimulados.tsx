@@ -123,11 +123,11 @@ function LinhaDaEdicao({ e, concurso, destaque, selecionada, onSelecionar, tipo,
       : e.st.confirmada
         ? [dataCurta(e.data!), e.horario, e.local].join(" · ")
         : "Data e horário ainda não definidos";
-  return (
+  const conteudo = (
     <div
       className={`flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl border px-3 py-3 transition-colors sm:pr-4 ${
-        selecionada ? "border-marinho-900 bg-marinho-900 text-white" : "border-linha bg-superficie hover:border-azul/50"
-      }`}
+        destaque ? "relative border-transparent" : ""
+      } ${selecionada ? `${destaque ? "" : "border-marinho-900"} bg-marinho-900 text-white` : `${destaque ? "" : "border-linha hover:border-azul/50"} bg-superficie`}`}
     >
       <button type="button" onClick={onSelecionar} aria-pressed={selecionada} className="flex min-w-0 flex-[1_1_320px] items-center gap-4 text-left">
         <Numero n={e.numero} destaque={selecionada} />
@@ -160,6 +160,18 @@ function LinhaDaEdicao({ e, concurso, destaque, selecionada, onSelecionar, tipo,
         {tipo === "anterior" && formatos.length > 0 && <Selo tom="estudo">Para estudo</Selo>}
         {acao}
       </div>
+    </div>
+  );
+  if (!destaque) return conteudo;
+  // A edição em destaque (pedido de 26/11/2026: "borda ativa" no Simulado 82): uma luz laranja que gira em volta da
+  // linha, com brilho por fora. Quem pede menos movimento no sistema vê a borda laranja parada.
+  return (
+    <div className="relative overflow-hidden rounded-[18px] p-[2px] shadow-[0_0_30px_-6px_rgba(242,90,12,0.8)]">
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-1/2 -ml-[800px] -mt-[800px] h-[1600px] w-[1600px] animate-[spin_3.5s_linear_infinite] bg-[conic-gradient(from_0deg,rgba(242,90,12,0.25)_0deg,#FF7A2E_50deg,#FFB27A_90deg,#F25A0C_130deg,rgba(242,90,12,0.25)_200deg,rgba(242,90,12,0.25)_360deg)] motion-reduce:animate-none motion-reduce:bg-[#F25A0C]"
+      />
+      {conteudo}
     </div>
   );
 }
