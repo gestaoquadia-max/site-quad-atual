@@ -10,6 +10,8 @@ import {
   SetaParaFora,
 } from "@/components/blackfriday/PartesDaBlackFriday";
 import { metadadosDaPagina } from "@/lib/seo";
+import { blackLiberada } from "@/lib/black/liberada";
+import MentoriasDaBlack from "@/components/blackfriday/mentorias/MentoriasDaBlack";
 
 export const metadata = metadadosDaPagina({
   titulo: "Mentorias do Quad · Black Friday",
@@ -43,7 +45,10 @@ const PASSOS = [
   { t: "Decida com segurança", d: "Em 27/11, a Mentoria completa sai por R$ 277,00." },
 ];
 
-export default function MentoriasPage() {
+// De 27 a 30/11 (e na prévia), a página da Black com a escolha do concurso (components/blackfriday/mentorias);
+// /mentorias?escolher=1 (o botão do carrossel da Home) já abre a escolha.
+export default async function MentoriasPage({ searchParams }: { searchParams: Promise<{ escolher?: string }> }) {
+  if (await blackLiberada()) return <MentoriasDaBlack abrirEscolha={(await searchParams).escolher === "1"} />;
   return (
     <PaginaEmEspera area="mentorias" titulo="Mentorias do Quad">
       <PaginaDaBlackFriday>

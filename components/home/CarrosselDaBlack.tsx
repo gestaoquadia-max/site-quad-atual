@@ -8,16 +8,17 @@ import type { MaterialDaBlack } from "@/lib/vitrine";
 import { insigniaDaModalidade } from "@/lib/turmas";
 import { SeloDaContagem, emReais } from "@/components/blackfriday/materiais/PartesDosMateriais";
 import { cartoesDaBlack, vagasRestantes } from "@/components/turmas/TopoDaBlack";
+import TelasDaMentoria from "@/components/blackfriday/mentorias/TelasDaMentoria";
+import { INCLUSO_NA_MENTORIA, PRECO_DA_MENTORIA } from "@/lib/black/mentorias";
 
 // O topo da Home no período da Black (prévia da designer de 26/11/2026, "Preview Site Dia 27", Início): um carrossel
 // com Turmas presenciais, Mentoria e Materiais, que passa sozinho a cada 5 s (com pausa e pontos). Cada slide só entra
 // com o dado real: Turmas, com turma marcada como Black e aberta; Materiais, com material ou combo da Black à venda.
-// A Mentoria fica com o preço da campanha (R$ 277, o mesmo da página das Mentorias), sem preço riscado nem parcelas
+// A Mentoria fica com o preço da campanha (lib/black/mentorias.ts), sem preço riscado nem parcelas
 // (decisão de 26/11/2026). Fica no lugar do PrimeiroContato (app/page.tsx).
 
 const IMG = "/images/home/black";
 const INTERVALO_MS = 5000;
-const MENTORIA_POR = "R$ 277";
 
 const INSIGNIA_FIXA: Record<string, string> = { rondesp: `${IMG}/rondesp.webp`, patamo: `${IMG}/patamo.webp`, bope: `${IMG}/bope.webp` };
 
@@ -112,38 +113,40 @@ function SlideDasTurmas({ turmas, todas }: { turmas: Turma[]; todas: Turma[] | n
   const insignia = (id: string) => INSIGNIA_FIXA[id] ?? insigniaDaModalidade(todas, id);
   return (
     <>
-      <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[16%] hidden h-[420px] w-[520px] -translate-x-1/2 lg:block">
-        <span className="absolute left-1/2 top-[300px] h-11 w-[300px] -translate-x-1/2 rounded-[50%] border-2 border-[rgba(255,140,60,0.95)] shadow-[0_0_24px_4px_rgba(255,110,20,0.8),inset_0_0_18px_rgba(255,110,20,0.6)]" />
-        {cartoes.map((x, i) => {
-          const centro = x.id === c.id;
-          const lado = cartoes.filter((y) => y.id !== c.id).indexOf(x);
-          const tf = centro
-            ? "translateX(-50%) translateY(10px) scale(1.12)"
-            : lado === 0
-              ? "translateX(-50%) translateX(-160px) translateY(60px) rotateY(32deg) scale(.72)"
-              : "translateX(-50%) translateX(160px) translateY(60px) rotateY(-32deg) scale(.72)";
-          const src = insignia(x.id);
-          return src ? (
-            <Image
-              key={x.id}
-              src={src}
-              alt=""
-              width={260}
-              height={260}
-              priority={i === 0}
-              className="absolute left-1/2 top-0 h-[260px] w-[260px] object-contain transition-[transform,filter] duration-[450ms]"
-              style={{
-                transform: tf,
-                zIndex: centro ? 3 : 1,
-                filter: centro
-                  ? "drop-shadow(0 0 28px rgba(255,110,20,.75)) drop-shadow(0 24px 30px rgba(0,0,0,.6))"
-                  : "brightness(.8) drop-shadow(0 20px 26px rgba(0,0,0,.7))",
-              }}
-            />
-          ) : null;
-        })}
-      </div>
       <Conteudo
+        meio={
+          <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[520px] -translate-x-1/2 -translate-y-[40%] scale-[.8]">
+            <span className="absolute left-1/2 top-[300px] h-11 w-[300px] -translate-x-1/2 rounded-[50%] border-2 border-[rgba(255,140,60,0.95)] shadow-[0_0_24px_4px_rgba(255,110,20,0.8),inset_0_0_18px_rgba(255,110,20,0.6)]" />
+            {cartoes.map((x, i) => {
+              const centro = x.id === c.id;
+              const lado = cartoes.filter((y) => y.id !== c.id).indexOf(x);
+              const tf = centro
+                ? "translateX(-50%) translateY(10px) scale(1.12)"
+                : lado === 0
+                  ? "translateX(-50%) translateX(-160px) translateY(60px) rotateY(32deg) scale(.72)"
+                  : "translateX(-50%) translateX(160px) translateY(60px) rotateY(-32deg) scale(.72)";
+              const src = insignia(x.id);
+              return src ? (
+                <Image
+                  key={x.id}
+                  src={src}
+                  alt=""
+                  width={260}
+                  height={260}
+                  priority={i === 0}
+                  className="absolute left-1/2 top-0 h-[260px] w-[260px] object-contain transition-[transform,filter] duration-[450ms]"
+                  style={{
+                    transform: tf,
+                    zIndex: centro ? 3 : 1,
+                    filter: centro
+                      ? "drop-shadow(0 0 28px rgba(255,110,20,.75)) drop-shadow(0 24px 30px rgba(0,0,0,.6))"
+                      : "brightness(.8) drop-shadow(0 20px 26px rgba(0,0,0,.7))",
+                  }}
+                />
+              ) : null;
+            })}
+          </div>
+        }
         esquerda={
           <>
             <Titulo antes="Últimas vagas nas turmas" destaque="presenciais" />
@@ -200,54 +203,15 @@ function SlideDasTurmas({ turmas, todas }: { turmas: Turma[]; todas: Turma[] | n
 
 // ---------- Mentoria ----------
 
-function Aparelho({ className, moldura, tela, children }: { className: string; moldura: string; tela: string; children: React.ReactNode }) {
-  return (
-    <div className={className}>
-      <div className={`border border-[#3A3A3E] bg-[#0B0B0C] ${moldura}`}>
-        <div className={`relative overflow-hidden bg-[#17120F] ${tela}`}>{children}</div>
-      </div>
-    </div>
-  );
-}
-
 function SlideDaMentoria() {
   return (
     <>
-      <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[57%] hidden h-[440px] w-[520px] -translate-x-1/2 -translate-y-1/2 lg:block">
-        <span className="absolute inset-0 rounded-full bg-[radial-gradient(closest-side,rgba(255,122,46,0.55),rgba(242,90,12,0.2)_60%,transparent)]" />
-        <span className="absolute left-1/2 top-[68%] h-10 w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-[50%] border-2 border-[rgba(255,140,60,0.95)] shadow-[0_0_24px_4px_rgba(255,110,20,0.8),inset_0_0_18px_rgba(255,110,20,0.6)]" />
-        <div className="absolute left-1/2 top-[-6%] h-[400px] w-[520px] -translate-x-1/2">
-          <div className="absolute left-1/2 top-0 w-[440px] -translate-x-1/2 [filter:drop-shadow(0_0_30px_rgba(255,110,20,0.45))_drop-shadow(0_30px_40px_rgba(0,0,0,0.7))]">
-            <Aparelho className="" moldura="rounded-[14px] p-3" tela="h-[250px] rounded">
-              <Image src={`${IMG}/tela-aula.webp`} alt="" fill sizes="420px" className="object-cover object-left-top" />
-            </Aparelho>
-            <div className="mx-auto h-[46px] w-[70px] bg-[linear-gradient(90deg,#6E6E74,#C9C9CF_45%,#8E8E95)] [clip-path:polygon(14%_0,86%_0,100%_100%,0_100%)]" />
-            <div className="mx-auto h-2.5 w-[190px] rounded-b-[10px] rounded-t-md bg-[linear-gradient(180deg,#D9D9DE,#8E8E95)] shadow-[0_8px_14px_-4px_rgba(0,0,0,0.7)]" />
-          </div>
-          <Aparelho
-            className="absolute bottom-1.5 left-[-6px] w-[150px] -rotate-6 [filter:drop-shadow(0_24px_30px_rgba(0,0,0,0.75))]"
-            moldura="rounded-2xl p-[9px]"
-            tela="aspect-[3/4] rounded-lg"
-          >
-            <Image src={`${IMG}/tela-ipad.webp`} alt="" fill sizes="140px" className="object-cover object-top" />
-          </Aparelho>
-          <Aparelho
-            className="absolute bottom-0 right-1 w-24 rotate-6 [filter:drop-shadow(0_24px_30px_rgba(0,0,0,0.75))]"
-            moldura="rounded-[20px] p-1.5"
-            tela="aspect-[9/19] rounded-[15px]"
-          >
-            <Image src={`${IMG}/tela-celular.webp`} alt="" fill sizes="90px" className="object-cover object-top" />
-          </Aparelho>
-        </div>
-        <span className="absolute bottom-[-20px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[radial-gradient(circle_at_35%_30%,#FFB27A,#F25A0C_60%,#B23E06)] px-[18px] py-2 font-display text-[15px] font-extrabold tracking-[0.14em] text-white shadow-[0_0_24px_rgba(255,110,20,0.6),0_14px_30px_-8px_rgba(0,0,0,0.6)]">
-          ESTUDO GUIADO TODOS OS DIAS
-        </span>
-      </div>
       <Conteudo
+        meio={<TelasDaMentoria className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[44%] scale-[.8]" />}
         esquerda={
           <>
             <Titulo antes="Mentoria com acompanhamento de" destaque="12 meses" />
-            <Itens itens={["12 meses de acompanhamento", "Plano de estudos pelo seu edital", "Suporte direto da equipe Quad"]} />
+            <Itens itens={INCLUSO_NA_MENTORIA} />
           </>
         }
         quadro={
@@ -255,10 +219,10 @@ function SlideDaMentoria() {
             <CabecalhoDoQuadro titulo="MENTORIA · 12 MESES" off={null} />
             <div className="mb-1.5 mt-3.5 flex flex-col items-center">
               <span className="whitespace-nowrap font-display text-[clamp(56px,5.4vw,72px)] font-extrabold leading-none tracking-[-0.045em]">
-                {MENTORIA_POR}
+                {PRECO_DA_MENTORIA}
               </span>
             </div>
-            <Link href="/mentorias" className={BOTAO}>
+            <Link href="/mentorias?escolher=1" className={BOTAO}>
               Garantir minha mentoria <Seta />
             </Link>
             <RodapeDoQuadro />
@@ -331,11 +295,13 @@ function SlideDosMateriais({ materiais }: { materiais: MaterialDaBlack[] }) {
   );
 }
 
-// O texto à esquerda e o quadro da oferta à direita (no celular, um embaixo do outro).
-function Conteudo({ esquerda, quadro }: { esquerda: React.ReactNode; quadro: React.ReactNode }) {
+// O texto à esquerda, a ilustração no meio (só no computador, numa coluna própria, para nunca encostar no texto nem no
+// quadro) e o quadro da oferta à direita. No celular, o texto e o quadro, um embaixo do outro.
+function Conteudo({ esquerda, meio, quadro }: { esquerda: React.ReactNode; meio?: React.ReactNode; quadro: React.ReactNode }) {
   return (
-    <div className="conteiner relative z-[4] grid h-full items-center gap-10 py-10 lg:grid-cols-[minmax(0,1fr)_400px]">
+    <div className="conteiner relative z-[4] grid h-full items-center gap-10 pb-12 pt-[clamp(56px,6vw,88px)] lg:grid-cols-[minmax(0,1fr)_400px] xl:grid-cols-[minmax(0,400px)_minmax(0,1fr)_400px] xl:gap-8">
       <div className="flex max-w-[400px] flex-col gap-[26px]">{esquerda}</div>
+      <div className="relative hidden h-[440px] xl:block">{meio}</div>
       <div className="w-full max-w-[420px] lg:max-w-none">{quadro}</div>
     </div>
   );
@@ -379,7 +345,7 @@ export default function CarrosselDaBlack({ turmas, materiais }: { turmas: Turma[
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setEmUso(false);
       }}
     >
-      <div className="relative min-h-[600px] bg-[radial-gradient(36%_55%_at_50%_32%,rgba(255,110,20,0.5),transparent_70%)]">
+      <div className="relative min-h-[640px] bg-[radial-gradient(36%_55%_at_50%_32%,rgba(255,110,20,0.5),transparent_70%)]">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 opacity-80 blur-[6px]"

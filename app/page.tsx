@@ -104,12 +104,16 @@ export default async function Home() {
       </Secao>
 
       {BLACK_FRIDAY.home ? (
-        // Black Friday (lib/black-friday.ts): o bloco da campanha no lugar das seções de Mentorias e de Materiais.
-        <>
-          <Onda para="escuro" />
-          <BlackFridayDaHome />
-          <Onda para="claro" />
-        </>
+        // Black Friday (lib/black-friday.ts): o bloco da campanha no lugar das seções de Mentorias e de Materiais. Na
+        // Black (27 a 30/11, e na prévia) ele sai (pedido de 26/11/2026): falava da abertura de 27/11, e o carrossel do
+        // topo já traz Mentoria, Turmas e Materiais.
+        !black && (
+          <>
+            <Onda para="escuro" />
+            <BlackFridayDaHome />
+            <Onda para="claro" />
+          </>
+        )
       ) : (
         <>
           {/* Mentorias e materiais em espera (lib/em-espera.ts): o aviso no lugar dos cartões; o administrador vê os cartões. */}

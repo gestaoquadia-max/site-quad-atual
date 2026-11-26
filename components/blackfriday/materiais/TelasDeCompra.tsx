@@ -67,8 +67,9 @@ export function TelaDoCombo({
   const [escolhido, setEscolhido] = useState<string | null>(concursoInicial && CONCURSOS_DO_COMBO.some((c) => c.id === concursoInicial) ? concursoInicial : null);
   const concurso = CONCURSOS_DO_COMBO.find((c) => c.id === escolhido) ?? null;
   const produto = escolhido ? produtoDe(escolhido) : null;
-  // Antes de escolher, o menor preço cadastrado (normalmente o mesmo em todos os concursos).
-  const referencia = produto ?? [...combos].sort((a, b) => a.preco - b.preco)[0] ?? null;
+  // O preço é sempre o do combo do concurso escolhido (pedido de 26/11/2026): antes de escolher, ou num concurso sem
+  // combo, não aparece preço nenhum (antes vinha o menor preço entre os concursos, de outro produto).
+  const referencia = produto;
 
   const rotuloDoBotao = !concurso ? "Escolha o concurso para continuar" : !produto || !produto.aVenda ? "Em breve para este concurso" : "Adicionar ao carrinho →";
 
@@ -100,7 +101,11 @@ export function TelaDoCombo({
               <b className="font-display text-xl text-white">{concurso ? `Combo ${concurso.nome}` : "Escolha um concurso acima"}</b>
               <span className="text-sm text-[#A39790]">{TEXTOS.combo.resumo}</span>
             </div>
-            {referencia && <PrecoDeAte por={referencia.preco} de={referencia.precoCheio} grande />}
+            {referencia ? (
+              <PrecoDeAte por={referencia.preco} de={referencia.precoCheio} grande />
+            ) : (
+              concurso && <span className="font-display text-xl font-extrabold text-[#A39790]">Em breve</span>
+            )}
           </div>
           <button
             type="button"
