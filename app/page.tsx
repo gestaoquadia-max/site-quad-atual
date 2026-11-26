@@ -1,6 +1,7 @@
 import { mentorias, modalidades } from "@/lib/conteudo";
 import { listarEventos, listarExcursoes, listarMateriais, listarMateriaisDaBlack, listarProfessores, listarTurmas } from "@/lib/vitrine";
 import { blackLiberada } from "@/lib/black/liberada";
+import { dentroDaBlack } from "@/lib/black/periodo";
 import CarrosselDaBlack from "@/components/home/CarrosselDaBlack";
 import UltimasVagasDasTurmas from "@/components/home/UltimasVagasDasTurmas";
 import { FaixaDaBlack, MentoriaDaHome } from "@/components/home/HomeDaBlack";
@@ -93,11 +94,14 @@ export default async function Home() {
   // as últimas vagas das turmas da Black, as modalidades, a Mentoria com a contagem, os eventos, os professores e os
   // aprovados, com a faixa "BLACK FRIDAY 27/11 OFERTAS DO QUAD" entre as seções no lugar das ondas.
   if (black) {
+    // Na prévia antes da abertura, Turmas e Materiais aparecem sem preço nem vagas, com a hora em que abrem.
+    const antesDaAbertura = !dentroDaBlack();
     return (
-      <div className="bg-[#120F0D] text-white">
+      // data-fim-escuro: a página termina no escuro, e a onda do rodapé (que vem do claro) some (app/globals.css).
+      <div data-fim-escuro className="bg-[#120F0D] text-white">
         <DadosEstruturados dados={dadosDaOrganizacao()} />
-        <CarrosselDaBlack turmas={turmas} materiais={materiaisDaBlack} />
-        <UltimasVagasDasTurmas turmas={turmas} />
+        <CarrosselDaBlack turmas={turmas} materiais={materiaisDaBlack} antesDaAbertura={antesDaAbertura} />
+        <UltimasVagasDasTurmas turmas={turmas} antesDaAbertura={antesDaAbertura} />
         <FaixaDaBlack />
         <Secao espaco={ESPACO_JUNTO_DAS_ONDAS}>
           <Trilho titulo="Turmas presenciais" link={{ href: "/turmas", label: "Ver todas as turmas" }} rotulo="Modalidades das turmas presenciais">

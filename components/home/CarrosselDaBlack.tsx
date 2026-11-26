@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import type { Turma } from "@/lib/data";
 import type { MaterialDaBlack } from "@/lib/vitrine";
 import { insigniaDaModalidade } from "@/lib/turmas";
+import { modalidades } from "@/lib/conteudo";
+import { ABERTURA_DA_BLACK } from "@/lib/black/periodo";
 import { SeloDaContagem, emReais } from "@/components/blackfriday/materiais/PartesDosMateriais";
 import { cartoesDaBlack, vagasRestantes } from "@/components/turmas/TopoDaBlack";
 import TelasDaMentoria from "@/components/blackfriday/mentorias/TelasDaMentoria";
@@ -40,6 +42,19 @@ const CAPAS = [
   "simulado-pmsp",
   "simulado-pppe",
 ].map((c) => `/images/black-friday/capas/${c}.webp`);
+
+// Antes da abertura (só na prévia), os slides de Turmas e Materiais aparecem sem preço nem vagas, com a hora em que abrem.
+const ABRE_EM = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
+  .format(ABERTURA_DA_BLACK)
+  .replace(", ", " às ");
+
+function AbreEm() {
+  return (
+    <span className="my-2 self-center text-center font-display text-[clamp(28px,2.6vw,36px)] font-extrabold leading-tight tracking-[-0.03em]">
+      Abre {ABRE_EM}
+    </span>
+  );
+}
 
 const reais = (texto: string) => Number(texto.replace(/[^\d,]/g, "").replace(",", "."));
 const desconto = (por: number, de: number | null | undefined) => (de && de > por ? Math.round((1 - por / de) * 100) : null);
@@ -104,12 +119,15 @@ function Titulo({ antes, destaque }: { antes: string; destaque: string }) {
 // ---------- Turmas ----------
 
 function SlideDasTurmas({ turmas, todas }: { turmas: Turma[]; todas: Turma[] | null }) {
-  const cartoes = cartoesDaBlack(turmas, todas).filter((c) => c.turmas.some((t) => t.status === "aberta"));
+  const comVaga = cartoesDaBlack(turmas, todas).filter((c) => c.turmas.some((t) => t.status === "aberta"));
+  // Sem turma da Black aberta (antes da abertura, na prévia): os três níveis, sem vagas nem preço.
+  const emBreve = comVaga.length === 0;
+  const cartoes = emBreve ? modalidades.map((m) => ({ id: m.id as string, nome: m.nome, nivel: m.nivel, insignia: null, turmas: [] as Turma[] })) : comVaga;
   const [escolhida, setEscolhida] = useState(0);
   const c = cartoes[Math.min(escolhida, cartoes.length - 1)];
-  const ref = c.turmas.find((t) => t.status === "aberta") ?? c.turmas[0];
-  const preco = ref.preco === "Consulte" ? null : ref.preco;
-  const off = preco ? desconto(reais(preco), ref.precoCheio ? reais(ref.precoCheio) : null) : null;
+  const ref = c.turmas.find((t) => t.status === "aberta") ?? c.turmas[0] ?? null;
+  const preco = ref && ref.preco !== "Consulte" ? ref.preco : null;
+  const off = ref && preco ? desconto(reais(preco), ref.precoCheio ? reais(ref.precoCheio) : null) : null;
   const insignia = (id: string) => INSIGNIA_FIXA[id] ?? insigniaDaModalidade(todas, id);
   return (
     <>
@@ -159,7 +177,7 @@ function SlideDasTurmas({ turmas, todas }: { turmas: Turma[]; todas: Turma[] | n
             <div className="flex flex-col gap-2" role="group" aria-label="Modalidades com vagas da Black">
               {cartoes.map((x, i) => {
                 const restam = x.turmas.map(vagasRestantes);
-                const soma = restam.every((v) => v !== null) ? restam.reduce<number>((s, v) => s + (v ?? 0), 0) : null;
+                const soma = !emBreve && restam.every((v) => v !== null) ? restam.reduce<number>((s, v) => s + (v ?? 0), 0) : null;
                 const ligada = x.id === c.id;
                 const src = insignia(x.id);
                 return (
@@ -184,14 +202,18 @@ function SlideDasTurmas({ turmas, todas }: { turmas: Turma[]; todas: Turma[] | n
                 );
               })}
             </div>
-            <div className="my-1 flex flex-col items-center">
-              {preco && ref.precoCheio && <s className="text-xl text-[#A39790]">{ref.precoCheio}</s>}
-              <span className="whitespace-nowrap font-display text-[clamp(52px,5vw,68px)] font-extrabold leading-none tracking-[-0.045em]">
-                {preco ?? "A confirmar"}
-              </span>
-            </div>
+            {emBreve ? (
+              <AbreEm />
+            ) : (
+              <div className="my-1 flex flex-col items-center">
+                {preco && ref?.precoCheio && <s className="text-xl text-[#A39790]">{ref.precoCheio}</s>}
+                <span className="whitespace-nowrap font-display text-[clamp(52px,5vw,68px)] font-extrabold leading-none tracking-[-0.045em]">
+                  {preco ?? "A confirmar"}
+                </span>
+              </div>
+            )}
             <Link href={`/turmas?m=${c.id}`} className={BOTAO}>
-              Garantir vaga na {c.nome} <Seta />
+              {emBreve ? `Ver as turmas da ${c.nome}` : `Garantir vaga na ${c.nome}`} <Seta />
             </Link>
             <RodapeDoQuadro />
           </div>
@@ -236,8 +258,9 @@ function SlideDaMentoria() {
 // ---------- Materiais ----------
 
 function SlideDosMateriais({ materiais }: { materiais: MaterialDaBlack[] }) {
-  const maisBarato = [...materiais].sort((a, b) => a.preco - b.preco)[0];
-  const off = desconto(maisBarato.preco, maisBarato.precoCheio);
+  // Sem material à venda (antes da abertura, na prévia): sem preço, com a hora em que abre.
+  const maisBarato = [...materiais].sort((a, b) => a.preco - b.preco)[0] ?? null;
+  const off = maisBarato ? desconto(maisBarato.preco, maisBarato.precoCheio) : null;
   return (
     <>
       <div
@@ -275,15 +298,19 @@ function SlideDosMateriais({ materiais }: { materiais: MaterialDaBlack[] }) {
         quadro={
           <div className={QUADRO}>
             <CabecalhoDoQuadro titulo="MATERIAIS" off={off} />
-            <div className="mb-1.5 mt-3.5 flex flex-col items-center">
-              <span className="text-xl text-[#A39790]">
-                {maisBarato.precoCheio && maisBarato.precoCheio > maisBarato.preco && <s>{emReais(maisBarato.precoCheio)}</s>} a partir de
-              </span>
-              <span className="whitespace-nowrap font-display text-[clamp(56px,5.4vw,72px)] font-extrabold leading-none tracking-[-0.045em]">
-                {emReais(maisBarato.preco)}
-              </span>
-              <span className="mt-1.5 text-base text-[#D6CCC5]">Acesso imediato · pagamento único</span>
-            </div>
+            {maisBarato ? (
+              <div className="mb-1.5 mt-3.5 flex flex-col items-center">
+                <span className="text-xl text-[#A39790]">
+                  {maisBarato.precoCheio && maisBarato.precoCheio > maisBarato.preco && <s>{emReais(maisBarato.precoCheio)}</s>} a partir de
+                </span>
+                <span className="whitespace-nowrap font-display text-[clamp(56px,5.4vw,72px)] font-extrabold leading-none tracking-[-0.045em]">
+                  {emReais(maisBarato.preco)}
+                </span>
+                <span className="mt-1.5 text-base text-[#D6CCC5]">Acesso imediato · pagamento único</span>
+              </div>
+            ) : (
+              <AbreEm />
+            )}
             <Link href="/produtos" className={BOTAO}>
               Ver materiais <Seta />
             </Link>
@@ -307,15 +334,24 @@ function Conteudo({ esquerda, meio, quadro }: { esquerda: React.ReactNode; meio?
   );
 }
 
-export default function CarrosselDaBlack({ turmas, materiais }: { turmas: Turma[] | null; materiais: MaterialDaBlack[] | null }) {
+// antesDaAbertura: a prévia antes das 09:00 de 27/11; Turmas e Materiais entram mesmo sem produto, com "Abre …".
+export default function CarrosselDaBlack({
+  turmas,
+  materiais,
+  antesDaAbertura = false,
+}: {
+  turmas: Turma[] | null;
+  materiais: MaterialDaBlack[] | null;
+  antesDaAbertura?: boolean;
+}) {
   const daBlack = (turmas ?? []).filter((t) => t.black && !t.isolada);
   const comTurma = daBlack.some((t) => t.status === "aberta");
   const aVenda = (materiais ?? []).filter((m) => m.aVenda && m.preco > 0);
   // A ordem da designer: Mentoria, Turmas, Materiais.
   const slides = [
     { id: "mentoria", nome: "Mentoria", el: <SlideDaMentoria /> },
-    comTurma && { id: "turmas", nome: "Turmas presenciais", el: <SlideDasTurmas turmas={daBlack} todas={turmas} /> },
-    aVenda.length > 0 && { id: "materiais", nome: "Materiais", el: <SlideDosMateriais materiais={aVenda} /> },
+    (comTurma || antesDaAbertura) && { id: "turmas", nome: "Turmas presenciais", el: <SlideDasTurmas turmas={daBlack} todas={turmas} /> },
+    (aVenda.length > 0 || antesDaAbertura) && { id: "materiais", nome: "Materiais", el: <SlideDosMateriais materiais={aVenda} /> },
   ].filter((s): s is { id: string; nome: string; el: React.ReactElement } => Boolean(s));
 
   const [atual, setAtual] = useState(0);

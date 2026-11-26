@@ -5,6 +5,12 @@ import Link from "next/link";
 import type { Turma } from "@/lib/data";
 import { insigniaDaModalidade } from "@/lib/turmas";
 import { cartoesDaBlack, vagasRestantes } from "@/components/turmas/TopoDaBlack";
+import { modalidades } from "@/lib/conteudo";
+import { ABERTURA_DA_BLACK } from "@/lib/black/periodo";
+
+const ABRE_EM = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
+  .format(ABERTURA_DA_BLACK)
+  .replace(", ", " às ");
 
 // "Turmas presenciais: últimas vagas" na Home da Black (prévia da designer de 26/11/2026): um cartão por modalidade com
 // turma marcada como Black e aberta, com as vagas que restam, a barra, o preço de/por e "Garantir vaga". Tudo da API;
@@ -16,10 +22,38 @@ const INSIGNIA_FIXA: Record<string, string> = {
   bope: "/images/home/black/bope.webp",
 };
 
-export default function UltimasVagasDasTurmas({ turmas }: { turmas: Turma[] | null }) {
+// antesDaAbertura: a prévia antes das 09:00 de 27/11; sem turma da Black ainda, os três níveis com "Abre …".
+export default function UltimasVagasDasTurmas({ turmas, antesDaAbertura = false }: { turmas: Turma[] | null; antesDaAbertura?: boolean }) {
   const daBlack = (turmas ?? []).filter((t) => t.black && !t.isolada);
   const cartoes = cartoesDaBlack(daBlack, turmas).filter((c) => c.turmas.some((t) => t.status === "aberta"));
-  if (cartoes.length === 0) return null;
+  if (cartoes.length === 0) {
+    if (!antesDaAbertura) return null;
+    return (
+      <section aria-labelledby="titulo-ultimas-vagas" className="relative pb-[clamp(40px,5vw,64px)] pt-[clamp(32px,4vw,56px)] text-white">
+        <div className="conteiner flex flex-col gap-6">
+          <h2 id="titulo-ultimas-vagas" className="font-display text-[clamp(2rem,3.4vw,2.5rem)] font-extrabold tracking-[-0.035em]">
+            Turmas presenciais: últimas vagas
+          </h2>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-4">
+            {modalidades.map((m) => (
+              <article key={m.id} className="flex items-center gap-5 rounded-[20px] border border-[#2E241E] bg-[#17120F] p-[clamp(18px,2vw,24px)]">
+                <Image src={INSIGNIA_FIXA[m.id]} alt="" width={84} height={84} className="h-[clamp(64px,6vw,84px)] w-auto flex-none object-contain" />
+                <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+                  <h3 className="font-display text-[22px] font-extrabold">{m.nome}</h3>
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                    <span className="text-[15px] text-[#A39790]">Abre {ABRE_EM}</span>
+                    <Link href={`/turmas?m=${m.id}`} className="whitespace-nowrap font-display text-[15px] font-extrabold text-[#FF7A2E] hover:text-[#FFB27A]">
+                      Ver turmas →
+                    </Link>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   // O subtítulo só com o que é igual em todas: as vagas por turma e o preço por vaga.
   const abertas = cartoes.flatMap((c) => c.turmas.filter((t) => t.status === "aberta"));
