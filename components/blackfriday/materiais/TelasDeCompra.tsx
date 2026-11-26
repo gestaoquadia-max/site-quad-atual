@@ -231,7 +231,7 @@ export function TelaDosModulos({
 
         <div className="flex flex-col gap-3">
           <span className={ROTULO_LARANJA}>1 · Escolha o concurso</span>
-          <div className="flex flex-wrap justify-center gap-2.5">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,118px),1fr))] gap-2.5">
             {CONCURSOS_DOS_MODULOS.map((c) => (
               <BotaoDoConcurso key={c.id} concurso={c} compacto marcado={c.id === escolhido} semProduto={!temProduto(c)} aoEscolher={() => escolher(c.id)} />
             ))}

@@ -104,7 +104,7 @@ export function QuadroDaCapa({ capa, alt, desconto, rotulo }: { capa: string | n
   );
 }
 
-// Botão de concurso com o brasão (ou a sigla num círculo). `compacto`: o quadrado de ~150 px da tela dos Módulos.
+// Botão de concurso com o brasão (ou a sigla num círculo). `compacto`: o cartão da grade da tela dos Módulos (os 5 numa linha, como na prévia da designer).
 export function BotaoDoConcurso({
   concurso,
   marcado,
@@ -125,7 +125,7 @@ export function BotaoDoConcurso({
       aria-pressed={marcado}
       onClick={aoEscolher}
       className={`flex rounded-[14px] border-[1.5px] font-display font-bold text-white transition-colors ${
-        compacto ? "min-h-[112px] w-[150px] flex-col items-center justify-center gap-2 px-2.5 py-3.5 text-center text-sm" : "items-center gap-3 px-3.5 py-3 text-left text-[15px]"
+        compacto ? "min-h-[112px] w-full flex-col items-center justify-center gap-2 px-2.5 py-3.5 text-center text-sm" : "items-center gap-3 px-3.5 py-3 text-left text-[15px]"
       } ${
         marcado
           ? "border-laranja bg-[rgba(242,90,12,0.18)] shadow-[0_0_0_1px_rgba(255,140,60,0.25),0_0_24px_-6px_rgba(242,90,12,0.7)]"
