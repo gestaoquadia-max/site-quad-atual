@@ -11,7 +11,7 @@ import {
   PrecoDeAte,
   QuadroDaCapa,
   ROTULO_LARANJA,
-  ValidoSoHoje,
+  ValidoAteOFim,
   descontoEm,
   doConcurso,
   emReais,
@@ -38,11 +38,11 @@ function Voltar({ aoVoltar }: { aoVoltar: () => void }) {
   );
 }
 
-function Cabecalho({ titulo, texto }: { titulo: string; texto: string }) {
+function Cabecalho({ titulo, texto }: { titulo: string; texto?: string }) {
   return (
     <div className="flex flex-col gap-2.5">
       <h1 className="font-display text-[clamp(2.2rem,4vw,2.75rem)] font-extrabold leading-[1.05] tracking-[-0.035em] text-white">{titulo}</h1>
-      <p className="max-w-[560px] text-[17px] leading-normal text-[#D6CCC5]">{texto}</p>
+      {texto && <p className="max-w-[560px] text-[17px] leading-normal text-[#D6CCC5]">{texto}</p>}
     </div>
   );
 }
@@ -112,7 +112,7 @@ export function TelaDoCombo({
           >
             {rotuloDoBotao}
           </button>
-          <ValidoSoHoje />
+          <ValidoAteOFim />
         </div>
       </div>
     </div>
@@ -223,8 +223,8 @@ export function TelaDosModulos({
       />
       <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-[26px]">
         <Voltar aoVoltar={aoVoltar} />
-        <Cabecalho titulo={TEXTOS.modulos.titulo} texto={TEXTOS.modulos.tela} />
-        <Destaques itens={TEXTOS.destaques} />
+        {/* Pedido de 26/11/2026: entre o título e a escolha do concurso não vai mais nada (saíram o texto e os destaques). */}
+        <Cabecalho titulo={TEXTOS.modulos.titulo} />
 
         <div className="flex flex-col gap-3">
           <span className={ROTULO_LARANJA}>1 · Escolha o concurso</span>
@@ -358,7 +358,7 @@ export function TelaDosModulos({
           <button type="button" disabled={!podeAdicionar} onClick={adicionarAoCarrinho} className={BOTAO_LARANJA_BLACK}>
             {rotuloDoBotao}
           </button>
-          <ValidoSoHoje />
+          <ValidoAteOFim />
         </div>
       </div>
 

@@ -6,15 +6,6 @@
 export const ABERTURA_DA_BLACK = Date.parse("2026-11-27T09:00:00-03:00");
 export const FIM_DA_BLACK = Date.parse("2026-12-01T00:00:00-03:00");
 
-const DIA = 86_400_000;
-const FUSO_DE_BRASILIA = -3 * 3_600_000;
-
 export function dentroDaBlack(agora = Date.now()) {
   return agora >= ABERTURA_DA_BLACK && agora < FIM_DA_BLACK;
-}
-
-// O fim do dia de hoje em Brasília (a meia-noite seguinte), em milissegundos: o alvo da contagem "Preço válido só hoje".
-export function fimDoDiaEmBrasilia(agora = Date.now()) {
-  const inicioDoDia = Math.floor((agora + FUSO_DE_BRASILIA) / DIA) * DIA - FUSO_DE_BRASILIA;
-  return inicioDoDia + DIA;
 }

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useSyncExternalStore } from "react";
 import { codigoNormalizado, type ConcursoDaBlack } from "@/lib/black/catalogo";
-import { fimDoDiaEmBrasilia } from "@/lib/black/periodo";
+import { FIM_DA_BLACK } from "@/lib/black/periodo";
 import type { MaterialDaBlack } from "@/lib/vitrine";
 
 // Peças comuns das telas de Materiais da Black (entrega da designer de 25/11/2026): o livro em 3D, o leque de capas,
@@ -183,7 +183,8 @@ export function PrecoDeAte({ por, de, prefixo = "por", grande = false }: { por: 
   );
 }
 
-// Contagem até a meia-noite de Brasília ("Preço válido só hoje · 05:42:10"). No servidor, "--:--:--".
+// Contagem até o fim da Black, 23h59 de 30/11 em Brasília ("Preço válido até 30/11 · 3d 14:59:59"): os preços valem até
+// lá (pedido de 26/11/2026; antes contava até a meia-noite de cada dia). No servidor, "--:--:--".
 function assinar(avisar: () => void) {
   const t = setInterval(avisar, 1000);
   return () => clearInterval(t);
@@ -192,13 +193,15 @@ const segundoAtual = () => Math.floor(Date.now() / 1000);
 const semRelogio = () => null;
 const dois = (n: number) => String(n).padStart(2, "0");
 
-export function ContagemDoDia() {
+export function ContagemAteOFim() {
   const agora = useSyncExternalStore(assinar, segundoAtual, semRelogio);
   if (agora === null) return <span className="[font-variant-numeric:tabular-nums]">--:--:--</span>;
-  const restante = Math.max(0, Math.floor(fimDoDiaEmBrasilia(agora * 1000) / 1000) - agora);
+  const restante = Math.max(0, Math.floor(FIM_DA_BLACK / 1000) - agora);
+  const dias = Math.floor(restante / 86_400);
   return (
     <span className="[font-variant-numeric:tabular-nums]">
-      {dois(Math.floor(restante / 3600))}:{dois(Math.floor(restante / 60) % 60)}:{dois(restante % 60)}
+      {dias > 0 && `${dias}d `}
+      {dois(Math.floor(restante / 3600) % 24)}:{dois(Math.floor(restante / 60) % 60)}:{dois(restante % 60)}
     </span>
   );
 }
@@ -206,24 +209,29 @@ export function ContagemDoDia() {
 export function SeloDaContagem({ grande = false }: { grande?: boolean }) {
   return (
     <span
-      className={`flex items-center gap-2 whitespace-nowrap rounded-full border-[1.5px] border-laranja font-display font-extrabold text-white ${
-        grande ? "px-[18px] py-2.5 text-[16px] shadow-[0_0_24px_-4px_rgba(242,90,12,0.6)]" : "px-3.5 py-1.5 text-[15px]"
+      className={`flex items-center gap-2 rounded-full border-[1.5px] border-laranja font-display font-extrabold text-white ${
+        grande ? "px-[18px] py-2.5 text-[15px] shadow-[0_0_24px_-4px_rgba(242,90,12,0.6)] sm:text-[16px]" : "whitespace-nowrap px-3.5 py-1.5 text-[15px]"
       }`}
     >
       <span aria-hidden="true" className="text-laranja-claro">
         ⏱
       </span>
-      {grande && "Preço válido só hoje · "}
-      <ContagemDoDia />
+      {/* No celular estreito, o texto e a contagem podem ir para duas linhas; cada um nunca se parte. */}
+      <span className={grande ? "flex flex-wrap items-center gap-x-1.5" : "contents"}>
+        {grande && <span className="whitespace-nowrap">Preço válido até 30/11 ·</span>}
+        <span className="whitespace-nowrap">
+          <ContagemAteOFim />
+        </span>
+      </span>
     </span>
   );
 }
 
-// O rodapé dos quadros de pedido: "Preço válido só hoje" e a contagem.
-export function ValidoSoHoje() {
+// O rodapé dos quadros de pedido: "Preço válido até 30/11" e a contagem.
+export function ValidoAteOFim() {
   return (
     <div className="flex items-center justify-between gap-3 border-t border-[#2E241E] pt-3 text-[15px] text-[#D6CCC5]">
-      <span>Preço válido só hoje</span>
+      <span>Preço válido até 30/11</span>
       <SeloDaContagem />
     </div>
   );
