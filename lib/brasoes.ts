@@ -10,6 +10,8 @@ const BRASAO_DO_CONCURSO: Record<string, string> = {
   "sd-bmba": `${BRASOES}/bmba.png`,
   "sd-cbmba": `${BRASOES}/bmba.png`,
   "ipc-pcba": `${BRASOES}/civil.png`,
+  // A carreira da Central de Simulados, pelo nome do concurso no cadastro (26/11/2026).
+  "investigador-da-policia-civil-da-bahia": `${BRASOES}/civil.png`,
   "sd-pmpe": `${BRASOES}/pmpe.png`,
 };
 

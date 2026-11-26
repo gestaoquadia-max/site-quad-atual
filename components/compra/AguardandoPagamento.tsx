@@ -7,6 +7,9 @@ import { ErroDaApi } from "@/lib/http";
 import { buscarFechamento, conferirPagamento, emReais, type Fechamento, type SituacaoDoPagamento } from "@/lib/loja";
 import { rotaComDestino } from "@/lib/redirecionamento";
 import { useSessaoAtiva } from "@/lib/usuario";
+import { useCart } from "@/lib/cart";
+import { SUGESTOES_NO_SITE, alvosDasCompras, idsJaComprados } from "@/lib/sugestoes";
+import BlocoDeSugestoes from "../sugestoes/BlocoDeSugestoes";
 import AvisoForaDaCobranca from "./AvisoForaDaCobranca";
 import Etapas from "./Etapas";
 import NumeroDoPedido from "./NumeroDoPedido";
@@ -70,6 +73,15 @@ export default function AguardandoPagamento({ id }: { id: string }) {
   const [agora, setAgora] = useState(() => Date.now());
 
   const aguardando = !fechamento || fechamento.situacao === "AGUARDANDO_PAGAMENTO" || fechamento.situacao === "CRIADA";
+  const { items, tirarComprados, carregado } = useCart();
+  const [adicionouSugestao, setAdicionouSugestao] = useState(false);
+
+  // Pago: sai do carrinho do site o que este fechamento já comprou (ex.: o avulso que o combo cobriu).
+  useEffect(() => {
+    if (fechamento?.situacao !== "PAGA" || !carregado) return;
+    const comprados = idsJaComprados(items, fechamento);
+    if (comprados.length) tirarComprados(comprados);
+  }, [fechamento, carregado, items, tirarComprados]);
 
   // Analytics: o PIX pago conta como compra aqui (uma vez por fechamento; os itens com preço vêm do checkout).
   useEffect(() => {
@@ -115,6 +127,25 @@ export default function AguardandoPagamento({ id }: { id: string }) {
   }
 
   const pix = fechamento?.pagamento?.pix;
+  // O PIX vencido (ou o pedido expirado): "Mais em conta" das compras do pedido, e o caminho para o carrinho depois de
+  // adicionar.
+  const sugestoesDoPixVencido = fechamento && SUGESTOES_NO_SITE.pixVencido && (
+    <div className="mt-6 flex flex-col gap-3">
+      <BlocoDeSugestoes
+        lugar="pixVencido"
+        alvos={alvosDasCompras(fechamento)}
+        tipos={["DOWN_SELL"]}
+        maximo={3}
+        titulo="Se preferir, uma opção mais em conta"
+        aoAdicionar={() => setAdicionouSugestao(true)}
+      />
+      {adicionouSugestao && (
+        <Link href="/carrinho" className="btn-q btn-q-contorno h-11 self-start px-5 text-[14.5px]">
+          Ver o carrinho
+        </Link>
+      )}
+    </div>
+  );
   // A validade é o expiraEm da API (30 minutos); depois dele o código não paga mais.
   const vencido = !!pix?.expiraEm && Date.parse(pix.expiraEm) <= agora;
 
@@ -165,6 +196,7 @@ export default function AguardandoPagamento({ id }: { id: string }) {
           {fimDoPedido(fechamento.situacao).titulo}
         </h1>
         <p className="text-[15.5px] leading-[1.6] text-ardosia">{fimDoPedido(fechamento.situacao).texto}</p>
+        {fechamento.situacao === "EXPIRADA" && sugestoesDoPixVencido}
         <Link href="/" className="btn-q btn-q-azul mt-7 h-12 px-[22px] text-[15px]">
           Voltar ao início
         </Link>
@@ -185,6 +217,7 @@ export default function AguardandoPagamento({ id }: { id: string }) {
             Este PIX venceu{pix.expiraEm ? ` em ${dataEHora(pix.expiraEm)}` : ""} e não pode mais ser pago. Se ainda quiser, volte ao carrinho e faça a compra de novo.
           </p>
         )}
+        {pix && vencido && sugestoesDoPixVencido}
 
         {pix && !vencido && (
           <div className="mt-6 grid items-start gap-6 sm:grid-cols-[220px_minmax(0,1fr)]">

@@ -18,9 +18,12 @@ import { idDoItem } from "@/lib/itens";
 import { FORMATOS_DO_MATERIAL, aVenda, alvoDaOferta, formatoInicial, ofertaDo, rotuloDeIndisponivel, type FormatoDoMaterial } from "@/lib/materiais";
 import type { SimuladoExtra } from "@/lib/vitrine";
 import CartaoCombo from "../combos/CartaoCombo";
+import SugestoesDoProduto from "../sugestoes/SugestoesDoProduto";
+import { alvoEmTexto } from "@/lib/sugestoes";
 import Onda from "@/components/home/Onda";
 import {
   dataCurta,
+  destaqueDa,
   formatosDa,
   hojeEmBrasilia,
   precoOuACadastrar,
@@ -28,6 +31,7 @@ import {
   situacaoDa,
   validarCompra,
   type Carreira,
+  type DestaqueDaEdicao,
   type Edicao,
   type FormatoDeEstudo,
   type Situacao,
@@ -48,6 +52,8 @@ const SELOS = {
   breve: "bg-nevoa-clara text-[#4A5A70]",
   esgotado: "bg-[#FFF0D9] text-[#8A4B00]",
   estudo: "bg-azul-palido text-azul-forte",
+  // Destaque de uma edição pedido pelo Quad (destaqueDa, lib/simulados.ts).
+  especial: "bg-laranja text-white",
 };
 
 function Selo({ tom, children }: { tom: keyof typeof SELOS; children: React.ReactNode }) {
@@ -99,9 +105,10 @@ function tituloDoSimulado(numero: number, concurso: string) {
   return [`Simulado ${numero}`, concurso].filter(Boolean).join(" ");
 }
 
-function LinhaDaEdicao({ e, concurso, selecionada, onSelecionar, tipo, acao }: {
+function LinhaDaEdicao({ e, concurso, destaque, selecionada, onSelecionar, tipo, acao }: {
   e: EdicaoComSituacao;
   concurso: string;
+  destaque?: DestaqueDaEdicao | null;
   selecionada: boolean;
   onSelecionar: () => void;
   tipo: "aberta" | "breve" | "anterior";
@@ -136,6 +143,7 @@ function LinhaDaEdicao({ e, concurso, selecionada, onSelecionar, tipo, acao }: {
               </Selo>
             )}
             {tipo === "breve" && <Selo tom="breve">A confirmar</Selo>}
+            {destaque && <Selo tom="especial">{destaque.selo}</Selo>}
           </span>
           <span className={`text-sm ${selecionada ? "text-prata-clara" : "text-ardosia"}`}>{linha}</span>
           {tipo === "aberta" && e.st.inscricao !== "encerradas" && pres?.vagas != null && (
@@ -524,6 +532,7 @@ export default function CentralDeSimulados({
                       {abertas.map((e) => (
                         <LinhaDaEdicao
                           concurso={carreira.curto}
+                          destaque={destaqueDa(carreira.id, e.numero)}
                           key={e.numero}
                           e={e}
                           tipo="aberta"
@@ -561,6 +570,7 @@ export default function CentralDeSimulados({
                         {emBreve.map((e) => (
                           <LinhaDaEdicao
                             concurso={carreira.curto}
+                            destaque={destaqueDa(carreira.id, e.numero)}
                             key={e.numero}
                             e={e}
                             tipo="breve"
@@ -702,11 +712,18 @@ function PainelDaEdicao({ carreira, e, formato, onFormato, onInscrever, onCompra
   const escolhido = formato ?? formatos.find((f) => f.oferta.disponivel)?.formato ?? null;
   const oferta = escolhido ? e[escolhido] : undefined;
   const podeComprar = !!oferta && oferta.disponivel && oferta.preco != null;
+  const destaque = destaqueDa(carreira.id, e.numero);
 
   return (
     <div className="rounded-[20px] bg-marinho-950 p-[clamp(22px,2.4vw,28px)] text-white shadow-[0_30px_60px_-30px_rgba(7,20,38,0.8)]">
       <div className="text-[13px] text-prata">{carreira.curto}</div>
       <h3 className="mb-2.5 mt-1 font-display text-[28px] font-extrabold tracking-[-0.03em]">{tituloDoSimulado(e.numero, carreira.curto)}</h3>
+      {destaque && (
+        <p className="mb-3.5 rounded-xl border border-laranja/60 bg-laranja/[0.14] p-3.5 text-sm leading-[1.45] text-white">
+          <strong className="mb-0.5 block font-display text-[13px] font-extrabold uppercase tracking-[0.08em] text-laranja-suave">{destaque.selo}</strong>
+          {destaque.texto}
+        </p>
+      )}
       {presencial ? (
         <>
           {e.st.confirmada && e.st.inscricao === "abertas" ? (
@@ -815,8 +832,24 @@ function PainelDaEdicao({ carreira, e, formato, onFormato, onInscrever, onCompra
           )}
         </>
       )}
+      <SugestoesDoProduto alvo={alvoDaEdicao(e, presencial ? "presencial" : escolhido)} esgotado={esgotadaNoFormato(e, presencial ? "presencial" : escolhido)} sobreEscuro className="mt-7 border-t border-white/[0.08] pt-6" />
     </div>
   );
+}
+
+// O alvo da edição na API, para as sugestões de venda (o mesmo de alvoDoItem): presencial e PDF são o simulado;
+// o impresso é um item da loja, comprado como IMPRESSO.
+function alvoDaEdicao(e: EdicaoComSituacao, modalidade: "presencial" | FormatoDeEstudo | null) {
+  if (modalidade === "presencial") return e.presencial?.sku ? `SIMULADO:${e.presencial.sku}` : null;
+  if (modalidade === "pdf") return e.pdf?.sku ? `SIMULADO:${e.pdf.sku}` : null;
+  if (modalidade === "impresso") return e.impresso?.sku ? `ITEM:${e.impresso.sku}:IMPRESSO` : null;
+  return null;
+}
+
+function esgotadaNoFormato(e: EdicaoComSituacao, modalidade: "presencial" | FormatoDeEstudo | null) {
+  if (modalidade === "presencial") return e.st.inscricao === "esgotado";
+  if (modalidade === "impresso") return e.impresso?.estoque != null && e.impresso.estoque <= 0;
+  return false;
 }
 
 // O simulado extra selecionado: o formato (PDF ou impresso, cada um com o seu preço) e "Adicionar ao carrinho".
@@ -872,6 +905,12 @@ function PainelDoExtra({ carreira, p, onComprar }: { carreira: Carreira; p: Prod
         {aVenda(oferta) ? "Adicionar ao carrinho" : oferta ? rotuloDeIndisponivel(oferta) : "Ainda não disponível para compra"}
       </button>
       {formato === "digital" && <p className="mt-3 text-[12.5px] text-prata-escura">PDF: liberado para download após a confirmação da compra.</p>}
+      <SugestoesDoProduto
+        alvo={oferta?.idNaApi ? alvoEmTexto(alvoDaOferta(oferta, formato)) : null}
+        esgotado={!!oferta && !aVenda(oferta) && !oferta.indisponivel}
+        sobreEscuro
+        className="mt-7 border-t border-white/[0.08] pt-6"
+      />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import AviseMePeloWhatsApp from "../AviseMePeloWhatsApp";
 import { useCart } from "@/lib/cart";
 import BotoesDeCompra from "../BotoesDeCompra";
 import MatriculaGratuita from "./MatriculaGratuita";
+import SugestoesDoProduto from "../sugestoes/SugestoesDoProduto";
 
 const MESES = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
 
@@ -174,6 +175,7 @@ export default function EscolhaDoTurno({ turma, turnos }: { turma: TurmaComTurno
             className="h-14 w-full"
           />
         )}
+        {!oferta.gratuita && <SugestoesDoProduto alvo={`TURMA:${oferta.id}`} esgotado={semVagas || !preco} sobreEscuro className="mt-8" />}
       </div>
     </>
   );

@@ -152,6 +152,7 @@ export default async function EventoDetalhe({ params }: { params: Promise<{ slug
                 nota={nota}
                 cta={cta}
                 desabilitado={emBreve || esgotado}
+                esgotadoNaPagina={esgotado}
                 vagas={d.vagasTotal !== undefined && d.vagasOcupadas !== undefined ? { total: d.vagasTotal, ocupadas: d.vagasOcupadas } : undefined}
                 item={{
                   id: idDoItem("evento", evento.slug),

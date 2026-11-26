@@ -8,6 +8,7 @@ import { temQuantidade, useCart, type CartItem } from "@/lib/cart";
 import { formatarValor, parsePreco } from "@/lib/format";
 import { validarCompra, type Carreira, type FormatoDeEstudo } from "@/lib/simulados";
 import Etapas from "./Etapas";
+import SugestoesDoCarrinho from "../sugestoes/SugestoesDoCarrinho";
 
 export const ROTULO_DO_TIPO: Record<CartItem["tipo"], string> = {
   produto: "Material",
@@ -179,6 +180,8 @@ export default function Carrinho({
                   );
                 })}
               </ul>
+
+              <SugestoesDoCarrinho />
 
               {fisicos.length > 0 && (
                 <section aria-labelledby="entrega-titulo" className="rounded-[18px] border border-linha bg-superficie shadow-cartao px-[22px] pb-5 pt-[22px]">

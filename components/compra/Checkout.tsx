@@ -6,7 +6,7 @@ import { Cards, CreditCard, PixLogo } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { compra, guardarItensDoFechamento, iniciarPagamento } from "@/lib/analytics";
 import { guardarForaDaCobranca, itensForaDaCobranca } from "@/lib/fora-da-cobranca";
-import { paraOAnalytics, useCart } from "@/lib/cart";
+import { paraOAnalytics, useCart, type CartItem } from "@/lib/cart";
 import { ErroDaApi } from "@/lib/http";
 import {
   buscarConfiguracaoDoPagamento,
@@ -27,6 +27,9 @@ import { CLASSE_DO_CAMPO, CLASSE_DO_ROTULO } from "../acesso/Campos";
 import { ehFisico, motivoDaIndisponibilidade, ROTULO_DO_TIPO } from "./Carrinho";
 import Etapas from "./Etapas";
 import RevisaoDoPedido from "./RevisaoDoPedido";
+import BlocoDeSugestoes from "../sugestoes/BlocoDeSugestoes";
+import { alvoDoItem } from "@/lib/itens";
+import { alvoEmTexto, alvosDoCarrinho, itemDaSugestao } from "@/lib/sugestoes";
 
 // Formas de pagamento e seus ícones (Phosphor, a mesma biblioteca para todos). Sem boleto (decisão de 23/10/2026):
 // no lugar dele, a compra dividida em dois cartões, que a API aceita quando cartoesMaximos é 2 ou mais.
@@ -120,10 +123,10 @@ function PedirLogin() {
 
 export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }) {
   const router = useRouter();
-  const { items, carregado, tirarComprados } = useCart();
+  const { items, carregado, tirarComprados, addItem, removeItem } = useCart();
   const sessaoAtiva = useSessaoAtiva();
   const logado = !!sessaoAtiva;
-  const { estado, cupom, aplicarCupom, refazer } = usePedido(items, carregado && logado && items.length > 0);
+  const { estado, cupom, avisoDoCupom, aplicarCupom, refazer } = usePedido(items, carregado && logado && items.length > 0);
   const [config, setConfig] = useState<ConfiguracaoDoPagamento | null>(null);
   const [metodo, setMetodo] = useState<Metodo>("CARTAO");
   const [parcelas, setParcelas] = useState(1);
@@ -600,12 +603,30 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                               {item.tag ? ` · ${item.tag}` : ""}
                             </span>
                             {motivo && <span className="mt-1 block text-[12.5px] font-semibold text-[#B42323]">{motivo}</span>}
+                            {motivo && <TrocaDoRecusado item={item} trocar={(novo) => { removeItem(item.id); addItem(novo); }} />}
                           </span>
                           <span className="whitespace-nowrap font-semibold [font-variant-numeric:tabular-nums]">{linhaSimulada ? emReais(linhaSimulada.subtotalEmCentavos) : "—"}</span>
                         </li>
                       );
                     })}
                   </ul>
+
+                  {/* "Leve junto" dos itens reservados: entra no pedido sem soltar as outras reservas nem tirar o cupom. */}
+                  <BlocoDeSugestoes
+                    lugar="checkout"
+                    alvos={alvosDoCarrinho(items.filter((i) => pedido?.linhas.has(i.id)))}
+                    tipos={["CROSS_SELL"]}
+                    maximo={2}
+                    titulo="Adicione ao pedido"
+                    className="border-b border-linha py-4"
+                    acao={(s) => ({
+                      rotulo: "Adicionar ao pedido",
+                      aoEscolher: (variacao) => {
+                        const novo = itemDaSugestao(s, variacao);
+                        if (novo) addItem(novo);
+                      },
+                    })}
+                  />
 
                   {simulacao && simulacao.descontoEmCentavos > 0 && (
                     <div className="flex items-center justify-between border-b border-linha py-2.5 text-sm">
@@ -642,6 +663,11 @@ export default function Checkout({ carreiras }: { carreiras: Carreira[] | null }
                           {aplicandoCupom ? "…" : "Aplicar"}
                         </button>
                       </form>
+                      {avisoDoCupom && !erroDoCupom && (
+                        <p role="alert" className="mt-2 text-[12.5px] text-[#B42323]">
+                          O cupom saiu do pedido: {avisoDoCupom}
+                        </p>
+                      )}
                       {erroDoCupom && (
                         <p role="alert" className="mt-2 text-[12.5px] text-[#B42323]">
                           {erroDoCupom}
@@ -780,5 +806,29 @@ function CampoDoCartao({
         className={CLASSE_DO_CAMPO}
       />
     </label>
+  );
+}
+
+// Na linha que não pôde ser reservada: a opção "Mais em conta" daquele item, que entra no lugar dele.
+function TrocaDoRecusado({ item, trocar }: { item: CartItem; trocar: (novo: Omit<CartItem, "quantidade">) => void }) {
+  const alvo = alvoDoItem(item);
+  const texto = alvo ? alvoEmTexto(alvo) : null;
+  if (!texto) return null;
+  return (
+    <BlocoDeSugestoes
+      lugar="checkout"
+      alvos={[texto]}
+      tipos={["DOWN_SELL"]}
+      maximo={1}
+      titulo="Tem esta opção no lugar"
+      className="mt-2.5 [&_h2]:text-[14px]"
+      acao={(s) => ({
+        rotulo: "Levar este no lugar",
+        aoEscolher: (variacao) => {
+          const novo = itemDaSugestao(s, variacao);
+          if (novo) trocar(novo);
+        },
+      })}
+    />
   );
 }

@@ -1,5 +1,5 @@
 import { metadadosDaPagina } from "@/lib/seo";
-import { listarMateriais } from "@/lib/vitrine";
+import { listarMateriais, listarMateriaisDaBlack } from "@/lib/vitrine";
 import CatalogoDeMateriais from "@/components/materiais/CatalogoDeMateriais";
 import SecaoDeCombos from "@/components/combos/SecaoDeCombos";
 import { listarCombosDaArea } from "@/lib/combos";
@@ -7,6 +7,8 @@ import PaginaEmEspera from "@/components/PaginaEmEspera";
 import { BLACK_FRIDAY } from "@/lib/black-friday";
 import { AberturaDaBlackFriday, FaixaDaData, GrupoVip, PaginaDaBlackFriday } from "@/components/blackfriday/PartesDaBlackFriday";
 import OfertasDosMateriais from "@/components/blackfriday/OfertasDosMateriais";
+import MateriaisDaBlack from "@/components/blackfriday/materiais/MateriaisDaBlack";
+import { blackLiberada } from "@/lib/black/liberada";
 
 // Igual a SEGUNDOS_DE_CACHE (lib/vitrine.ts); o Next exige um número escrito aqui.
 export const revalidate = 60;
@@ -48,6 +50,17 @@ function PaginaDaBlackFridayDosMateriais() {
 }
 
 export default async function ProdutosPage() {
+  // De 27 a 30/11 (ou na prévia, app/api/previa), a página de venda da Black (entrega de 25/11/2026); antes disso, a
+  // página da campanha com a contagem até a abertura.
+  if (await blackLiberada()) {
+    return (
+      <PaginaEmEspera area="materiais" titulo="Materiais de estudo">
+        <PaginaDaBlackFriday>
+          <MateriaisDaBlack materiais={await listarMateriaisDaBlack()} />
+        </PaginaDaBlackFriday>
+      </PaginaEmEspera>
+    );
+  }
   if (BLACK_FRIDAY.materiais) {
     return (
       <PaginaEmEspera area="materiais" titulo="Materiais de estudo">

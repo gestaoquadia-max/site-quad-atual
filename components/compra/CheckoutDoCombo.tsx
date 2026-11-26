@@ -11,6 +11,8 @@ import { buscarConfiguracaoDoPagamento, emReais, fecharCombo, type ConfiguracaoD
 import { ErroDoCartao, problemaNoCartao, tokenizarCartao, type DadosDoCartao } from "@/lib/pagarme";
 import { rotaComDestino } from "@/lib/redirecionamento";
 import { useSessaoAtiva } from "@/lib/usuario";
+import { useCart } from "@/lib/cart";
+import { idsJaComprados } from "@/lib/sugestoes";
 import { CLASSE_DO_CAMPO, CLASSE_DO_ROTULO } from "../acesso/Campos";
 import { acrescimoDe, AVISO_DE_ERRO, CamposDoCartao, CARTAO, CARTAO_VAZIO, PAGAMENTO_INDISPONIVEL, useParcelas } from "./Checkout";
 import Etapas from "./Etapas";
@@ -26,6 +28,7 @@ type Metodo = (typeof METODOS)[number]["id"];
 
 export default function CheckoutDoCombo({ combo }: { combo: Combo }) {
   const router = useRouter();
+  const { items, tirarComprados } = useCart();
   const sessaoAtiva = useSessaoAtiva();
   const logado = !!sessaoAtiva;
   const [config, setConfig] = useState<ConfiguracaoDoPagamento | null>(null);
@@ -108,6 +111,8 @@ export default function CheckoutDoCombo({ combo }: { combo: Combo }) {
       guardarItensDoFechamento(fechamento.id, [itemPago]);
       if (fechamento.situacao === "PAGA") compra(fechamento, [itemPago]);
       if (fechamento.situacao === "PAGA") {
+        // Quem trocou pelo combo não compra de novo o avulso que ficou no carrinho.
+        tirarComprados(idsJaComprados(items, fechamento));
         const pedidoNaUrl = fechamento.numeroDoPedido ? `&pedido=${encodeURIComponent(fechamento.numeroDoPedido)}` : "";
         // combo=1: o combo é pago à parte do carrinho, e a confirmação não esvazia o carrinho do aluno.
         router.push(`/checkout/confirmacao?status=aprovado${pedidoNaUrl}&combo=1`);

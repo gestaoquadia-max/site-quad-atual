@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import SoNoSite from "@/components/SoNoSite";
 import AvisoDoCarrinho from "@/components/AvisoDoCarrinho";
 import AvisoDeCookies from "@/components/AvisoDeCookies";
+import AvisoDePrevia from "@/components/blackfriday/AvisoDePrevia";
 import Analytics from "@/components/Analytics";
 import { OuvinteDoBrilho } from "@/components/Brilho";
 import { CartProvider } from "@/lib/cart";
@@ -78,6 +79,7 @@ export default async function RootLayout({
             </SoNoSite>
             <AvisoDoCarrinho />
             <AvisoDeCookies />
+            <AvisoDePrevia />
             <Analytics />
             <OuvinteDoBrilho />
           </UsuarioProvider>

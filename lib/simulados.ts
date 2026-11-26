@@ -114,6 +114,26 @@ export function validarCompra(
   return f && f.disponivel && f.preco != null ? { ok: true } : { ok: false, motivo: "Formato indisponível para esta edição." };
 }
 
+// Destaque de uma edição na Central (selo na linha e aviso no painel), pelo id da carreira e o número da edição. A API
+// não tem campo para isso: cada destaque é pedido do Quad e fica aqui até a edição passar.
+export type DestaqueDaEdicao = { selo: string; texto: string };
+
+const SIMULADO_82_PCBA: DestaqueDaEdicao = {
+  selo: "Último simulado · Edição especial",
+  texto: "Este é o último simulado IPC-PCBA, uma edição especial: ele vai ter correção gravada.",
+};
+
+const DESTAQUES: Record<string, DestaqueDaEdicao> = {
+  // Pedido de 25/11/2026: o Simulado 82 IPC/PCBA (29/11) é o último e é especial, com correção gravada. A carreira é a
+  // do concurso do cadastro ("Investigador da Polícia Civil da Bahia"); "ipc-pcba" fica caso o cadastro mude.
+  "investigador-da-policia-civil-da-bahia:82": SIMULADO_82_PCBA,
+  "ipc-pcba:82": SIMULADO_82_PCBA,
+};
+
+export function destaqueDa(idDaCarreira: string, numero: number): DestaqueDaEdicao | null {
+  return DESTAQUES[`${idDaCarreira}:${numero}`] ?? null;
+}
+
 const DIAS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 // "2026-10-24" → "Sáb, 24/10"

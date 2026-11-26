@@ -10,6 +10,7 @@ import { buscarExcursao, listarExcursoes } from "@/lib/vitrine";
 import { ArteDoEvento } from "@/components/eventos/ArteDoEvento";
 import CaixaDeInscricao from "@/components/eventos/CaixaDeInscricao";
 import Onda from "@/components/home/Onda";
+import SugestoesDoProduto from "@/components/sugestoes/SugestoesDoProduto";
 
 // A página de uma excursão (lib/excursoes.ts), no visual da página de evento. As opções da mesma viagem (com e sem
 // café) são endereços diferentes, ligados pelo seletor, como os turnos das turmas.
@@ -133,6 +134,7 @@ export default async function ExcursaoPage({ params }: { params: Promise<{ slug:
                   {semVagas ? "Todas as vagas desta opção foram preenchidas." : "Valor a confirmar. Fale com o Quad pelo WhatsApp para garantir a sua vaga."}
                 </p>
               )}
+              {semVagas && <SugestoesDoProduto alvo={`ITEM:${atual.idNaApi}`} esgotado sobreEscuro className="mt-7" />}
             </div>
           </div>
         </div>

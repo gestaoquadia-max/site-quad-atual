@@ -7,6 +7,7 @@ import type { ProdutoDaLoja } from "./conteudo";
 import type { Carreira, Edicao } from "./simulados";
 import { formatarHora, parsePreco, precoSemCentavosZerados } from "./format";
 import { API_URL, lerErro } from "./http";
+import { CONCURSOS_DO_COMBO, codigoNormalizado } from "./black/catalogo";
 import { agruparViagens, jaPassou, lerNomeDaExcursao, linhasDaDescricao, type Excursao, type ViagemDeExcursao } from "./excursoes";
 import {
   ehNivelDaPmba,
@@ -53,6 +54,8 @@ type AtividadeDaVitrine = {
   // Vagas ilimitadas (evento online, simulado online ou em PDF): vagas, vendidas e restantes nulos, lote nulo e
   // lotes []. O site já trata vagas nulas como "sem número": sem contador e sem "Esgotado".
   ilimitada?: boolean;
+  // Marcado como Black no cadastro do Painel (25/11/2026): é vendido na Black Friday.
+  black?: boolean;
   detalhe: {
     // TURMA: TURMA ou ISOLADA (calendário de turma com nome próprio).
     tipo?: string | null;
@@ -703,10 +706,55 @@ async function idsDosSimuladosEmCombos(): Promise<Set<string>> {
 
 // A carreira de cada simulado da vitrine (id da atividade → id da carreira, pelo concurso do cadastro), para a aba
 // Combos da Central mostrar cada combo só na carreira dos simulados dele (17/11/2026).
+// O simulado marcado como Black no cadastro (o Combo de Simulados da Black, 25/11/2026): é vendido só na página de
+// Materiais da Black e fica fora da Central de Simulados, onde viraria uma edição solta da carreira.
+const ehDaBlack = (a: AtividadeDaVitrine) => a.black === true;
+
+// O concurso do combo da Black: o do cadastro (todos com concurso desde 25/11/2026), quando o código dele é um dos
+// concursos da tela do Combo (lib/black/catalogo.ts). Senão, o fim do nome ("COMBO DA BLACK SIMULADOS SD PMBA" →
+// "SD PMBA"), para o combo não sumir se o código do cadastro for um que o catálogo ainda não conhece.
+const ehConcursoDoCombo = (codigo: string) => CONCURSOS_DO_COMBO.some((c) => c.codigos.includes(codigoNormalizado(codigo)));
+
+function concursoDoSimuladoDaBlack(a: AtividadeDaVitrine): { codigo: string; nome: string } | null {
+  const doCadastro = a.detalhe?.concurso;
+  if (doCadastro && ehConcursoDoCombo(doCadastro.codigo)) return { codigo: doCadastro.codigo, nome: doCadastro.rotulo || doCadastro.nome };
+  if (/^\s*combo da black/i.test(a.nome)) {
+    const resto = a.nome.replace(/^\s*combo da black(\s+simulados?)?/i, "").replace(/^[\s\-–—:·]+/, "").trim();
+    if (resto) return { codigo: resto, nome: resto };
+  }
+  return doCadastro ? { codigo: doCadastro.codigo, nome: doCadastro.rotulo || doCadastro.nome } : null;
+}
+
+// O nome da carreira de um concurso. O mesmo concurso pode estar cadastrado duas vezes com o código escrito de outro
+// jeito (26/11/2026: "Investigador da Polícia Civil da Bahia", INV-PCBA, e "IPC-PCBA", INVPCBA, com os simulados 80 e
+// 81): os concursos com o mesmo código sem hífen, espaço ou barra viram uma carreira só, com o nome mais usado.
+function nomeDaCarreiraPeloCodigo(concursos: (ConcursoDaVitrine | null | undefined)[]) {
+  const usos = new Map<string, Map<string, number>>();
+  for (const c of concursos) {
+    if (!c?.nome) continue;
+    const codigo = codigoNormalizado(c.codigo ?? "");
+    if (!codigo) continue;
+    const nomes = usos.get(codigo) ?? new Map<string, number>();
+    nomes.set(c.nome, (nomes.get(c.nome) ?? 0) + 1);
+    usos.set(codigo, nomes);
+  }
+  return (c: ConcursoDaVitrine | null | undefined): string | null => {
+    if (!c?.nome) return null;
+    const nomes = usos.get(codigoNormalizado(c.codigo ?? ""));
+    return nomes ? [...nomes].sort((a, b) => b[1] - a[1])[0][0] : c.nome;
+  };
+}
+
 export async function carreiraDeCadaSimulado(): Promise<Record<string, string>> {
   try {
-    const atividades = await listar("SIMULADO", true);
-    return Object.fromEntries(atividades.flatMap((a) => (a.detalhe?.concurso?.nome ? [[a.id, slugDoNome(a.detalhe.concurso.nome)]] : [])));
+    const atividades = (await listar("SIMULADO", true)).filter((a) => !ehDaBlack(a));
+    const nomeDe = nomeDaCarreiraPeloCodigo(atividades.map((a) => a.detalhe?.concurso));
+    return Object.fromEntries(
+      atividades.flatMap((a) => {
+        const nome = nomeDe(a.detalhe?.concurso);
+        return nome ? [[a.id, slugDoNome(nome)]] : [];
+      }),
+    );
   } catch {
     return {};
   }
@@ -723,7 +771,8 @@ export async function listarCarreiras(): Promise<Carreira[] | null> {
     // O simulado em PDF sem o presencial de origem que faz parte de um combo nunca foi aplicado: ele se vende só pelo
     // combo e não entra na Central como edição já aplicada (decisão de 17/11/2026). O PDF de uma edição aplicada
     // (com origemId) continua na Central mesmo que também esteja num combo.
-    const atividades = todas.filter((a) => !(a.detalhe?.modalidade === "PDF" && !a.detalhe?.origemId && emCombos.has(a.id)));
+    const atividades = todas.filter((a) => !ehDaBlack(a) && !(a.detalhe?.modalidade === "PDF" && !a.detalhe?.origemId && emCombos.has(a.id)));
+    const nomeDe = nomeDaCarreiraPeloCodigo([...atividades.map((a) => a.detalhe?.concurso), ...impressas.map((i) => i.material?.concurso)]);
     const porCarreira = new Map<string, Carreira>();
     const carreiraDe = (nome: string) => {
       const id = slugDoNome(nome);
@@ -751,14 +800,14 @@ export async function listarCarreiras(): Promise<Carreira[] | null> {
     const emPdf = atividades.filter((a) => a.detalhe?.modalidade === "PDF");
     presenciais.forEach((a, i) => {
       const { carreira, edicao } = edicaoDoSimulado(a, i);
-      carreiraDe(carreira).edicoes.push(edicao);
+      carreiraDe(nomeDe(a.detalhe?.concurso) ?? carreira).edicoes.push(edicao);
     });
     for (const a of emPdf) {
       const d = a.detalhe ?? {};
       const numero = numeroNoNome(a.nome) ?? d.edicao;
       const abreEm = d.data ?? d.janelas?.[0]?.data;
       if (numero == null || !abreEm || a.preco === null) continue;
-      const c = carreiraDe(d.concurso?.nome || "Outros simulados");
+      const c = carreiraDe(nomeDe(d.concurso) || "Outros simulados");
       const e = estudoDaCarreira(c, numero, abreEm, d.origemId ?? null);
       if (d.origemId) porOrigem.set(d.origemId, e);
       e.pdf = { preco: a.gratuita ? 0 : emReais(a.preco), sku: a.id, disponivel: true };
@@ -766,7 +815,7 @@ export async function listarCarreiras(): Promise<Carreira[] | null> {
     for (const i of impressas) {
       const numero = numeroNoNome(i.origem!.nome) ?? numeroNoNome(i.nome) ?? i.origem!.edicao;
       if (numero == null) continue;
-      const c = carreiraDe(i.material?.concurso?.nome || "Outros simulados");
+      const c = carreiraDe(nomeDe(i.material?.concurso) || "Outros simulados");
       const e = estudoDaCarreira(c, numero, i.origem!.abreEm, i.origem!.id);
       porOrigem.set(i.origem!.id, e);
       const esgotado = i.restantes !== null && i.restantes <= 0;
@@ -783,6 +832,8 @@ export async function listarCarreiras(): Promise<Carreira[] | null> {
 type ItemDaVitrine = {
   id: string;
   nome: string;
+  // Marcado como Black no cadastro do Painel (25/11/2026): é vendido na Black Friday.
+  black?: boolean;
   // Único entre os itens; não muda se o nome mudar (V119).
   slug?: string | null;
   // MATERIAL = material didático, impresso (retirada no balcão) e/ou digital (PDF baixado no site).
@@ -797,8 +848,11 @@ type ItemDaVitrine = {
   material?: {
     categoria: { id: string; nome: string } | null;
     concurso: ConcursoDaVitrine | null;
+    // A matéria do módulo (ex.: "Direito Administrativo"); nula fora dos módulos.
+    materia?: { id: string; nome: string } | null;
     plataformas?: ("IMPRESSO" | "DIGITAL")[];
-    digital?: { preco: number | null; aVenda: boolean } | null;
+    // precoCheio: o preço de antes, riscado na Black (pedido 2 de docs/pedidos-backend-black.md; nulo enquanto não vem).
+    digital?: { preco: number | null; aVenda: boolean; precoCheio?: number | null } | null;
     plataforma?: "IMPRESSO" | "DIGITAL";
   } | null;
   imagemUrl: string | null;
@@ -999,6 +1053,88 @@ export function comAsCarreirasDosExtras(carreiras: Carreira[], extras: SimuladoE
 export async function listarMateriais(): Promise<Produto[] | null> {
   try {
     return agruparMateriais((await listarItens()).filter((i) => !ehSimuladoExtra(i)));
+  } catch {
+    return null;
+  }
+}
+
+// ---------- Materiais da Black Friday (27 a 30/11/2026; components/blackfriday/materiais) ----------
+
+// Um material em PDF à venda na Black, como a página de Materiais da Black usa: o tipo vem da categoria do cadastro
+// (nomes combinados em docs/pedidos-backend-black.md, pedido 4.3) e o concurso, do concurso do cadastro.
+export type TipoDeMaterialDaBlack = "combo" | "modulo" | "pacote" | "vade";
+
+export type MaterialDaBlack = {
+  idNaApi: string;
+  slug: string;
+  tipo: TipoDeMaterialDaBlack;
+  nome: string;
+  // O módulo avulso: a matéria do cadastro; sem ela, o nome.
+  materia: string | null;
+  concurso: { codigo: string; nome: string } | null;
+  // Em centavos: o preço da oferta digital e o de antes (riscado), quando a API mandar.
+  preco: number;
+  precoCheio: number | null;
+  // false enquanto o PDF não chegou (a API marca a oferta digital como fora de venda).
+  aVenda: boolean;
+  imagem: string | null;
+  // true no combo cadastrado como simulado em PDF: vai ao carrinho como a atividade SIMULADO, não como item da loja.
+  simulado: boolean;
+};
+
+const TIPO_PELA_CATEGORIA: Record<string, TipoDeMaterialDaBlack> = {
+  "combo-de-simulados": "combo",
+  modulo: "modulo",
+  "pacote-de-modulos": "pacote",
+  "vade-mecum": "vade",
+};
+
+// Entra o que está marcado como Black no cadastro (pedido de 25/11/2026: "tudo que está marcado como black entra na
+// black"); a categoria diz em que cartão. Só a oferta digital (PDF) com preço maior que zero; os gratuitos são outra
+// lista (passam pelo carrinho a R$ 0).
+export async function listarMateriaisDaBlack(): Promise<MaterialDaBlack[] | null> {
+  try {
+    const lista: MaterialDaBlack[] = [];
+    for (const i of await listarItens()) {
+      if (i.black !== true || !ehMaterial(i) || ehSimuladoExtra(i)) continue;
+      const tipo = TIPO_PELA_CATEGORIA[slugDoNome(i.material?.categoria?.nome ?? "")];
+      const digital = ofertasDoItem(i).find((o) => o.formato === "digital");
+      if (!tipo || !digital || digital.preco <= 0) continue;
+      const concurso = i.material?.concurso;
+      lista.push({
+        idNaApi: i.id,
+        slug: slugDa(i),
+        tipo,
+        nome: nomeSemFormato(i.nome),
+        materia: i.material?.materia?.nome ?? null,
+        concurso: concurso ? { codigo: concurso.codigo, nome: concurso.rotulo || concurso.nome } : null,
+        preco: digital.preco,
+        precoCheio: i.material?.digital?.precoCheio ?? null,
+        aVenda: !digital.indisponivel,
+        imagem: i.imagemUrl,
+        simulado: false,
+      });
+    }
+    // O Combo de Simulados da Black foi cadastrado como simulado em PDF marcado como Black (25/11/2026), não como
+    // material: um por concurso, "COMBO DA BLACK SIMULADOS <CONCURSO>".
+    for (const a of await listar("SIMULADO", true)) {
+      if (!ehDaBlack(a) || a.detalhe?.modalidade !== "PDF" || a.gratuita || !a.preco || a.preco <= 0) continue;
+      const concurso = concursoDoSimuladoDaBlack(a);
+      lista.push({
+        idNaApi: a.id,
+        slug: a.slug ?? a.id,
+        tipo: "combo",
+        nome: a.nome.trim(),
+        materia: null,
+        concurso,
+        preco: a.preco,
+        precoCheio: null,
+        aVenda: true,
+        imagem: a.imagemUrl,
+        simulado: true,
+      });
+    }
+    return lista;
   } catch {
     return null;
   }

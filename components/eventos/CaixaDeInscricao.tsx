@@ -9,7 +9,9 @@ import { ErroDaApi } from "@/lib/http";
 import { alvoDoItem } from "@/lib/itens";
 import { inscreverSeDeGraca } from "@/lib/loja";
 import { rotaComDestino } from "@/lib/redirecionamento";
+import { alvoEmTexto } from "@/lib/sugestoes";
 import { useSessaoAtiva } from "@/lib/usuario";
+import SugestoesDoProduto from "../sugestoes/SugestoesDoProduto";
 
 type Variacao = NonNullable<Evento["variacoes"]>[number];
 
@@ -26,6 +28,7 @@ export default function CaixaDeInscricao({
   vagas,
   item,
   variacoes,
+  esgotadoNaPagina = false,
 }: {
   preco: string;
   nota: string;
@@ -34,6 +37,8 @@ export default function CaixaDeInscricao({
   vagas?: { total: number; ocupadas: number };
   item: Omit<CartItem, "quantidade">;
   variacoes?: Variacao[];
+  // Inscrições esgotadas segundo a página (o evento encerrado), mesmo sem o número de vagas.
+  esgotadoNaPagina?: boolean;
 }) {
   const router = useRouter();
   const caminho = usePathname();
@@ -53,6 +58,10 @@ export default function CaixaDeInscricao({
   const menor = [...(disponiveis.length ? disponiveis : (variacoes ?? []))].sort((a, b) => (parsePreco(a.preco) ?? Infinity) - (parsePreco(b.preco) ?? Infinity))[0];
   const precoNaTela = !comVariacoes ? preco : variacao ? variacao.preco : menor.preco;
   const precoCheio = variacao?.precoCheio;
+  // As sugestões de venda embaixo da inscrição: esgotado = todas as opções ou todas as vagas.
+  const esgotado = esgotadoNaPagina || todasEsgotadas || (!!vagas && vagas.ocupadas >= vagas.total);
+  const alvoDoEvento = alvoDoItem({ ...item, quantidade: 1 });
+  const alvoDaSugestao = alvoDoEvento ? alvoEmTexto(alvoDoEvento) : null;
 
   async function inscrever() {
     if (comVariacoes) {
@@ -159,6 +168,7 @@ export default function CaixaDeInscricao({
         </p>
       )}
       <p className="mt-3 text-xs text-prata-escura">{gratuito ? "Inscrição gratuita, registrada na sua conta" : "Pagamento seguro via Pagar.me"}</p>
+      {!gratuito && <SugestoesDoProduto alvo={alvoDaSugestao} esgotado={esgotado} sobreEscuro className="mt-7 border-t border-white/10 pt-6" />}
     </div>
   );
 }

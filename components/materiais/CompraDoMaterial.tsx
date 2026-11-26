@@ -4,7 +4,9 @@ import { useState } from "react";
 import type { Produto } from "@/lib/data";
 import { useCart } from "@/lib/cart";
 import { idDoItem } from "@/lib/itens";
+import { alvoEmTexto } from "@/lib/sugestoes";
 import BotoesDeCompra from "../BotoesDeCompra";
+import SugestoesDoProduto from "../sugestoes/SugestoesDoProduto";
 import { FORMATOS_DO_MATERIAL, aVenda, alvoDaOferta, formatoInicial, ofertaDo, rotuloDeIndisponivel, type FormatoDoMaterial } from "@/lib/materiais";
 
 const OPCOES: Record<FormatoDoMaterial, { rotulo: string; dica: string }> = {
@@ -85,6 +87,13 @@ export default function CompraDoMaterial({ produto }: { produto: Produto }) {
             alvo: oferta.idNaApi ? alvoDaOferta(oferta, formato) : undefined,
           });
         }}
+      />
+      {/* As sugestões do formato escolhido: o digital e o impresso são alvos diferentes na API. */}
+      <SugestoesDoProduto
+        alvo={oferta?.idNaApi ? alvoEmTexto(alvoDaOferta(oferta, formato)) : null}
+        esgotado={!!oferta && !aVenda(oferta) && !oferta.indisponivel}
+        sobreEscuro
+        className="mt-8 max-w-[420px]"
       />
     </>
   );

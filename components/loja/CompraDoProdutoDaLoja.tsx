@@ -7,6 +7,7 @@ import BotoesDeCompra from "../BotoesDeCompra";
 import { precoSemCentavosZerados } from "@/lib/format";
 import { LinkParaADescricao } from "@/components/TextoDoProduto";
 import PrazoDeVenda from "../PrazoDeVenda";
+import SugestoesDoProduto from "../sugestoes/SugestoesDoProduto";
 
 const MAXIMO = 20;
 
@@ -125,6 +126,7 @@ export default function CompraDoProdutoDaLoja({ produto }: { produto: ProdutoDaL
       </div>
 
       <BotoesDeCompra adicionar={adicionar} desabilitado={!preco || esgotado} rotuloDesabilitado={esgotado ? "Esgotado" : "Preço a confirmar"} tema="claro" />
+      <SugestoesDoProduto alvo={produto.idNaApi ? `ITEM:${produto.idNaApi}` : null} esgotado={esgotado} className="mt-4" />
     </>
   );
 }
