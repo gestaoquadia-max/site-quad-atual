@@ -2,6 +2,8 @@ import { mentorias, modalidades } from "@/lib/conteudo";
 import { listarEventos, listarExcursoes, listarMateriais, listarMateriaisDaBlack, listarProfessores, listarTurmas } from "@/lib/vitrine";
 import { blackLiberada } from "@/lib/black/liberada";
 import CarrosselDaBlack from "@/components/home/CarrosselDaBlack";
+import UltimasVagasDasTurmas from "@/components/home/UltimasVagasDasTurmas";
+import { FaixaDaBlack, MentoriaDaHome } from "@/components/home/HomeDaBlack";
 import { paraCartaoDeExcursao } from "@/lib/excursoes";
 import { insigniaDaModalidade } from "@/lib/turmas";
 import { dadosDaOrganizacao } from "@/lib/dados-estruturados";
@@ -87,12 +89,53 @@ export default async function Home() {
   // As excursões para provas (lib/excursoes.ts) entram depois dos eventos, na ordem da data da viagem.
   const cartoesDeEvento = [CARTAO_DOS_SIMULADOS, ...(eventos ?? []).map(paraCartao), ...(excursoes ?? []).map(paraCartaoDeExcursao)];
 
+  // Na Black (27 a 30/11, e na prévia), a Home do modelo da designer (26/11/2026, "Preview Site Dia 27"): o carrossel,
+  // as últimas vagas das turmas da Black, as modalidades, a Mentoria com a contagem, os eventos, os professores e os
+  // aprovados, com a faixa "BLACK FRIDAY 27/11 OFERTAS DO QUAD" entre as seções no lugar das ondas.
+  if (black) {
+    return (
+      <div className="bg-[#120F0D] text-white">
+        <DadosEstruturados dados={dadosDaOrganizacao()} />
+        <CarrosselDaBlack turmas={turmas} materiais={materiaisDaBlack} />
+        <UltimasVagasDasTurmas turmas={turmas} />
+        <FaixaDaBlack />
+        <Secao espaco={ESPACO_JUNTO_DAS_ONDAS}>
+          <Trilho titulo="Turmas presenciais" link={{ href: "/turmas", label: "Ver todas as turmas" }} rotulo="Modalidades das turmas presenciais">
+            {modalidades.map((m) => (
+              <CartaoModalidade key={m.id} modalidade={m} insignia={insigniaDaModalidade(turmas, m.id)} />
+            ))}
+          </Trilho>
+        </Secao>
+        <FaixaDaBlack />
+        <MentoriaDaHome />
+        <FaixaDaBlack />
+        <Secao espaco={ESPACO_JUNTO_DAS_ONDAS}>
+          <Trilho titulo="Próximos eventos" link={{ href: "/eventos", label: "Ver todos os eventos" }} rotulo="Próximos eventos">
+            {cartoesDeEvento.map((e) => (
+              <CartaoEvento key={e.id} evento={e} />
+            ))}
+          </Trilho>
+        </Secao>
+        {!!professores?.length && (
+          <>
+            <FaixaDaBlack />
+            <ProfessoresEmDestaque professores={professores} />
+          </>
+        )}
+        <FaixaDaBlack />
+        <Secao id="aprovados" className="scroll-mt-[110px]" espaco={ESPACO_JUNTO_DAS_ONDAS}>
+          <CarrosselDeAprovados fotos={FOTOS_DE_APROVADOS} titulo="h2" />
+        </Secao>
+      </div>
+    );
+  }
+
   // Dobras em ondas entre as seções claras e escuras (entrega da designer, 11/11/2026; components/home/Onda.tsx).
   return (
     <>
       <DadosEstruturados dados={dadosDaOrganizacao()} />
       {/* O carrossel (components/home/CarrosselDeDestaques.tsx) saiu da Home em 04/11/2026; os banners viraram os cartões "Agora no Quad". */}
-      {black ? <CarrosselDaBlack turmas={turmas} materiais={materiaisDaBlack} /> : <PrimeiroContato turmas={turmas} />}
+      <PrimeiroContato turmas={turmas} />
       <Onda para="claro" />
 
       <Secao className="bg-nevoa" espaco={ESPACO_JUNTO_DAS_ONDAS}>
@@ -104,16 +147,13 @@ export default async function Home() {
       </Secao>
 
       {BLACK_FRIDAY.home ? (
-        // Black Friday (lib/black-friday.ts): o bloco da campanha no lugar das seções de Mentorias e de Materiais. Na
-        // Black (27 a 30/11, e na prévia) ele sai (pedido de 26/11/2026): falava da abertura de 27/11, e o carrossel do
-        // topo já traz Mentoria, Turmas e Materiais.
-        !black && (
-          <>
-            <Onda para="escuro" />
-            <BlackFridayDaHome />
-            <Onda para="claro" />
-          </>
-        )
+        // Black Friday (lib/black-friday.ts): o bloco da campanha no lugar das seções de Mentorias e de Materiais (até a
+        // abertura; na Black, a Home é a de cima).
+        <>
+          <Onda para="escuro" />
+          <BlackFridayDaHome />
+          <Onda para="claro" />
+        </>
       ) : (
         <>
           {/* Mentorias e materiais em espera (lib/em-espera.ts): o aviso no lugar dos cartões; o administrador vê os cartões. */}
@@ -137,7 +177,13 @@ export default async function Home() {
                   espaco={ESPACO_JUNTO_DAS_ONDAS}
                   brilho="bg-[radial-gradient(50%_60%_at_100%_0%,rgba(0,107,255,0.16),transparent_70%),radial-gradient(40%_50%_at_0%_100%,rgba(0,107,255,0.08),transparent_70%)]"
                 >
-                  <Trilho titulo="Materiais de estudo" link={{ href: "/produtos", label: "Ver todos os materiais" }} rotulo="Materiais de estudo" tema="escuro" colunas={4}>
+                  <Trilho
+                    titulo="Materiais de estudo"
+                    link={{ href: "/produtos", label: "Ver todos os materiais" }}
+                    rotulo="Materiais de estudo"
+                    tema="escuro"
+                    colunas={4}
+                  >
                     {materiais.slice(0, 8).map((p, i) => (
                       <CartaoMaterial key={p.slug} produto={p} indice={i} />
                     ))}
