@@ -1082,12 +1082,19 @@ export type MaterialDaBlack = {
   simulado: boolean;
 };
 
-const TIPO_PELA_CATEGORIA: Record<string, TipoDeMaterialDaBlack> = {
-  "combo-de-simulados": "combo",
-  modulo: "modulo",
-  "pacote-de-modulos": "pacote",
-  "vade-mecum": "vade",
-};
+// O cartão pelo começo do nome da categoria: o cadastro usa nomes como "Módulo de Teoria" (26/11/2026), não só "Módulo".
+// "pacote" vem antes de "modulo" porque "Pacote de módulos" também fala em módulo.
+const TIPO_PELO_INICIO_DA_CATEGORIA: [string, TipoDeMaterialDaBlack][] = [
+  ["combo-de-simulados", "combo"],
+  ["pacote", "pacote"],
+  ["vade-mecum", "vade"],
+  ["modulo", "modulo"],
+];
+
+function tipoPelaCategoria(nome: string): TipoDeMaterialDaBlack | undefined {
+  const slug = slugDoNome(nome);
+  return TIPO_PELO_INICIO_DA_CATEGORIA.find(([inicio]) => slug === inicio || slug.startsWith(`${inicio}-`))?.[1];
+}
 
 // Entra o que está marcado como Black no cadastro (pedido de 25/11/2026: "tudo que está marcado como black entra na
 // black"); a categoria diz em que cartão. Só a oferta digital (PDF) com preço maior que zero; os gratuitos são outra
@@ -1097,7 +1104,7 @@ export async function listarMateriaisDaBlack(): Promise<MaterialDaBlack[] | null
     const lista: MaterialDaBlack[] = [];
     for (const i of await listarItens()) {
       if (i.black !== true || !ehMaterial(i) || ehSimuladoExtra(i)) continue;
-      const tipo = TIPO_PELA_CATEGORIA[slugDoNome(i.material?.categoria?.nome ?? "")];
+      const tipo = tipoPelaCategoria(i.material?.categoria?.nome ?? "");
       const digital = ofertasDoItem(i).find((o) => o.formato === "digital");
       if (!tipo || !digital || digital.preco <= 0) continue;
       const concurso = i.material?.concurso;
