@@ -10,8 +10,8 @@ import { insigniaDaModalidade } from "@/lib/turmas";
 import { brasaoDoConcurso } from "@/lib/brasoes";
 import AviseMe from "../AviseMePeloWhatsApp";
 import InsigniaDaTurma from "./InsigniaDaTurma";
+import TopoDaBlack, { cartoesDaBlack, vagasRestantes } from "./TopoDaBlack";
 import Onda from "@/components/home/Onda";
-
 
 // Cartão de modalidade da aba: na PMBA, os três níveis (com perfil, método e barra teoria/questões); nas outras abas,
 // as modalidades das turmas daquele cargo ("INVESTIGADOR"), só com insígnia, nome e resumo.
@@ -33,7 +33,15 @@ function opcoesDaAba(aba: string, doCargo: Turma[], comNiveis: boolean, todas: T
   // "Todos os concursos": os três níveis da PMBA e, depois, as modalidades dos outros concursos.
   if (aba === TODOS) {
     const niveis = modalidades.map((m) => m.id as string);
-    return [...niveisDaPmba(), ...opcoesDaAba(SEM_CARGO, doCargo.filter((t) => !niveis.includes(t.modalidadeId)), false, todas)];
+    return [
+      ...niveisDaPmba(),
+      ...opcoesDaAba(
+        SEM_CARGO,
+        doCargo.filter((t) => !niveis.includes(t.modalidadeId)),
+        false,
+        todas,
+      ),
+    ];
   }
   const porId = new Map<string, Turma[]>();
   for (const t of doCargo) porId.set(t.modalidadeId, [...(porId.get(t.modalidadeId) ?? []), t]);
@@ -71,7 +79,10 @@ function ImagemDoConcurso({ aba }: { aba: string }) {
   // "Todos os concursos" e "Outros concursos" não têm brasão: o cartão fica só com o texto.
   if (aba === TODOS || aba === SEM_CARGO) return null;
   return (
-    <span aria-hidden="true" className="grid h-12 w-12 flex-none place-items-center rounded-full border border-white/15 bg-white/[0.06] font-display text-[13px] font-extrabold tracking-[0.02em] text-azul-ceu">
+    <span
+      aria-hidden="true"
+      className="grid h-12 w-12 flex-none place-items-center rounded-full border border-white/15 bg-white/[0.06] font-display text-[13px] font-extrabold tracking-[0.02em] text-azul-ceu"
+    >
       {aba.split(" • ")[0].slice(0, 3)}
     </span>
   );
@@ -99,7 +110,13 @@ const INTERVALO_DA_FAIXA_MS = 5000;
 function SetaDaFaixa({ direcao }: { direcao: "anterior" | "proximo" }) {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d={direcao === "anterior" ? "M10 3L5 8l5 5" : "M6 3l5 5-5 5"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d={direcao === "anterior" ? "M10 3L5 8l5 5" : "M6 3l5 5-5 5"}
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -148,8 +165,7 @@ function FaixaDeModalidades({ rolavel, className, children }: { rolavel: boolean
     if (!el) return;
     const max = el.scrollWidth - el.clientWidth;
     const cartao = el.firstElementChild?.getBoundingClientRect().width ?? 300;
-    const alvo =
-      voltarAoComeco && el.scrollLeft >= max - 8 ? 0 : Math.max(0, Math.min(max, el.scrollLeft + direcao * (cartao + ESPACO_ENTRE_CARTOES)));
+    const alvo = voltarAoComeco && el.scrollLeft >= max - 8 ? 0 : Math.max(0, Math.min(max, el.scrollLeft + direcao * (cartao + ESPACO_ENTRE_CARTOES)));
     deslizar(el, alvo);
   }, []);
 
@@ -263,8 +279,97 @@ function turnosEmOrdem(turmas: Turma[]) {
   return [...presentes].sort((a, b) => (ORDEM_DO_DIA.indexOf(a) + 1 || 99) - (ORDEM_DO_DIA.indexOf(b) + 1 || 99));
 }
 
+// A turma da Black na lista, no período da Black (prévia da designer de 26/11/2026): laranja, com as vagas que restam,
+// o selo BLACK FRIDAY e "Garantir vaga na Black". Os dados são os mesmos do cartão comum, da API.
+function CartaoDaTurmaDaBlack({ turma, titulo, concurso }: { turma: Turma; titulo: string; concurso?: string | null }) {
+  const preco = turma.preco === "Consulte" ? undefined : turma.preco;
+  const restam = vagasRestantes(turma);
+  const total = turma.detalhe?.vagasTotal;
+  const aberta = turma.status === "aberta";
+  const rotulo = "text-[11.5px] font-extrabold uppercase tracking-[0.12em] text-white/80";
+  return (
+    <article className="grid animate-[q-surgir_220ms_ease_both] grid-cols-[repeat(auto-fit,minmax(min(100%,190px),1fr))] items-center gap-x-6 gap-y-4 rounded-[20px] border-[1.5px] border-[#FFB27A] bg-[linear-gradient(120deg,#FF7A2E_0%,#E5530A_55%,#A93A08_100%)] p-[clamp(18px,2vw,26px)] text-white shadow-[0_0_0_1px_rgba(255,170,110,0.35),0_0_34px_-6px_rgba(242,90,12,0.75)]">
+      <div className="flex min-w-0 items-center gap-4">
+        <InsigniaDaTurma insignia={turma.insignia} tamanho={64} sizes="64px" className="h-16 w-16 flex-none [filter:drop-shadow(0_8px_12px_rgba(0,0,0,0.5))]" />
+        <div className="flex min-w-0 flex-col items-start gap-2">
+          <div className="flex flex-wrap gap-1.5">
+            <span className="inline-flex h-6 items-center whitespace-nowrap rounded-full bg-black/[0.28] px-2.5 text-[11.5px] font-extrabold uppercase tracking-[0.06em]">
+              {!aberta ? "Esgotada" : restam !== null && total ? `Restam ${restam} de ${total} vagas` : "Vagas da Black"}
+            </span>
+            <span className="inline-flex h-6 items-center whitespace-nowrap rounded-full bg-white px-2.5 text-[11.5px] font-extrabold italic tracking-[0.04em] text-[#B8410A]">
+              BLACK FRIDAY
+            </span>
+          </div>
+          {concurso && (
+            <span className="inline-flex h-6 items-center whitespace-nowrap rounded-md bg-black/25 px-2.5 text-[11.5px] font-extrabold uppercase tracking-[0.06em]">
+              {concurso}
+            </span>
+          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <h4 className="font-display text-[21px] font-extrabold leading-[1.2] tracking-[-0.01em]">{titulo}</h4>
+            {turma.turno && (
+              <span className="inline-flex h-7 items-center whitespace-nowrap rounded-lg bg-black/25 px-2.5 text-[13px] font-bold">{turma.turno}</span>
+            )}
+          </div>
+        </div>
+      </div>
+      <dl className="grid grid-cols-2 gap-x-[18px] gap-y-2.5 text-sm">
+        {(
+          [
+            ["Início", turma.inicio],
+            ["Horário", turma.horario],
+          ] as const
+        ).map(([r, valor]) => (
+          <div key={r} className="flex min-w-0 flex-col gap-1">
+            <dt className={rotulo}>{r}</dt>
+            <dd className="text-base font-bold">{valor ?? A_CONFIRMAR}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="flex flex-col items-stretch gap-3">
+        <div className="flex items-baseline justify-end gap-1.5 whitespace-nowrap text-[15px] text-white/90">
+          {preco && turma.precoCheio && (
+            <>
+              De <s>{turma.precoCheio}</s> por
+            </>
+          )}
+          <b className="font-display text-[30px] font-extrabold tracking-[-0.03em] text-white">{preco ?? A_CONFIRMAR}</b>
+        </div>
+        {aberta ? (
+          <Link
+            href={`/turmas/${turma.slug}`}
+            className="btn-q h-[50px] rounded-xl bg-white px-[18px] text-[17px] text-[#B8410A] shadow-[0_10px_22px_-10px_rgba(0,0,0,0.6)] hover:text-[#8F3207]"
+          >
+            Garantir vaga na Black →
+          </Link>
+        ) : (
+          <AviseMe assunto={`vaga na turma ${turma.nome}`} rotulo="Lista de espera pelo WhatsApp" />
+        )}
+      </div>
+    </article>
+  );
+}
+
+// A legenda acima da lista no período da Black, quando a lista tem turma da Black.
+function LegendaDaBlack() {
+  return (
+    <div className="flex flex-wrap gap-x-[18px] gap-y-2 text-sm text-ardosia-escura">
+      <span className="flex items-center gap-2">
+        <span aria-hidden="true" className="h-3.5 w-3.5 rounded bg-[linear-gradient(135deg,#FF7A2E,#E5530A)]" />
+        Oferta Black Friday
+      </span>
+      <span className="flex items-center gap-2">
+        <span aria-hidden="true" className="h-3.5 w-3.5 rounded border border-[#4A3B32] bg-[#1E1714]" />
+        Turmas regulares · valor normal
+      </span>
+    </div>
+  );
+}
+
 // `concurso`: só em "Todos os concursos", onde a mesma modalidade junta turmas de concursos diferentes.
-function CartaoDaTurma({ turma, titulo, concurso }: { turma: Turma; titulo: string; concurso?: string | null }) {
+// `black`: período da Black; a turma marcada como Black no cadastro vai em destaque.
+function CartaoDaTurma({ turma, titulo, concurso, black = false }: { turma: Turma; titulo: string; concurso?: string | null; black?: boolean }) {
+  if (black && turma.black) return <CartaoDaTurmaDaBlack turma={turma} titulo={titulo} concurso={concurso} />;
   const situacao = SITUACAO[turma.status];
   const campos = [
     ["Início", turma.inicio],
@@ -276,20 +381,22 @@ function CartaoDaTurma({ turma, titulo, concurso }: { turma: Turma; titulo: stri
       <div className="flex min-w-0 items-center gap-4">
         <InsigniaDaTurma insignia={turma.insignia} tamanho={64} sizes="64px" className="h-16 w-16 flex-none" />
         <div className="flex min-w-0 flex-col gap-2">
-        <div className="flex flex-wrap gap-1.5">
-          <span className={`inline-flex h-6 items-center whitespace-nowrap rounded-full px-[9px] text-[11px] font-bold uppercase tracking-[0.06em] ${situacao.cor}`}>
-            {turma.status === "aberta" && turma.statusLabel !== "Matrículas abertas" ? turma.statusLabel : situacao.rotulo}
-          </span>
-          {concurso && (
-            <span className="inline-flex h-6 items-center whitespace-nowrap rounded-full bg-azul-palido px-[9px] text-[11px] font-bold uppercase tracking-[0.06em] text-azul-forte">
-              {concurso}
+          <div className="flex flex-wrap gap-1.5">
+            <span
+              className={`inline-flex h-6 items-center whitespace-nowrap rounded-full px-[9px] text-[11px] font-bold uppercase tracking-[0.06em] ${situacao.cor}`}
+            >
+              {turma.status === "aberta" && turma.statusLabel !== "Matrículas abertas" ? turma.statusLabel : situacao.rotulo}
             </span>
-          )}
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <h4 className="font-display text-[19px] font-extrabold leading-[1.2] tracking-[-0.01em]">{titulo}</h4>
-          {turma.turno && <EtiquetaDoTurno turno={turma.turno} />}
-        </div>
+            {concurso && (
+              <span className="inline-flex h-6 items-center whitespace-nowrap rounded-full bg-azul-palido px-[9px] text-[11px] font-bold uppercase tracking-[0.06em] text-azul-forte">
+                {concurso}
+              </span>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <h4 className="font-display text-[19px] font-extrabold leading-[1.2] tracking-[-0.01em]">{titulo}</h4>
+            {turma.turno && <EtiquetaDoTurno turno={turma.turno} />}
+          </div>
         </div>
       </div>
       <dl className="grid grid-cols-2 gap-x-[18px] gap-y-2.5 text-sm">
@@ -312,7 +419,9 @@ function CartaoDaTurma({ turma, titulo, concurso }: { turma: Turma; titulo: stri
           ) : (
             <span className="text-[11.5px] font-semibold uppercase tracking-[0.06em] text-ardosia">Valor</span>
           )}
-          <span className={`font-display font-extrabold tracking-[-0.02em] ${preco ? "text-[26px] leading-none text-tinta" : "text-base text-ardosia"}`}>{preco ?? A_CONFIRMAR}</span>
+          <span className={`font-display font-extrabold tracking-[-0.02em] ${preco ? "text-[26px] leading-none text-tinta" : "text-base text-ardosia"}`}>
+            {preco ?? A_CONFIRMAR}
+          </span>
         </div>
         {turma.status === "aberta" ? (
           <Link
@@ -332,7 +441,13 @@ function CartaoDaTurma({ turma, titulo, concurso }: { turma: Turma; titulo: stri
   );
 }
 
-function Filtro({ rotulo, opcoes, atual, onEscolher, todos }: {
+function Filtro({
+  rotulo,
+  opcoes,
+  atual,
+  onEscolher,
+  todos,
+}: {
   rotulo: string;
   opcoes: string[];
   atual: string | null;
@@ -397,28 +512,41 @@ export function idDaAba(aba: string) {
 export function abasDasTurmas(turmas: Turma[] | null) {
   const cadastradas = [...new Set((turmas ?? []).map(abaDa))];
   const conhecidas = ORDEM_DAS_ABAS.filter((a) => ABAS_FIXAS.includes(a) || cadastradas.includes(a));
-  const outras = cadastradas.filter((a) => !ORDEM_DAS_ABAS.includes(a) && a !== SEM_CARGO).sort((a, b) => Number(ehDaPmba(b)) - Number(ehDaPmba(a)) || a.localeCompare(b));
+  const outras = cadastradas
+    .filter((a) => !ORDEM_DAS_ABAS.includes(a) && a !== SEM_CARGO)
+    .sort((a, b) => Number(ehDaPmba(b)) - Number(ehDaPmba(a)) || a.localeCompare(b));
   // "Todos os concursos" vem primeiro. Decisão de 29/10/2026: sem aba "Outros concursos"; as turmas sem concurso
   // aparecem só em "Todos".
   return [TODOS, ...conhecidas, ...outras];
 }
 
+// No período da Black, as turmas da Black vêm primeiro (a ordem entre elas e entre as outras não muda).
+function daBlackPrimeiro(turmas: Turma[], black: boolean) {
+  return black ? [...turmas.filter((t) => t.black), ...turmas.filter((t) => !t.black)] : turmas;
+}
+
 // Turmas de um cargo sem níveis (fora da PMBA, ou da PMBA sem nível): filtro de turno e a lista.
-function TurmasDoCargo({ turmas, aba }: { turmas: Turma[]; aba: string }) {
+function TurmasDoCargo({ turmas, aba, black = false }: { turmas: Turma[]; aba: string; black?: boolean }) {
   const [turno, setTurno] = useState<string | null>(null);
   const turnos = turnosEmOrdem(turmas);
-  const visiveis = turmas.filter((t) => !turno || t.turno === turno);
+  const visiveis = daBlackPrimeiro(
+    turmas.filter((t) => !turno || t.turno === turno),
+    black,
+  );
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="flex-auto text-xs font-semibold uppercase tracking-[0.14em] text-azul-forte">Turmas</h2>
         {turnos.length > 1 && <Filtro rotulo="Turno" opcoes={turnos} atual={turno} onEscolher={setTurno} todos="Todos os turnos" />}
       </div>
+      {black && visiveis.some((t) => t.black) && <LegendaDaBlack />}
       {visiveis.length > 0 ? (
-        visiveis.map((t) => <CartaoDaTurma key={t.slug} turma={t} titulo={t.nome} />)
+        visiveis.map((t) => <CartaoDaTurma key={t.slug} turma={t} titulo={t.nome} black={black} />)
       ) : (
         <div className="flex flex-col items-start gap-3 rounded-2xl border border-linha bg-superficie shadow-cartao p-[clamp(24px,3vw,36px)]">
-          <span className="inline-flex h-[26px] items-center rounded-full bg-nevoa-clara px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">Sem oferta no momento</span>
+          <span className="inline-flex h-[26px] items-center rounded-full bg-nevoa-clara px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">
+            Sem oferta no momento
+          </span>
           <span className="font-display text-xl font-extrabold">Ainda não há turmas abertas para este cargo</span>
           <span className="max-w-[560px] text-[15px] leading-[1.55] text-[#3E4A5E] [text-wrap:pretty]">Avisamos pelo WhatsApp quando abrir uma turma.</span>
           <AviseMe assunto={`turma ${aba}`} destaque />
@@ -432,16 +560,24 @@ export default function EscolhaDeModalidade({
   turmas,
   inicial,
   cargoInicial = null,
+  emBlack = false,
 }: {
   turmas: Turma[] | null;
   // ?m= do endereço: um nível da PMBA ("rondesp") ou a modalidade de outro cargo ("investigador")
   inicial: string | null;
   // id da aba no endereço (?cargo=ipc-pcba)
   cargoInicial?: string | null;
+  // Período da Black (ou a prévia): com turma marcada como Black, o topo vira o da Black (TopoDaBlack), na aba
+  // "Todos os concursos", e as turmas da Black vão em destaque na lista.
+  emBlack?: boolean;
 }) {
+  const daBlack = emBlack ? (turmas ?? []).filter((t) => t.black && !t.isolada) : [];
+  const modoBlack = daBlack.length > 0;
+  const cartoes = modoBlack ? cartoesDaBlack(daBlack, turmas) : [];
   const abas = abasDasTurmas(turmas);
-  const [aba, setAba] = useState<string>(() => abas.find((a) => idDaAba(a) === cargoInicial) ?? abas[0]);
-  const [selecionada, setSelecionada] = useState<string | null>(inicial);
+  const [aba, setAba] = useState<string>(() => (modoBlack ? TODOS : (abas.find((a) => idDaAba(a) === cargoInicial) ?? abas[0])));
+  // Na Black, sem ?m= no endereço, a lista já abre na primeira modalidade com turma da Black.
+  const [selecionada, setSelecionada] = useState<string | null>(inicial ?? (cartoes[0]?.id || null));
   const [turno, setTurno] = useState<string | null>(null);
   const secaoDasTurmas = useRef<HTMLElement>(null);
   const topo = useRef<HTMLElement>(null);
@@ -453,7 +589,10 @@ export default function EscolhaDeModalidade({
   const atual = opcoes.find((m) => m.id === selecionada) ?? (!comNiveis && opcoes.length === 1 ? opcoes[0] : null);
   const daModalidade = doCargo.filter((t) => atual && t.modalidadeId === atual.id);
   const turnos = turnosEmOrdem(daModalidade);
-  const visiveis = daModalidade.filter((t) => !turno || t.turno === turno);
+  const visiveis = daBlackPrimeiro(
+    daModalidade.filter((t) => !turno || t.turno === turno),
+    modoBlack,
+  );
   // Turma da PMBA que não tem nível no nome: aparece embaixo, para não sumir.
   const doCargoSemNivel = comNiveis ? doCargo.filter((t) => !t.modalidade) : [];
 
@@ -490,116 +629,147 @@ export default function EscolhaDeModalidade({
 
   return (
     <>
-      <section ref={topo} className="relative overflow-hidden bg-marinho-950 fundo-escuro-da-onda pb-[clamp(56px,6vw,96px)] pt-[clamp(48px,6vw,88px)] text-white">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_60%_at_80%_0%,rgba(0,107,255,0.28),transparent_70%),radial-gradient(35%_50%_at_0%_100%,rgba(20,74,255,0.14),transparent_70%)]" />
+      <section
+        ref={topo}
+        className="relative overflow-hidden bg-marinho-950 fundo-escuro-da-onda pb-[clamp(56px,6vw,96px)] pt-[clamp(48px,6vw,88px)] text-white"
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(40%_60%_at_80%_0%,rgba(0,107,255,0.28),transparent_70%),radial-gradient(35%_50%_at_0%_100%,rgba(20,74,255,0.14),transparent_70%)]"
+        />
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[length:64px_64px]"
-          style={{ maskImage: "radial-gradient(60% 70% at 75% 20%, #000, transparent 75%)", WebkitMaskImage: "radial-gradient(60% 70% at 75% 20%, #000, transparent 75%)" }}
+          style={{
+            maskImage: "radial-gradient(60% 70% at 75% 20%, #000, transparent 75%)",
+            WebkitMaskImage: "radial-gradient(60% 70% at 75% 20%, #000, transparent 75%)",
+          }}
         />
         <div className="conteiner relative">
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,440px),1fr))] items-center gap-x-[clamp(32px,5vw,80px)] gap-y-10">
-            <div>
-              <nav aria-label="Trilha" className="mb-5 flex gap-2 text-[13px] text-[#7F90A8]">
-                <Link href="/" className="text-prata hover:text-white">
-                  Início
-                </Link>
-                <span aria-hidden="true">/</span>
-                <span aria-current="page" className="text-[#DCE4EF]">
-                  Turmas presenciais
-                </span>
-              </nav>
-              <h1 className="mb-[18px] font-display text-[clamp(2.4rem,5vw,4.2rem)] font-extrabold leading-[1.02] tracking-[-0.04em] [text-wrap:balance]">
-                {comNiveis || aba === TODOS ? "Escolha o seu nível de preparação" : aba === SEM_CARGO ? "Outras turmas presenciais" : `Turmas ${DESCRICAO_DO_CONCURSO[aba]?.titulo ?? aba}`}
-              </h1>
-              <p className="max-w-[520px] text-[clamp(16px,1.4vw,18px)] leading-[1.6] text-[#B4C1D3] [text-wrap:pretty]">
-                {aba === TODOS
-                  ? "As modalidades de todos os concursos, cada uma pensada para um momento diferente dos seus estudos."
-                  : comNiveis
-                  ? `Três modalidades, cada uma pensada para um momento diferente dos seus estudos.`
-                  : "Turma presencial com rotina estruturada, simulados nos moldes da banca e acompanhamento do seu desempenho."}
-              </p>
-            </div>
+          {modoBlack ? (
+            <TopoDaBlack cartoes={cartoes} aoEscolher={(id) => escolher(id, true)} />
+          ) : (
+            <>
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,440px),1fr))] items-center gap-x-[clamp(32px,5vw,80px)] gap-y-10">
+                <div>
+                  <nav aria-label="Trilha" className="mb-5 flex gap-2 text-[13px] text-[#7F90A8]">
+                    <Link href="/" className="text-prata hover:text-white">
+                      Início
+                    </Link>
+                    <span aria-hidden="true">/</span>
+                    <span aria-current="page" className="text-[#DCE4EF]">
+                      Turmas presenciais
+                    </span>
+                  </nav>
+                  <h1 className="mb-[18px] font-display text-[clamp(2.4rem,5vw,4.2rem)] font-extrabold leading-[1.02] tracking-[-0.04em] [text-wrap:balance]">
+                    {comNiveis || aba === TODOS
+                      ? "Escolha o seu nível de preparação"
+                      : aba === SEM_CARGO
+                        ? "Outras turmas presenciais"
+                        : `Turmas ${DESCRICAO_DO_CONCURSO[aba]?.titulo ?? aba}`}
+                  </h1>
+                  <p className="max-w-[520px] text-[clamp(16px,1.4vw,18px)] leading-[1.6] text-[#B4C1D3] [text-wrap:pretty]">
+                    {aba === TODOS
+                      ? "As modalidades de todos os concursos, cada uma pensada para um momento diferente dos seus estudos."
+                      : comNiveis
+                        ? `Três modalidades, cada uma pensada para um momento diferente dos seus estudos.`
+                        : "Turma presencial com rotina estruturada, simulados nos moldes da banca e acompanhamento do seu desempenho."}
+                  </p>
+                </div>
 
-            {/* Escolha do concurso: cada um com o seu brasão (ou as iniciais), nome por extenso e órgão. */}
-            <div className="relative rounded-[18px] border border-[rgba(111,174,255,0.2)] bg-[rgba(11,28,51,0.9)] p-[clamp(22px,2.4vw,30px)] shadow-[0_30px_60px_-30px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.05)]">
-              <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">Turmas presenciais</span>
-              <h2 id="escolha-do-concurso" className="mb-5 mt-1.5 font-display text-[clamp(20px,1.8vw,24px)] font-extrabold leading-[1.15] tracking-[-0.02em]">
-                Para qual concurso você quer se preparar?
-              </h2>
-              <div role="group" aria-labelledby="escolha-do-concurso" className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,200px),1fr))] gap-2.5">
-                {abas.map((a) => {
-                  const ligada = aba === a;
-                  const descricao = DESCRICAO_DO_CONCURSO[a];
-                  return (
-                    <button
-                      key={a}
-                      type="button"
-                      aria-pressed={ligada}
-                      onClick={() => trocarAba(a)}
-                      // Sem brasão ("Outros concursos"), o texto fica centralizado no cartão.
-                      className={`flex min-h-[76px] items-center gap-3 rounded-[12px] border px-3.5 py-3 transition-colors ${
-                        a === TODOS || a === SEM_CARGO ? "justify-center text-center" : "text-left"
-                      } ${
-                        ligada ? "border-azul-vivo bg-azul/[0.18] shadow-[0_0_0_3px_rgba(0,107,255,0.16)]" : "border-white/10 bg-white/[0.03] hover:border-white/25"
-                      }`}
-                    >
-                      <ImagemDoConcurso aba={a} />
-                      <span className="flex min-w-0 flex-col gap-0.5">
-                        <span className="font-display text-[16.5px] font-extrabold leading-tight text-white">{descricao?.titulo ?? a}</span>
-                        {descricao && <span className="text-[12.5px] leading-snug text-[#9FB0C7]">{descricao.subtitulo}</span>}
-                      </span>
-                    </button>
-                  );
-                })}
+                {/* Escolha do concurso: cada um com o seu brasão (ou as iniciais), nome por extenso e órgão. */}
+                <div className="relative rounded-[18px] border border-[rgba(111,174,255,0.2)] bg-[rgba(11,28,51,0.9)] p-[clamp(22px,2.4vw,30px)] shadow-[0_30px_60px_-30px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.05)]">
+                  <span className="text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">Turmas presenciais</span>
+                  <h2
+                    id="escolha-do-concurso"
+                    className="mb-5 mt-1.5 font-display text-[clamp(20px,1.8vw,24px)] font-extrabold leading-[1.15] tracking-[-0.02em]"
+                  >
+                    Para qual concurso você quer se preparar?
+                  </h2>
+                  <div role="group" aria-labelledby="escolha-do-concurso" className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,200px),1fr))] gap-2.5">
+                    {abas.map((a) => {
+                      const ligada = aba === a;
+                      const descricao = DESCRICAO_DO_CONCURSO[a];
+                      return (
+                        <button
+                          key={a}
+                          type="button"
+                          aria-pressed={ligada}
+                          onClick={() => trocarAba(a)}
+                          // Sem brasão ("Outros concursos"), o texto fica centralizado no cartão.
+                          className={`flex min-h-[76px] items-center gap-3 rounded-[12px] border px-3.5 py-3 transition-colors ${
+                            a === TODOS || a === SEM_CARGO ? "justify-center text-center" : "text-left"
+                          } ${
+                            ligada
+                              ? "border-azul-vivo bg-azul/[0.18] shadow-[0_0_0_3px_rgba(0,107,255,0.16)]"
+                              : "border-white/10 bg-white/[0.03] hover:border-white/25"
+                          }`}
+                        >
+                          <ImagemDoConcurso aba={a} />
+                          <span className="flex min-w-0 flex-col gap-0.5">
+                            <span className="font-display text-[16.5px] font-extrabold leading-tight text-white">{descricao?.titulo ?? a}</span>
+                            {descricao && <span className="text-[12.5px] leading-snug text-[#9FB0C7]">{descricao.subtitulo}</span>}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          {opcoes.length > 0 && (
-          // Com uma ou duas modalidades, os cartões ficam do tamanho dos da PMBA (um terço da largura), sem esticar.
-          // Com mais de três, rolam para o lado (FaixaDeModalidades), três por vez.
-          <FaixaDeModalidades
-            rolavel={opcoes.length > 3}
-            className={`mt-[clamp(40px,5vw,72px)] ${opcoes.length === 1 ? "max-w-[440px]" : opcoes.length === 2 ? "max-w-[900px]" : ""}`}
-          >
-            {opcoes.map((m) => {
-              const ligada = atual?.id === m.id;
-              return (
-                <button
-                  key={m.id}
-                  type="button"
-                  aria-pressed={ligada}
-                  aria-controls="turmas-modalidade"
-                  onClick={() => escolher(m.id, true)}
-                  className={`relative flex flex-col overflow-hidden rounded-[20px] p-[clamp(22px,2.2vw,30px)] text-left text-white transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-[3px] hover:border-[rgba(111,174,255,0.5)] ${
-                    ligada
-                      ? "border-[1.5px] border-azul-vivo bg-[linear-gradient(180deg,#12305A,#0B1C33_70%)] shadow-[0_0_0_4px_rgba(0,107,255,0.18),0_30px_60px_-30px_rgba(0,0,0,0.9)]"
-                      : "border border-white/[0.09] bg-[linear-gradient(180deg,#0F2645,#0B1C33_70%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_24px_50px_-32px_rgba(0,0,0,0.9)]"
-                  }`}
+              {opcoes.length > 0 && (
+                // Com uma ou duas modalidades, os cartões ficam do tamanho dos da PMBA (um terço da largura), sem esticar.
+                // Com mais de três, rolam para o lado (FaixaDeModalidades), três por vez.
+                <FaixaDeModalidades
+                  rolavel={opcoes.length > 3}
+                  className={`mt-[clamp(40px,5vw,72px)] ${opcoes.length === 1 ? "max-w-[440px]" : opcoes.length === 2 ? "max-w-[900px]" : ""}`}
                 >
-                  <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[clamp(110px,10vw,140px)] aspect-square w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(47,134,255,0.34),rgba(0,107,255,0.10)_60%,transparent)]" />
-                  <InsigniaDaTurma
-                    insignia={m.insignia}
-                    tamanho={240}
-                    sizes="230px"
-                    priority
-                    className="relative mx-auto mb-5 mt-1 block aspect-square h-auto w-[clamp(170px,15vw,230px)] [filter:drop-shadow(0_18px_28px_rgba(0,0,0,0.6))_drop-shadow(0_0_1px_rgba(170,210,255,0.5))]"
-                  />
-                  <span className="relative flex flex-wrap items-baseline justify-between gap-3">
-                    <span className="font-display text-[clamp(24px,2vw,28px)] font-extrabold tracking-[0.02em]">{m.nome}</span>
-                    {m.nivel && <span className="whitespace-nowrap text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">{m.nivel}</span>}
-                  </span>
-                  <span className="relative mb-5 mt-2.5 block flex-1 text-[15px] leading-[1.55] text-[#B4C1D3] [text-wrap:pretty]">{m.perfil ?? m.resumo}</span>
-                  {m.teoria !== undefined && <BarraDoMetodo teoria={m.teoria} />}
-                  <span className={`relative mt-[22px] inline-flex h-[46px] items-center justify-center gap-2 rounded-[10px] font-display text-[15px] font-bold ${ligada ? "bg-white/[0.08]" : "bg-azul"}`}>
-                    {ligada ? "Turmas exibidas abaixo" : "Ver turmas"}
-                    <SetaParaBaixo />
-                  </span>
-                </button>
-              );
-            })}
-          </FaixaDeModalidades>
+                  {opcoes.map((m) => {
+                    const ligada = atual?.id === m.id;
+                    return (
+                      <button
+                        key={m.id}
+                        type="button"
+                        aria-pressed={ligada}
+                        aria-controls="turmas-modalidade"
+                        onClick={() => escolher(m.id, true)}
+                        className={`relative flex flex-col overflow-hidden rounded-[20px] p-[clamp(22px,2.2vw,30px)] text-left text-white transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-[3px] hover:border-[rgba(111,174,255,0.5)] ${
+                          ligada
+                            ? "border-[1.5px] border-azul-vivo bg-[linear-gradient(180deg,#12305A,#0B1C33_70%)] shadow-[0_0_0_4px_rgba(0,107,255,0.18),0_30px_60px_-30px_rgba(0,0,0,0.9)]"
+                            : "border border-white/[0.09] bg-[linear-gradient(180deg,#0F2645,#0B1C33_70%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_24px_50px_-32px_rgba(0,0,0,0.9)]"
+                        }`}
+                      >
+                        <div
+                          aria-hidden="true"
+                          className="pointer-events-none absolute left-1/2 top-[clamp(110px,10vw,140px)] aspect-square w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(47,134,255,0.34),rgba(0,107,255,0.10)_60%,transparent)]"
+                        />
+                        <InsigniaDaTurma
+                          insignia={m.insignia}
+                          tamanho={240}
+                          sizes="230px"
+                          priority
+                          className="relative mx-auto mb-5 mt-1 block aspect-square h-auto w-[clamp(170px,15vw,230px)] [filter:drop-shadow(0_18px_28px_rgba(0,0,0,0.6))_drop-shadow(0_0_1px_rgba(170,210,255,0.5))]"
+                        />
+                        <span className="relative flex flex-wrap items-baseline justify-between gap-3">
+                          <span className="font-display text-[clamp(24px,2vw,28px)] font-extrabold tracking-[0.02em]">{m.nome}</span>
+                          {m.nivel && <span className="whitespace-nowrap text-xs font-bold uppercase tracking-[0.14em] text-azul-ceu">{m.nivel}</span>}
+                        </span>
+                        <span className="relative mb-5 mt-2.5 block flex-1 text-[15px] leading-[1.55] text-[#B4C1D3] [text-wrap:pretty]">
+                          {m.perfil ?? m.resumo}
+                        </span>
+                        {m.teoria !== undefined && <BarraDoMetodo teoria={m.teoria} />}
+                        <span
+                          className={`relative mt-[22px] inline-flex h-[46px] items-center justify-center gap-2 rounded-[10px] font-display text-[15px] font-bold ${ligada ? "bg-white/[0.08]" : "bg-azul"}`}
+                        >
+                          {ligada ? "Turmas exibidas abaixo" : "Ver turmas"}
+                          <SetaParaBaixo />
+                        </span>
+                      </button>
+                    );
+                  })}
+                </FaixaDeModalidades>
+              )}
+            </>
           )}
         </div>
       </section>
@@ -613,7 +783,7 @@ export default function EscolhaDeModalidade({
             </div>
           )}
           {opcoes.length === 0 ? (
-            <TurmasDoCargo key={aba} turmas={doCargo} aba={aba} />
+            <TurmasDoCargo key={aba} turmas={doCargo} aba={aba} black={modoBlack} />
           ) : !atual ? (
             <div className="flex flex-col items-center gap-2.5 rounded-[18px] border-[1.5px] border-dashed border-[#C9D3E0] px-5 py-[clamp(40px,5vw,64px)] text-center text-[#3E4A5E]">
               <span className="font-display text-[22px] font-extrabold text-tinta">Selecione uma modalidade</span>
@@ -625,7 +795,9 @@ export default function EscolhaDeModalidade({
                 <div className="flex items-center gap-4">
                   <InsigniaDaTurma insignia={atual.insignia} tamanho={84} sizes="84px" className="h-[84px] w-[84px] flex-none" />
                   <div className="flex flex-col gap-1">
-                    <span className="text-[11.5px] font-bold uppercase tracking-[0.14em] text-azul-ceu">{atual.nivel ?? (aba === TODOS ? "Turma presencial" : aba)}</span>
+                    <span className="text-[11.5px] font-bold uppercase tracking-[0.14em] text-azul-ceu">
+                      {atual.nivel ?? (aba === TODOS ? "Turma presencial" : aba)}
+                    </span>
                     <span className="font-display text-[28px] font-extrabold tracking-[0.02em]">{atual.nome}</span>
                   </div>
                 </div>
@@ -668,15 +840,18 @@ export default function EscolhaDeModalidade({
                   <h2 className="flex-auto text-xs font-semibold uppercase tracking-[0.14em] text-azul-forte">Turmas</h2>
                   {turnos.length > 1 && <Filtro rotulo="Turno" opcoes={turnos} atual={turno} onEscolher={setTurno} todos="Todos os turnos" />}
                 </div>
+                {modoBlack && visiveis.some((t) => t.black) && <LegendaDaBlack />}
 
                 {visiveis.length > 0 ? (
-                  visiveis.map((t) => <CartaoDaTurma key={t.slug} turma={t} titulo={t.nome} concurso={aba === TODOS ? t.concurso : undefined} />)
+                  visiveis.map((t) => (
+                    <CartaoDaTurma key={t.slug} turma={t} titulo={t.nome} concurso={aba === TODOS ? t.concurso : undefined} black={modoBlack} />
+                  ))
                 ) : (
                   <div className="flex flex-col items-start gap-3 rounded-2xl border border-linha bg-superficie shadow-cartao p-[clamp(24px,3vw,36px)]">
-                    <span className="inline-flex h-[26px] items-center rounded-full bg-nevoa-clara px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">Sem oferta no momento</span>
-                    <span className="font-display text-xl font-extrabold">
-                      Ainda não há turmas abertas nesta modalidade
+                    <span className="inline-flex h-[26px] items-center rounded-full bg-nevoa-clara px-2.5 text-xs font-bold uppercase tracking-[0.06em] text-[#4A5A70]">
+                      Sem oferta no momento
                     </span>
+                    <span className="font-display text-xl font-extrabold">Ainda não há turmas abertas nesta modalidade</span>
                     <span className="max-w-[560px] text-[15px] leading-[1.55] text-[#3E4A5E] [text-wrap:pretty]">
                       {atual.perfil ? `${atual.perfil} ${atual.metodo}` : "Avisamos pelo WhatsApp quando abrir uma turma."}
                     </span>
@@ -699,7 +874,7 @@ export default function EscolhaDeModalidade({
           {/* Turma da PMBA cadastrada sem nível no nome: continua à venda, embaixo. */}
           {comNiveis && doCargoSemNivel.length > 0 && (
             <div className="mt-[clamp(48px,6vw,80px)]">
-              <TurmasDoCargo turmas={doCargoSemNivel} aba={aba} />
+              <TurmasDoCargo turmas={doCargoSemNivel} aba={aba} black={modoBlack} />
             </div>
           )}
         </div>

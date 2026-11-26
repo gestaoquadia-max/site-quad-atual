@@ -19,6 +19,8 @@ export type Turma = {
   modalidadeId: string;
   // Turma isolada (tipo ISOLADA na API): curta, de um tema só ("DUPLA DOIS"). Em /turmas fica numa seção própria.
   isolada?: boolean;
+  // Marcada como Black no cadastro: no período da Black, vai em destaque em /turmas (EscolhaDeModalidade).
+  black?: boolean;
   concurso?: string;
   turno?: string;
   // Os blocos de horário de um dia de aula ("8h às 9h30 · 9h40 às 11h").

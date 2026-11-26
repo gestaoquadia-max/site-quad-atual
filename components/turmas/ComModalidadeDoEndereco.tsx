@@ -5,7 +5,7 @@ import type { Turma } from "@/lib/data";
 import EscolhaDeModalidade from "./EscolhaDeModalidade";
 
 // /turmas?m=patamo abre a página já com a modalidade escolhida (links da Home e do carrossel).
-export default function ComModalidadeDoEndereco({ turmas }: { turmas: Turma[] | null }) {
+export default function ComModalidadeDoEndereco({ turmas, emBlack }: { turmas: Turma[] | null; emBlack: boolean }) {
   const parametros = useSearchParams();
   const m = parametros.get("m");
   // Nível da PMBA ("rondesp") ou a modalidade de outro cargo ("investigador"); quem confere é a aba aberta.
@@ -13,5 +13,5 @@ export default function ComModalidadeDoEndereco({ turmas }: { turmas: Turma[] | 
   // /turmas?cargo=ipc-pcba abre na aba do cargo (sem ?cargo=, a primeira: SD • PMBA).
   const cargo = parametros.get("cargo");
   // Só vale ao abrir a página: depois, a escolha fica no estado do componente (e o endereço é atualizado por ele).
-  return <EscolhaDeModalidade turmas={turmas} inicial={inicial} cargoInicial={cargo} />;
+  return <EscolhaDeModalidade turmas={turmas} inicial={inicial} cargoInicial={cargo} emBlack={emBlack} />;
 }

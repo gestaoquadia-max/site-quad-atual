@@ -8,7 +8,7 @@ const IMG = "/images/black-friday";
 export type ConcursoDaBlack = {
   id: string;
   nome: string;
-  // Sem brasão (PCPE e CFO BM, ainda não enviados): um círculo com a sigla.
+  // Sem brasão: um círculo com a sigla.
   brasao: string | null;
   sigla: string;
   capa: string | null;
@@ -27,15 +27,30 @@ const PMPE = ["SDPMPE", "PMPE", "SOLDADOPMPE"];
 const PMAL = ["SDPMAL", "PMAL", "SOLDADOPMAL"];
 const SD_BM = ["SDBMBA", "SDCBMBA", "CBMBA", "BMBA", "SOLDADOBM", "SOLDADOBMBA", "SDBM"];
 
-// Tela do Combo de Simulados: os 7 concursos, na ordem da entrega.
+// Tela do Combo de Simulados: os 12 concursos, na ordem da prévia da designer de 26/11/2026 (Preview Site Dia 27).
+// Os códigos dos concursos novos são os prováveis do cadastro; o "COMBO DA BLACK SIMULADOS <CONCURSO>" do nome também
+// serve (concursoDoSimuladoDaBlack, lib/vitrine.ts). "PCPE" sozinho vai para o Agente, o primeiro dos três.
+const BRASOES = "/images/brasoes-concursos";
 export const CONCURSOS_DO_COMBO: ConcursoDaBlack[] = [
   { id: "sd-pmba", nome: "Soldado PMBA", sigla: "SD PMBA", brasao: `${IMG}/brasoes/sd-pmba.webp`, capa: `${IMG}/capas/simulado-sd-pmba.webp`, codigos: SD_PMBA },
   { id: "cfo-pmba", nome: "CFO PMBA", sigla: "CFO", brasao: `${IMG}/brasoes/cfo-pmba.webp`, capa: `${IMG}/capas/simulado-cfo.webp`, codigos: CFO_PMBA },
-  { id: "pmpe", nome: "PMPE", sigla: "PMPE", brasao: `${IMG}/brasoes/pmpe.webp`, capa: `${IMG}/capas/simulado-pmpe.webp`, codigos: PMPE },
-  { id: "pmal", nome: "PMAL", sigla: "PMAL", brasao: `${IMG}/brasoes/pmal.webp`, capa: `${IMG}/capas/simulado-pmal.webp`, codigos: PMAL },
-  { id: "pcpe", nome: "PCPE", sigla: "PCPE", brasao: null, capa: null, codigos: ["PCPE", "AGENTEPCPE", "INVESTIGADORPCPE"] },
+  { id: "pmpe", nome: "Soldado PMPE", sigla: "SD PMPE", brasao: `${IMG}/brasoes/pmpe.webp`, capa: `${IMG}/capas/simulado-pmpe.webp`, codigos: PMPE },
+  { id: "pmal", nome: "Soldado PMAL", sigla: "SD PMAL", brasao: `${IMG}/brasoes/pmal.webp`, capa: `${IMG}/capas/simulado-pmal.webp`, codigos: PMAL },
   { id: "sd-bm", nome: "Soldado BM", sigla: "SD BM", brasao: `${IMG}/brasoes/sd-bmba.webp`, capa: `${IMG}/capas/simulado-cbmba.webp`, codigos: SD_BM },
-  { id: "cfo-bm", nome: "CFO BM", sigla: "CFO BM", brasao: null, capa: null, codigos: ["CFOBM", "CFOBMBA", "CFOCBMBA"] },
+  { id: "cfo-bm", nome: "CFO BM", sigla: "CFO BM", brasao: `${IMG}/brasoes/sd-bmba.webp`, capa: `${IMG}/capas/simulado-cfo-bm.webp`, codigos: ["CFOBM", "CFOBMBA", "CFOCBMBA"] },
+  {
+    id: "agp-pcpe",
+    nome: "Agente PCPE",
+    sigla: "AGP PCPE",
+    brasao: `${BRASOES}/pcpe.png`,
+    capa: `${IMG}/capas/simulado-agp-pcpe.webp`,
+    codigos: ["AGPPCPE", "AGENTEPCPE", "AGENTEDEPOLICIAPCPE", "PCPE"],
+  },
+  { id: "epc-pcpe", nome: "Escrivão PCPE", sigla: "EPC PCPE", brasao: `${BRASOES}/pcpe.png`, capa: `${IMG}/capas/simulado-epc-pcpe.webp`, codigos: ["EPCPCPE", "ESCRIVAOPCPE"] },
+  { id: "dpc-pcpe", nome: "Delegado PCPE", sigla: "DPC PCPE", brasao: `${BRASOES}/pcpe.png`, capa: `${IMG}/capas/simulado-dpc-pcpe.webp`, codigos: ["DPCPCPE", "DELEGADOPCPE"] },
+  { id: "pppe", nome: "Polícia Penal PE", sigla: "PPPE", brasao: `${BRASOES}/pppe.png`, capa: `${IMG}/capas/simulado-pppe.webp`, codigos: ["PPPE", "POLICIAPENALPE", "PPENALPE", "AGPPPE"] },
+  { id: "pmpi", nome: "Soldado PMPI", sigla: "SD PMPI", brasao: `${BRASOES}/pmpi.png`, capa: `${IMG}/capas/simulado-pmpi.webp`, codigos: ["SDPMPI", "PMPI", "SOLDADOPMPI"] },
+  { id: "pmsp", nome: "Soldado PMSP", sigla: "SD PMSP", brasao: `${BRASOES}/pmsp.png`, capa: `${IMG}/capas/simulado-pmsp.webp`, codigos: ["SDPMSP", "PMSP", "SOLDADOPMSP"] },
 ];
 
 export type PreviaDoModulo = { materia: string; paginas: string[]; miniaturas: string[]; pdf: string; arquivo: string };

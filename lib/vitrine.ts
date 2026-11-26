@@ -373,6 +373,7 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
     modalidadeNome: colunas.modalidade ?? nomeLimpoDaTurma(a.nome),
     modalidadeId: slugDoNome(colunas.modalidade ?? a.nome),
     isolada: d.tipo === "ISOLADA",
+    black: a.black === true,
     concurso: colunas.cargo || colunas.concurso ? seloDoCargoEConcurso(colunas.cargo, colunas.concurso) : undefined,
     turno: turnos || undefined,
     horario: horario || undefined,
