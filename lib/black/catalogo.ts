@@ -76,7 +76,6 @@ export const TEXTOS = {
     tela: "Material teórico do seu concurso, organizado pelo edital. Leve o pacote com todos os módulos ou compre só as matérias que precisa.",
   },
   vade: { cartao: "Lei seca do edital com BIZU, ATENÇÃO NA PROVA, PEGADINHA FREQUENTE e RAIO-X." },
-  destaques: ["Acesso imediato após a compra", "Estude no celular, tablet ou computador"],
 };
 
 // As capas do leque dos cartões (na ordem: atrás à esquerda, atrás à direita, meio à esquerda, meio à direita, frente).

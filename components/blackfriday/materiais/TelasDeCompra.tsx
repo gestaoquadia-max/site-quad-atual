@@ -7,7 +7,6 @@ import type { MaterialDaBlack } from "@/lib/vitrine";
 import {
   BOTAO_LARANJA_BLACK,
   BotaoDoConcurso,
-  Destaques,
   PrecoDeAte,
   QuadroDaCapa,
   ROTULO_LARANJA,
@@ -84,7 +83,6 @@ export function TelaDoCombo({
       <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-[26px]">
         <Voltar aoVoltar={aoVoltar} />
         <Cabecalho titulo={TEXTOS.combo.titulo} texto={TEXTOS.combo.tela} />
-        <Destaques itens={TEXTOS.destaques} />
 
         <div className="flex flex-col gap-3">
           <span className={ROTULO_LARANJA}>1 · Escolha o concurso</span>

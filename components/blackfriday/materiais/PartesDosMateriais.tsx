@@ -150,23 +150,6 @@ export function BotaoDoConcurso({
   );
 }
 
-// "Material em PDF", "Acesso imediato após a compra" e "Estude no celular, tablet ou computador".
-export function Destaques({ itens }: { itens: string[] }) {
-  return (
-    <ul className="flex flex-wrap gap-2">
-      <li className="flex items-center gap-2 rounded-full border border-[rgba(242,90,12,0.55)] bg-[rgba(242,90,12,0.16)] px-3.5 py-2 font-display text-sm font-extrabold text-white">
-        <IconePdf className="h-[17px] w-[14px]" />
-        Material em PDF
-      </li>
-      {itens.map((t) => (
-        <li key={t} className="rounded-full border border-[#3A2E27] px-3.5 py-2 text-sm text-[#F3EEEA]">
-          {t}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 // "~~R$ 59,90~~ por" e o preço grande. Sem preço de antes na API, só o preço.
 export function PrecoDeAte({ por, de, prefixo = "por", grande = false }: { por: number; de: number | null; prefixo?: string; grande?: boolean }) {
   return (
