@@ -1,5 +1,7 @@
 import { mentorias, modalidades } from "@/lib/conteudo";
-import { listarEventos, listarExcursoes, listarMateriais, listarProfessores, listarTurmas } from "@/lib/vitrine";
+import { listarEventos, listarExcursoes, listarMateriais, listarMateriaisDaBlack, listarProfessores, listarTurmas } from "@/lib/vitrine";
+import { blackLiberada } from "@/lib/black/liberada";
+import CarrosselDaBlack from "@/components/home/CarrosselDaBlack";
 import { paraCartaoDeExcursao } from "@/lib/excursoes";
 import { insigniaDaModalidade } from "@/lib/turmas";
 import { dadosDaOrganizacao } from "@/lib/dados-estruturados";
@@ -72,13 +74,16 @@ function EsperaDaSecao({ area, titulo, className, children }: { area: AreaDoSite
 
 export default async function Home() {
   // A Loja saiu da Home (03/11/2026): fica só no menu, em /loja.
-  const [eventos, materiais, professores, turmas, excursoes] = await Promise.all([
+  const [eventos, materiais, professores, turmas, excursoes, black] = await Promise.all([
     listarEventos(),
     listarMateriais(),
     listarProfessores(),
     listarTurmas(),
     listarExcursoes(),
+    blackLiberada(),
   ]);
+  // Na Black (27 a 30/11, ou na prévia), o carrossel de Mentoria, Turmas e Materiais no lugar do topo de sempre.
+  const materiaisDaBlack = black ? await listarMateriaisDaBlack() : null;
   // As excursões para provas (lib/excursoes.ts) entram depois dos eventos, na ordem da data da viagem.
   const cartoesDeEvento = [CARTAO_DOS_SIMULADOS, ...(eventos ?? []).map(paraCartao), ...(excursoes ?? []).map(paraCartaoDeExcursao)];
 
@@ -87,7 +92,7 @@ export default async function Home() {
     <>
       <DadosEstruturados dados={dadosDaOrganizacao()} />
       {/* O carrossel (components/home/CarrosselDeDestaques.tsx) saiu da Home em 04/11/2026; os banners viraram os cartões "Agora no Quad". */}
-      <PrimeiroContato turmas={turmas} />
+      {black ? <CarrosselDaBlack turmas={turmas} materiais={materiaisDaBlack} /> : <PrimeiroContato turmas={turmas} />}
       <Onda para="claro" />
 
       <Secao className="bg-nevoa" espaco={ESPACO_JUNTO_DAS_ONDAS}>
