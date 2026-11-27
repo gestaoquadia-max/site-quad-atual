@@ -714,7 +714,8 @@ function concursoDoSimuladoDaBlack(a: AtividadeDaVitrine): { codigo: string; nom
   if (doCadastro && ehConcursoDoCombo(doCadastro.codigo)) return { codigo: doCadastro.codigo, nome: doCadastro.rotulo || doCadastro.nome };
   if (/^\s*combo da black/i.test(a.nome)) {
     const resto = a.nome
-      .replace(/^\s*combo da black(\s+simulados?)?/i, "")
+      // O cadastro de 27/11/2026 usa "COMBO DA BLACK 5 SIMULADOS SD PMPI": o número também sai.
+      .replace(/^\s*combo da black(\s+\d+)?(\s+simulados?)?/i, "")
       .replace(/^[\s\-–—:·]+/, "")
       .trim();
     if (resto) return { codigo: resto, nome: resto };
