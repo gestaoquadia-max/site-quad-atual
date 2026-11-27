@@ -8,8 +8,8 @@ import { cartoesDaBlack, vagasRestantes } from "@/components/turmas/TopoDaBlack"
 import { MODALIDADES_DA_BLACK } from "@/lib/black/turmas";
 import ContagemDaAbertura from "@/components/blackfriday/ContagemDaAbertura";
 
-// "Turmas presenciais: últimas vagas" na Home da Black (prévia da designer de 26/11/2026): um cartão por turma marcada como
-// Black e aberta (sem agrupar), com as vagas que restam, a barra, o preço de/por e "Garantir vaga". Tudo da API;
+// "Turmas presenciais: últimas vagas" na Home da Black (prévia da designer de 26/11/2026): um cartão por modalidade com
+// turma marcada como Black e aberta, com as vagas que restam, a barra, o preço de/por e "Garantir vaga". Tudo da API;
 // sem turma da Black aberta, a seção não aparece.
 
 const INSIGNIA_FIXA: Record<string, string> = {

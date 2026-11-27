@@ -8,8 +8,8 @@ import { SeloDaContagem } from "@/components/blackfriday/materiais/PartesDosMate
 import InsigniaDaTurma from "./InsigniaDaTurma";
 
 // O topo de /turmas no período da Black (prévia da designer de 26/11/2026, "Preview Site Dia 27", aba Turmas): o título
-// "Últimas vagas nas turmas presenciais", a contagem até o fim da Black e um cartão por turma marcada como Black no
-// cadastro (sem agrupar por modalidade: pedido de 27/11/2026). Vagas e preços vêm da API. Com todas esgotadas, o aviso
+// "Últimas vagas nas turmas presenciais", a contagem até o fim da Black e um cartão por modalidade com turma marcada
+// como Black no cadastro. Vagas e preços vêm da API. Com todas esgotadas, o aviso
 // "Vagas promocionais esgotadas" leva às Mentorias.
 
 export function vagasRestantes(t: Turma) {
@@ -30,20 +30,23 @@ export type CartaoDaBlack = {
 };
 
 export function cartoesDaBlack(daBlack: Turma[], todas: Turma[] | null): CartaoDaBlack[] {
-  // RONDESP, PATAMO e BOPE na ordem dos níveis; outras modalidades depois; na mesma modalidade, a ordem da API.
+  // Um cartão por modalidade (de volta ao agrupado: pedido de 27/11/2026), com as turmas da Black dela.
+  // RONDESP, PATAMO e BOPE na ordem dos níveis; outras modalidades depois, na ordem em que aparecem.
+  const ids = [...new Set(daBlack.map((t) => t.modalidadeId))];
   const ordem = (id: string) => modalidades.findIndex((m) => m.id === id) + 1 || 99;
-  return [...daBlack]
-    .sort((a, b) => ordem(a.modalidadeId) - ordem(b.modalidadeId))
-    .map((t) => {
-      const nivel = modalidades.find((m) => m.id === t.modalidadeId);
+  return ids
+    .sort((a, b) => ordem(a) - ordem(b))
+    .map((id) => {
+      const turmas = daBlack.filter((t) => t.modalidadeId === id);
+      const nivel = modalidades.find((m) => m.id === id);
       return {
-        id: t.slug,
-        slug: t.slug,
-        modalidadeId: t.modalidadeId,
-        nome: t.nome,
+        id,
+        slug: null,
+        modalidadeId: id,
+        nome: nivel?.nome ?? turmas[0].modalidadeNome,
         nivel: nivel?.nivel ?? null,
-        insignia: insigniaDaModalidade(todas, t.modalidadeId),
-        turmas: [t],
+        insignia: insigniaDaModalidade(todas, id),
+        turmas,
       };
     });
 }
@@ -113,7 +116,7 @@ function Cartao({ c, aoEscolher }: { c: CartaoDaBlack; aoEscolher: (id: string) 
           onClick={() => aoEscolher(c.modalidadeId)}
           className="btn-q mt-auto h-[54px] rounded-[14px] bg-[linear-gradient(180deg,#FF7A2E,#E5530A)] text-lg text-white shadow-[0_10px_26px_-8px_rgba(242,90,12,0.8)] hover:text-white"
         >
-          Ver as turmas
+          {esgotada ? `Ver as turmas da ${c.nome}` : `Garantir vaga na ${c.nome} →`}
         </button>
       )}
     </article>
