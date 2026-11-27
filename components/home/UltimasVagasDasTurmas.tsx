@@ -12,8 +12,8 @@ const ABRE_EM = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo"
   .format(ABERTURA_DA_BLACK)
   .replace(", ", " às ");
 
-// "Turmas presenciais: últimas vagas" na Home da Black (prévia da designer de 26/11/2026): um cartão por modalidade com
-// turma marcada como Black e aberta, com as vagas que restam, a barra, o preço de/por e "Garantir vaga". Tudo da API;
+// "Turmas presenciais: últimas vagas" na Home da Black (prévia da designer de 26/11/2026): um cartão por turma marcada como
+// Black e aberta (sem agrupar), com as vagas que restam, a barra, o preço de/por e "Garantir vaga". Tudo da API;
 // sem turma da Black aberta, a seção não aparece.
 
 const INSIGNIA_FIXA: Record<string, string> = {
@@ -82,7 +82,7 @@ export default function UltimasVagasDasTurmas({ turmas, antesDaAbertura = false 
             const restam = vagas.every((v) => v !== null) ? vagas.reduce<number>((s, v) => s + (v ?? 0), 0) : null;
             const total = c.turmas.reduce((s, t) => s + (t.detalhe?.vagasTotal ?? 0), 0);
             const pct = restam !== null && total ? Math.round(((total - restam) / total) * 100) : null;
-            const insignia = INSIGNIA_FIXA[c.id] ?? insigniaDaModalidade(turmas, c.id);
+            const insignia = INSIGNIA_FIXA[c.modalidadeId] ?? insigniaDaModalidade(turmas, c.modalidadeId);
             const preco = ref.preco === "Consulte" ? null : ref.preco;
             return (
               <article key={c.id} className="flex items-center gap-5 rounded-[20px] border border-[#2E241E] bg-[#17120F] p-[clamp(18px,2vw,24px)]">
@@ -122,7 +122,10 @@ export default function UltimasVagasDasTurmas({ turmas, antesDaAbertura = false 
                         (preco ?? "Valor a confirmar")
                       )}
                     </span>
-                    <Link href={`/turmas?m=${c.id}`} className="whitespace-nowrap font-display text-[15px] font-extrabold text-[#FF7A2E] hover:text-[#FFB27A]">
+                    <Link
+                      href={c.slug ? `/turmas/${c.slug}` : `/turmas?m=${c.modalidadeId}`}
+                      className="whitespace-nowrap font-display text-[15px] font-extrabold text-[#FF7A2E] hover:text-[#FFB27A]"
+                    >
                       Garantir vaga →
                     </Link>
                   </div>

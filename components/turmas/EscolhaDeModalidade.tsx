@@ -577,7 +577,7 @@ export default function EscolhaDeModalidade({
   const abas = abasDasTurmas(turmas);
   const [aba, setAba] = useState<string>(() => (modoBlack ? TODOS : (abas.find((a) => idDaAba(a) === cargoInicial) ?? abas[0])));
   // Na Black, sem ?m= no endereço, a lista já abre na primeira modalidade com turma da Black.
-  const [selecionada, setSelecionada] = useState<string | null>(inicial ?? (cartoes[0]?.id || null));
+  const [selecionada, setSelecionada] = useState<string | null>(inicial ?? (cartoes[0]?.modalidadeId || null));
   const [turno, setTurno] = useState<string | null>(null);
   const secaoDasTurmas = useRef<HTMLElement>(null);
   const topo = useRef<HTMLElement>(null);

@@ -122,7 +122,17 @@ function SlideDasTurmas({ turmas, todas }: { turmas: Turma[]; todas: Turma[] | n
   const comVaga = cartoesDaBlack(turmas, todas).filter((c) => c.turmas.some((t) => t.status === "aberta"));
   // Sem turma da Black aberta (antes da abertura, na prévia): os três níveis, sem vagas nem preço.
   const emBreve = comVaga.length === 0;
-  const cartoes = emBreve ? MODALIDADES_DA_BLACK.map((m) => ({ id: m.id as string, nome: m.nome, nivel: m.nivel, insignia: null, turmas: [] as Turma[] })) : comVaga;
+  const cartoes = emBreve
+    ? MODALIDADES_DA_BLACK.map((m) => ({
+        id: m.id as string,
+        slug: null,
+        modalidadeId: m.id as string,
+        nome: m.nome,
+        nivel: m.nivel,
+        insignia: null,
+        turmas: [] as Turma[],
+      }))
+    : comVaga;
   const [escolhida, setEscolhida] = useState(0);
   const c = cartoes[Math.min(escolhida, cartoes.length - 1)];
   const ref = c.turmas.find((t) => t.status === "aberta") ?? c.turmas[0] ?? null;
@@ -143,7 +153,7 @@ function SlideDasTurmas({ turmas, todas }: { turmas: Turma[]; todas: Turma[] | n
                 : lado === 0
                   ? "translateX(-50%) translateX(-160px) translateY(60px) rotateY(32deg) scale(.72)"
                   : "translateX(-50%) translateX(160px) translateY(60px) rotateY(-32deg) scale(.72)";
-              const src = insignia(x.id);
+              const src = insignia(x.modalidadeId);
               return src ? (
                 <Image
                   key={x.id}
@@ -179,7 +189,7 @@ function SlideDasTurmas({ turmas, todas }: { turmas: Turma[]; todas: Turma[] | n
                 const restam = x.turmas.map(vagasRestantes);
                 const soma = !emBreve && restam.every((v) => v !== null) ? restam.reduce<number>((s, v) => s + (v ?? 0), 0) : null;
                 const ligada = x.id === c.id;
-                const src = insignia(x.id);
+                const src = insignia(x.modalidadeId);
                 return (
                   <button
                     key={x.id}
@@ -212,7 +222,7 @@ function SlideDasTurmas({ turmas, todas }: { turmas: Turma[]; todas: Turma[] | n
                 </span>
               </div>
             )}
-            <Link href={`/turmas?m=${c.id}`} className={BOTAO}>
+            <Link href={c.slug ? `/turmas/${c.slug}` : `/turmas?m=${c.modalidadeId}`} className={BOTAO}>
               {emBreve ? `Ver as turmas da ${c.nome}` : `Garantir vaga na ${c.nome}`} <Seta />
             </Link>
             <RodapeDoQuadro />
@@ -391,7 +401,10 @@ export default function CarrosselDaBlack({
           }}
         />
         {/* O fundo se apaga até a cor das seções de baixo (#120F0D), sem corte no fim do carrossel (pedido de 27/11/2026). */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-48 bg-[linear-gradient(180deg,rgba(18,15,13,0)_0%,#120F0D_100%)]" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-48 bg-[linear-gradient(180deg,rgba(18,15,13,0)_0%,#120F0D_100%)]"
+        />
         <div
           key={slide.id}
           role="group"

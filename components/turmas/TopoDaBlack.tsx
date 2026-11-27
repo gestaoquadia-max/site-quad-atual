@@ -8,27 +8,43 @@ import { SeloDaContagem } from "@/components/blackfriday/materiais/PartesDosMate
 import InsigniaDaTurma from "./InsigniaDaTurma";
 
 // O topo de /turmas no período da Black (prévia da designer de 26/11/2026, "Preview Site Dia 27", aba Turmas): o título
-// "Últimas vagas nas turmas presenciais", a contagem até o fim da Black e um cartão por modalidade com turma marcada
-// como Black no cadastro. Vagas e preços vêm da API (as turmas da Black); sem turma da Black, a modalidade não aparece.
-// Com todas esgotadas, o aviso "Vagas promocionais esgotadas" leva às Mentorias.
+// "Últimas vagas nas turmas presenciais", a contagem até o fim da Black e um cartão por turma marcada como Black no
+// cadastro (sem agrupar por modalidade: pedido de 27/11/2026). Vagas e preços vêm da API. Com todas esgotadas, o aviso
+// "Vagas promocionais esgotadas" leva às Mentorias.
 
 export function vagasRestantes(t: Turma) {
   const total = t.detalhe?.vagasTotal;
   return total === undefined ? null : total - (t.detalhe?.vagasOcupadas ?? 0);
 }
 
-type CartaoDaBlack = { id: string; nome: string; nivel: string | null; insignia: string | null; turmas: Turma[] };
+// id: o slug da turma (a página de compra é /turmas/<slug>); sem turma (a prévia antes da abertura), o id da modalidade.
+// turmas: a própria turma (ou nenhuma, na prévia), para as contas de vagas e preço.
+export type CartaoDaBlack = {
+  id: string;
+  slug: string | null;
+  modalidadeId: string;
+  nome: string;
+  nivel: string | null;
+  insignia: string | null;
+  turmas: Turma[];
+};
 
 export function cartoesDaBlack(daBlack: Turma[], todas: Turma[] | null): CartaoDaBlack[] {
-  const ids = [...new Set(daBlack.map((t) => t.modalidadeId))];
-  // RONDESP, PATAMO e BOPE na ordem dos níveis; outras modalidades depois, na ordem em que aparecem.
+  // RONDESP, PATAMO e BOPE na ordem dos níveis; outras modalidades depois; na mesma modalidade, a ordem da API.
   const ordem = (id: string) => modalidades.findIndex((m) => m.id === id) + 1 || 99;
-  return ids
-    .sort((a, b) => ordem(a) - ordem(b))
-    .map((id) => {
-      const turmas = daBlack.filter((t) => t.modalidadeId === id);
-      const nivel = modalidades.find((m) => m.id === id);
-      return { id, nome: nivel?.nome ?? turmas[0].modalidadeNome, nivel: nivel?.nivel ?? null, insignia: insigniaDaModalidade(todas, id), turmas };
+  return [...daBlack]
+    .sort((a, b) => ordem(a.modalidadeId) - ordem(b.modalidadeId))
+    .map((t) => {
+      const nivel = modalidades.find((m) => m.id === t.modalidadeId);
+      return {
+        id: t.slug,
+        slug: t.slug,
+        modalidadeId: t.modalidadeId,
+        nome: t.nome,
+        nivel: nivel?.nivel ?? null,
+        insignia: insigniaDaModalidade(todas, t.modalidadeId),
+        turmas: [t],
+      };
     });
 }
 
@@ -83,13 +99,23 @@ function Cartao({ c, aoEscolher }: { c: CartaoDaBlack; aoEscolher: (id: string) 
         )}
         <span className="font-display text-[52px] font-extrabold leading-none tracking-[-0.045em]">{preco ?? "A confirmar"}</span>
       </div>
-      <button
-        type="button"
-        onClick={() => aoEscolher(c.id)}
-        className="btn-q mt-auto h-[54px] rounded-[14px] bg-[linear-gradient(180deg,#FF7A2E,#E5530A)] text-lg text-white shadow-[0_10px_26px_-8px_rgba(242,90,12,0.8)] hover:text-white"
-      >
-        {esgotada ? `Ver as turmas da ${c.nome}` : `Garantir vaga na ${c.nome} →`}
-      </button>
+      {/* À venda: a página de compra da turma. Esgotada: a lista da modalidade, mais abaixo. */}
+      {!esgotada && c.slug ? (
+        <Link
+          href={`/turmas/${c.slug}`}
+          className="btn-q mt-auto h-[54px] rounded-[14px] bg-[linear-gradient(180deg,#FF7A2E,#E5530A)] text-lg text-white shadow-[0_10px_26px_-8px_rgba(242,90,12,0.8)] hover:text-white"
+        >
+          Garantir vaga →
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={() => aoEscolher(c.modalidadeId)}
+          className="btn-q mt-auto h-[54px] rounded-[14px] bg-[linear-gradient(180deg,#FF7A2E,#E5530A)] text-lg text-white shadow-[0_10px_26px_-8px_rgba(242,90,12,0.8)] hover:text-white"
+        >
+          Ver as turmas
+        </button>
+      )}
     </article>
   );
 }

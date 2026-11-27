@@ -1,7 +1,7 @@
 import { mentorias, modalidades } from "@/lib/conteudo";
 import { listarEventos, listarExcursoes, listarMateriais, listarMateriaisDaBlack, listarProfessores, listarTurmas } from "@/lib/vitrine";
 import { blackLiberada } from "@/lib/black/liberada";
-import { dentroDaBlack } from "@/lib/black/periodo";
+import { vendasAbertas } from "@/lib/black/periodo";
 import CarrosselDaBlack from "@/components/home/CarrosselDaBlack";
 import UltimasVagasDasTurmas from "@/components/home/UltimasVagasDasTurmas";
 import { FaixaDaBlack, MentoriaDaHome } from "@/components/home/HomeDaBlack";
@@ -95,7 +95,7 @@ export default async function Home() {
   // aprovados, com a faixa "BLACK FRIDAY 27/11 OFERTAS DO QUAD" entre as seções no lugar das ondas.
   if (black) {
     // Na prévia antes da abertura, Turmas e Materiais aparecem sem preço nem vagas, com a hora em que abrem.
-    const antesDaAbertura = !dentroDaBlack();
+    const antesDaAbertura = !vendasAbertas();
     return (
       // data-fim-escuro: a página termina no escuro, e a onda do rodapé (que vem do claro) some (app/globals.css).
       <div data-fim-escuro className="bg-[#120F0D] text-white">
