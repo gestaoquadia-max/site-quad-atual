@@ -64,14 +64,20 @@ export function TelaDoCombo({
     const c = CONCURSOS_DO_COMBO.find((x) => x.id === id);
     return c ? (doConcurso(combos, c)[0] ?? null) : null;
   };
-  const [escolhido, setEscolhido] = useState<string | null>(concursoInicial && CONCURSOS_DO_COMBO.some((c) => c.id === concursoInicial) ? concursoInicial : null);
+  const [escolhido, setEscolhido] = useState<string | null>(
+    concursoInicial && CONCURSOS_DO_COMBO.some((c) => c.id === concursoInicial) ? concursoInicial : null,
+  );
   const concurso = CONCURSOS_DO_COMBO.find((c) => c.id === escolhido) ?? null;
   const produto = escolhido ? produtoDe(escolhido) : null;
   // O preço é sempre o do combo do concurso escolhido (pedido de 26/11/2026): antes de escolher, ou num concurso sem
   // combo, não aparece preço nenhum (antes vinha o menor preço entre os concursos, de outro produto).
   const referencia = produto;
 
-  const rotuloDoBotao = !concurso ? "Escolha o concurso para continuar" : !produto || !produto.aVenda ? "Em breve para este concurso" : "Adicionar ao carrinho →";
+  const rotuloDoBotao = !concurso
+    ? "Escolha o concurso para continuar"
+    : !produto || !produto.aVenda
+      ? "Em breve para este concurso"
+      : "Adicionar ao carrinho →";
 
   return (
     <div className="flex flex-wrap items-start gap-8">
@@ -146,7 +152,11 @@ export function TelaDosModulos({
   const [vendoPrevia, setVendoPrevia] = useState(false);
 
   const concurso = CONCURSOS_DOS_MODULOS.find((c) => c.id === escolhido) ?? null;
-  const doTipo = (tipo: MaterialDaBlack["tipo"], c: (typeof CONCURSOS_DOS_MODULOS)[number]) => doConcurso(materiais.filter((m) => m.tipo === tipo), c);
+  const doTipo = (tipo: MaterialDaBlack["tipo"], c: (typeof CONCURSOS_DOS_MODULOS)[number]) =>
+    doConcurso(
+      materiais.filter((m) => m.tipo === tipo),
+      c,
+    );
   const temProduto = (c: (typeof CONCURSOS_DOS_MODULOS)[number]) => doTipo("pacote", c).length > 0 || doTipo("modulo", c).length > 0;
 
   const pacote = concurso ? (doTipo("pacote", concurso)[0] ?? null) : null;
@@ -185,7 +195,9 @@ export function TelaDosModulos({
         ? "Escolha como quer comprar"
         : forma === "avulso" && selecionados.length === 0
           ? "Selecione ao menos um módulo"
-          : "Adicionar ao carrinho →";
+          : forma === "pacote" && pacote?.comboSlug
+            ? "Comprar o pacote →"
+            : "Adicionar ao carrinho →";
   const podeAdicionar = !!concurso && ((forma === "pacote" && !!pacote?.aVenda) || (forma === "avulso" && selecionados.length > 0));
 
   function adicionarAoCarrinho() {
@@ -241,8 +253,20 @@ export function TelaDosModulos({
         {concurso && (
           <div className="flex flex-wrap items-center gap-4 rounded-[18px] border border-dashed border-[#5A4536] bg-breu-800 px-5 py-[18px]">
             <div aria-hidden="true" className="flex flex-none">
-              <Image src={concurso.previa.miniaturas[0]} alt="" width={44} height={62} className="h-[62px] w-11 -rotate-6 rounded-[3px] object-cover shadow-[0_8px_14px_-6px_rgba(0,0,0,0.7)]" />
-              <Image src={concurso.previa.miniaturas[1]} alt="" width={44} height={62} className="-ml-3.5 h-[62px] w-11 rotate-[5deg] rounded-[3px] object-cover shadow-[0_8px_14px_-6px_rgba(0,0,0,0.7)]" />
+              <Image
+                src={concurso.previa.miniaturas[0]}
+                alt=""
+                width={44}
+                height={62}
+                className="h-[62px] w-11 -rotate-6 rounded-[3px] object-cover shadow-[0_8px_14px_-6px_rgba(0,0,0,0.7)]"
+              />
+              <Image
+                src={concurso.previa.miniaturas[1]}
+                alt=""
+                width={44}
+                height={62}
+                className="-ml-3.5 h-[62px] w-11 rotate-[5deg] rounded-[3px] object-cover shadow-[0_8px_14px_-6px_rgba(0,0,0,0.7)]"
+              />
             </div>
             <div className="flex min-w-0 flex-[1_1_220px] flex-col gap-1">
               <b className="font-display text-[17px] font-extrabold text-white">Quer conhecer o módulo antes de comprar?</b>
@@ -251,7 +275,11 @@ export function TelaDosModulos({
               </span>
             </div>
             <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => setVendoPrevia(true)} className="btn-q h-11 rounded-[11px] bg-white px-4 text-[14.5px] text-[#B8410A] hover:bg-[#FFF3EC]">
+              <button
+                type="button"
+                onClick={() => setVendoPrevia(true)}
+                className="btn-q h-11 rounded-[11px] bg-white px-4 text-[14.5px] text-[#B8410A] hover:bg-[#FFF3EC]"
+              >
                 Ver prévia
               </button>
               <a
@@ -259,7 +287,17 @@ export function TelaDosModulos({
                 download={concurso.previa.arquivo}
                 className="btn-q h-11 gap-2 rounded-[11px] border border-[#4A3B32] px-4 text-[14.5px] text-white hover:border-white/50 hover:text-white"
               >
-                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  aria-hidden="true"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M12 3v12m0 0-5-5m5 5 5-5M4 21h16" />
                 </svg>
                 Baixar prévia (PDF)
@@ -272,10 +310,18 @@ export function TelaDosModulos({
           <div className="flex flex-col gap-3">
             <span className={ROTULO_LARANJA}>2 · Como você quer comprar</span>
             <div className="flex flex-wrap gap-3">
-              <button type="button" aria-pressed={forma === "pacote"} disabled={!pacote} onClick={() => setForma("pacote")} className={opcao(forma === "pacote", !!pacote)}>
+              <button
+                type="button"
+                aria-pressed={forma === "pacote"}
+                disabled={!pacote}
+                onClick={() => setForma("pacote")}
+                className={opcao(forma === "pacote", !!pacote)}
+              >
                 <span className="flex items-center justify-between gap-2">
                   <b className="font-display text-lg font-extrabold">Todos os módulos</b>
-                  {economia !== null && <span className="whitespace-nowrap rounded-lg bg-laranja px-2 py-[3px] font-display text-[12px] font-extrabold">economize {economia}%</span>}
+                  {economia !== null && (
+                    <span className="whitespace-nowrap rounded-lg bg-laranja px-2 py-[3px] font-display text-[12px] font-extrabold">economize {economia}%</span>
+                  )}
                 </span>
                 <span className="text-sm leading-[1.4] text-[#D6CCC5]">{pacote ? `Pacote completo do ${concurso.nome}` : "Pacote em breve"}</span>
                 {pacote && <b className="mt-1 font-display text-[22px] font-extrabold">{emReais(pacote.preco)}</b>}
@@ -288,7 +334,9 @@ export function TelaDosModulos({
                 className={opcao(forma === "avulso", modulos.length > 0)}
               >
                 <b className="font-display text-lg font-extrabold">Módulos avulsos</b>
-                <span className="text-sm leading-[1.4] text-[#D6CCC5]">{modulos.length ? "Escolha só as matérias que você precisa" : "Módulos avulsos em breve"}</span>
+                <span className="text-sm leading-[1.4] text-[#D6CCC5]">
+                  {modulos.length ? "Escolha só as matérias que você precisa" : "Módulos avulsos em breve"}
+                </span>
                 {menorAvulso !== null && (
                   <b className="mt-1 font-display text-[22px] font-extrabold">
                     {avulsosIguais ? `${emReais(menorAvulso)} cada` : `a partir de ${emReais(menorAvulso)}`}

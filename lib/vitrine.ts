@@ -5,6 +5,7 @@
 import type { Evento, Produto, Professor, Turma } from "./data";
 import type { ProdutoDaLoja } from "./conteudo";
 import type { Carreira, Edicao } from "./simulados";
+import type { Combo } from "./combos";
 import { formatarHora, parsePreco, precoSemCentavosZerados } from "./format";
 import { API_URL, lerErro } from "./http";
 import { CONCURSOS_DO_COMBO, codigoNormalizado } from "./black/catalogo";
@@ -342,12 +343,7 @@ function paraTurma(a: AtividadeDaVitrine): Turma {
   const vagas = vagasDa(a);
   const horario = horarioDoDia(horariosDa(d));
 
-  const resumo = [
-    turnos,
-    d.inicio && `Início ${diaBarraMes(d.inicio)}`,
-    duracao,
-    vagas.vagasTotal && `${vagas.vagasTotal} vagas`,
-  ].filter(Boolean);
+  const resumo = [turnos, d.inicio && `Início ${diaBarraMes(d.inicio)}`, duracao, vagas.vagasTotal && `${vagas.vagasTotal} vagas`].filter(Boolean);
 
   const specs = [
     d.inicio && { label: "Início", valor: diaEMes(d.inicio) },
@@ -445,9 +441,7 @@ function paraOferta(a: AtividadeDaVitrine): OfertaDaTurma {
     precoCheioEmCentavos: precoCheioDa(a),
     restantesNoLote: restantesNoLoteDa(a.lote),
     loteAtual:
-      a.lote && a.lote.total > 1
-        ? { ordem: a.lote.ordem, total: a.lote.total, quantidade: a.lote.quantidade, restantes: a.lote.restantesNoLote }
-        : null,
+      a.lote && a.lote.total > 1 ? { ordem: a.lote.ordem, total: a.lote.total, quantidade: a.lote.quantidade, restantes: a.lote.restantesNoLote } : null,
     // Com mais de um lote: cada um com preço e vagas, para a barra por lote.
     lotes:
       (a.lotes?.length ?? 0) > 1
@@ -540,7 +534,7 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
         ? { nome: "Online", endereco: "O link de acesso fica na área do aluno de quem se inscrever." }
         : d.endereco
           ? { nome: "Fora do Quad", endereco: d.endereco }
-            : {
+          : {
               nome: d.sala?.nome ? `Quad Concursos — ${d.sala.nome}` : "Quad Concursos — Feira de Santana",
               endereco: "Feira de Santana — BA · Endereço completo enviado por e-mail após a inscrição",
             },
@@ -595,9 +589,7 @@ function agruparOpcoes(eventos: Evento[]): Evento[] {
 
 // Todos os cadastros de evento, com as opções de cada um ligadas (o carrinho e a página de cada opção usam).
 async function listarTodosOsEventos(): Promise<Evento[]> {
-  return agruparOpcoes((await listar("EVENTO")).map(paraEvento)).sort((a, b) =>
-    (a.detalhe?.inicio ?? "9999").localeCompare(b.detalhe?.inicio ?? "9999"),
-  );
+  return agruparOpcoes((await listar("EVENTO")).map(paraEvento)).sort((a, b) => (a.detalhe?.inicio ?? "9999").localeCompare(b.detalhe?.inicio ?? "9999"));
 }
 
 // Agenda: só os eventos, do mais próximo ao mais distante. Os simulados ficam na Central de Simulados (listarCarreiras).
@@ -721,7 +713,10 @@ function concursoDoSimuladoDaBlack(a: AtividadeDaVitrine): { codigo: string; nom
   const doCadastro = a.detalhe?.concurso;
   if (doCadastro && ehConcursoDoCombo(doCadastro.codigo)) return { codigo: doCadastro.codigo, nome: doCadastro.rotulo || doCadastro.nome };
   if (/^\s*combo da black/i.test(a.nome)) {
-    const resto = a.nome.replace(/^\s*combo da black(\s+simulados?)?/i, "").replace(/^[\s\-–—:·]+/, "").trim();
+    const resto = a.nome
+      .replace(/^\s*combo da black(\s+simulados?)?/i, "")
+      .replace(/^[\s\-–—:·]+/, "")
+      .trim();
     if (resto) return { codigo: resto, nome: resto };
   }
   return doCadastro ? { codigo: doCadastro.codigo, nome: doCadastro.rotulo || doCadastro.nome } : null;
@@ -928,7 +923,10 @@ function paraMaterial(itens: ItemDaVitrine[]): Produto {
   const ofertas = Object.fromEntries(
     formatos.map((f) => {
       const { item, oferta } = porFormato.get(f)!;
-      return [f, { slug: slugDa(item), idNaApi: item.id, preco: precoEmTexto(emReais(oferta.preco)), esgotado: oferta.esgotado, indisponivel: oferta.indisponivel }];
+      return [
+        f,
+        { slug: slugDa(item), idNaApi: item.id, preco: precoEmTexto(emReais(oferta.preco)), esgotado: oferta.esgotado, indisponivel: oferta.indisponivel },
+      ];
     }),
   ) as Produto["ofertas"];
   const aVenda = (f: FormatoDoMaterial) => !ofertas![f]!.esgotado && !ofertas![f]!.indisponivel;
@@ -947,7 +945,7 @@ function paraMaterial(itens: ItemDaVitrine[]): Produto {
     slug: slugDa(principal),
     ...(vendaAte && { vendaAte }),
     idNaApi: principal.id,
-    tag: `${kit ? "Kit" : principal.material?.categoria?.nome ?? "Apostila"} · ${rotuloDosFormatos}`,
+    tag: `${kit ? "Kit" : (principal.material?.categoria?.nome ?? "Apostila")} · ${rotuloDosFormatos}`,
     nome: nomeSemFormato(principal.nome),
     desc: descricao,
     preco: primeiro ? ofertas![primeiro]!.preco : "",
@@ -1082,6 +1080,9 @@ export type MaterialDaBlack = {
   imagem: string | null;
   // true no combo cadastrado como simulado em PDF: vai ao carrinho como a atividade SIMULADO, não como item da loja.
   simulado: boolean;
+  // O pacote de módulos cadastrado como combo da loja (27/11/2026): não entra no carrinho; a compra é a página do
+  // fechamento do combo (/checkout/combo/<comboSlug>). null nos outros.
+  comboSlug: string | null;
 };
 
 // O cartão pelo começo do nome da categoria: o cadastro usa nomes como "Módulo de Teoria" (26/11/2026), não só "Módulo".
@@ -1122,6 +1123,7 @@ export async function listarMateriaisDaBlack(): Promise<MaterialDaBlack[] | null
         aVenda: !digital.indisponivel,
         imagem: i.imagemUrl,
         simulado: false,
+        comboSlug: null,
       });
     }
     // O Combo de Simulados da Black foi cadastrado como simulado em PDF marcado como Black (25/11/2026), não como
@@ -1141,6 +1143,33 @@ export async function listarMateriaisDaBlack(): Promise<MaterialDaBlack[] | null
         aVenda: true,
         imagem: a.imagemUrl,
         simulado: true,
+        comboSlug: null,
+      });
+    }
+    // Os pacotes de módulos da Black foram cadastrados como combos da loja (27/11/2026), sem o concurso: ele vem do nome,
+    // "PACOTE DE MÓDULOS <CONCURSO>" ("SD PMPE"). Mesmo endereço e cache da vitrine dos combos (lib/combos.ts).
+    const combos = await lerDaVitrine<{ conteudo: (Combo & { black?: boolean })[] }>("/api/loja/vitrine/combos?tamanho=100");
+    for (const c of combos === NAO_ENCONTRADA ? [] : combos.conteudo) {
+      if (c.black !== true || !/^s*pacote de m[oó]dulos/i.test(c.nome)) continue;
+      const resto = c.nome
+        .replace(/^s*pacote de m[oó]duloss*/i, "")
+        .replace(/^[s-–—:·]+/, "")
+        .trim();
+      const preco = c.aPagarEmCentavos ?? c.precoEmCentavos;
+      if (!resto || !preco || preco <= 0) continue;
+      lista.push({
+        idNaApi: c.id,
+        slug: c.slug,
+        tipo: "pacote",
+        nome: c.nome.trim(),
+        materia: null,
+        concurso: { codigo: resto, nome: resto },
+        preco,
+        precoCheio: c.precoCheioEmCentavos && c.precoCheioEmCentavos > preco ? c.precoCheioEmCentavos : null,
+        aVenda: c.disponivel,
+        imagem: c.imagemUrl,
+        simulado: false,
+        comboSlug: c.slug,
       });
     }
     return lista;
@@ -1231,7 +1260,10 @@ type ProfessorDaVitrine = {
 // A minibio é a graduação do cadastro. "Sem graduação" (o padrão do console) não é minibio: o site não mostra.
 // Várias linhas (uma formação por linha) viram uma frase: "Graduação em Direito · Pós em Direito Civil".
 function minibioDa(graduacao: string | null) {
-  const linhas = (graduacao ?? "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const linhas = (graduacao ?? "")
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
   if (linhas.length === 0 || (linhas.length === 1 && /^sem gradua/i.test(linhas[0]))) return undefined;
   return linhas.join(" · ");
 }

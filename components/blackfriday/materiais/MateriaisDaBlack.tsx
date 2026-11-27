@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Trilha from "@/components/Trilha";
 import { useCart } from "@/lib/cart";
 import { idDoItem } from "@/lib/itens";
@@ -141,30 +142,34 @@ export default function MateriaisDaBlack({ materiais }: { materiais: MaterialDaB
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  const router = useRouter();
   const adicionar: Adicionar = (m, nome, tag) =>
-    addItem(
-      m.simulado
-        ? // O combo cadastrado como simulado em PDF: a atividade SIMULADO, com o id que as sugestões também usam.
-          {
-            id: `simulado:${m.idNaApi}:pdf`,
-            tipo: "simulado",
-            nome,
-            tag,
-            preco: emReais(m.preco),
-            alvo: { atividade: { tipo: "SIMULADO", id: m.idNaApi } },
-            imagem: m.imagem ?? undefined,
-          }
-        : {
-            id: idDoItem("produto", m.slug),
-            tipo: "produto",
-            nome,
-            tag,
-            preco: emReais(m.preco),
-            formato: "digital",
-            alvo: { itemId: m.idNaApi, plataforma: "DIGITAL" },
-            imagem: m.imagem ?? undefined,
-          },
-    );
+    // O pacote de módulos é um combo da loja: vai para a página de pagamento do combo, fora do carrinho.
+    m.comboSlug
+      ? router.push(`/checkout/combo/${m.comboSlug}`)
+      : addItem(
+          m.simulado
+            ? // O combo cadastrado como simulado em PDF: a atividade SIMULADO, com o id que as sugestões também usam.
+              {
+                id: `simulado:${m.idNaApi}:pdf`,
+                tipo: "simulado",
+                nome,
+                tag,
+                preco: emReais(m.preco),
+                alvo: { atividade: { tipo: "SIMULADO", id: m.idNaApi } },
+                imagem: m.imagem ?? undefined,
+              }
+            : {
+                id: idDoItem("produto", m.slug),
+                tipo: "produto",
+                nome,
+                tag,
+                preco: emReais(m.preco),
+                formato: "digital",
+                alvo: { itemId: m.idNaApi, plataforma: "DIGITAL" },
+                imagem: m.imagem ?? undefined,
+              },
+        );
 
   const lista = materiais ?? [];
   const menor = (tipo: MaterialDaBlack["tipo"]) => lista.filter((m) => m.tipo === tipo).sort((a, b) => a.preco - b.preco)[0] ?? null;
