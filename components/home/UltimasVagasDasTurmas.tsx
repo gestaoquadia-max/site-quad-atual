@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Turma } from "@/lib/data";
 import { insigniaDaModalidade } from "@/lib/turmas";
-import { cartoesDaBlack, vagasRestantes } from "@/components/turmas/TopoDaBlack";
+import { cartoesDaBlack, turmasDaHome, vagasRestantes } from "@/components/turmas/TopoDaBlack";
 import { MODALIDADES_DA_BLACK } from "@/lib/black/turmas";
 import ContagemDaAbertura from "@/components/blackfriday/ContagemDaAbertura";
 
@@ -20,7 +20,7 @@ const INSIGNIA_FIXA: Record<string, string> = {
 
 // antesDaAbertura: a prévia antes das 09:00 de 27/11; sem turma da Black ainda, os três níveis com "Abre …".
 export default function UltimasVagasDasTurmas({ turmas, antesDaAbertura = false }: { turmas: Turma[] | null; antesDaAbertura?: boolean }) {
-  const daBlack = (turmas ?? []).filter((t) => t.black && !t.isolada);
+  const daBlack = turmasDaHome(turmas);
   const cartoes = cartoesDaBlack(daBlack, turmas).filter((c) => c.turmas.some((t) => t.status === "aberta"));
   if (cartoes.length === 0) {
     if (!antesDaAbertura) return null;

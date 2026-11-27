@@ -9,7 +9,7 @@ import { insigniaDaModalidade } from "@/lib/turmas";
 import { MODALIDADES_DA_BLACK } from "@/lib/black/turmas";
 import ContagemDaAbertura from "@/components/blackfriday/ContagemDaAbertura";
 import { SeloDaContagem, emReais } from "@/components/blackfriday/materiais/PartesDosMateriais";
-import { cartoesDaBlack, vagasRestantes } from "@/components/turmas/TopoDaBlack";
+import { cartoesDaBlack, turmasDaHome, vagasRestantes } from "@/components/turmas/TopoDaBlack";
 import TelasDaMentoria from "@/components/blackfriday/mentorias/TelasDaMentoria";
 import { INCLUSO_NA_MENTORIA, PRECO_DA_MENTORIA } from "@/lib/black/mentorias";
 
@@ -349,7 +349,7 @@ export default function CarrosselDaBlack({
   materiais: MaterialDaBlack[] | null;
   antesDaAbertura?: boolean;
 }) {
-  const daBlack = (turmas ?? []).filter((t) => t.black && !t.isolada);
+  const daBlack = turmasDaHome(turmas);
   const comTurma = daBlack.some((t) => t.status === "aberta");
   const aVenda = (materiais ?? []).filter((m) => m.aVenda && m.preco > 0);
   // A ordem da designer: Mentoria, Turmas, Materiais.

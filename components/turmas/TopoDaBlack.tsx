@@ -29,6 +29,14 @@ export type CartaoDaBlack = {
   turmas: Turma[];
 };
 
+// As turmas da home na Black: as marcadas como Black com vaga; sem nenhuma aberta, as outras turmas presenciais
+// (pedido de 27/11/2026), para a home não ficar sem turmas.
+export function turmasDaHome(turmas: Turma[] | null): Turma[] {
+  const presenciais = (turmas ?? []).filter((t) => !t.isolada);
+  const daBlack = presenciais.filter((t) => t.black);
+  return daBlack.some((t) => t.status === "aberta") ? daBlack : presenciais;
+}
+
 export function cartoesDaBlack(daBlack: Turma[], todas: Turma[] | null): CartaoDaBlack[] {
   // Um cartão por modalidade (de volta ao agrupado: pedido de 27/11/2026), com as turmas da Black dela.
   // RONDESP, PATAMO e BOPE na ordem dos níveis; outras modalidades depois, na ordem em que aparecem.
