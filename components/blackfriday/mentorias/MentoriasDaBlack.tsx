@@ -18,7 +18,7 @@ export const FUNDO_DA_PAGINA =
 export const QUADRO_DO_PRECO =
   "flex flex-col gap-2.5 rounded-3xl border-[1.5px] border-laranja bg-[rgba(12,9,7,0.92)] px-[22px] py-5 text-white shadow-[0_0_0_1px_rgba(255,140,60,0.25),0_0_40px_-4px_rgba(242,90,12,0.55),0_30px_60px_-20px_rgba(0,0,0,0.8)]";
 export const BOTAO_LARANJA =
-  "btn-q h-14 w-full rounded-[14px] bg-[linear-gradient(180deg,#FF7A2E,#E5530A)] text-[19px] text-white shadow-[0_10px_26px_-8px_rgba(242,90,12,0.8)] hover:text-white";
+  "btn-q h-14 w-full rounded-[14px] bg-[linear-gradient(180deg,#FF7A2E,#E5530A)] text-[19px] text-white shadow-[0_10px_26px_-8px_rgba(242,90,12,0.8)] hover:text-white disabled:cursor-not-allowed disabled:bg-none disabled:bg-[#2A221D] disabled:text-[#A39790] disabled:shadow-none";
 
 export function ListaDoIncluso() {
   return (

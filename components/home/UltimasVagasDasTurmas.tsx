@@ -6,11 +6,7 @@ import type { Turma } from "@/lib/data";
 import { insigniaDaModalidade } from "@/lib/turmas";
 import { cartoesDaBlack, vagasRestantes } from "@/components/turmas/TopoDaBlack";
 import { MODALIDADES_DA_BLACK } from "@/lib/black/turmas";
-import { ABERTURA_DA_BLACK } from "@/lib/black/periodo";
-
-const ABRE_EM = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
-  .format(ABERTURA_DA_BLACK)
-  .replace(", ", " às ");
+import ContagemDaAbertura from "@/components/blackfriday/ContagemDaAbertura";
 
 // "Turmas presenciais: últimas vagas" na Home da Black (prévia da designer de 26/11/2026): um cartão por turma marcada como
 // Black e aberta (sem agrupar), com as vagas que restam, a barra, o preço de/por e "Garantir vaga". Tudo da API;
@@ -41,7 +37,7 @@ export default function UltimasVagasDasTurmas({ turmas, antesDaAbertura = false 
                 <div className="flex min-w-0 flex-1 flex-col gap-2.5">
                   <h3 className="font-display text-[22px] font-extrabold">{m.nome}</h3>
                   <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                    <span className="text-[15px] text-[#A39790]">Abre {ABRE_EM}</span>
+                    <ContagemDaAbertura className="text-[15px] font-semibold text-[#D6CCC5]" />
                     <Link href={`/turmas?m=${m.id}`} className="whitespace-nowrap font-display text-[15px] font-extrabold text-[#FF7A2E] hover:text-[#FFB27A]">
                       Ver turmas →
                     </Link>

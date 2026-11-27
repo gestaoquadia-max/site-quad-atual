@@ -7,7 +7,7 @@ import type { Turma } from "@/lib/data";
 import type { MaterialDaBlack } from "@/lib/vitrine";
 import { insigniaDaModalidade } from "@/lib/turmas";
 import { MODALIDADES_DA_BLACK } from "@/lib/black/turmas";
-import { ABERTURA_DA_BLACK } from "@/lib/black/periodo";
+import ContagemDaAbertura from "@/components/blackfriday/ContagemDaAbertura";
 import { SeloDaContagem, emReais } from "@/components/blackfriday/materiais/PartesDosMateriais";
 import { cartoesDaBlack, vagasRestantes } from "@/components/turmas/TopoDaBlack";
 import TelasDaMentoria from "@/components/blackfriday/mentorias/TelasDaMentoria";
@@ -44,15 +44,10 @@ const CAPAS = [
 ].map((c) => `/images/black-friday/capas/${c}.webp`);
 
 // Antes da abertura (só na prévia), os slides de Turmas e Materiais aparecem sem preço nem vagas, com a hora em que abrem.
-const ABRE_EM = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
-  .format(ABERTURA_DA_BLACK)
-  .replace(", ", " às ");
-
+// Antes das 09:00: a contagem até a abertura das vendas, no lugar do preço.
 function AbreEm() {
   return (
-    <span className="my-2 self-center text-center font-display text-[clamp(28px,2.6vw,36px)] font-extrabold leading-tight tracking-[-0.03em]">
-      Abre {ABRE_EM}
-    </span>
+    <ContagemDaAbertura className="my-2 self-center text-center font-display text-[clamp(28px,2.6vw,36px)] font-extrabold leading-tight tracking-[-0.03em]" />
   );
 }
 

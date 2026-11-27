@@ -2,30 +2,45 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { ABERTURA_DAS_VENDAS } from "@/lib/black/periodo";
 import { PRECO_DA_MENTORIA, type MentoriaDaBlack } from "@/lib/black/mentorias";
 import { BOTAO_LARANJA, EscolhaDoConcurso, FUNDO_DA_PAGINA, ListaDoIncluso, QUADRO_DO_PRECO, RodapeDoPreco } from "./MentoriasDaBlack";
 
 // /mentorias/<id> na Black (prévia da designer de 26/11/2026): "Você escolheu Mentoria X", o preço e o checkout da Tutory
 // daquele concurso. Como no desenho, segue sozinho para o pagamento em 5 s (a barra mostra o tempo); "Trocar de
 // concurso" para a contagem e abre a escolha de novo.
+// Antes das 09:00 de 27/11 (as vendas da Black ainda fechadas; pedido de 27/11/2026), no lugar do pagamento aparece a
+// contagem até a abertura, sem link para a Tutory; às 09:00, a tela troca sozinha para o pagamento.
 
 const SEGUNDOS = 5;
+
+function assinar(avisar: () => void) {
+  const t = setInterval(avisar, 1000);
+  return () => clearInterval(t);
+}
+const segundoAtual = () => Math.floor(Date.now() / 1000);
+const semRelogio = () => null;
+const dois = (n: number) => String(n).padStart(2, "0");
 
 export default function MentoriaEscolhida({ mentoria }: { mentoria: MentoriaDaBlack }) {
   const [restam, setRestam] = useState(SEGUNDOS * 10);
   const [parado, setParado] = useState(false);
   const [escolhendo, setEscolhendo] = useState(false);
+  // No servidor (e no primeiro desenho) o relógio é null: a página fica fechada até o navegador saber a hora.
+  const agora = useSyncExternalStore(assinar, segundoAtual, semRelogio);
+  const faltam = agora === null ? null : Math.max(0, Math.floor(ABERTURA_DAS_VENDAS / 1000) - agora);
+  const fechada = faltam === null || faltam > 0;
 
   useEffect(() => {
-    if (parado || escolhendo) return;
+    if (fechada || parado || escolhendo) return;
     if (restam <= 0) {
       window.location.assign(mentoria.checkout);
       return;
     }
     const t = setTimeout(() => setRestam((r) => r - 1), 100);
     return () => clearTimeout(t);
-  }, [restam, parado, escolhendo, mentoria.checkout]);
+  }, [fechada, restam, parado, escolhendo, mentoria.checkout]);
 
   const segundos = Math.ceil(restam / 10);
   const pct = Math.round(((SEGUNDOS * 10 - restam) / (SEGUNDOS * 10)) * 100);
@@ -79,29 +94,48 @@ export default function MentoriaEscolhida({ mentoria }: { mentoria: MentoriaDaBl
             <span className="mb-1 mt-2 self-center whitespace-nowrap font-display text-[clamp(56px,5.4vw,72px)] font-extrabold leading-none tracking-[-0.045em]">
               {PRECO_DA_MENTORIA}
             </span>
-            <div className="flex flex-col gap-2 rounded-[14px] border border-[#2E241E] bg-[#17120F] p-3.5">
-              <span className="text-[15px] text-[#F3EEEA] [font-variant-numeric:tabular-nums]" aria-live="polite">
-                {parado || escolhendo ? "Clique abaixo para ir ao pagamento." : `Direcionando para o pagamento em ${segundos}s…`}
-              </span>
-              <div className="h-1.5 overflow-hidden rounded-full bg-[#2A221D]">
-                <div
-                  className="h-full rounded-full bg-[linear-gradient(90deg,#FF8A3D,#E5530A)] transition-[width] duration-100 ease-linear"
-                  style={{ width: `${pct}%` }}
-                />
-              </div>
-              {!parado && !escolhendo && (
-                <button
-                  type="button"
-                  onClick={() => setParado(true)}
-                  className="self-start text-[13px] font-semibold text-[#A39790] underline hover:text-white"
+            {fechada ? (
+              <div className="flex flex-col items-center gap-2 rounded-[14px] border border-[#2E241E] bg-[#17120F] px-3.5 py-5 text-center">
+                <span className="font-display text-[13px] font-extrabold uppercase tracking-[0.18em] text-[#CFC5BE]">As vendas abrem em</span>
+                <span
+                  className="font-display text-[clamp(44px,5vw,60px)] font-extrabold leading-none tracking-[-0.04em] [font-variant-numeric:tabular-nums]"
+                  role="timer"
                 >
-                  Ficar nesta página
-                </button>
-              )}
-            </div>
-            <a href={mentoria.checkout} className={BOTAO_LARANJA}>
-              Ir para o pagamento →
-            </a>
+                  {faltam === null ? "--:--:--" : `${dois(Math.floor(faltam / 3600))}:${dois(Math.floor(faltam / 60) % 60)}:${dois(faltam % 60)}`}
+                </span>
+                <span className="text-[15px] text-[#D6CCC5]">Hoje, às 09:00. Fique nesta página: o pagamento abre sozinho.</span>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2 rounded-[14px] border border-[#2E241E] bg-[#17120F] p-3.5">
+                <span className="text-[15px] text-[#F3EEEA] [font-variant-numeric:tabular-nums]" aria-live="polite">
+                  {parado || escolhendo ? "Clique abaixo para ir ao pagamento." : `Direcionando para o pagamento em ${segundos}s…`}
+                </span>
+                <div className="h-1.5 overflow-hidden rounded-full bg-[#2A221D]">
+                  <div
+                    className="h-full rounded-full bg-[linear-gradient(90deg,#FF8A3D,#E5530A)] transition-[width] duration-100 ease-linear"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                {!parado && !escolhendo && (
+                  <button
+                    type="button"
+                    onClick={() => setParado(true)}
+                    className="self-start text-[13px] font-semibold text-[#A39790] underline hover:text-white"
+                  >
+                    Ficar nesta página
+                  </button>
+                )}
+              </div>
+            )}
+            {fechada ? (
+              <button type="button" disabled className={BOTAO_LARANJA}>
+                Pagamento abre às 09:00
+              </button>
+            ) : (
+              <a href={mentoria.checkout} className={BOTAO_LARANJA}>
+                Ir para o pagamento →
+              </a>
+            )}
             <span className="text-center text-sm text-[#A39790]">Pagamento em ambiente seguro · checkout da Mentoria {mentoria.nome}</span>
             <RodapeDoPreco />
           </div>
