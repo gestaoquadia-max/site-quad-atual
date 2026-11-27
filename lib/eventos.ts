@@ -20,6 +20,8 @@ export type DadosDoCartaoEvento = {
   preco?: string;
   // Presente quando a inscrição pode ir para o carrinho.
   item?: Omit<CartItem, "quantidade">;
+  // Evento marcado como Black no cadastro: o cartão no estilo da Black (pedido de 27/11/2026).
+  black?: boolean;
 };
 
 const MESES = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
@@ -59,6 +61,7 @@ export function paraCartao(e: Evento): DadosDoCartaoEvento {
       ? { dia: inicio.slice(8, 10), mes: MESES[Number(inicio.slice(5, 7)) - 1], local: e.tag.split(" · ").slice(1).join(" · ") }
       : undefined,
     preco: e.preco,
+    black: e.black,
     item: vendavel
       ? {
           id: idDoItem("evento", e.slug),

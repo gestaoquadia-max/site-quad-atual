@@ -81,6 +81,8 @@ export type Evento = {
   imagem?: string;
   // O id da atividade na API: é o que o carrinho do servidor reserva (o endereço é o slug).
   idNaApi?: string;
+  // Marcado como Black no cadastro: o cartão sai no estilo da Black (components/home/CartaoEvento.tsx).
+  black?: boolean;
   tag: string;
   nome: string;
   desc: string;

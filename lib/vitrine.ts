@@ -520,6 +520,7 @@ function paraEvento(a: AtividadeDaVitrine): Evento {
     ...(a.vendaAte && { vendaAte: a.vendaAte }),
     slug: slugDa(a),
     idNaApi: a.id,
+    black: a.black === true,
     imagem: a.imagemUrl ?? undefined,
     tag: [data && diaEMes(data), formato].filter(Boolean).join(" · "),
     nome: a.nome,
