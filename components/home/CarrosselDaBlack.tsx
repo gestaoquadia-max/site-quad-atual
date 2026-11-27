@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import type { Turma } from "@/lib/data";
 import type { MaterialDaBlack } from "@/lib/vitrine";
 import { insigniaDaModalidade } from "@/lib/turmas";
-import { modalidades } from "@/lib/conteudo";
+import { MODALIDADES_DA_BLACK } from "@/lib/black/turmas";
 import { ABERTURA_DA_BLACK } from "@/lib/black/periodo";
 import { SeloDaContagem, emReais } from "@/components/blackfriday/materiais/PartesDosMateriais";
 import { cartoesDaBlack, vagasRestantes } from "@/components/turmas/TopoDaBlack";
@@ -122,7 +122,7 @@ function SlideDasTurmas({ turmas, todas }: { turmas: Turma[]; todas: Turma[] | n
   const comVaga = cartoesDaBlack(turmas, todas).filter((c) => c.turmas.some((t) => t.status === "aberta"));
   // Sem turma da Black aberta (antes da abertura, na prévia): os três níveis, sem vagas nem preço.
   const emBreve = comVaga.length === 0;
-  const cartoes = emBreve ? modalidades.map((m) => ({ id: m.id as string, nome: m.nome, nivel: m.nivel, insignia: null, turmas: [] as Turma[] })) : comVaga;
+  const cartoes = emBreve ? MODALIDADES_DA_BLACK.map((m) => ({ id: m.id as string, nome: m.nome, nivel: m.nivel, insignia: null, turmas: [] as Turma[] })) : comVaga;
   const [escolhida, setEscolhida] = useState(0);
   const c = cartoes[Math.min(escolhida, cartoes.length - 1)];
   const ref = c.turmas.find((t) => t.status === "aberta") ?? c.turmas[0] ?? null;

@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { Turma } from "@/lib/data";
 import { insigniaDaModalidade } from "@/lib/turmas";
 import { cartoesDaBlack, vagasRestantes } from "@/components/turmas/TopoDaBlack";
-import { modalidades } from "@/lib/conteudo";
+import { MODALIDADES_DA_BLACK } from "@/lib/black/turmas";
 import { ABERTURA_DA_BLACK } from "@/lib/black/periodo";
 
 const ABRE_EM = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
@@ -35,7 +35,7 @@ export default function UltimasVagasDasTurmas({ turmas, antesDaAbertura = false 
             Turmas presenciais: últimas vagas
           </h2>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-4">
-            {modalidades.map((m) => (
+            {MODALIDADES_DA_BLACK.map((m) => (
               <article key={m.id} className="flex items-center gap-5 rounded-[20px] border border-[#2E241E] bg-[#17120F] p-[clamp(18px,2vw,24px)]">
                 <Image src={INSIGNIA_FIXA[m.id]} alt="" width={84} height={84} className="h-[clamp(64px,6vw,84px)] w-auto flex-none object-contain" />
                 <div className="flex min-w-0 flex-1 flex-col gap-2.5">
