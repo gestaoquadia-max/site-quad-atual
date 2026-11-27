@@ -390,6 +390,8 @@ export default function CarrosselDaBlack({
               "linear-gradient(118deg,transparent 4%,rgba(255,122,46,.28) 6.5%,transparent 9%),linear-gradient(118deg,transparent 8.5%,rgba(255,122,46,.12) 10%,transparent 11.5%),linear-gradient(118deg,transparent 88%,rgba(255,122,46,.24) 90.5%,transparent 93%),linear-gradient(118deg,transparent 92.5%,rgba(255,122,46,.1) 94%,transparent 95.5%)",
           }}
         />
+        {/* O fundo se apaga até a cor das seções de baixo (#120F0D), sem corte no fim do carrossel (pedido de 27/11/2026). */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-48 bg-[linear-gradient(180deg,rgba(18,15,13,0)_0%,#120F0D_100%)]" />
         <div
           key={slide.id}
           role="group"

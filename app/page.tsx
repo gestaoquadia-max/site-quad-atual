@@ -101,6 +101,7 @@ export default async function Home() {
       <div data-fim-escuro className="bg-[#120F0D] text-white">
         <DadosEstruturados dados={dadosDaOrganizacao()} />
         <CarrosselDaBlack turmas={turmas} materiais={materiaisDaBlack} antesDaAbertura={antesDaAbertura} />
+        <FaixaDaBlack />
         <UltimasVagasDasTurmas turmas={turmas} antesDaAbertura={antesDaAbertura} />
         <FaixaDaBlack />
         <Secao espaco={ESPACO_JUNTO_DAS_ONDAS}>
